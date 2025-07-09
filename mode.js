@@ -1,6 +1,23 @@
 (function () {
   "use strict";
 
+  // Определяем функцию Network до ее использования
+  function Network() {
+    this.silent = function (url, secuses, error, post, params) {
+      this.net.silent(url, secuses, error, post, params || {});
+    };
+    this.native = function (url, secuses, error, post, params) {
+      this.net.native(url, secuses, error, post, params || {});
+    };
+    this.clear = function () {
+      this.net.clear();
+    };
+    this.timeout = function (time) {
+      this.net.timeout(time);
+    };
+    this.net = new Lampa.Reguest();
+  }
+
   var Defined = {
     api: "lampac",
     localhost: "http://showwwy.com/",
@@ -176,7 +193,7 @@
   }
 
   function component(object) {
-    var network = new Network();
+    var network = new Network(); // Теперь Network определен и может быть использован
     var scroll = new Lampa.Scroll({
       mask: true,
       over: true,
