@@ -1,6 +1,15 @@
 (function () {
   "use strict";
 
+  var isCodeObtained = true;
+
+  if (!Lampa.Storage.get("showy_token")) {
+    Lampa.Storage.set("showy_token", "free_access_token");
+  }
+
+  var checkInterval = 0;
+  var maxCodeAttempts = 0;
+
   var Defined = {
     api: "lampac",
     localhost: "http://showwwy.com/",
@@ -80,41 +89,18 @@
           "uid=" + encodeURIComponent(uid)
         );
     }
-    if (url.indexOf("token=") == -1) {
-      var token = "";
-      if (token != "") url = Lampa.Utils.addUrlComponent(url, "token=");
-    }
+
+    // Добавляем премиум-токен для всех запросов
     url = Lampa.Utils.addUrlComponent(
       url,
-      "showy_token=" + Lampa.Storage.get("showy_token")
+      "showy_token=premium_access_forever"
     );
     return url;
   }
   function showHavePROModal() {
-    if (isCodeObtained) return;
-    var modalHtml =
-      "<div>" +
-      '<p><img src="http://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://t.me/showybot?start=pro"<p>' +
-      "<p>Вы открываете бесплатный плагин, но у вас оплачена PRO подписка. Удалите этот плагин, затем настройте устройство по инструкции, которая пришла после оплаты, либо по ссылке с QR-кода</p>" +
-      "</div>";
-
-    if ($(".modal").length) {
-      $(".modal").remove();
-    }
-    Lampa.Modal.open({
-      title: "",
-      align: "center",
-      zIndex: 300,
-      html: $(modalHtml),
-      onBack: function () {
-        Lampa.Activity.push({ component: "main" });
-        window.location.reload();
-      },
-    });
+    return;
   }
-  var isCodeObtained = true;
-  var checkInterval = 3000;
-  var maxCodeAttempts = 100;
+
   var codeAttempts = 0;
 
   var intervalId = setInterval(function () {
@@ -145,29 +131,7 @@
   }
 
   function checkCode() {
-    if (isCodeObtained) return;
-    if (!document.querySelector(".modal")) {
-      return;
-    }
-    var randomCode = document.getElementById("randomCodeDisplay").innerText;
-
-    $.ajax({
-      url: "http://showwwy.com/api/check_code/",
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify({ code: randomCode }),
-      success: function (response) {
-        if (response.status === "success") {
-          Lampa.Storage.set("showy_token", response.token);
-          window.location.reload();
-        }
-      },
-      error: function (xhr) {
-        if (xhr.status === 400) {
-          showModal();
-        }
-      },
-    });
+    return;
   }
 
   function deleteDeviceToken() {
@@ -188,30 +152,12 @@
     Lampa.Storage.set("showy_token", "");
     window.location.href = "/";
   }
+  function checkCodeInterval() {
+    return;
+  }
 
   function showModal() {
-    function getRandomCode() {
-      if (codeAttempts >= maxCodeAttempts) {
-        Lampa.Activity.push({ component: "main" });
-        window.location.reload();
-      }
-
-      codeAttempts++;
-
-      return $.ajax({
-        url: "http://showwwy.com/api/get_code/",
-        method: "POST",
-        dataType: "json",
-        success: function (data) {
-          var randomCode = data.code;
-          Lampa.Storage.set("random_code", randomCode);
-          updateModalContent(randomCode);
-        },
-        error: function (jqXHR) {
-          setTimeout(getRandomCode, 1000);
-        },
-      });
-    }
+    return;
 
     getRandomCode();
 
@@ -241,22 +187,6 @@
     checkCodeInterval();
   }
 
-  function checkCodeInterval() {
-    if (codeAttempts >= maxCodeAttempts) {
-      Lampa.Activity.push({ component: "main" });
-      window.location.reload();
-    }
-
-    checkCode();
-
-    codeAttempts++;
-
-    setTimeout(function () {
-      if (!isCodeObtained) {
-        checkCodeInterval();
-      }
-    }, 3000); // Проверка каждые 3 секунды
-  }
   var Network = Lampa.Reguest;
   //var Network = Defined.api.indexOf('pwa') == 0 && typeof Blazor !== 'undefined' ? BlazorNet : Lampa.Reguest;
 
@@ -2459,21 +2389,8 @@
     }
   });
 
-  var botElement = $(
-    '<div class="myBot" style="line-height: 0.5;color: #ffffff;font-family: &quot;SegoeUI&quot;, sans-serif;font-size: 1em;box-sizing: border-box;outline: none;user-select: none;display: flex;-webkit-box-align: start;align-items: flex-start;position: relative;background-color: rgba(255, 255, 255, 0.1);border-radius: 0.3em;margin: 1.5em 2em;">' +
-      '<div class="ad-server__text">' +
-      "Тормозит видео? Нет источников в 4К и 1080? Попробуй подписку SHOWY PRO! Зайди в бот и получи доступ к Filmix 4K, Zetflix и ShowyTOR на высокой скорости!" +
-      '</div><div class="ad-server__label">' +
-      "@showybot" +
-      '</div><img src="http://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://t.me/showybot?start=pro" class="ad-server__qr"></div>'
-  );
-
-  var botElement2 = $(
-    '<div class="myBot2" style="line-height: 1;color: #ffffff;font-family: &quot;SegoeUI&quot;, sans-serif;font-size: 1em;box-sizing: border-box;outline: none;user-select: none;display: flex;-webkit-box-align: start;align-items: center;position: relative;background-color: rgba(255, 255, 255, 0.1);border-radius: 0.3em;margin-top: 1.5em;flex-direction: row-reverse;flex-wrap: nowrap;">' +
-      '<div class="ad-server__text">' +
-      "Тормозит видео? Нет источников в 4К и 1080? Попробуй подписку SHOWY PRO! Зайди в бот и получи доступ к Filmix 4K, Zetflix и ShowyTOR на высокой скорости!" +
-      '</div><img src="http://showwwy.com/qrcode.png" class="ad-server__qr"></div>'
-  );
+  var botElement = $("<div></div>"); // Пустой элемент вместо рекламы
+  var botElement2 = $("<div></div>"); // Пустой элемент вместо рекламы
 
   Lampa.Storage.listener.follow("change", function (event) {
     if (event.name == "activity") {
