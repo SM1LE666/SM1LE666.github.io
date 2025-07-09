@@ -123,13 +123,13 @@
     );
   }
 
-  // function filmixUserAgent() {
-  //   return "okhttp/3.10.0";
-  // }
+  function filmixUserAgent() {
+     return "";
+  }
 
-  //function baseUserAgent() {
-  //   return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36";
-  // }
+  function baseUserAgent() {
+     return "";
+  }
 
   function vcdnToken() {
     return (
@@ -150,13 +150,13 @@
     );
   }
 
-  // function setMyIp(ip) {
-  //   myIp = ip;
-  // }
+  function setMyIp(ip) {
+    return;
+  }
 
-  // function getMyIp() {
-  //   return myIp;
-  //}
+  function getMyIp() {
+    return "";
+  }
 
   function proxy(name) {
     var ip = getMyIp() || "";
