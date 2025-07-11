@@ -1214,7 +1214,7 @@
 
     function append(items) {
       component.reset();
-      var viewed = Lampa.Storage.cache("online_view", 5000, []);
+      var viewed = Lampa.Storage.cache("smile_view", 5000, []);
       var last_episode = component.getLastEpisode(items);
       items.forEach(function (element) {
         if (element.season) {
@@ -1330,7 +1330,7 @@
                     Lampa.Template.get("icon_star", {}, true) +
                     "</div>"
                 );
-                Lampa.Storage.set("online_view", viewed);
+                Lampa.Storage.set("smile_view", viewed);
               }
             },
             function () {
@@ -1730,7 +1730,7 @@
 
     function append(items) {
       component.reset();
-      var viewed = Lampa.Storage.cache("online_view", 5000, []);
+      var viewed = Lampa.Storage.cache("smile_view", 5000, []);
       var last_episode = component.getLastEpisode(items);
       items.forEach(function (element) {
         if (element.season) {
@@ -1850,7 +1850,7 @@
                     Lampa.Template.get("icon_star", {}, true) +
                     "</div>"
                 );
-                Lampa.Storage.set("online_view", viewed);
+                Lampa.Storage.set("smile_view", viewed);
               }
             },
             function () {
@@ -2882,7 +2882,7 @@
 
     function append(items) {
       component.reset();
-      var viewed = Lampa.Storage.cache("online_view", 5000, []);
+      var viewed = Lampa.Storage.cache("smile_view", 5000, []);
       var last_episode = component.getLastEpisode(items);
       items.forEach(function (element) {
         if (element.season) {
@@ -2998,7 +2998,7 @@
                     Lampa.Template.get("icon_star", {}, true) +
                     "</div>"
                 );
-                Lampa.Storage.set("online_view", viewed);
+                Lampa.Storage.set("smile_view", viewed);
               }
             },
             function (error) {
@@ -3951,7 +3951,7 @@
 
     function append(items) {
       component.reset();
-      var viewed = Lampa.Storage.cache("online_view", 5000, []);
+      var viewed = Lampa.Storage.cache("smile_view", 5000, []);
       var last_episode = component.getLastEpisode(items);
       items.forEach(function (element) {
         if (element.season) {
@@ -4044,7 +4044,7 @@
                   Lampa.Template.get("icon_star", {}, true) +
                   "</div>"
               );
-              Lampa.Storage.set("online_view", viewed);
+              Lampa.Storage.set("smile_view", viewed);
             }
           } else Lampa.Noty.show(Lampa.Lang.translate("online_mod_nolink"));
         });
@@ -4420,7 +4420,7 @@
 
     function append(items) {
       component.reset();
-      var viewed = Lampa.Storage.cache("online_view", 5000, []);
+      var viewed = Lampa.Storage.cache("smile_view", 5000, []);
       items.forEach(function (element) {
         var hash = Lampa.Utils.hash(
           element.season
@@ -4509,7 +4509,7 @@
                   Lampa.Template.get("icon_star", {}, true) +
                   "</div>"
               );
-              Lampa.Storage.set("online_view", viewed);
+              Lampa.Storage.set("smile_view", viewed);
             }
           } else Lampa.Noty.show(Lampa.Lang.translate("online_mod_nolink"));
         });
