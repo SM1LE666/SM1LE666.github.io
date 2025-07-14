@@ -229,6 +229,11 @@ function switchLanguage(lang) {
   // Обновляем все тексты на странице
   updatePageTexts();
 
+  // Обновляем названия стран, если FaceitAPI доступен
+  if (window.FaceitAPI && window.FaceitAPI.updateCountryNames) {
+    window.FaceitAPI.updateCountryNames();
+  }
+
   // Если есть отображенная статистика игрока, обновляем её
   if (playerStats && playerStats.innerHTML.trim() !== "") {
     updatePlayerStatsTexts();
@@ -900,6 +905,9 @@ function displayPlayerData(
   gameId,
   animate = false
 ) {
+  // Сохраняем данные игрока глобально для использования при переключении языка
+  window.currentPlayerData = player;
+
   // Убедимся, что playerStats определен
   if (!playerStats) playerStats = document.getElementById("playerStats");
 
