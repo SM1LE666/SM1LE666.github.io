@@ -1,0 +1,410 @@
+/**
+ * FACEIT API Handler
+ */
+
+const FaceitAPI = (function () {
+  const FACEIT_API_URL = "https://open.faceit.com/data/v4";
+
+  // Кэш для данных
+  const _countryCache = {};
+  const _playerCache = {};
+  const _statsCache = {};
+
+  function extractNicknameFromUrl(input) {
+    if (!input) return null;
+
+    try {
+      if (input.includes("faceit.com/")) {
+        const url = decodeURIComponent(input);
+        const patterns = [
+          /players(?:-details)?\/([^/]+)(?:\/|$)/i,
+          /players\/([^/]+)(?:\/|$)/i,
+          /\/([^/]+)\/csgo$/i,
+          /\/([^/]+)\/cs2$/i,
+        ];
+
+        for (const pattern of patterns) {
+          const match = url.match(pattern);
+          if (match && match[1]) return match[1];
+        }
+      }
+      return input;
+    } catch (error) {
+      console.error("Ошибка при извлечении никнейма из URL:", error);
+      return input;
+    }
+  }
+
+  async function getPlayerData(nickname, apiKey) {
+    try {
+      const playerNickname = extractNicknameFromUrl(nickname);
+
+      if (_playerCache[playerNickname]) {
+        return _playerCache[playerNickname];
+      }
+
+      const url = `${FACEIT_API_URL}/players?nickname=${encodeURIComponent(
+        playerNickname
+      )}`;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Ошибка API: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      _playerCache[playerNickname] = data;
+      return data;
+    } catch (error) {
+      console.error("Ошибка при получении данных игрока:", error);
+      throw error;
+    }
+  }
+
+  async function getStatsData(playerId, gameId, apiKey) {
+    try {
+      const cacheKey = `${playerId}_${gameId}`;
+
+      if (_statsCache[cacheKey]) {
+        return _statsCache[cacheKey];
+      }
+
+      const url = `${FACEIT_API_URL}/players/${playerId}/stats/${gameId}`;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Ошибка API: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      _statsCache[cacheKey] = data;
+      return data;
+    } catch (error) {
+      console.error("Ошибка при получении статистики игрока:", error);
+      throw error;
+    }
+  }
+
+  async function getCurrentElo(playerId, gameId, fallbackElo, apiKey) {
+    try {
+      const url = `${FACEIT_API_URL}/players/${playerId}/history?game=${gameId}&limit=1`;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        return fallbackElo;
+      }
+
+      const data = await response.json();
+      const items = data.items;
+      if (!items || items.length === 0) {
+        return fallbackElo;
+      }
+
+      const latestMatch = items[0];
+      return latestMatch.elo?.current || fallbackElo;
+    } catch (error) {
+      console.error("Ошибка при получении актуального ELO:", error);
+      return fallbackElo;
+    }
+  }
+
+  async function getCountryName(countryCode) {
+    if (!countryCode || countryCode === "Н/Д") {
+      return "Неизвестно";
+    }
+
+    if (_countryCache[countryCode]) {
+      return _countryCache[countryCode];
+    }
+
+    try {
+      const response = await fetch(
+        `https://restcountries.com/v3.1/alpha/${countryCode}`
+      );
+      if (!response.ok) {
+        throw new Error("Не удалось получить данные о стране");
+      }
+
+      const data = await response.json();
+      if (!data || data.length === 0) {
+        throw new Error("Нет данных о стране");
+      }
+
+      const countryName =
+        data[0].translations.rus?.common || data[0].name.common;
+      _countryCache[countryCode] = countryName;
+      return countryName;
+    } catch (error) {
+      console.warn("Ошибка при получении названия страны:", error);
+      return countryCode;
+    }
+  }
+
+  function calculateAvgStats(lifetime, segments, gameId) {
+    try {
+      // Проверяем, что это именно CS:2
+      if (gameId !== "cs2") {
+        return {
+          totalMatches: 0,
+          totalKills: 0,
+          totalDeaths: 0,
+          kd: "0.00",
+          avgKills: "0.0",
+          avgDeaths: "0.0",
+        };
+      }
+
+      if (!lifetime || typeof lifetime !== "object") {
+        return {
+          totalMatches: 0,
+          totalKills: 0,
+          totalDeaths: 0,
+          kd: "0.00",
+          avgKills: "0.0",
+          avgDeaths: "0.0",
+        };
+      }
+
+      // Используем только CS:2 ключи
+      const totalMatches = parseInt(lifetime["Total Matches"] || "0", 10);
+      const totalKills = parseInt(
+        lifetime["Total Kills with extended stats"] || "0",
+        10
+      );
+
+      // Используем Average K/D Ratio (правильный K/D)
+      const kdRatio = parseFloat(lifetime["Average K/D Ratio"] || "0");
+
+      // Вычисляем смерти через K/D и килы
+      let totalDeaths = 0;
+      if (kdRatio > 0 && totalKills > 0) {
+        totalDeaths = Math.round(totalKills / kdRatio);
+      }
+
+      // Используем готовый K/D от API (Average K/D Ratio)
+      const kd = kdRatio.toFixed(2);
+
+      // Вычисляем средние значения за матч одинаково для убийств и смертей
+      const avgKills =
+        totalMatches > 0 ? (totalKills / totalMatches).toFixed(1) : "0.0";
+      const avgDeaths =
+        totalMatches > 0 ? (totalDeaths / totalMatches).toFixed(1) : "0.0";
+
+      return {
+        totalMatches,
+        totalKills,
+        totalDeaths,
+        kd,
+        avgKills,
+        avgDeaths,
+      };
+    } catch (error) {
+      console.error("Ошибка при расчете средних показателей:", error);
+      return {
+        totalMatches: 0,
+        totalKills: 0,
+        totalDeaths: 0,
+        kd: "0.00",
+        avgKills: "0.0",
+        avgDeaths: "0.0",
+      };
+    }
+  }
+
+  function analyzeMaps(segments, gameId) {
+    try {
+      if (!segments || !Array.isArray(segments) || segments.length === 0) {
+        return { bestMap: null, worstMap: null };
+      }
+
+      // Для CS:2 используем более строгие критерии, так как это актуальная игра
+      const MIN_MATCHES = gameId === "cs2" ? 5 : 3; // Для CS:2 требуем больше матчей
+
+      const validMaps = segments.filter((segment) => {
+        const matches = parseInt(
+          segment.stats?.["Matches"] || segment.stats?.["Total Matches"] || "0",
+          10
+        );
+        return matches >= MIN_MATCHES;
+      });
+
+      if (validMaps.length === 0) {
+        return { bestMap: null, worstMap: null };
+      }
+
+      const mapStats = validMaps.map((segment) => {
+        const mapName = segment.label || "Неизвестная карта";
+        const matches = parseInt(
+          segment.stats?.["Matches"] || segment.stats?.["Total Matches"] || "0",
+          10
+        );
+        const winRate = parseFloat(segment.stats?.["Win Rate %"] || "0");
+
+        // Используем правильные ключи для киллов и смертей в сегментах
+        const kills = parseInt(
+          segment.stats?.["Kills"] ||
+            segment.stats?.["Total Kills"] ||
+            segment.stats?.["Total Kills with extended stats"] ||
+            "0",
+          10
+        );
+
+        // Пытаемся получить смерти или вычислить их через K/D
+        let deaths = parseInt(
+          segment.stats?.["Deaths"] || segment.stats?.["Total Deaths"] || "0",
+          10
+        );
+
+        // Если смертей нет, но есть K/D, вычисляем смерти
+        if (deaths === 0 && kills > 0) {
+          const segmentKD = parseFloat(
+            segment.stats?.["K/D Ratio"] ||
+              segment.stats?.["Average K/D Ratio"] ||
+              "0"
+          );
+          if (segmentKD > 0) {
+            deaths = Math.round(kills / segmentKD);
+          }
+        }
+
+        const kd = deaths > 0 ? kills / deaths : kills > 0 ? kills : 0;
+        const avgKills = matches > 0 ? kills / matches : 0;
+
+        // Комплексная формула оценки карты (0-100) с учетом специфики игры
+        const mapScore = calculateMapScore(
+          winRate,
+          kd,
+          avgKills,
+          matches,
+          gameId
+        );
+
+        return {
+          name: mapName,
+          matches,
+          winRate,
+          kills,
+          deaths,
+          kd,
+          avgKills,
+          score: mapScore, // Добавляем общую оценку
+        };
+      });
+
+      // Сортируем карты по общей оценке вместо только винрейта
+      mapStats.sort((a, b) => b.score - a.score);
+
+      const bestMap = mapStats.length > 0 ? mapStats[0] : null;
+      const worstMap =
+        mapStats.length > 1 ? mapStats[mapStats.length - 1] : null;
+
+      return { bestMap, worstMap };
+    } catch (error) {
+      console.error("Ошибка при анализе карт:", error);
+      return { bestMap: null, worstMap: null };
+    }
+  }
+
+  /**
+   * Вычисляет комплексную оценку карты от 0 до 100 с учетом специфики игры
+   * @param {number} winRate - Винрейт в процентах (0-100)
+   * @param {number} kd - K/D соотношение
+   * @param {number} avgKills - Средние убийства за матч
+   * @param {number} matches - Количество матчей на карте
+   * @param {string} gameId - ID игры (cs2 или csgo)
+   * @returns {number} - Оценка от 0 до 100
+   */
+  function calculateMapScore(winRate, kd, avgKills, matches, gameId) {
+    // Нормализуем каждую метрику к диапазону 0-100
+
+    // 1. Винрейт уже в процентах (0-100)
+    const normalizedWinRate = Math.min(Math.max(winRate, 0), 100);
+
+    // 2. K/D нормализуем: для CS:2 используем более современные стандарты
+    // CS:2: 0.7 = 0%, 1.0 = 40%, 1.5 = 70%, 2.0+ = 100%
+    // CS:GO: 0.5 = 0%, 1.0 = 50%, 2.0+ = 100% (старые стандарты)
+    let normalizedKD;
+    if (gameId === "cs2") {
+      normalizedKD = Math.min(Math.max(((kd - 0.7) / 1.3) * 100, 0), 100);
+    } else {
+      normalizedKD = Math.min(Math.max((kd - 0.5) * 100, 0), 100);
+    }
+
+    // 3. Средние убийства: для CS:2 матчи часто короче, корректируем стандарты
+    // CS:2: 15 киллов = 50%, 25+ киллов = 100%
+    // CS:GO: 10 киллов = 50%, 20+ киллов = 100%
+    let normalizedAvgKills;
+    if (gameId === "cs2") {
+      normalizedAvgKills = Math.min(Math.max((avgKills / 25) * 100, 0), 100);
+    } else {
+      normalizedAvgKills = Math.min(Math.max((avgKills / 20) * 100, 0), 100);
+    }
+
+    // 4. Коэффициент надежности: для CS:2 требуем больше матчей
+    let reliabilityFactor;
+    if (gameId === "cs2") {
+      // CS:2: 5 матчей = 70%, 15+ матчей = 100%
+      reliabilityFactor = Math.min(0.7 + (matches - 5) * 0.03, 1.0);
+    } else {
+      // CS:GO: 3 матча = 70%, 10+ матчей = 100%
+      reliabilityFactor = Math.min(0.7 + (matches - 3) * 0.04, 1.0);
+    }
+
+    // Веса для каждой метрики (сумма = 100%)
+    const weights = {
+      winRate: 0.4, // 40% - самый важный показатель
+      kd: 0.25, // 25% - индивидуальная эффективность
+      avgKills: 0.2, // 20% - активность в игре
+      reliability: 0.15, // 15% - надежность данных
+    };
+
+    // Вычисляем итоговую оценку
+    const score =
+      normalizedWinRate * weights.winRate +
+      normalizedKD * weights.kd +
+      normalizedAvgKills * weights.avgKills +
+      100 * reliabilityFactor * weights.reliability;
+
+    return Math.round(score * 10) / 10; // Округляем до 1 знака после запятой
+  }
+
+  function formatNumber(number) {
+    try {
+      return new Intl.NumberFormat().format(number);
+    } catch (error) {
+      return String(number);
+    }
+  }
+
+  return {
+    extractNicknameFromUrl,
+    getPlayerData,
+    getStatsData,
+    getCurrentElo,
+    getCountryName,
+    calculateAvgStats,
+    analyzeMaps,
+    formatNumber,
+  };
+})();
+
+window.FaceitAPI = FaceitAPI;

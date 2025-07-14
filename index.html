@@ -1,10 +1,210 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scripts</title>
+    <meta name="google" content="notranslate" />
+    <meta name="robots" content="notranslate" />
+    <meta http-equiv="Content-Language" content="ru,en" />
+    <meta name="translate" content="no" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="refresh" content="0; url=#" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+
+    <meta
+      name="description"
+      content="FACEIT Analyze - профессиональный анализ статистики игроков Counter-Strike 2. Получите детальную статистику, рейтинг карт, K/D соотношение и анализ результатов матчей FACEIT."
+    />
+    <meta
+      name="keywords"
+      content="FACEIT, Counter-Strike 2, CS2, статистика игроков, анализ матчей, K/D, винрейт, карты CS2, рейтинг FACEIT, ELO, киберспорт, игровая аналитика"
+    />
+    <meta name="author" content="FACEIT Analyze" />
+    <meta name="robots" content="index, follow" />
+    <meta
+      property="og:title"
+      content="FACEIT Analyze - Анализ статистики CS2"
+    />
+    <meta
+      property="og:description"
+      content="Профессиональный анализ статистики игроков Counter-Strike 2 на платформе FACEIT. Детальная статистика, анализ карт и результатов матчей."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://faceit-analyze.com" />
+    <title>FACEIT Analyze</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="icon" href="logooo.png" />
   </head>
-  <body></body>
-  <script src="mode.js"></script>
+  <body translate="no">
+    <header translate="no">
+      <div class="header-content">
+        <h1 translate="no"><i class="fas fa-chart-bar"></i> FACEIT Analyze</h1>
+        <div class="language-switcher">
+          <button
+            class="lang-btn"
+            data-lang="en"
+            onclick="switchLanguage('en')"
+          >
+            <img src="https://flagcdn.com/16x12/us.png" alt="English" /> EN
+          </button>
+          <button
+            class="lang-btn active"
+            data-lang="ru"
+            onclick="switchLanguage('ru')"
+          >
+            <img src="https://flagcdn.com/16x12/ru.png" alt="Русский" /> RU
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main translate="no">
+      <section id="search" translate="no">
+        <h2><i class="fas fa-search"></i> Search Player Statistics</h2>
+        <div class="search-container">
+          <input
+            type="text"
+            id="nickname"
+            placeholder="Enter player nickname or profile URL"
+          />
+          <button id="searchButton" onclick="analyzePlayer()">ANALYZE</button>
+        </div>
+      </section>
+
+      <section id="results" translate="no">
+        <h2><i class="fas fa-trophy"></i> Player Statistics</h2>
+        <div id="output">Enter a nickname to see results.</div>
+        <div class="player-stats" id="playerStats">
+          <!-- Stat cards will be generated here by JavaScript -->
+        </div>
+      </section>
+    </main>
+
+    <footer translate="no">
+      <div class="footer-content">
+        <div class="footer-buttons">
+          <button class="footer-btn support-btn" onclick="openSupportModal()">
+            <i class="fas fa-heart"></i> Support Us
+          </button>
+          <button class="footer-btn contact-btn" onclick="openContactModal()">
+            <i class="fas fa-envelope"></i> Contact Us
+          </button>
+        </div>
+        <p>© 2025 FACEIT Analyze | Advanced Stats for FACEIT Players</p>
+      </div>
+    </footer>
+
+    <!-- Support Modal -->
+    <div id="supportModal" class="modal" translate="no">
+      <div class="modal-content">
+        <span class="close" onclick="closeSupportModal()">&times;</span>
+        <h2><i class="fas fa-heart"></i> Support FACEIT Analyze</h2>
+        <div class="support-options">
+          <a
+            href="https://steamcommunity.com/tradeoffer/new/?partner=922273390&token=0z7mzIwM"
+            class="support-link steam-support"
+            target="_blank"
+          >
+            <i class="fab fa-steam"></i> Steam Trade Offer
+          </a>
+        </div>
+        <div class="steam-info">
+          <p><strong>Как поддержать:</strong></p>
+          <ol>
+            <li>Нажмите на кнопку "Steam Trade Offer"</li>
+            <li>Выберите предметы для передачи</li>
+            <li>Отправьте трейд-оффер</li>
+          </ol>
+          <p>
+            <small
+              >Любые скины CS:2, CS:GO или другие игровые предметы будут приняты
+              с благодарностью!</small
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal" translate="no">
+      <div class="modal-content">
+        <span class="close" onclick="closeContactModal()">&times;</span>
+        <h2><i class="fas fa-envelope"></i> Отправить сообщение</h2>
+        <p>Есть вопросы, предложения или нужна помощь? Напишите нам!</p>
+
+        <div class="contact-form">
+          <form id="contactForm" onsubmit="sendMessage(event)">
+            <div class="form-group">
+              <label for="contactName">Ваше имя</label>
+              <input
+                type="text"
+                id="contactName"
+                name="name"
+                placeholder="Введите ваше имя"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="contactEmail">Email</label>
+              <input
+                type="email"
+                id="contactEmail"
+                name="email"
+                placeholder="your.email@example.com"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="contactSubject">Тема сообщения</label>
+              <select id="contactSubject" name="subject" required>
+                <option value="">Выберите тему</option>
+                <option value="bug_report">Сообщить об ошибке</option>
+                <option value="feature_request">Предложить улучшение</option>
+                <option value="support">Техническая поддержка</option>
+                <option value="partnership">Сотрудничество</option>
+                <option value="other">Другое</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="contactMessage">Сообщение</label>
+              <textarea
+                id="contactMessage"
+                name="message"
+                rows="5"
+                placeholder="Опишите ваш вопрос или предложение..."
+                required
+              ></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">
+              <i class="fas fa-paper-plane"></i> Отправить сообщение
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Важно: сначала подключаем конфигурацию, потом API файл, потом основной скрипт -->
+    <script src="config.js"></script>
+    <script src="faceit-api.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>
