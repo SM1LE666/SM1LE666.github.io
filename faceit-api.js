@@ -129,11 +129,13 @@ const FaceitAPI = (function () {
 
   async function getCountryName(countryCode) {
     if (!countryCode || countryCode === "Н/Д") {
-      return "Неизвестно";
+      // Возвращаем "Неизвестно" в зависимости от текущего языка
+      const currentLang = window.currentLanguage || "ru";
+      return currentLang === "ru" ? "Неизвестно" : "Unknown";
     }
 
     if (_countryCache[countryCode]) {
-      return _countryCache[countryCode];
+      return getCurrentLanguageCountryName(_countryCache[countryCode]);
     }
 
     try {
@@ -149,14 +151,65 @@ const FaceitAPI = (function () {
         throw new Error("Нет данных о стране");
       }
 
-      const countryName =
-        data[0].translations.rus?.common || data[0].name.common;
-      _countryCache[countryCode] = countryName;
-      return countryName;
+      // Сохраняем полные данные о стране в кэш для обоих языков
+      const countryData = {
+        rus: data[0].translations.rus?.common || data[0].name.common,
+        eng: data[0].name.common,
+      };
+      _countryCache[countryCode] = countryData;
+
+      // Возвращаем название в зависимости от текущего языка
+      return getCurrentLanguageCountryName(countryData);
     } catch (error) {
       console.warn("Ошибка при получении названия страны:", error);
       return countryCode;
     }
+  }
+
+  // Новая функция для получения названия страны на текущем языке
+  function getCurrentLanguageCountryName(countryData) {
+    if (typeof countryData === "string") {
+      return countryData; // Старый формат кэша
+    }
+
+    // Получаем текущий язык из window.currentLanguage или по умолчанию 'ru'
+    const currentLang = window.currentLanguage || "ru";
+    return currentLang === "ru" ? countryData.rus : countryData.eng;
+  }
+
+  // Функция для обновления названий стран при смене языка
+  function updateCountryNames() {
+    // Находим карточку игрока
+    const playerCard = document.querySelector(".player-card");
+    if (!playerCard) return;
+
+    // Находим параграф со страной
+    const playerInfo = playerCard.querySelector(".player-info");
+    if (!playerInfo) return;
+
+    const paragraphs = playerInfo.querySelectorAll("p");
+    paragraphs.forEach((p) => {
+      const text = p.textContent;
+      // Ищем параграф со страной
+      if (text.includes("Страна:") || text.includes("Country:")) {
+        // Извлекаем код страны из данных игрока (если есть)
+        const playerData = window.currentPlayerData;
+        if (playerData && playerData.country) {
+          const countryCode = playerData.country;
+          const countryData = _countryCache[countryCode];
+
+          if (countryData && typeof countryData === "object") {
+            const currentLang = window.currentLanguage || "ru";
+            const newCountryName =
+              currentLang === "ru" ? countryData.rus : countryData.eng;
+
+            // Обновляем текст параграфа
+            const countryLabel = currentLang === "ru" ? "Страна" : "Country";
+            p.textContent = `${countryLabel}: ${newCountryName}`;
+          }
+        }
+      }
+    });
   }
 
   function calculateAvgStats(lifetime, segments, gameId) {
@@ -401,6 +454,8 @@ const FaceitAPI = (function () {
     getStatsData,
     getCurrentElo,
     getCountryName,
+    getCurrentLanguageCountryName,
+    updateCountryNames,
     calculateAvgStats,
     analyzeMaps,
     formatNumber,
