@@ -128,14 +128,25 @@ const FaceitAPI = (function () {
   }
 
   async function getCountryName(countryCode) {
+    console.log(
+      "getCountryName вызвана с кодом:",
+      countryCode,
+      "текущий язык:",
+      window.currentLanguage
+    );
+
     if (!countryCode || countryCode === "Н/Д") {
       // Возвращаем "Неизвестно" в зависимости от текущего языка
       const currentLang = window.currentLanguage || "ru";
-      return currentLang === "ru" ? "Неизвестно" : "Unknown";
+      const result = currentLang === "ru" ? "Неизвестно" : "Unknown";
+      console.log("Возвращаем для неизвестной страны:", result);
+      return result;
     }
 
     if (_countryCache[countryCode]) {
-      return getCurrentLanguageCountryName(_countryCache[countryCode]);
+      const result = getCurrentLanguageCountryName(_countryCache[countryCode]);
+      console.log("Из кэша для", countryCode, ":", result);
+      return result;
     }
 
     try {
@@ -188,7 +199,7 @@ const FaceitAPI = (function () {
     if (!playerInfo) return;
 
     const paragraphs = playerInfo.querySelectorAll("p");
-    paragraphs.forEach((p) => {
+    paragraphs.forEach(async (p) => {
       const text = p.textContent;
       // Ищем параграф со страной
       if (text.includes("Страна:") || text.includes("Country:")) {
@@ -196,16 +207,23 @@ const FaceitAPI = (function () {
         const playerData = window.currentPlayerData;
         if (playerData && playerData.country) {
           const countryCode = playerData.country;
-          const countryData = _countryCache[countryCode];
 
-          if (countryData && typeof countryData === "object") {
-            const currentLang = window.currentLanguage || "ru";
-            const newCountryName =
-              currentLang === "ru" ? countryData.rus : countryData.eng;
-
+          try {
+            // Получаем переведенное название страны
+            const newCountryName = await getCountryName(countryCode);
             // Обновляем текст параграфа
+            const currentLang = window.currentLanguage || "ru";
             const countryLabel = currentLang === "ru" ? "Страна" : "Country";
             p.textContent = `${countryLabel}: ${newCountryName}`;
+          } catch (error) {
+            console.error("Ошибка при обновлении названия страны:", error);
+            // Fallback: обновляем только подпись
+            const countryValue = text.split(":")[1]?.trim();
+            if (countryValue) {
+              const currentLang = window.currentLanguage || "ru";
+              const countryLabel = currentLang === "ru" ? "Страна" : "Country";
+              p.textContent = `${countryLabel}: ${countryValue}`;
+            }
           }
         }
       }

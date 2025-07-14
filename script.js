@@ -198,6 +198,9 @@ const translations = {
 // Текущий язык (по умолчанию русский)
 let currentLanguage = "ru";
 
+// Экспортируем currentLanguage в глобальную область для доступа из других файлов
+window.currentLanguage = currentLanguage;
+
 // Функция для получения текста на текущем языке
 function getText(key, placeholders = {}) {
   let text =
@@ -219,6 +222,8 @@ function switchLanguage(lang) {
   }
 
   currentLanguage = lang;
+  // Обновляем глобальную переменную для доступа из других файлов
+  window.currentLanguage = currentLanguage;
 
   // Сохраняем выбранный язык в localStorage
   localStorage.setItem("faceit-analyze-language", lang);
@@ -229,14 +234,11 @@ function switchLanguage(lang) {
   // Обновляем все тексты на странице
   updatePageTexts();
 
-  // Обновляем названия стран, если FaceitAPI доступен
-  if (window.FaceitAPI && window.FaceitAPI.updateCountryNames) {
-    window.FaceitAPI.updateCountryNames();
-  }
-
   // Если есть отображенная статистика игрока, обновляем её
   if (playerStats && playerStats.innerHTML.trim() !== "") {
     updatePlayerStatsTexts();
+    // Дополнительно обновляем названия стран
+    updateCountryNamesInPlayerCard();
   }
 }
 
@@ -417,13 +419,37 @@ function updatePlayerStatsTexts() {
   const playerInfo = playerCard.querySelector(".player-info");
   if (playerInfo) {
     const paragraphs = playerInfo.querySelectorAll("p");
-    paragraphs.forEach((p) => {
+    paragraphs.forEach(async (p) => {
       const text = p.textContent;
       // Обновляем каждую строку с информацией о игроке
       if (text.includes("Страна:") || text.includes("Country:")) {
-        const countryValue = text.split(":")[1]?.trim();
-        if (countryValue) {
-          p.textContent = `${getText("country")}: ${countryValue}`;
+        // Получаем новое название страны через FaceitAPI
+        if (
+          window.currentPlayerData &&
+          window.currentPlayerData.country &&
+          window.FaceitAPI
+        ) {
+          const countryCode = window.currentPlayerData.country;
+          try {
+            // Получаем переведенное название страны
+            const newCountryName = await window.FaceitAPI.getCountryName(
+              countryCode
+            );
+            p.textContent = `${getText("country")}: ${newCountryName}`;
+          } catch (error) {
+            console.error("Ошибка при получении названия страны:", error);
+            // Fallback: просто обновляем подпись, оставляя старое название
+            const countryValue = text.split(":")[1]?.trim();
+            if (countryValue) {
+              p.textContent = `${getText("country")}: ${countryValue}`;
+            }
+          }
+        } else {
+          // Fallback: просто обновляем подпись, оставляя старое название
+          const countryValue = text.split(":")[1]?.trim();
+          if (countryValue) {
+            p.textContent = `${getText("country")}: ${countryValue}`;
+          }
         }
       } else if (text.includes("ELO:")) {
         const eloValue = text.split(":")[1]?.trim();
@@ -564,6 +590,9 @@ function initializeLanguage() {
   if (savedLanguage && translations[savedLanguage]) {
     currentLanguage = savedLanguage;
   }
+
+  // Обновляем глобальную переменную для доступа из других файлов
+  window.currentLanguage = currentLanguage;
 
   // Обновляем интерфейс
   updateLanguageButtons();
@@ -1135,3 +1164,54 @@ document.addEventListener("keydown", function (event) {
     closeContactModal();
   }
 });
+
+// Новая функция для обновления названий стран в карточке игрока
+async function updateCountryNamesInPlayerCard() {
+  const playerCard = document.querySelector(".player-card");
+  if (
+    !playerCard ||
+    !window.currentPlayerData ||
+    !window.currentPlayerData.country
+  ) {
+    return;
+  }
+
+  const playerInfo = playerCard.querySelector(".player-info");
+  if (!playerInfo) return;
+
+  const paragraphs = playerInfo.querySelectorAll("p");
+
+  for (const p of paragraphs) {
+    const text = p.textContent;
+    if (text.includes("Страна:") || text.includes("Country:")) {
+      try {
+        const countryCode = window.currentPlayerData.country;
+        console.log(
+          "Обновляем страну для кода:",
+          countryCode,
+          "язык:",
+          currentLanguage
+        );
+
+        // Получаем переведенное название страны
+        const newCountryName = await window.FaceitAPI.getCountryName(
+          countryCode
+        );
+        const countryLabel = getText("country");
+
+        console.log("Новое название страны:", newCountryName);
+        p.textContent = `${countryLabel}: ${newCountryName}`;
+
+        break; // Выходим из цикла, так как нашли нужный параграф
+      } catch (error) {
+        console.error("Ошибка при обновлении названия страны:", error);
+        // Fallback: обновляем только подпись
+        const countryValue = text.split(":")[1]?.trim();
+        if (countryValue) {
+          p.textContent = `${getText("country")}: ${countryValue}`;
+        }
+        break;
+      }
+    }
+  }
+}
