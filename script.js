@@ -1,6 +1,5 @@
 // Глобальная переменная для доступа из onclick
 let playerStats;
-let API_KEY = null;
 
 // Объект с переводами
 const translations = {
@@ -94,7 +93,6 @@ const translations = {
     // Error messages
     faceitApiNotLoaded:
       "FaceitAPI not loaded. Check developer console for details.",
-    errorLoadingApiKey: "Failed to load API key. Check configuration file.",
     error: "Error",
   },
 
@@ -189,8 +187,6 @@ const translations = {
     // Error messages
     faceitApiNotLoaded:
       "FaceitAPI не загружен. Проверьте консоль разработчика для деталей.",
-    errorLoadingApiKey:
-      "Не удалось загрузить API ключ. Проверьте файл конфигурации.",
     error: "Ошибка",
   },
 };
@@ -509,709 +505,126 @@ function updatePlayerStatsTexts() {
           text.includes("Убийств за матч:") ||
           text.includes("Kills per match:")
         ) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("killsPerMatch")}: ${value}`;
+          const killsPerMatchValue = text.split(":")[1]?.trim();
+          if (killsPerMatchValue) {
+            p.textContent = `${getText(
+              "killsPerMatch"
+            )}: ${killsPerMatchValue}`;
+          }
         } else if (
           text.includes("Смертей за матч:") ||
           text.includes("Deaths per match:")
         ) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("deathsPerMatch")}: ${value}`;
+          const deathsPerMatchValue = text.split(":")[1]?.trim();
+          if (deathsPerMatchValue) {
+            p.textContent = `${getText(
+              "deathsPerMatch"
+            )}: ${deathsPerMatchValue}`;
+          }
         } else if (
           text.includes("Всего убийств:") ||
           text.includes("Total kills:")
         ) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("totalKills")}: ${value}`;
+          const totalKillsValue = text.split(":")[1]?.trim();
+          if (totalKillsValue) {
+            p.textContent = `${getText("totalKills")}: ${totalKillsValue}`;
+          }
         } else if (
           text.includes("Всего смертей:") ||
           text.includes("Total deaths:")
         ) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("totalDeaths")}: ${value}`;
+          const totalDeathsValue = text.split(":")[1]?.trim();
+          if (totalDeathsValue) {
+            p.textContent = `${getText("totalDeaths")}: ${totalDeathsValue}`;
+          }
         }
       });
     } else if (index === 1) {
-      // Блок лучшей карты
-      h3.innerHTML = `<i class="fas fa-star"></i> ${getText("bestMapTitle")}`;
-
-      const paragraphs = box.querySelectorAll("p");
-      paragraphs.forEach((p) => {
-        const text = p.textContent;
-        if (text.includes("Название:") || text.includes("Name:")) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("mapName")}: ${value}`;
-        } else if (text.includes("Винрейт:") || text.includes("Win Rate:")) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("mapWinRate")}: ${value}`;
-        } else if (text.includes("Матчей:") || text.includes("Matches:")) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("mapMatches")}: ${value}`;
-        } else if (
-          text.includes("Недостаточно данных") ||
-          text.includes("Not enough data")
-        ) {
-          p.textContent = getText("notEnoughData");
-        }
-      });
+      // Блок лучших и худших карт
+      h3.innerHTML = `<i class="fas fa-map"></i> ${getText("bestMapTitle")}`;
     } else if (index === 2) {
-      // Блок худшей карты
-      h3.innerHTML = `<i class="fas fa-times-circle"></i> ${getText(
+      h3.innerHTML = `<i class="fas fa-map-marked-alt"></i> ${getText(
         "worstMapTitle"
       )}`;
-
-      const paragraphs = box.querySelectorAll("p");
-      paragraphs.forEach((p) => {
-        const text = p.textContent;
-        if (text.includes("Название:") || text.includes("Name:")) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("mapName")}: ${value}`;
-        } else if (text.includes("Винрейт:") || text.includes("Win Rate:")) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("mapWinRate")}: ${value}`;
-        } else if (text.includes("Матчей:") || text.includes("Matches:")) {
-          const value = text.split(":")[1]?.trim();
-          if (value) p.textContent = `${getText("mapMatches")}: ${value}`;
-        } else if (
-          text.includes("Недостаточно данных") ||
-          text.includes("Not enough data")
-        ) {
-          p.textContent = getText("notEnoughData");
-        }
-      });
     }
   });
 }
 
-// Функция для инициализации языка
-function initializeLanguage() {
-  // Загружаем сохраненный язык из localStorage
-  const savedLanguage = localStorage.getItem("faceit-analyze-language");
-  if (savedLanguage && translations[savedLanguage]) {
-    currentLanguage = savedLanguage;
+// Функция для инициализации приложения
+function init() {
+  // Устанавливаем язык интерфейса в зависимости от настроек браузера или локального хранилища
+  const browserLang = navigator.language || navigator.userLanguage;
+  const savedLang = localStorage.getItem("faceit-analyze-language");
+  const defaultLang = "ru"; // Язык по умолчанию
+
+  const lang = translations[browserLang]
+    ? browserLang
+    : translations[savedLang]
+    ? savedLang
+    : defaultLang;
+  switchLanguage(lang);
+
+  // Добавляем обработчики событий для кнопок переключения языка
+  const langButtons = document.querySelectorAll(".lang-btn");
+  langButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const selectedLang = btn.dataset.lang;
+      switchLanguage(selectedLang);
+    });
+  });
+
+  // Обработчик клика по кнопке "Поддержать нас" (открывает модальное окно)
+  const supportBtn = document.querySelector(".support-btn");
+  if (supportBtn) {
+    supportBtn.addEventListener("click", () => {
+      const modal = document.getElementById("supportModal");
+      if (modal) {
+        modal.style.display = "block";
+        // Обновляем тексты в модальном окне поддержки
+        updateModalTexts();
+      }
+    });
   }
 
-  // Обновляем глобальную переменную для доступа из других файлов
-  window.currentLanguage = currentLanguage;
+  // Обработчик клика по кнопке "Связаться с нами" (открывает модальное окно)
+  const contactBtn = document.querySelector(".contact-btn");
+  if (contactBtn) {
+    contactBtn.addEventListener("click", () => {
+      const modal = document.getElementById("contactModal");
+      if (modal) {
+        modal.style.display = "block";
+        // Обновляем тексты в модальном окне контактов
+        updateModalTexts();
+      }
+    });
+  }
 
-  // Обновляем интерфейс
-  updateLanguageButtons();
-  updatePageTexts();
+  // Закрытие модальных окон при клике вне их области
+  window.addEventListener("click", (event) => {
+    const supportModal = document.getElementById("supportModal");
+    const contactModal = document.getElementById("contactModal");
+    if (
+      (supportModal && event.target === supportModal) ||
+      (contactModal && event.target === contactModal)
+    ) {
+      event.target.style.display = "none";
+    }
+  });
+
+  // Диагностическая проверка загрузки FaceitAPI
+  checkFaceitAPI();
 }
 
 // Диагностическая функция для проверки загрузки FaceitAPI
 function checkFaceitAPI() {
   if (!window.FaceitAPI) {
     console.error("FaceitAPI не определен в window!");
-    alert(getText("faceitApiNotLoaded"));
+    // Убираем алерт - просто логируем ошибку в консоль
+    console.warn(getText("faceitApiNotLoaded"));
     return false;
   }
   return true;
 }
 
-// Глобальная функция для создания дефолтного аватара
-function createDefaultAvatar(nickname) {
-  // Простой SVG аватар с первой буквой никнейма
-  const firstLetter =
-    nickname && nickname.length > 0 ? nickname[0].toUpperCase() : "?";
-  const svg = `
-    <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100" height="100" fill="#333333"/>
-      <text x="50" y="60" text-anchor="middle" fill="#ff5500" font-size="40" font-family="Arial, sans-serif" font-weight="bold">${firstLetter}</text>
-    </svg>
-  `;
-  return "data:image/svg+xml;base64," + btoa(svg);
-}
-
-// Глобальная функция для вызова через onclick в HTML
-async function analyzePlayer() {
-  if (!checkFaceitAPI()) {
-    return;
-  }
-
-  const nicknameInput = document.getElementById("nickname");
-  if (!nicknameInput) {
-    console.error("Элемент nickname не найден!");
-    return;
-  }
-
-  const nicknameValue = nicknameInput.value;
-
-  // Получаем ссылки на элементы, если ещё не получили
-  if (!playerStats) playerStats = document.getElementById("playerStats");
-
-  await fetchPlayerStats(nicknameValue);
-}
-
-// Инициализация после загрузки страницы
-document.addEventListener("DOMContentLoaded", async function () {
-  preventAutoRefresh();
-
-  // Загружаем конфигурацию с API ключом
-  try {
-    await window.Config.loadConfig();
-    API_KEY = window.Config.getApiKey();
-    console.log("API ключ успешно загружен из конфигурации");
-  } catch (error) {
-    console.error("Ошибка загрузки API ключа:", error);
-    alert("Не удалось загрузить API ключ. Проверьте файл конфигурации.");
-    return;
-  }
-
-  // Инициализация глобальных переменных
-  playerStats = document.getElementById("playerStats");
-  const nickname = document.getElementById("nickname");
-
-  // Добавляем обработчик поиска по нажатию Enter
-  nickname.addEventListener("keypress", async (event) => {
-    if (event.key === "Enter") {
-      await analyzePlayer();
-    }
-  });
-
-  // Инициализация языка
-  initializeLanguage();
-});
-
-// Функция для предотвращения автообновления страницы
-function preventAutoRefresh() {
-  // Отключаем автообновление страницы браузером
-  window.addEventListener("beforeunload", function (e) {
-    // Предотвращаем автоматическое обновление
-    e.preventDefault();
-    return undefined;
-  });
-
-  // Блокируем попытки обновления через F5, Ctrl+R, Ctrl+F5
-  document.addEventListener("keydown", function (e) {
-    // F5 или Ctrl+R
-    if (e.key === "F5" || (e.ctrlKey && e.key === "r")) {
-      e.preventDefault();
-      console.log("Автообновление страницы заблокировано");
-      return false;
-    }
-
-    // Ctrl+F5 (принудительное обновление)
-    if (e.ctrlKey && e.key === "F5") {
-      e.preventDefault();
-      console.log("Принудительное обновление страницы заблокировано");
-      return false;
-    }
-  });
-
-  // Отключаем контекстное меню (правый клик) для предотвращения "Обновить"
-  document.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-    return false;
-  });
-
-  // Предотвращаем автоматическое обновление через navigation API
-  if ("navigation" in window) {
-    navigation.addEventListener("navigate", function (e) {
-      if (e.navigationType === "reload") {
-        e.preventDefault();
-        console.log("Навигационное обновление заблокировано");
-      }
-    });
-  }
-
-  // Блокируем обновление через history API
-  const originalPushState = history.pushState;
-  const originalReplaceState = history.replaceState;
-
-  history.pushState = function () {
-    // Разрешаем только изменения в пределах текущей страницы
-    if (arguments[2] && arguments[2].includes("#")) {
-      return originalPushState.apply(history, arguments);
-    }
-  };
-
-  history.replaceState = function () {
-    // Разрешаем только изменения в пределах текущей страницы
-    if (arguments[2] && arguments[2].includes("#")) {
-      return originalReplaceState.apply(history, arguments);
-    }
-  };
-
-  // Отключаем автоперевод Google Chrome
-  disableGoogleTranslate();
-
-  console.log("Защита от автообновления и автоперевода активирована");
-}
-
-// Функция для отключения автоперевода Google Chrome
-function disableGoogleTranslate() {
-  // Добавляем класс notranslate к body
-  document.body.classList.add("notranslate");
-
-  // Устанавливаем атрибуты для отключения перевода
-  document.documentElement.setAttribute("translate", "no");
-  document.body.setAttribute("translate", "no");
-
-  // Блокируем Google Translate скрипты
-  const observer = new MutationObserver(function (mutations) {
-    mutations.forEach(function (mutation) {
-      mutation.addedNodes.forEach(function (node) {
-        if (node.nodeType === 1) {
-          // Элемент
-          // Добавляем translate="no" к новым элементам
-          if (node.tagName) {
-            node.setAttribute("translate", "no");
-          }
-
-          // Блокируем Google Translate элементы
-          if (
-            node.id &&
-            (node.id.includes("google_translate") ||
-              node.id.includes("goog-gt") ||
-              (node.className && node.className.includes("goog-te")))
-          ) {
-            node.remove();
-            console.log("Заблокирован элемент Google Translate");
-          }
-
-          // Рекурсивно применяем к дочерним элементам
-          const children = node.querySelectorAll("*");
-          children.forEach((child) => {
-            child.setAttribute("translate", "no");
-          });
-        }
-      });
-    });
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
-
-  // Блокируем загрузку Google Translate скриптов
-  const originalCreateElement = document.createElement;
-  document.createElement = function (tagName) {
-    const element = originalCreateElement.call(document, tagName);
-
-    if (tagName.toLowerCase() === "script") {
-      const originalSrc = Object.getOwnPropertyDescriptor(
-        HTMLScriptElement.prototype,
-        "src"
-      );
-      Object.defineProperty(element, "src", {
-        get: originalSrc.get,
-        set: function (value) {
-          if (
-            value &&
-            (value.includes("translate.google") ||
-              value.includes("translate.googleapis"))
-          ) {
-            console.log("Заблокирован Google Translate скрипт:", value);
-            return;
-          }
-          originalSrc.set.call(this, value);
-        },
-      });
-    }
-
-    // Добавляем translate="no" к новым элементам
-    element.setAttribute("translate", "no");
-
-    return element;
-  };
-
-  console.log("Защита от Google Translate активирована");
-}
-
-// Основная функция получения и отображения статистики игрока
-async function fetchPlayerStats(nicknameValue) {
-  const playerNickname = nicknameValue.trim();
-  if (!playerStats) playerStats = document.getElementById("playerStats");
-  let outputDiv = document.getElementById("output");
-
-  if (!playerNickname) {
-    outputDiv.style.display = "block";
-    outputDiv.innerHTML = getText("enterNicknameValidation");
-    playerStats.innerHTML = "";
-    return;
-  }
-
-  // Если элемент output был удален, создаем его заново
-  if (!outputDiv) {
-    outputDiv = document.createElement("div");
-    outputDiv.id = "output";
-    outputDiv.style.display = "block";
-
-    // Вставляем перед playerStats
-    const resultsSection = document.getElementById("results");
-    resultsSection.insertBefore(outputDiv, playerStats);
-  }
-
-  outputDiv.style.display = "block";
-  outputDiv.innerHTML = `${getText("gettingData")} ${playerNickname}...`;
-  playerStats.innerHTML = "";
-
-  try {
-    const playerData = await FaceitAPI.getPlayerData(playerNickname, API_KEY);
-    if (!playerData) {
-      outputDiv.innerHTML = getText("playerNotFound");
-      return;
-    }
-
-    const playerId = playerData.player_id;
-    outputDiv.innerHTML = `${getText("gettingStats")} ${
-      playerData.nickname
-    }...`;
-
-    // Получаем ТОЛЬКО статистику CS:2
-    const statsData = await FaceitAPI.getStatsData(playerId, "cs2", API_KEY);
-    const gameId = "cs2";
-
-    // Проверяем, есть ли вообще данные CS:2
-    if (!statsData || !statsData.lifetime || !statsData.segments) {
-      outputDiv.innerHTML = getText("noCs2Stats", {
-        nickname: playerData.nickname,
-      });
-      playerStats.innerHTML = "";
-      return;
-    }
-
-    // Проверяем, есть ли матчи в CS:2
-    const cs2Matches = parseInt(statsData.lifetime["Total Matches"] || "0", 10);
-    if (cs2Matches === 0) {
-      outputDiv.innerHTML = getText("noCs2Matches", {
-        nickname: playerData.nickname,
-      });
-      playerStats.innerHTML = "";
-      return;
-    }
-
-    // Если данные CS:2 есть, обрабатываем их
-    const countryName = await FaceitAPI.getCountryName(
-      playerData.country || "Н/Д"
-    );
-    const fallbackElo = playerData.games?.[gameId]?.faceit_elo || "Н/Д";
-    const currentElo = await FaceitAPI.getCurrentElo(
-      playerId,
-      gameId,
-      fallbackElo,
-      API_KEY
-    );
-    const avgStats = FaceitAPI.calculateAvgStats(
-      statsData.lifetime,
-      statsData.segments,
-      gameId
-    );
-    const mapAnalysis = FaceitAPI.analyzeMaps(statsData.segments, gameId);
-
-    // Скрываем output вместо удаления
-    outputDiv.style.display = "none";
-
-    // Отображаем данные в карточке с анимацией
-    displayPlayerData(
-      playerData,
-      statsData,
-      avgStats,
-      mapAnalysis,
-      currentElo,
-      countryName,
-      gameId,
-      true
-    );
-  } catch (error) {
-    console.error("Ошибка при получении данных:", error);
-    outputDiv.style.display = "block";
-    outputDiv.innerHTML = `${getText("error")}: ${error.message}`;
-    playerStats.innerHTML = "";
-  }
-}
-
-// Функция для отображения статистики в карточках
-function displayPlayerData(
-  player,
-  statsData,
-  avgStats,
-  mapAnalysis,
-  currentElo,
-  countryName,
-  gameId,
-  animate = false
-) {
-  // Сохраняем данные игрока глобально для использования при переключении языка
-  window.currentPlayerData = player;
-
-  // Убедимся, что playerStats определен
-  if (!playerStats) playerStats = document.getElementById("playerStats");
-
-  // Очищаем предыдущие результаты
-  playerStats.innerHTML = "";
-
-  // Форматируем основную информацию
-  const nickname = player.nickname || "Н/Д";
-  const level = player.games?.[gameId]?.skill_level || "Н/Д";
-  const matches = statsData.lifetime?.Matches || "0";
-  const winRate = statsData.lifetime?.["Win Rate %"] || "0%";
-  const avatar = player.avatar || createDefaultAvatar(nickname);
-
-  // Формируем ссылку на профиль FACEIT
-  const faceitProfileUrl = `https://www.faceit.com/${
-    currentLanguage === "ru" ? "ru" : "en"
-  }/players/${nickname}`;
-
-  // Создаем карточку игрока
-  const playerCard = document.createElement("div");
-  playerCard.className = "player-card";
-  playerCard.setAttribute("translate", "no"); // Отключаем перевод для карточки
-
-  // Добавляем класс анимации, если запрошено
-  if (animate) {
-    playerCard.classList.add("fade-in-animation");
-  }
-
-  // Добавляем класс в зависимости от уровня для стилизации
-  playerCard.classList.add(`level-${level}`);
-
-  playerCard.innerHTML = `
-      <div class="player-header" translate="no">
-          <div class="player-avatar">
-              <img src="${avatar}" alt="${nickname}" onerror="this.src='${createDefaultAvatar(
-    nickname
-  )}'">
-          </div>
-          <div class="player-info" translate="no">
-              <h2 translate="no">${nickname}</h2>
-              <p translate="no">${getText("country")}: ${countryName}</p>
-              <p translate="no">${getText("elo")}: ${currentElo}</p>
-              <p translate="no">${getText("level")}: ${level} 
-                  <span class="level-indicator">${Array(parseInt(level) || 0)
-                    .fill("⭐")
-                    .join("")}</span>
-              </p>
-              <p translate="no">${getText("matches")}: ${matches}</p>
-              <p translate="no">${getText("winRate")}: ${winRate}%</p>
-              <p translate="no"><a href="${faceitProfileUrl}" target="_blank">${getText(
-    "faceitProfile"
-  )}</a></p>
-          </div>
-      </div>
-
-      <div class="stats-container" translate="no">
-          <div class="stats-box ${
-            animate ? "slide-in-animation" : ""
-          }" translate="no">
-              <h3 translate="no"><i class="fas fa-chart-line"></i> ${getText(
-                "avgStatsTitle"
-              )}</h3>
-              <p translate="no">${getText("killsPerMatch")}: ${
-    avgStats.avgKills
-  }</p>
-              <p translate="no">${getText("deathsPerMatch")}: ${
-    avgStats.avgDeaths
-  }</p>
-              <p translate="no">K/D: ${avgStats.kd}</p>
-              <p translate="no">${getText("totalKills")}: ${
-    avgStats.totalKills
-  }</p>
-              <p translate="no">${getText("totalDeaths")}: ${
-    avgStats.totalDeaths
-  }</p>
-          </div>
-
-          <div class="stats-box ${
-            animate ? "slide-in-animation" : ""
-          }" translate="no">
-              <h3 translate="no"><i class="fas fa-star"></i> ${getText(
-                "bestMapTitle"
-              )}</h3>
-              ${
-                mapAnalysis.bestMap
-                  ? `<p translate="no">${getText("mapName")}: ${
-                      mapAnalysis.bestMap.name
-                    }</p>
-                     <p translate="no">${getText("mapWinRate")}: ${
-                      mapAnalysis.bestMap.winRate
-                    }%</p>
-                     <p translate="no">${getText("mapMatches")}: ${
-                      mapAnalysis.bestMap.matches
-                    }</p>
-                     <p translate="no">K/D: ${mapAnalysis.bestMap.kd.toFixed(
-                       2
-                     )}</p>`
-                  : `<p translate="no">${getText("notEnoughData")}</p>`
-              }
-          </div>
-
-          <div class="stats-box ${
-            animate ? "slide-in-animation" : ""
-          }" translate="no">
-              <h3 translate="no"><i class="fas fa-times-circle"></i> ${getText(
-                "worstMapTitle"
-              )}</h3>
-              ${
-                mapAnalysis.worstMap
-                  ? `<p translate="no">${getText("mapName")}: ${
-                      mapAnalysis.worstMap.name
-                    }</p>
-                     <p translate="no">${getText("mapWinRate")}: ${
-                      mapAnalysis.worstMap.winRate
-                    }%</p>
-                     <p translate="no">${getText("mapMatches")}: ${
-                      mapAnalysis.worstMap.matches
-                    }</p>
-                     <p translate="no">K/D: ${mapAnalysis.worstMap.kd.toFixed(
-                       2
-                     )}</p>`
-                  : `<p translate="no">${getText("notEnoughData")}</p>`
-              }
-          </div>
-      </div>
-  `;
-
-  playerStats.appendChild(playerCard);
-}
-
-// Функции для модальных окон
-function openSupportModal() {
-  document.getElementById("supportModal").style.display = "block";
-  document.body.style.overflow = "hidden"; // Блокируем прокрутку фона
-}
-
-function closeSupportModal() {
-  document.getElementById("supportModal").style.display = "none";
-  document.body.style.overflow = "auto"; // Восстанавливаем прокрутку
-}
-
-function openContactModal() {
-  document.getElementById("contactModal").style.display = "block";
-  document.body.style.overflow = "hidden";
-}
-
-function closeContactModal() {
-  document.getElementById("contactModal").style.display = "none";
-  document.body.style.overflow = "auto";
-}
-
-// Обработка отправки формы контактов
-function sendMessage(event) {
-  event.preventDefault();
-
-  const form = event.target;
-  const name = form.contactName.value;
-  const email = form.contactEmail.value;
-  const subject = form.contactSubject.value;
-  const message = form.contactMessage.value;
-
-  // Простая валидация с переводами
-  if (!name || !email || !subject || !message) {
-    alert(getText("fillAllFields"));
-    return;
-  }
-
-  // Получаем текст темы из выбранного option
-  const subjectText = form.contactSubject.selectedOptions[0].text;
-
-  // Формируем текст письма
-  const emailBody = `
-${getText("yourName")}: ${name}
-${getText("email")}: ${email}
-${getText("messageSubject")}: ${subjectText}
-
-${getText("message")}:
-${message}
-
----
-${
-  currentLanguage === "ru"
-    ? "Отправлено через форму FACEIT Analyze"
-    : "Sent via FACEIT Analyze form"
-}
-${currentLanguage === "ru" ? "Дата" : "Date"}: ${new Date().toLocaleString(
-    currentLanguage === "ru" ? "ru-RU" : "en-US"
-  )}
-  `.trim();
-
-  // Создаем прямую ссылку на Gmail Compose
-  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=faceit.analyze@gmail.com&su=${encodeURIComponent(
-    `[FACEIT Analyze] ${subjectText}`
-  )}&body=${encodeURIComponent(emailBody)}`;
-
-  // Открываем Gmail в новой вкладке
-  window.open(gmailUrl, "_blank");
-
-  // Показываем сообщение об успехе
-  alert(getText("emailClientOpened"));
-
-  // Очищаем форму и закрываем модальное окно
-  form.reset();
-  closeContactModal();
-}
-
-// Закрытие модальных окон при клике вне их области
-window.onclick = function (event) {
-  const supportModal = document.getElementById("supportModal");
-  const contactModal = document.getElementById("contactModal");
-
-  if (event.target === supportModal) {
-    closeSupportModal();
-  }
-
-  if (event.target === contactModal) {
-    closeContactModal();
-  }
-};
-
-// Закрытие модальных окон по клавише Escape
-document.addEventListener("keydown", function (event) {
-  if (event.key === "Escape") {
-    closeSupportModal();
-    closeContactModal();
-  }
-});
-
-// Новая функция для обновления названий стран в карточке игрока
-async function updateCountryNamesInPlayerCard() {
-  const playerCard = document.querySelector(".player-card");
-  if (
-    !playerCard ||
-    !window.currentPlayerData ||
-    !window.currentPlayerData.country
-  ) {
-    return;
-  }
-
-  const playerInfo = playerCard.querySelector(".player-info");
-  if (!playerInfo) return;
-
-  const paragraphs = playerInfo.querySelectorAll("p");
-
-  for (const p of paragraphs) {
-    const text = p.textContent;
-    if (text.includes("Страна:") || text.includes("Country:")) {
-      try {
-        const countryCode = window.currentPlayerData.country;
-        console.log(
-          "Обновляем страну для кода:",
-          countryCode,
-          "язык:",
-          currentLanguage
-        );
-
-        // Получаем переведенное название страны
-        const newCountryName = await window.FaceitAPI.getCountryName(
-          countryCode
-        );
-        const countryLabel = getText("country");
-
-        console.log("Новое название страны:", newCountryName);
-        p.textContent = `${countryLabel}: ${newCountryName}`;
-
-        break; // Выходим из цикла, так как нашли нужный параграф
-      } catch (error) {
-        console.error("Ошибка при обновлении названия страны:", error);
-        // Fallback: обновляем только подпись
-        const countryValue = text.split(":")[1]?.trim();
-        if (countryValue) {
-          p.textContent = `${getText("country")}: ${countryValue}`;
-        }
-        break;
-      }
-    }
-  }
-}
+// Запускаем инициализацию после загрузки страницы
+window.addEventListener("load", init);
