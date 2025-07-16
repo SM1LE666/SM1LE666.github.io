@@ -560,6 +560,190 @@ async function updateCountryInPlayerInfo(paragraph, originalText) {
 // Запускаем инициализацию после загрузки страницы
 window.addEventListener("load", init);
 
+// Основная функция анализа игрока
+async function analyzePlayer() {
+  const nicknameInput = document.getElementById("nickname");
+  const nickname = nicknameInput?.value?.trim();
+
+  if (!nickname) {
+    alert(getText("enterNicknameValidation"));
+    return;
+  }
+
+  const output = document.getElementById("output");
+  const playerStatsContainer = document.getElementById("playerStats");
+
+  // Инициализируем playerStats если не инициализирована
+  if (!playerStats) {
+    playerStats = playerStatsContainer;
+  }
+
+  if (output) {
+    output.textContent = `${getText("gettingData")} ${nickname}...`;
+  }
+
+  try {
+    // Загружаем конфигурацию если не загружена
+    if (!window.Config.loaded) {
+      await window.Config.loadConfig();
+    }
+
+    const apiKey = window.Config.getApiKey();
+
+    // Получаем данные игрока
+    const playerData = await window.FaceitAPI.getPlayerData(nickname, apiKey);
+    window.currentPlayerData = playerData; // Сохраняем для использования в переводах
+
+    if (output) {
+      output.textContent = `${getText("gettingStats")} ${
+        playerData.nickname
+      }...`;
+    }
+
+    // Получаем статистику CS:2
+    const gameId = "cs2";
+    const statsData = await window.FaceitAPI.getStatsData(
+      playerData.player_id,
+      gameId,
+      apiKey
+    );
+
+    // Получаем актуальное ELO
+    const currentElo = await window.FaceitAPI.getCurrentElo(
+      playerData.player_id,
+      gameId,
+      playerData.games?.[gameId]?.faceit_elo || 0,
+      apiKey
+    );
+
+    // Получаем название страны
+    const countryName = await window.FaceitAPI.getCountryName(
+      playerData.country
+    );
+
+    // Отображаем результаты
+    displayPlayerStats(playerData, statsData, currentElo, countryName);
+
+    if (output) {
+      output.style.display = "none";
+    }
+  } catch (error) {
+    console.error("Ошибка анализа игрока:", error);
+    if (output) {
+      if (error.message.includes("404")) {
+        output.textContent = getText("playerNotFound");
+      } else if (
+        error.message.includes("CS:2") ||
+        error.message.includes("cs2")
+      ) {
+        output.textContent = getText("noCs2Stats", { nickname: nickname });
+      } else {
+        output.textContent = `${getText("error")}: ${error.message}`;
+      }
+    }
+  }
+}
+
+// Функция для отображения статистики игрока
+function displayPlayerStats(playerData, statsData, currentElo, countryName) {
+  const playerStatsContainer = document.getElementById("playerStats");
+  if (!playerStatsContainer) return;
+
+  // Обрабатываем статистику
+  const gameId = "cs2";
+  const lifetime = statsData.lifetime || {};
+  const segments = statsData.segments || [];
+
+  const avgStats = window.FaceitAPI.calculateAvgStats(
+    lifetime,
+    segments,
+    gameId
+  );
+  const mapAnalysis = window.FaceitAPI.analyzeMaps(segments, gameId);
+
+  // Создаем HTML для карточки игрока
+  const playerCardHTML = `
+    <div class="player-card fade-in-animation">
+      <div class="player-header">
+        <div class="player-avatar">
+          <img src="${playerData.avatar || "logooo.png"}" alt="${
+    playerData.nickname
+  }" onerror="this.src='logooo.png'">
+        </div>
+        <div class="player-info">
+          <h2>${playerData.nickname}</h2>
+          <p>${getText("country")}: ${countryName}</p>
+          <p>ELO: ${window.FaceitAPI.formatNumber(currentElo)}</p>
+          <p>${getText("level")}: ${
+    playerData.games?.[gameId]?.skill_level || "N/A"
+  } <span class="level-indicator">⭐</span></p>
+          <p>${getText("matches")}: ${window.FaceitAPI.formatNumber(
+    avgStats.totalMatches
+  )}</p>
+          <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
+          <a href="https://www.faceit.com/${
+            currentLanguage === "ru" ? "ru" : "en"
+          }/players/${playerData.nickname}" target="_blank">${getText(
+    "faceitProfile"
+  )}</a>
+        </div>
+      </div>
+      
+      <div class="stats-container">
+        <div class="stats-box slide-in-animation">
+          <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
+          <p>${getText("killsPerMatch")}: ${avgStats.avgKills}</p>
+          <p>${getText("deathsPerMatch")}: ${avgStats.avgDeaths}</p>
+          <p>K/D: ${avgStats.kd}</p>
+          <p>${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
+    avgStats.totalKills
+  )}</p>
+          <p>${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
+    avgStats.totalDeaths
+  )}</p>
+        </div>
+        
+        <div class="stats-box slide-in-animation">
+          <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
+          ${
+            mapAnalysis.bestMap
+              ? `
+            <p>${getText("mapName")}: ${mapAnalysis.bestMap.name}</p>
+            <p>${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(
+                  1
+                )}%</p>
+            <p>K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}</p>
+            <p>${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}</p>
+          `
+              : `<p>${getText("notEnoughData")}</p>`
+          }
+        </div>
+        
+        <div class="stats-box slide-in-animation">
+          <h3><i class="fas fa-map-marked-alt"></i> ${getText(
+            "worstMapTitle"
+          )}</h3>
+          ${
+            mapAnalysis.worstMap
+              ? `
+            <p>${getText("mapName")}: ${mapAnalysis.worstMap.name}</p>
+            <p>${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
+                  1
+                )}%</p>
+            <p>K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}</p>
+            <p>${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}</p>
+          `
+              : `<p>${getText("notEnoughData")}</p>`
+          }
+        </div>
+      </div>
+    </div>
+  `;
+
+  playerStatsContainer.innerHTML = playerCardHTML;
+  playerStatsContainer.style.display = "block";
+}
+
 // Функции для модальных окон (вызываются из HTML)
 function openSupportModal() {
   const modal = document.getElementById("supportModal");
@@ -626,36 +810,80 @@ function sendMessage(event) {
   document.getElementById("contactForm").reset();
 }
 
-// Функция для анализа игрока (если она не определена в другом файле)
-async function analyzePlayer() {
+// Функция для инициализации приложения
+function init() {
+  // Устанавливаем язык интерфейса в зависимости от настроек браузера или локального хранилища
+  const browserLang = navigator.language || navigator.userLanguage;
+  const savedLang = localStorage.getItem("faceit-analyze-language");
+  const defaultLang = "ru"; // Язык по умолчанию
+
+  const lang = translations[browserLang]
+    ? browserLang
+    : translations[savedLang]
+    ? savedLang
+    : defaultLang;
+  switchLanguage(lang);
+
+  // Инициализируем playerStats
+  playerStats = document.getElementById("playerStats");
+
+  // Добавляем обработчики событий для кнопок переключения языка
+  const langButtons = document.querySelectorAll(".lang-btn");
+  langButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const selectedLang = btn.dataset.lang;
+      switchLanguage(selectedLang);
+    });
+  });
+
+  // Обработчик клика по кнопке "Поддержать нас" (открывает модальное окно)
+  const supportBtn = document.querySelector(".support-btn");
+  if (supportBtn) {
+    supportBtn.addEventListener("click", () => {
+      openSupportModal();
+    });
+  }
+
+  // Обработчик клика по кнопке "Связаться с нами" (открывает модальное окно)
+  const contactBtn = document.querySelector(".contact-btn");
+  if (contactBtn) {
+    contactBtn.addEventListener("click", () => {
+      openContactModal();
+    });
+  }
+
+  // Обработчик Enter в поле поиска
   const nicknameInput = document.getElementById("nickname");
-  const nickname = nicknameInput?.value?.trim();
-
-  if (!nickname) {
-    alert(getText("enterNicknameValidation"));
-    return;
-  }
-
-  const output = document.getElementById("output");
-  if (output) {
-    output.textContent = `${getText("gettingData")} ${nickname}...`;
-  }
-
-  // Если функция анализа определена в другом файле, вызываем её
-  if (window.analyzePlayerData) {
-    try {
-      await window.analyzePlayerData(nickname);
-    } catch (error) {
-      console.error("Ошибка анализа игрока:", error);
-      if (output) {
-        output.textContent = `${getText("error")}: ${error.message}`;
+  if (nicknameInput) {
+    nicknameInput.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        analyzePlayer();
       }
-    }
-  } else {
-    console.warn("Функция analyzePlayerData не найдена");
-    if (output) {
-      output.textContent =
-        "Функция анализа не доступна. Проверьте загрузку скриптов.";
-    }
+    });
   }
+
+  // Закрытие модальных окон при клике вне их области
+  window.addEventListener("click", (event) => {
+    const supportModal = document.getElementById("supportModal");
+    const contactModal = document.getElementById("contactModal");
+    if (
+      (supportModal && event.target === supportModal) ||
+      (contactModal && event.target === contactModal)
+    ) {
+      event.target.style.display = "none";
+    }
+  });
+
+  // Диагностическая проверка загрузки FaceitAPI
+  checkFaceitAPI();
+}
+
+// Диагностическая функция для проверки загрузки FaceitAPI
+function checkFaceitAPI() {
+  if (!window.FaceitAPI) {
+    console.error("FaceitAPI не определен в window!");
+    console.warn(getText("faceitApiNotLoaded"));
+    return false;
+  }
+  return true;
 }

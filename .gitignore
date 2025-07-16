@@ -1,0 +1,29 @@
+# GitHub Pages deployment
+.github/
+.nojekyll
+
+# Server files (not needed for static deployment)
+server.py
+.env
+
+# Development files
+encrypt-tool.html
+
+# Node modules (если будете использовать)
+node_modules/
+package-lock.json
+
+# Временные файлы
+*.tmp
+*.temp
+
+# IDE файлы
+.vscode/
+.idea/
+
+# OS файлы
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
