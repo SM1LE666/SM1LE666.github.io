@@ -3,11 +3,11 @@
  */
 
 const FaceitAPI = (function () {
-  // Для статического хостинга используем публичные endpoint'ы или альтернативные методы
+  // Для статического хостинга используем публичные endpoint'ы
   const FACEIT_API_URL = "https://open.faceit.com/data/v4";
 
-  // Публичный API ключ для демонстрации (ограниченный функционал)
-  const DEMO_API_KEY = "6f6dd5d6-0ccf-4c2c-a88e-c4386aa0d03a";
+  // Используем реальный API ключ
+  const API_KEY = "6f6dd5d6-0ccf-4c2c-a88e-c4386aa0d03a";
 
   // Кэш для данных
   const _countryCache = {};
@@ -47,24 +47,18 @@ const FaceitAPI = (function () {
         return _playerCache[playerNickname];
       }
 
-      // Для статического хостинга используем JSONP или альтернативный подход
       const url = `${FACEIT_API_URL}/players?nickname=${encodeURIComponent(
         playerNickname
       )}`;
 
-      // Попробуем использовать fetch с модификацией для CORS
       const response = await fetchWithCORS(url, {
         headers: {
-          Authorization: `Bearer ${DEMO_API_KEY}`,
+          Authorization: `Bearer ${API_KEY}`,
           Accept: "application/json",
         },
       });
 
       if (!response.ok) {
-        // Если прямой запрос не работает, используем демо данные
-        if (response.status === 400 || response.status === 403) {
-          return await getDemoPlayerData(playerNickname);
-        }
         throw new Error(
           `Ошибка API: ${response.status} ${response.statusText}`
         );
@@ -75,8 +69,7 @@ const FaceitAPI = (function () {
       return data;
     } catch (error) {
       console.error("Ошибка при получении данных игрока:", error);
-      // Fallback на демо данные
-      return await getDemoPlayerData(nickname);
+      throw error;
     }
   }
 
@@ -91,14 +84,15 @@ const FaceitAPI = (function () {
       const url = `${FACEIT_API_URL}/players/${playerId}/stats/${gameId}`;
       const response = await fetchWithCORS(url, {
         headers: {
-          Authorization: `Bearer ${DEMO_API_KEY}`,
+          Authorization: `Bearer ${API_KEY}`,
           Accept: "application/json",
         },
       });
 
       if (!response.ok) {
-        // Fallback на демо данные
-        return await getDemoStatsData(playerId, gameId);
+        throw new Error(
+          `Ошибка API: ${response.status} ${response.statusText}`
+        );
       }
 
       const data = await response.json();
@@ -106,8 +100,7 @@ const FaceitAPI = (function () {
       return data;
     } catch (error) {
       console.error("Ошибка при получении статистики игрока:", error);
-      // Fallback на демо данные
-      return await getDemoStatsData(playerId, gameId);
+      throw error;
     }
   }
 
@@ -116,7 +109,7 @@ const FaceitAPI = (function () {
       const url = `${FACEIT_API_URL}/players/${playerId}/history?game=${gameId}&limit=1`;
       const response = await fetchWithCORS(url, {
         headers: {
-          Authorization: `Bearer ${DEMO_API_KEY}`,
+          Authorization: `Bearer ${API_KEY}`,
           Accept: "application/json",
         },
       });
@@ -480,7 +473,7 @@ const FaceitAPI = (function () {
 
   // Функция для обхода CORS (может не работать на всех браузерах)
   async function fetchWithCORS(url, options = {}) {
-    // Попробуем использовать fetch с mode: 'no-cors', но это ограничит данные
+    // Попробуем использовать fetch с mode: 'cors'
     try {
       return await fetch(url, {
         ...options,
@@ -516,112 +509,6 @@ const FaceitAPI = (function () {
       console.error("Proxy request failed:", error);
       throw error;
     }
-  }
-
-  // Демо данные для тестирования
-  async function getDemoPlayerData(nickname) {
-    // Возвращаем демо данные известных игроков
-    const demoPlayers = {
-      s1mple: {
-        player_id: "demo-s1mple",
-        nickname: "s1mple",
-        avatar: "https://assets.faceit-cdn.net/avatars/s1mple.jpg",
-        country: "UA",
-        games: {
-          cs2: {
-            skill_level: 10,
-            faceit_elo: 3000,
-          },
-        },
-      },
-      zywoo: {
-        player_id: "demo-zywoo",
-        nickname: "ZywOo",
-        avatar: "https://assets.faceit-cdn.net/avatars/zywoo.jpg",
-        country: "FR",
-        games: {
-          cs2: {
-            skill_level: 10,
-            faceit_elo: 2950,
-          },
-        },
-      },
-      sh1ro: {
-        player_id: "demo-sh1ro",
-        nickname: "sh1ro",
-        avatar: "https://assets.faceit-cdn.net/avatars/sh1ro.jpg",
-        country: "RU",
-        games: {
-          cs2: {
-            skill_level: 10,
-            faceit_elo: 2900,
-          },
-        },
-      },
-    };
-
-    const playerKey = nickname.toLowerCase();
-    if (demoPlayers[playerKey]) {
-      return demoPlayers[playerKey];
-    }
-
-    // Возвращаем общие демо данные
-    return {
-      player_id: `demo-${nickname}`,
-      nickname: nickname,
-      avatar: "logooo.png",
-      country: "RU",
-      games: {
-        cs2: {
-          skill_level: 7,
-          faceit_elo: 1800,
-        },
-      },
-    };
-  }
-
-  // Демо статистика
-  async function getDemoStatsData(playerId, gameId) {
-    return {
-      lifetime: {
-        "Total Matches": "150",
-        "Total Kills with extended stats": "3600",
-        "Average K/D Ratio": "1.25",
-        "Win Rate %": "65",
-      },
-      segments: [
-        {
-          label: "de_dust2",
-          stats: {
-            Matches: "25",
-            "Win Rate %": "72",
-            "K/D Ratio": "1.4",
-            Kills: "420",
-            Deaths: "300",
-          },
-        },
-        {
-          label: "de_mirage",
-          stats: {
-            Matches: "20",
-            "Win Rate %": "55",
-            "K/D Ratio": "1.1",
-            Kills: "350",
-            Deaths: "318",
-          },
-        },
-        {
-          label: "de_inferno",
-          stats: {
-            Matches: "18",
-            "Win Rate %": "78",
-            "K/D Ratio": "1.6",
-            Kills: "380",
-            Deaths: "238",
-          },
-        },
-      ],
-    };
   }
 
   return {

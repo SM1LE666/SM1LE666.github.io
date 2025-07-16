@@ -95,11 +95,6 @@ const translations = {
     faceitApiNotLoaded:
       "FaceitAPI not loaded. Check developer console for details.",
     error: "Error",
-
-    // Demo mode messages
-    demoMode: "Demo Mode",
-    demoModeNote:
-      "Using demo data for demonstration. Real API may be limited on static hosting.",
   },
 
   ru: {
@@ -194,11 +189,6 @@ const translations = {
     faceitApiNotLoaded:
       "FaceitAPI не загружен. Проверьте консоль разработчика для деталей.",
     error: "Ошибка",
-
-    // Demo mode messages
-    demoMode: "Режим демонстрации",
-    demoModeNote:
-      "Используются демонстрационные данные. Реальный API может быть ограничен на статическом хостинге.",
   },
 };
 
@@ -605,17 +595,6 @@ async function analyzePlayer() {
     const playerData = await window.FaceitAPI.getPlayerData(nickname, apiKey);
     window.currentPlayerData = playerData; // Сохраняем для использования в переводах
 
-    // Проверяем, используются ли демо данные
-    const isDemoMode =
-      playerData.player_id && playerData.player_id.startsWith("demo-");
-
-    // Показываем уведомление о демо режиме, если нужно
-    if (isDemoMode) {
-      showDemoNotification();
-    } else {
-      hideDemoNotification();
-    }
-
     if (output) {
       output.textContent = `${getText("gettingStats")} ${
         playerData.nickname
@@ -982,25 +961,6 @@ function initializeEventListeners() {
       event.target.style.display = "none";
     }
   });
-}
-
-// Функции для управления уведомлением о демо режиме
-function showDemoNotification() {
-  const notification = document.getElementById("demoNotification");
-  if (notification) {
-    const demoText = notification.querySelector(".demo-text");
-    if (demoText) {
-      demoText.textContent = getText("demoModeNote");
-    }
-    notification.style.display = "block";
-  }
-}
-
-function hideDemoNotification() {
-  const notification = document.getElementById("demoNotification");
-  if (notification) {
-    notification.style.display = "none";
-  }
 }
 
 // Диагностическая функция для проверки загрузки FaceitAPI
