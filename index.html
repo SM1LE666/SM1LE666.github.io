@@ -54,18 +54,10 @@
       <div class="header-content">
         <h1 translate="no"><i class="fas fa-chart-bar"></i> FACEIT Analyze</h1>
         <div class="language-switcher">
-          <button
-            class="lang-btn"
-            data-lang="en"
-            onclick="switchLanguage('en')"
-          >
+          <button class="lang-btn" data-lang="en">
             <img src="https://flagcdn.com/16x12/us.png" alt="English" /> EN
           </button>
-          <button
-            class="lang-btn active"
-            data-lang="ru"
-            onclick="switchLanguage('ru')"
-          >
+          <button class="lang-btn active" data-lang="ru">
             <img src="https://flagcdn.com/16x12/ru.png" alt="Русский" /> RU
           </button>
         </div>
@@ -81,12 +73,28 @@
             id="nickname"
             placeholder="Enter player nickname or profile URL"
           />
-          <button id="searchButton" onclick="analyzePlayer()">ANALYZE</button>
+          <button id="searchButton">ANALYZE</button>
         </div>
       </section>
 
       <section id="results" translate="no">
         <h2><i class="fas fa-trophy"></i> Player Statistics</h2>
+
+        <!-- Demo mode notification -->
+        <div
+          id="demoNotification"
+          class="demo-notification"
+          style="display: none"
+        >
+          <div class="demo-content">
+            <i class="fas fa-info-circle"></i>
+            <span class="demo-text"
+              >Demo Mode: Using demo data for demonstration. Real API may be
+              limited on static hosting.</span
+            >
+          </div>
+        </div>
+
         <div id="output">Enter a nickname to see results.</div>
         <div class="player-stats" id="playerStats">
           <!-- Stat cards will be generated here by JavaScript -->
@@ -97,10 +105,10 @@
     <footer translate="no">
       <div class="footer-content">
         <div class="footer-buttons">
-          <button class="footer-btn support-btn" onclick="openSupportModal()">
+          <button class="footer-btn support-btn">
             <i class="fas fa-heart"></i> Support Us
           </button>
-          <button class="footer-btn contact-btn" onclick="openContactModal()">
+          <button class="footer-btn contact-btn">
             <i class="fas fa-envelope"></i> Contact Us
           </button>
         </div>
@@ -111,7 +119,7 @@
     <!-- Support Modal -->
     <div id="supportModal" class="modal" translate="no">
       <div class="modal-content">
-        <span class="close" onclick="closeSupportModal()">&times;</span>
+        <span class="close">&times;</span>
         <h2><i class="fas fa-heart"></i> Support FACEIT Analyze</h2>
         <div class="support-options">
           <a
@@ -142,12 +150,12 @@
     <!-- Contact Modal -->
     <div id="contactModal" class="modal" translate="no">
       <div class="modal-content">
-        <span class="close" onclick="closeContactModal()">&times;</span>
+        <span class="close">&times;</span>
         <h2><i class="fas fa-envelope"></i> Отправить сообщение</h2>
         <p>Есть вопросы, предложения или нужна помощь? Напишите нам!</p>
 
         <div class="contact-form">
-          <form id="contactForm" onsubmit="sendMessage(event)">
+          <form id="contactForm">
             <div class="form-group">
               <label for="contactName">Ваше имя</label>
               <input

@@ -1,5 +1,6 @@
 // Глобальная переменная для доступа из onclick
 let playerStats;
+let isInitialized = false; // Флаг для предотвращения множественной инициализации
 
 // Объект с переводами
 const translations = {
@@ -94,6 +95,11 @@ const translations = {
     faceitApiNotLoaded:
       "FaceitAPI not loaded. Check developer console for details.",
     error: "Error",
+
+    // Demo mode messages
+    demoMode: "Demo Mode",
+    demoModeNote:
+      "Using demo data for demonstration. Real API may be limited on static hosting.",
   },
 
   ru: {
@@ -188,6 +194,11 @@ const translations = {
     faceitApiNotLoaded:
       "FaceitAPI не загружен. Проверьте консоль разработчика для деталей.",
     error: "Ошибка",
+
+    // Demo mode messages
+    demoMode: "Режим демонстрации",
+    demoModeNote:
+      "Используются демонстрационные данные. Реальный API может быть ограничен на статическом хостинге.",
   },
 };
 
@@ -594,6 +605,17 @@ async function analyzePlayer() {
     const playerData = await window.FaceitAPI.getPlayerData(nickname, apiKey);
     window.currentPlayerData = playerData; // Сохраняем для использования в переводах
 
+    // Проверяем, используются ли демо данные
+    const isDemoMode =
+      playerData.player_id && playerData.player_id.startsWith("demo-");
+
+    // Показываем уведомление о демо режиме, если нужно
+    if (isDemoMode) {
+      showDemoNotification();
+    } else {
+      hideDemoNotification();
+    }
+
     if (output) {
       output.textContent = `${getText("gettingStats")} ${
         playerData.nickname
@@ -812,6 +834,19 @@ function sendMessage(event) {
 
 // Функция для инициализации приложения
 function init() {
+  // Предотвращаем множественную инициализацию
+  if (isInitialized) {
+    console.log("Приложение уже инициализировано");
+    return;
+  }
+
+  console.log("Инициализация приложения...");
+
+  // Очищаем URL от хеша чтобы избежать проблем
+  if (window.location.hash) {
+    history.replaceState(null, null, window.location.pathname);
+  }
+
   // Устанавливаем язык интерфейса в зависимости от настроек браузера или локального хранилища
   const browserLang = navigator.language || navigator.userLanguage;
   const savedLang = localStorage.getItem("faceit-analyze-language");
@@ -822,32 +857,72 @@ function init() {
     : translations[savedLang]
     ? savedLang
     : defaultLang;
-  switchLanguage(lang);
+
+  // Устанавливаем язык без вызова switchLanguage для избежания циклов
+  currentLanguage = lang;
+  window.currentLanguage = currentLanguage;
 
   // Инициализируем playerStats
   playerStats = document.getElementById("playerStats");
 
-  // Добавляем обработчики событий для кнопок переключения языка
+  // Добавляем обработчики событий ТОЛЬКО ОДИН РАЗ
+  initializeEventListeners();
+
+  // Обновляем интерфейс
+  updateLanguageButtons();
+  updatePageTexts();
+
+  // Диагностическая проверка загрузки FaceitAPI
+  checkFaceitAPI();
+
+  // Помечаем как инициализированное
+  isInitialized = true;
+  console.log("Приложение успешно инициализировано");
+}
+
+// Отдельная функция для инициализации обработчиков событий
+function initializeEventListeners() {
+  // Удаляем старые обработчики перед добавлением новых
   const langButtons = document.querySelectorAll(".lang-btn");
   langButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    // Удаляем onclick атрибуты из HTML
+    btn.removeAttribute("onclick");
+    // Клонируем элемент для удаления всех обработчиков
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+  });
+
+  // Добавляем новые обработчики для кнопок языка
+  document.querySelectorAll(".lang-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
       const selectedLang = btn.dataset.lang;
       switchLanguage(selectedLang);
     });
   });
 
-  // Обработчик клика по кнопке "Поддержать нас" (открывает модальное окно)
+  // Обработчик клика по кнопке "Поддержать нас"
   const supportBtn = document.querySelector(".support-btn");
   if (supportBtn) {
-    supportBtn.addEventListener("click", () => {
+    supportBtn.removeAttribute("onclick");
+    const newSupportBtn = supportBtn.cloneNode(true);
+    supportBtn.parentNode.replaceChild(newSupportBtn, supportBtn);
+
+    document.querySelector(".support-btn").addEventListener("click", (e) => {
+      e.preventDefault();
       openSupportModal();
     });
   }
 
-  // Обработчик клика по кнопке "Связаться с нами" (открывает модальное окно)
+  // Обработчик клика по кнопке "Связаться с нами"
   const contactBtn = document.querySelector(".contact-btn");
   if (contactBtn) {
-    contactBtn.addEventListener("click", () => {
+    contactBtn.removeAttribute("onclick");
+    const newContactBtn = contactBtn.cloneNode(true);
+    contactBtn.parentNode.replaceChild(newContactBtn, contactBtn);
+
+    document.querySelector(".contact-btn").addEventListener("click", (e) => {
+      e.preventDefault();
       openContactModal();
     });
   }
@@ -857,13 +932,47 @@ function init() {
   if (nicknameInput) {
     nicknameInput.addEventListener("keypress", (event) => {
       if (event.key === "Enter") {
+        event.preventDefault();
         analyzePlayer();
       }
     });
   }
 
+  // Обработчик для кнопки анализа
+  const searchButton = document.getElementById("searchButton");
+  if (searchButton) {
+    searchButton.removeAttribute("onclick");
+    const newSearchBtn = searchButton.cloneNode(true);
+    searchButton.parentNode.replaceChild(newSearchBtn, searchButton);
+
+    document.getElementById("searchButton").addEventListener("click", (e) => {
+      e.preventDefault();
+      analyzePlayer();
+    });
+  }
+
+  // Обработчики для кнопок закрытия модальных окон
+  document.querySelectorAll(".close").forEach((closeBtn) => {
+    closeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const modal = closeBtn.closest(".modal");
+      if (modal) {
+        modal.style.display = "none";
+      }
+    });
+  });
+
+  // Обработчик отправки формы контактов
+  const contactForm = document.getElementById("contactForm");
+  if (contactForm) {
+    contactForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      sendMessage(e);
+    });
+  }
+
   // Закрытие модальных окон при клике вне их области
-  window.addEventListener("click", (event) => {
+  document.addEventListener("click", (event) => {
     const supportModal = document.getElementById("supportModal");
     const contactModal = document.getElementById("contactModal");
     if (
@@ -873,9 +982,25 @@ function init() {
       event.target.style.display = "none";
     }
   });
+}
 
-  // Диагностическая проверка загрузки FaceitAPI
-  checkFaceitAPI();
+// Функции для управления уведомлением о демо режиме
+function showDemoNotification() {
+  const notification = document.getElementById("demoNotification");
+  if (notification) {
+    const demoText = notification.querySelector(".demo-text");
+    if (demoText) {
+      demoText.textContent = getText("demoModeNote");
+    }
+    notification.style.display = "block";
+  }
+}
+
+function hideDemoNotification() {
+  const notification = document.getElementById("demoNotification");
+  if (notification) {
+    notification.style.display = "none";
+  }
 }
 
 // Диагностическая функция для проверки загрузки FaceitAPI
