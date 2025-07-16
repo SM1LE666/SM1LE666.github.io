@@ -217,6 +217,11 @@ function switchLanguage(lang) {
     return;
   }
 
+  // Предотвращаем повторные вызовы для того же языка
+  if (currentLanguage === lang) {
+    return;
+  }
+
   currentLanguage = lang;
   // Обновляем глобальную переменную для доступа из других файлов
   window.currentLanguage = currentLanguage;
@@ -233,8 +238,14 @@ function switchLanguage(lang) {
   // Если есть отображенная статистика игрока, обновляем её
   if (playerStats && playerStats.innerHTML.trim() !== "") {
     updatePlayerStatsTexts();
-    // Дополнительно обновляем названия стран
-    updateCountryNamesInPlayerCard();
+    // Обновляем названия стран через FaceitAPI если доступно
+    if (window.FaceitAPI && window.FaceitAPI.updateCountryNames) {
+      try {
+        window.FaceitAPI.updateCountryNames();
+      } catch (error) {
+        console.warn("Ошибка при обновлении названий стран:", error);
+      }
+    }
   }
 }
 
@@ -396,14 +407,6 @@ function updateModalTexts() {
       "sendMessage"
     )}`;
   }
-
-  const contactInfoFooter = document.querySelector(".contact-info-footer p");
-  if (contactInfoFooter) {
-    contactInfoFooter.innerHTML = `
-      <i class="fas fa-envelope"></i> ${getText("orWriteDirectly")}
-      <a href="https://mail.google.com/mail/?view=cm&fs=1&to=faceit.analyze@gmail.com" target="_blank">faceit.analyze@gmail.com</a>
-    `;
-  }
 }
 
 // Функция для обновления текстов в статистике игрока
@@ -415,38 +418,12 @@ function updatePlayerStatsTexts() {
   const playerInfo = playerCard.querySelector(".player-info");
   if (playerInfo) {
     const paragraphs = playerInfo.querySelectorAll("p");
-    paragraphs.forEach(async (p) => {
+    paragraphs.forEach((p) => {
       const text = p.textContent;
       // Обновляем каждую строку с информацией о игроке
       if (text.includes("Страна:") || text.includes("Country:")) {
-        // Получаем новое название страны через FaceitAPI
-        if (
-          window.currentPlayerData &&
-          window.currentPlayerData.country &&
-          window.FaceitAPI
-        ) {
-          const countryCode = window.currentPlayerData.country;
-          try {
-            // Получаем переведенное название страны
-            const newCountryName = await window.FaceitAPI.getCountryName(
-              countryCode
-            );
-            p.textContent = `${getText("country")}: ${newCountryName}`;
-          } catch (error) {
-            console.error("Ошибка при получении названия страны:", error);
-            // Fallback: просто обновляем подпись, оставляя старое название
-            const countryValue = text.split(":")[1]?.trim();
-            if (countryValue) {
-              p.textContent = `${getText("country")}: ${countryValue}`;
-            }
-          }
-        } else {
-          // Fallback: просто обновляем подпись, оставляя старое название
-          const countryValue = text.split(":")[1]?.trim();
-          if (countryValue) {
-            p.textContent = `${getText("country")}: ${countryValue}`;
-          }
-        }
+        // Для названий стран делаем отдельную обработку без множественных async вызовов
+        updateCountryInPlayerInfo(p, text);
       } else if (text.includes("ELO:")) {
         const eloValue = text.split(":")[1]?.trim();
         if (eloValue) {
@@ -550,81 +527,135 @@ function updatePlayerStatsTexts() {
   });
 }
 
-// Функция для инициализации приложения
-function init() {
-  // Устанавливаем язык интерфейса в зависимости от настроек браузера или локального хранилища
-  const browserLang = navigator.language || navigator.userLanguage;
-  const savedLang = localStorage.getItem("faceit-analyze-language");
-  const defaultLang = "ru"; // Язык по умолчанию
-
-  const lang = translations[browserLang]
-    ? browserLang
-    : translations[savedLang]
-    ? savedLang
-    : defaultLang;
-  switchLanguage(lang);
-
-  // Добавляем обработчики событий для кнопок переключения языка
-  const langButtons = document.querySelectorAll(".lang-btn");
-  langButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const selectedLang = btn.dataset.lang;
-      switchLanguage(selectedLang);
-    });
-  });
-
-  // Обработчик клика по кнопке "Поддержать нас" (открывает модальное окно)
-  const supportBtn = document.querySelector(".support-btn");
-  if (supportBtn) {
-    supportBtn.addEventListener("click", () => {
-      const modal = document.getElementById("supportModal");
-      if (modal) {
-        modal.style.display = "block";
-        // Обновляем тексты в модальном окне поддержки
-        updateModalTexts();
-      }
-    });
-  }
-
-  // Обработчик клика по кнопке "Связаться с нами" (открывает модальное окно)
-  const contactBtn = document.querySelector(".contact-btn");
-  if (contactBtn) {
-    contactBtn.addEventListener("click", () => {
-      const modal = document.getElementById("contactModal");
-      if (modal) {
-        modal.style.display = "block";
-        // Обновляем тексты в модальном окне контактов
-        updateModalTexts();
-      }
-    });
-  }
-
-  // Закрытие модальных окон при клике вне их области
-  window.addEventListener("click", (event) => {
-    const supportModal = document.getElementById("supportModal");
-    const contactModal = document.getElementById("contactModal");
+// Отдельная функция для обновления названий стран (избегаем множественные async вызовы)
+async function updateCountryInPlayerInfo(paragraph, originalText) {
+  try {
+    // Получаем новое название страны через FaceitAPI
     if (
-      (supportModal && event.target === supportModal) ||
-      (contactModal && event.target === contactModal)
+      window.currentPlayerData &&
+      window.currentPlayerData.country &&
+      window.FaceitAPI
     ) {
-      event.target.style.display = "none";
+      const countryCode = window.currentPlayerData.country;
+      // Получаем переведенное название страны
+      const newCountryName = await window.FaceitAPI.getCountryName(countryCode);
+      paragraph.textContent = `${getText("country")}: ${newCountryName}`;
+    } else {
+      // Fallback: просто обновляем подпись, оставляя старое название
+      const countryValue = originalText.split(":")[1]?.trim();
+      if (countryValue) {
+        paragraph.textContent = `${getText("country")}: ${countryValue}`;
+      }
     }
-  });
-
-  // Диагностическая проверка загрузки FaceitAPI
-  checkFaceitAPI();
-}
-
-// Диагностическая функция для проверки загрузки FaceitAPI
-function checkFaceitAPI() {
-  if (!window.FaceitAPI) {
-    console.error("FaceitAPI не определен в window!");
-    // Убираем алерт - просто логируем ошибку в консоль
-    console.warn(getText("faceitApiNotLoaded"));
-    return false;
+  } catch (error) {
+    console.error("Ошибка при обновлении названия страны:", error);
+    // Fallback: просто обновляем подпись, оставляя старое название
+    const countryValue = originalText.split(":")[1]?.trim();
+    if (countryValue) {
+      paragraph.textContent = `${getText("country")}: ${countryValue}`;
+    }
   }
-  return true;
 }
 
 // Запускаем инициализацию после загрузки страницы
 window.addEventListener("load", init);
+
+// Функции для модальных окон (вызываются из HTML)
+function openSupportModal() {
+  const modal = document.getElementById("supportModal");
+  if (modal) {
+    modal.style.display = "block";
+    // Обновляем тексты в модальном окне поддержки
+    updateModalTexts();
+  }
+}
+
+function closeSupportModal() {
+  const modal = document.getElementById("supportModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
+
+function openContactModal() {
+  const modal = document.getElementById("contactModal");
+  if (modal) {
+    modal.style.display = "block";
+    // Обновляем тексты в модальном окне контактов
+    updateModalTexts();
+  }
+}
+
+function closeContactModal() {
+  const modal = document.getElementById("contactModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
+
+function sendMessage(event) {
+  event.preventDefault();
+
+  const name = document.getElementById("contactName").value;
+  const email = document.getElementById("contactEmail").value;
+  const subject = document.getElementById("contactSubject").value;
+  const message = document.getElementById("contactMessage").value;
+
+  if (!name || !email || !subject || !message) {
+    alert(getText("fillAllFields"));
+    return;
+  }
+
+  // Формируем письмо для Gmail
+  const subjectText = `FACEIT Analyze: ${subject}`;
+  const bodyText = `Имя: ${name}\nEmail: ${email}\n\nСообщение:\n${message}`;
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=faceit.analyze@gmail.com&su=${encodeURIComponent(
+    subjectText
+  )}&body=${encodeURIComponent(bodyText)}`;
+
+  // Открываем Gmail в новой вкладке
+  window.open(gmailUrl, "_blank");
+
+  // Показываем сообщение об успехе
+  alert(getText("emailClientOpened"));
+
+  // Закрываем модальное окно
+  closeContactModal();
+
+  // Очищаем форму
+  document.getElementById("contactForm").reset();
+}
+
+// Функция для анализа игрока (если она не определена в другом файле)
+async function analyzePlayer() {
+  const nicknameInput = document.getElementById("nickname");
+  const nickname = nicknameInput?.value?.trim();
+
+  if (!nickname) {
+    alert(getText("enterNicknameValidation"));
+    return;
+  }
+
+  const output = document.getElementById("output");
+  if (output) {
+    output.textContent = `${getText("gettingData")} ${nickname}...`;
+  }
+
+  // Если функция анализа определена в другом файле, вызываем её
+  if (window.analyzePlayerData) {
+    try {
+      await window.analyzePlayerData(nickname);
+    } catch (error) {
+      console.error("Ошибка анализа игрока:", error);
+      if (output) {
+        output.textContent = `${getText("error")}: ${error.message}`;
+      }
+    }
+  } else {
+    console.warn("Функция analyzePlayerData не найдена");
+    if (output) {
+      output.textContent =
+        "Функция анализа не доступна. Проверьте загрузку скриптов.";
+    }
+  }
+}
