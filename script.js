@@ -1,6 +1,1156 @@
-// Глобальная переменная для доступа из onclick
 let playerStats;
 let isInitialized = false; // Флаг для предотвращения множественной инициализации
+let currentPlayerProfile = null; // Текущий профиль игрока
+let sidebarManager = null; // Менеджер сайдбара
+
+class SidebarManager {
+  constructor() {
+    this.sidebar = document.getElementById("sidebar");
+    this.mobileToggle = document.getElementById("mobileMenuToggle");
+    this.mobileOverlay = document.getElementById("mobileOverlay");
+    this.mobileDrawer = document.getElementById("mobileSidebarDrawer"); // Новая шторка
+    this.isPlayerProfileActive = false;
+    this.isMobileOpen = false;
+    this.isDrawerExpanded = false; // Состояние разворота шторки
+    this.currentView = "overview";
+    this.originalStatsHTML = null;
+    this.updateViewTimeout = null;
+    this.originalPlayerHeaderDisplay = "flex";
+    this.currentMatches = []; // Все загруженные матчи
+    this.matchesOffset = 0; // Смещение для пагинации
+    this.matchesLimit = 10; // Количество загружаемых матчей за раз
+    this.isLoadingMore = false; // Флаг загрузки
+    this.totalMatches = 0; // Общее количество матчей
+    this.showMoreButton = null; // Кнопка "Показать еще"
+
+    this.initializeEventListeners();
+  }
+
+  handleResize() {
+    // Добавьте этот код для обновления стилей при изменении размера окна
+    const playerCard = document.querySelector(".player-card");
+    const playerHeader = playerCard
+      ? playerCard.querySelector(".player-header")
+      : null;
+
+    if (playerHeader && this.currentView === "matches") {
+      if (window.innerWidth <= 768) {
+        playerHeader.style.flexDirection = "column";
+        playerHeader.style.textAlign = "center";
+        playerHeader.style.alignItems = "center";
+        playerHeader.style.gap = "1.5rem";
+      } else {
+        playerHeader.style.flexDirection = "";
+        playerHeader.style.textAlign = "";
+        playerHeader.style.alignItems = "";
+        playerHeader.style.gap = "";
+      }
+    }
+
+    // ПРИНУДИТЕЛЬНО скрываем мобильную шторку на десктопе
+    if (window.innerWidth > 768) {
+      if (this.mobileDrawer) {
+        this.mobileDrawer.style.display = "none !important";
+        this.mobileDrawer.classList.remove("expanded", "visible");
+        this.isDrawerExpanded = false;
+      }
+      // Скрываем мобильный overlay
+      if (this.mobileOverlay) {
+        this.mobileOverlay.classList.remove("active");
+      }
+      document.body.style.overflow = "";
+
+      // Показываем десктопный сайдбар если профиль активен
+      if (this.isPlayerProfileActive) {
+        this.sidebar.classList.add("player-profile-active");
+        document.body.classList.add("sidebar-open");
+      }
+    } else {
+      // На мобильных ПОЛНОСТЬЮ скрываем десктопный сайдбар
+      this.sidebar.classList.remove("player-profile-active");
+      document.body.classList.remove("sidebar-open");
+
+      // Показываем шторку только если профиль активен
+      if (this.isPlayerProfileActive && this.mobileDrawer) {
+        this.mobileDrawer.style.display = "block";
+        this.mobileDrawer.classList.add("visible");
+      }
+    }
+  }
+
+  initializeEventListeners() {
+    // Обработчики для элементов сайдбара (десктоп)
+    const sidebarItems = document.querySelectorAll(".sidebar-item");
+    sidebarItems.forEach((item) => {
+      item.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        // Проверяем, если это кнопка "Назад"
+        if (item.dataset.action === "back") {
+          this.goBackToMainMenu();
+          return;
+        }
+
+        if (!this.isPlayerProfileActive) return; // Не работает без активного профиля
+
+        const view = item.dataset.view;
+        if (view) {
+          this.switchView(view);
+        }
+      });
+    });
+
+    // Обработчики для элементов мобильной шторки
+    const drawerItems = document.querySelectorAll(".drawer-item");
+    drawerItems.forEach((item) => {
+      item.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Проверяем, если это кнопка "Назад"
+        if (item.dataset.action === "back") {
+          this.goBackToMainMenu();
+          return;
+        }
+
+        if (!this.isPlayerProfileActive) return;
+
+        const view = item.dataset.view;
+        if (view) {
+          this.switchView(view);
+          // После выбора ВСЕГДА сворачиваем шторку на мобильных
+          if (window.innerWidth <= 768) {
+            this.collapseDrawer();
+          }
+        }
+      });
+    });
+
+    // Обработчик для кнопки сворачивания/разворачивания шторки
+    // Используем делегирование событий, так как кнопка может появиться позже
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("#drawerToggleBtn")) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!this.isPlayerProfileActive) {
+          return;
+        }
+        this.toggleDrawer();
+      }
+    });
+
+    // Обработчик для заголовка шторки (разворот/сворачивание) - убираем, чтобы избежать конфликтов
+    // const drawerHeader = document.querySelector(".drawer-header");
+    // if (drawerHeader) {
+    //   drawerHeader.addEventListener("click", (e) => {
+    //     e.preventDefault();
+    //     if (!this.isPlayerProfileActive) return;
+    //     this.toggleDrawer();
+    //   });
+    // }
+
+    // Desktop mobile toggle (теперь скрыт на мобильных)
+    if (this.mobileToggle) {
+      this.mobileToggle.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!this.isPlayerProfileActive) return;
+        this.toggleMobileSidebar();
+      });
+    }
+
+    // Mobile overlay
+    if (this.mobileOverlay) {
+      this.mobileOverlay.addEventListener("click", () => {
+        this.closeMobileSidebar();
+        this.collapseDrawer();
+      });
+    }
+
+    // Клавиша Escape для закрытия
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (this.isMobileOpen) {
+          this.closeMobileSidebar();
+        }
+        if (this.isDrawerExpanded) {
+          this.collapseDrawer();
+        }
+      }
+    });
+  }
+
+  // Показать сайдбар при загрузке профиля игрока
+  showForPlayerProfile() {
+    if (this.isPlayerProfileActive) return;
+
+    const playerHeader = document.querySelector(".player-header");
+    if (playerHeader) {
+      // Сохраняем исходное значение display
+      this.originalPlayerHeaderDisplay =
+        window.getComputedStyle(playerHeader).display;
+    }
+
+    this.isPlayerProfileActive = true;
+
+    // На десктопе показываем обычный сайдбар
+    if (window.innerWidth > 768) {
+      this.sidebar.classList.add("player-profile-active");
+      this.sidebar.classList.add("slide-in");
+      document.body.classList.add("sidebar-open");
+
+      // Пульсация только на десктопе
+      setTimeout(() => {
+        this.sidebar.classList.add("pulse-glow");
+        setTimeout(() => {
+          this.sidebar.classList.remove("pulse-glow");
+        }, 2000);
+      }, 500);
+
+      // ГАРАНТИРУЕМ что шторка скрыта на десктопе
+      if (this.mobileDrawer) {
+        this.mobileDrawer.style.display = "none";
+        this.mobileDrawer.classList.remove("visible", "expanded");
+      }
+    } else {
+      // На мобильных показываем шторку
+      if (this.mobileDrawer) {
+        this.mobileDrawer.style.display = "block";
+        this.mobileDrawer.classList.add("visible");
+
+        // Убеждаемся, что шторка свернута по умолчанию
+        this.mobileDrawer.classList.remove("expanded");
+        this.isDrawerExpanded = false;
+      }
+    }
+
+    console.log("Сайдбар/шторка активированы для профиля игрока");
+  }
+
+  // Скрыть сайдбар при отсутствии профиля
+  hideForPlayerProfile() {
+    if (!this.isPlayerProfileActive) return;
+
+    this.isPlayerProfileActive = false;
+
+    // Скрываем десктопный сайдбар
+    this.sidebar.classList.remove("player-profile-active");
+    this.sidebar.classList.remove("slide-in");
+    this.sidebar.classList.add("hidden");
+    document.body.classList.remove("sidebar-open");
+
+    // Скрываем мобильную шторку ПОЛНОСТЬЮ
+    if (this.mobileDrawer) {
+      this.collapseDrawer(); // Сворачиваем если развернута
+      this.mobileDrawer.classList.remove("visible");
+      this.mobileDrawer.style.animation =
+        "slideOut 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards";
+
+      // Полностью скрываем после анимации
+      setTimeout(() => {
+        if (!this.isPlayerProfileActive) {
+          this.mobileDrawer.style.display = "none";
+        }
+      }, 400);
+    }
+
+    // Закрываем мобильный сайдбар если открыт
+    this.closeMobileSidebar();
+
+    // Скрываем mobile toggle для десктопа
+    if (this.mobileToggle) {
+      this.mobileToggle.style.display = "none";
+    }
+
+    // Убираем класс hidden через некоторое время
+    setTimeout(() => {
+      this.sidebar.classList.remove("hidden");
+    }, 300);
+
+    console.log("Сайдбар/шторка деактивированы");
+  }
+
+  // Переключение видов в сайдбаре
+  switchView(view) {
+    if (!this.isPlayerProfileActive) return;
+
+    // На мобильных автоматически закрываем меню после выбора
+    if (window.innerWidth <= 768) {
+      this.closeMobileSidebar();
+      this.collapseDrawer(); // Также сворачиваем шторку
+    }
+
+    this.currentView = view;
+
+    // Обновляем активный элемент в обоих сайдбарах
+    document.querySelectorAll(".sidebar-item, .drawer-item").forEach((item) => {
+      item.classList.remove("active");
+      if (item.dataset.view === view) {
+        item.classList.add("active");
+      }
+    });
+
+    // Здесь можно добавить логику переключения контента
+    this.updatePlayerStatsView(view);
+
+    console.log(`Переключено на вид: ${view}`);
+  }
+
+  // Добавляем класс для текста ошибки API
+  hideApiErrorText() {
+    const apiErrorClass = "api-error-text";
+    const errorTextElements = document.querySelectorAll(`.${apiErrorClass}`);
+    errorTextElements.forEach((element) => {
+      element.style.display = "none";
+    });
+  }
+
+  // Обновление отображения ошибки API
+  async showMatchesStats() {
+    try {
+      const playerId = window.currentPlayerData?.player_id;
+      if (!playerId) {
+        console.error("Player ID is not available.");
+        return;
+      }
+
+      // Сбрасываем состояние при новой загрузке
+      this.currentMatches = [];
+      this.matchesOffset = 0;
+      this.isLoadingMore = false;
+
+      // Загружаем все матчи игрока (увеличиваем лимит до 2000)
+      const url = `https://open.faceit.com/data/v4/players/${playerId}/history?game=cs2&limit=2000`;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer 6f6dd5d6-0ccf-4c2c-a88e-c4386aa0d03a`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        console.error(`API Error: ${response.status} ${response.statusText}`);
+        throw new Error("Failed to fetch match history from FACEIT API.");
+      }
+
+      const data = await response.json();
+
+      if (!data || !data.items || data.items.length === 0) {
+        console.warn("No match history found for the player.");
+        const statsContainer = document.querySelector(".stats-container");
+        if (statsContainer) {
+          statsContainer.innerHTML = `<p class=\"api-error-text\">No match history available for this player.</p>`;
+        }
+        return;
+      }
+
+      console.log(
+        `Загружено ${data.items.length} матчей из ${
+          data.total || data.items.length
+        } доступных`
+      );
+      this.totalMatches = data.total || data.items.length;
+
+      // Получение детальной статистики для каждого матча
+      const matches = await Promise.all(
+        data.items.map(async (match, index) => {
+          try {
+            const stats = await this.fetchMatchStats(match.match_id, playerId);
+            return this.formatMatchData(
+              match,
+              stats,
+              playerId,
+              index,
+              this.totalMatches
+            );
+          } catch (error) {
+            console.error(
+              `Error fetching stats for match ${match.match_id}:`,
+              error
+            );
+            return this.formatMatchData(
+              match,
+              null,
+              playerId,
+              index,
+              this.totalMatches
+            );
+          }
+        })
+      );
+
+      // Сохраняем все матчи
+      this.currentMatches = matches;
+      console.log(`Обработано ${matches.length} матчей для отображения`);
+
+      // Отображаем первые 20 матчей
+      this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
+    } catch (error) {
+      console.error("Error fetching match history:", error);
+      const statsContainer = document.querySelector(".stats-container");
+      if (statsContainer) {
+        statsContainer.innerHTML = `<p class="api-error-text">${error.message}</p>`;
+      }
+    }
+  }
+
+  // Метод для загрузки следующих матчей
+  loadMoreMatches() {
+    if (this.isLoadingMore) return;
+
+    this.isLoadingMore = true;
+    const nextOffset = this.matchesOffset + 20;
+    const nextMatches = this.currentMatches.slice(nextOffset, nextOffset + 20);
+
+    if (nextMatches.length > 0) {
+      this.matchesOffset = nextOffset;
+      this.displayMatchHistory(
+        this.currentMatches.slice(0, nextOffset + 20),
+        false
+      );
+    }
+
+    this.isLoadingMore = false;
+  }
+
+  // Новый метод: получение статистики матча
+  // Полностью переработанный метод получения статистики матча
+  async fetchMatchStats(matchId, playerId) {
+    try {
+      const url = `https://open.faceit.com/data/v4/matches/${matchId}/stats`;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer 6f6dd5d6-0ccf-4c2c-a88e-c4386aa0d03a`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch match stats: ${response.status}`);
+      }
+
+      const statsData = await response.json();
+
+      // Проверяем, есть ли данные по раундам
+      if (!statsData.rounds || statsData.rounds.length === 0) {
+        return {
+          map: "Map data not available",
+          score: "Score not available",
+          playerStats: {},
+        };
+      }
+
+      // Извлекаем основную информацию из первого раунда
+      const round = statsData.rounds[0];
+      const map = round.round_stats.Map || "Unknown Map";
+      const score = round.round_stats.Score || "0 - 0";
+
+      // Находим статистику конкретного игрока
+      let playerStats = {};
+      for (const team of round.teams) {
+        const player = team.players.find((p) => p.player_id === playerId);
+        if (player) {
+          playerStats = player.player_stats;
+          break;
+        }
+      }
+
+      return {
+        map,
+        score,
+        playerStats,
+      };
+    } catch (error) {
+      console.error(`Error fetching match stats for ${matchId}:`, error);
+      return {
+        map: "Error loading map",
+        score: "Error loading score",
+        playerStats: {},
+      };
+    }
+  }
+
+  // Обновленная функция formatMatchData
+  formatMatchData(match, statsData, playerId, index, totalMatches) {
+    try {
+      const totalMatchNumber = totalMatches - index;
+      const timestamp = Number(match.finished_at) * 1000;
+      const date = !isNaN(timestamp)
+        ? new Date(timestamp).toLocaleDateString()
+        : "Unknown Date";
+
+      // Используем данные из statsData вместо match
+      const map = statsData.map || "Map data not available";
+      const score = statsData.score || "0 - 0";
+
+      // Определение результата (победа/поражение)
+      let result = "LOSS";
+      if (statsData.playerStats.Result === "1") {
+        result = "WIN";
+      }
+
+      return {
+        matchId: match.match_id || "Unknown Match ID",
+        totalMatchNumber,
+        date,
+        map,
+        score,
+        playerStats: statsData.playerStats || {},
+        kills: statsData.playerStats.Kills || 0,
+        deaths: statsData.playerStats.Deaths || 0,
+        assists: statsData.playerStats.Assists || 0,
+        headshots: statsData.playerStats.Headshots || 0,
+        kdRatio: statsData.playerStats["K/D Ratio"] || 0,
+        mvps: statsData.playerStats.MVPs || 0,
+        result,
+      };
+    } catch (error) {
+      console.error("Error formatting match data:", error);
+      return {
+        matchId: "Error",
+        totalMatchNumber: "Error",
+        date: "Error",
+        map: "Error",
+        score: "Error",
+        playerStats: {},
+        kills: 0,
+        deaths: 0,
+        assists: 0,
+        headshots: 0,
+        kdRatio: 0,
+        mvps: 0,
+        result: "Error",
+      };
+    }
+  }
+
+  // Обновление отображения статистики в зависимости от выбранного вида
+  updatePlayerStatsView(view) {
+    const statsContainer = document.querySelector(".stats-container");
+    const playerCard = document.querySelector(".player-card");
+    const playerHeader = playerCard
+      ? playerCard.querySelector(".player-header")
+      : null;
+    if (!playerCard || !playerHeader) return;
+
+    const search = document.getElementById("search");
+    // Сохраняем элементы .stats-box один раз
+    const statsBoxes = playerHeader.querySelectorAll(".stats-box");
+
+    // Отменяем предыдущий таймаут
+    if (this.updateViewTimeout) {
+      clearTimeout(this.updateViewTimeout);
+    }
+
+    // Анимируем только видимые элементы
+    if (playerCard.style.display !== "none") {
+      playerCard.style.opacity = "0.7";
+    }
+
+    this.updateViewTimeout = setTimeout(() => {
+      switch (view) {
+        case "overview":
+          this.hideApiErrorText();
+
+          if (search) search.style.display = "none";
+
+          // Восстанавливаем исходное содержимое контейнера
+          if (this.originalStatsHTML) {
+            statsContainer.innerHTML = this.originalStatsHTML;
+          }
+
+          // Полностью очищаем контейнер и пересоздаем исходную структуру
+          if (!this.originalStatsHTML && window.currentPlayerProfile) {
+            const { playerData, statsData, avgStats, mapAnalysis } =
+              window.currentPlayerProfile;
+            const gameId = "cs2";
+            const lifetime = statsData.lifetime || {};
+
+            statsContainer.innerHTML = `
+              <div class="stats-box slide-in-animation">
+                <h3><i class="fas fa-chart-line"></i> ${getText(
+                  "avgStatsTitle"
+                )}</h3>
+                <p>${getText("killsPerMatch")}: ${avgStats.avgKills}</p>
+                <p>${getText("deathsPerMatch")}: ${avgStats.avgDeaths}</p>
+                <p>K/D: ${avgStats.kd}</p>
+                <p>${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
+              avgStats.totalKills
+            )}</p>
+                <p>${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
+              avgStats.totalDeaths
+            )}</p>
+              </div>
+              
+              <div class="stats-box slide-in-animation">
+                <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
+                ${
+                  mapAnalysis.bestMap
+                    ? `
+                  <p>${getText("mapName")}: ${mapAnalysis.bestMap.name}</p>
+                  <p>${getText(
+                    "mapWinRate"
+                  )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%</p>
+                  <p>K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}</p>
+                  <p>${getText("mapMatches")}: ${
+                        mapAnalysis.bestMap.matches
+                      }</p>
+                `
+                    : `<p>${getText("notEnoughData")}</p>`
+                }
+              </div>
+              
+              <div class="stats-box slide-in-animation">
+                <h3><i class="fas fa-map-marked-alt"></i> ${getText(
+                  "worstMapTitle"
+                )}</h3>
+                ${
+                  mapAnalysis.worstMap
+                    ? `
+                  <p>${getText("mapName")}: ${mapAnalysis.worstMap.name}</p>
+                  <p>${getText(
+                    "mapWinRate"
+                  )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%</p>
+                  <p>K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}</p>
+                  <p>${getText("mapMatches")}: ${
+                        mapAnalysis.worstMap.matches
+                      }</p>
+                `
+                    : `<p>${getText("notEnoughData")}</p>`
+                }
+              </div>
+            `;
+          }
+
+          // Восстанавливаем оригинальные стили
+          playerCard.style.display = "block";
+          playerHeader.style.display = "flex";
+          playerHeader.style.flexDirection = ""; // Сбрасываем кастомные стили
+          playerHeader.style.textAlign = "";
+          playerHeader.style.alignItems = "";
+          playerHeader.style.gap = "";
+
+          statsContainer.style.display = "grid";
+
+          // Показываем все блоки статистики и удаляем карточки карт
+          statsContainer.querySelectorAll(".stats-box").forEach((box) => {
+            box.style.display = "block";
+          });
+
+          // Удаляем все элементы карт и истории матчей если есть
+          statsContainer
+            .querySelectorAll(".maps-grid, .match-history, .map-card")
+            .forEach((element) => {
+              element.remove();
+            });
+
+          break;
+
+        case "matches": {
+          // Сохраняем исходное HTML перед изменением
+          if (!this.originalStatsHTML) {
+            this.originalStatsHTML = statsContainer.innerHTML;
+          }
+
+          if (search) search.style.display = "none";
+
+          // Показываем карточку с оригинальным заголовком
+          playerCard.style.display = "block";
+          playerHeader.style.display = "flex";
+
+          // Для мобильных адаптируем заголовок
+          if (window.innerWidth <= 768) {
+            playerHeader.style.flexDirection = "column";
+            playerHeader.style.textAlign = "center";
+            playerHeader.style.alignItems = "center";
+            playerHeader.style.gap = "1.5rem";
+          }
+
+          statsContainer.style.display = "block";
+
+          // Скрываем блоки статистики
+          statsBoxes.forEach((box) => {
+            box.style.display = "none";
+          });
+
+          this.showMatchesStats();
+          break;
+        }
+        // В секции case "maps" обновляем обработку данных
+        case "maps": {
+          if (search) search.style.display = "none";
+
+          // Скрываем блоки статистики, но НЕ трогаем player-header
+          statsBoxes.forEach((box) => {
+            box.style.display = "none";
+          });
+
+          // ВАЖНО: Сохраняем правильные стили для player-header как в других случаях
+          if (playerHeader) {
+            playerHeader.style.display = "flex";
+            // Для мобильных применяем те же стили, что и для matches
+            if (window.innerWidth <= 768) {
+              playerHeader.style.flexDirection = "column";
+              playerHeader.style.textAlign = "center";
+              playerHeader.style.alignItems = "center";
+              playerHeader.style.gap = "1.5rem";
+            } else {
+              // Для десктопа восстанавливаем исходные стили
+              playerHeader.style.flexDirection = "";
+              playerHeader.style.textAlign = "";
+              playerHeader.style.alignItems = "";
+              playerHeader.style.gap = "";
+            }
+          }
+
+          // Показываем индикатор загрузки
+          statsContainer.innerHTML =
+            '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Загрузка карт...</div>';
+
+          try {
+            const playerProfile = window.currentPlayerProfile;
+
+            if (!playerProfile || !playerProfile.statsData) {
+              statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+              return;
+            }
+
+            const segments = playerProfile.statsData.segments || [];
+
+            if (segments.length === 0) {
+              statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+              return;
+            }
+
+            // Используем getAllMapsStats для получения данных карт
+            if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
+              const allMapsStats = window.FaceitAPI.getAllMapsStats(segments);
+
+              if (allMapsStats && allMapsStats.length > 0) {
+                // Создаем сетку карточек
+                let html = `<div class="maps-grid">`;
+
+                allMapsStats.forEach((map) => {
+                  // Определяем цвет карточки на основе винрейта
+                  let cardClass = "map-card";
+                  let winRateColor = "#4caf50";
+                  if (map.winRate < 40) {
+                    cardClass += " poor-performance";
+                    winRateColor = "#f44336"; // красный
+                  } else if (map.winRate < 55) {
+                    cardClass += " average-performance";
+                    winRateColor = "#ff9800"; // оранжевый
+                  } else {
+                    cardClass += " good-performance";
+                    winRateColor = "#4caf50"; // зеленый
+                  }
+
+                  html += `
+                    <div class="${cardClass}">
+                      <div class="map-card-header">
+                        <h3 class="map-name">${map.name}</h3>
+                        <div class="win-rate-badge" style="background: ${winRateColor}">
+                          ${map.winRate.toFixed(1)}%
+                        </div>
+                      </div>
+                      
+                      <div class="map-card-body">
+                        <div class="map-stat-row">
+                          <div class="map-stat-item">
+                            <i class="fas fa-gamepad"></i>
+                            <span class="stat-label">${getText(
+                              "mapMatches"
+                            )}</span>
+                            <span class="stat-value">${map.matches}</span>
+                          </div>
+                          
+                          <div class="map-stat-item">
+                            <i class="fas fa-crosshairs"></i>
+                            <span class="stat-label">K/D</span>
+                            <span class="stat-value">${map.kd}</span>
+                          </div>
+                        </div>
+                        
+                        <div class="map-stat-row">
+                          <div class="map-stat-item">
+                            <i class="fas fa-skull"></i>
+                            <span class="stat-label">${getText(
+                              "killsPerMatch"
+                            )}</span>
+                            <span class="stat-value">${map.avgKills}</span>
+                          </div>
+                          
+                          <div class="map-stat-item">
+                            <i class="fas fa-trophy"></i>
+                            <span class="stat-label">${getText(
+                              "mapWinRate"
+                            )}</span>
+                            <span class="stat-value">${map.winRate.toFixed(
+                              1
+                            )}%</span>
+                          </div>
+                        </div>
+                        
+                        <div class="map-stat-row">
+                          <div class="map-stat-item">
+                            <i class="fas fa-fire"></i>
+                            <span class="stat-label">${getText("adr")}</span>
+                            <span class="stat-value">${map.adr}</span>
+                          </div>
+                          
+                          <div class="map-stat-item">
+                            <i class="fas fa-star"></i>
+                            <span class="stat-label">${getText(
+                              "clutches"
+                            )}</span>
+                            <span class="stat-value">${map.clutches}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="map-card-footer">
+                        <div class="performance-indicator">
+                          ${
+                            map.winRate >= 55
+                              ? `<i class="fas fa-arrow-up"></i> ${getText(
+                                  "excellentMap"
+                                )}`
+                              : map.winRate >= 40
+                              ? `<i class="fas fa-minus"></i> ${getText(
+                                  "averageMap"
+                                )}`
+                              : `<i class="fas fa-arrow-down"></i> ${getText(
+                                  "poorMap"
+                                )}`
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                });
+
+                html += "</div>";
+                statsContainer.innerHTML = html;
+              } else {
+                // Fallback к analyzeMaps
+                const mapAnalysis = window.FaceitAPI.analyzeMaps(
+                  segments,
+                  "cs2",
+                  true
+                );
+
+                if (
+                  mapAnalysis &&
+                  mapAnalysis.allMaps &&
+                  mapAnalysis.allMaps.length > 0
+                ) {
+                  let html = `<table class="maps-table"><thead><tr>
+                    <th>${getText("mapName")}</th>
+                    <th>${getText("mapMatches")}</th>
+                    <th>${getText("mapWinRate")}</th>
+                    <th>K/D</th>
+                    <th>${getText("killsPerMatch")}</th>
+                  </tr></thead><tbody>`;
+
+                  mapAnalysis.allMaps.forEach((map) => {
+                    html += `<tr>
+                      <td>${map.name}</td>
+                      <td>${map.matches}</td>
+                      <td>${map.winRate.toFixed(1)}%</td>
+                      <td>${map.kd.toFixed(2)}</td>
+                      <td>${map.avgKills.toFixed(1)}</td>
+                    </tr>`;
+                  });
+
+                  html += "</tbody></table>";
+                  statsContainer.innerHTML = html;
+                } else {
+                  statsContainer.innerHTML = `<p>${getText(
+                    "notEnoughData"
+                  )}</p>`;
+                }
+              }
+            } else {
+              statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+            }
+          } catch (error) {
+            console.error("Ошибка при загрузке данных карт:", error);
+            statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
+          }
+
+          return;
+        }
+
+        default:
+          console.warn("Unknown view type:", view);
+      }
+
+      // Восстанавливаем прозрачность
+      playerCard.style.opacity = "1";
+    }, 150);
+  }
+
+  // В классе SidebarManager
+  displayMatchHistory(matches, isInitialLoad = false) {
+    const statsContainer = document.querySelector(".stats-container");
+    if (!statsContainer) return;
+
+    if (!matches || matches.length === 0) {
+      statsContainer.innerHTML = `<p>${getText("noMatchHistory")}</p>`;
+      return;
+    }
+
+    const matchHistoryHTML = matches
+      .map((match) => {
+        const hasError = match.result === "Error";
+
+        if (hasError) {
+          return `
+          <div class="match-item error">
+            <div class="match-header">
+              <span class="match-date">Error loading match</span>
+            </div>
+            <div class="match-error">Failed to load match data</div>
+          </div>
+        `;
+        }
+
+        const resultClass = match.result.toLowerCase();
+        const resultText = getText(match.result.toLowerCase());
+
+        const kdRatio =
+          match.deaths > 0
+            ? (match.kills / match.deaths).toFixed(2)
+            : match.kills > 0
+            ? "∞"
+            : "0.00";
+
+        let matchUrl = "";
+        if (match.matchId && match.matchId.startsWith("1-")) {
+          matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/cs2/room/${
+            match.matchId
+          }`;
+        } else if (match.matchId) {
+          matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/matchroom/${
+            match.matchId
+          }`;
+        }
+
+        return `
+        <div class="match-item player-card fade-in-animation ${resultClass}" ${
+          matchUrl ? `onclick="window.open('${matchUrl}', '_blank')"` : ""
+        }>
+          <div class="match-top-row">
+            <div class="match-header">
+              <span class="match-date">${match.date}</span>
+              <span class="match-result">${resultText}</span>
+            </div>
+            <div class="match-details">
+              <div class="match-map">${match.map}</div>
+              <div class="match-score">${match.score}</div>
+            </div>
+          </div>
+        
+          <div class="player-stats">
+            <div class="stat-item">
+              <i class="fas fa-skull"></i> 
+              <span>${match.kills}</span>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-skull-crossbones"></i> 
+              <span>${match.deaths}</span>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-handshake"></i> 
+              <span>${match.assists}</span>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-bullseye"></i> 
+              <span>${match.headshots}</span>
+            </div>
+            <div class="stat-item">
+              <span>KD</span> 
+              <span>${kdRatio}</span>
+            </div>
+            <div class="stat-item">
+              <span>MVP</span> 
+              <span>${match.mvps}</span>
+            </div>
+          </div>
+          
+          ${
+            !matchUrl
+              ? `
+            <div class="match-link-error">
+              <i class="fas fa-exclamation-triangle"></i> 
+              ${getText("matchDetailsUnavailable")}
+            </div>
+          `
+              : ""
+          }
+        </div>`;
+      })
+      .join("");
+
+    // Создаем контейнер для истории матчей
+    let matchHistoryContainer = `<div class="match-history">${matchHistoryHTML}</div>`;
+
+    // Если есть еще матчи для загрузки, добавляем кнопку "Показать еще"
+    const hasMoreMatches = matches.length < this.currentMatches.length;
+    if (hasMoreMatches) {
+      const remainingMatches = this.currentMatches.length - matches.length;
+      matchHistoryContainer += `
+        <div class="show-more-container">
+          <button class="show-more-btn" onclick="sidebarManager.loadMoreMatches()">
+            <i class="fas fa-chevron-down"></i>
+            ${getText("showMoreMatches")} (${remainingMatches})
+          </button>
+        </div>
+      `;
+    }
+
+    statsContainer.innerHTML = matchHistoryContainer;
+
+    // Добавляем анимацию появления для новых матчей
+    if (!isInitialLoad) {
+      const newMatches = statsContainer.querySelectorAll(".match-item");
+      newMatches.forEach((item, index) => {
+        if (index >= matches.length - 20) {
+          // Анимируем только новые матчи
+          item.style.opacity = "0";
+          item.style.transform = "translateY(20px)";
+          setTimeout(() => {
+            item.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+            item.style.opacity = "1";
+            item.style.transform = "translateY(0)";
+          }, index * 50);
+        }
+      });
+    }
+  }
+
+  // Mobile sidebar methods (for desktop compatibility)
+  toggleMobileSidebar() {
+    if (!this.isPlayerProfileActive) return;
+
+    if (this.isMobileOpen) {
+      this.closeMobileSidebar();
+    } else {
+      this.openMobileSidebar();
+    }
+  }
+
+  openMobileSidebar() {
+    if (!this.isPlayerProfileActive) return;
+
+    this.isMobileOpen = true;
+    this.sidebar.classList.add("mobile-active");
+    this.mobileOverlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+
+  closeMobileSidebar() {
+    this.isMobileOpen = false;
+    this.sidebar.classList.remove("mobile-active");
+    this.mobileOverlay.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
+  // Новые методы для управления мобильной шторкой
+  toggleDrawer() {
+    if (!this.isPlayerProfileActive) return;
+
+    if (this.isDrawerExpanded) {
+      this.collapseDrawer();
+    } else {
+      this.expandDrawer();
+    }
+  }
+
+  expandDrawer() {
+    this.isDrawerExpanded = true;
+    if (this.mobileDrawer) {
+      this.mobileDrawer.classList.add("expanded");
+      // Показываем оверлей при развороте шторки
+      if (this.mobileOverlay) {
+        this.mobileOverlay.classList.add("active");
+      }
+      document.body.style.overflow = "hidden";
+    }
+  }
+
+  collapseDrawer() {
+    this.isDrawerExpanded = false;
+    if (this.mobileDrawer) {
+      this.mobileDrawer.classList.remove("expanded");
+
+      // Скрываем оверлей при сворачивании шторки
+      if (this.mobileOverlay) {
+        this.mobileOverlay.classList.remove("active");
+      }
+      document.body.style.overflow = "";
+    }
+  }
+
+  // Функция возврата в главное меню
+  goBackToMainMenu() {
+    // Очищаем поле поиска
+    const nicknameInput = document.getElementById("nickname");
+    if (nicknameInput) {
+      nicknameInput.value = "";
+    }
+
+    // Очищаем профиль игрока
+    clearPlayerProfile();
+
+    // Убираем класс для отображения поиска
+    document.body.classList.remove("profile-active");
+
+    // Прокручиваем к началу страницы с плавной анимацией
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    console.log("Возврат в главное меню");
+  }
+
+  // Обновление при изменении размера окна
+  handleResize() {
+    if (window.innerWidth > 768) {
+      // На десктопе
+      this.closeMobileSidebar();
+      this.collapseDrawer();
+
+      if (this.isPlayerProfileActive) {
+        // Показываем обычный сайдбар
+        this.sidebar.classList.add("player-profile-active");
+        this.sidebar.classList.add("slide-in");
+        document.body.classList.add("sidebar-open");
+
+        // Скрываем мобильную шторку
+        if (this.mobileDrawer) {
+          this.mobileDrawer.classList.remove("visible");
+        }
+      }
+    } else {
+      // На мобильных
+      document.body.classList.remove("sidebar-open");
+      this.sidebar.classList.remove("slide-in");
+
+      if (this.isPlayerProfileActive) {
+        // Показываем мобильную шторку
+        if (this.mobileDrawer) {
+          this.mobileDrawer.classList.add("visible");
+        }
+      }
+    }
+  }
+}
+
+// Функция для получения текущего языка
+function getCurrentLanguage() {
+  return window.currentLanguage || currentLanguage || "ru";
+}
 
 // Объект с переводами
 const translations = {
@@ -8,8 +1158,20 @@ const translations = {
     // Header
     title: "FACEIT Analyze",
 
+    // Sidebar
+    sidebarBack: "Back to Menu",
+    sidebarOverview: "Overview",
+    sidebarDetailed: "Detailed",
+    sidebarMaps: "Maps",
+    sidebarHistory: "History",
+    sidebarCompare: "Compare",
+    sidebarMatches: "Matches",
+
+    // Mobile drawer
+    drawerTitle: "Player Statistics",
+
     // Search section
-    searchTitle: "Search Player Statistics",
+    searchTitle: "Search Player",
     searchPlaceholder: "Enter player nickname or profile URL",
     analyzeButton: "ANALYZE",
 
@@ -35,9 +1197,11 @@ const translations = {
     // Maps
     bestMapTitle: "Best Map",
     worstMapTitle: "Worst Map",
-    mapName: "Name",
+    mapName: "Map",
     mapWinRate: "Win Rate",
     mapMatches: "Matches",
+    adr: "ADR",
+    clutches: "Clutches",
 
     // Messages
     gettingData: "Getting data for",
@@ -48,6 +1212,7 @@ const translations = {
     noCs2Matches:
       "{nickname} hasn't played CS:2 matches. Only CS:GO statistics available, which is not considered.",
     notEnoughData: "Not enough data",
+    noMapData: "No map data available",
 
     // Validation
     enterNicknameValidation: "Please enter a nickname or profile URL.",
@@ -63,7 +1228,7 @@ const translations = {
     steamTradeOffer: "Steam Trade Offer",
     howToSupport: "How to support:",
     supportStep1: 'Click on "Steam Trade Offer" button',
-    supportStep2: "Select items to transfer",
+    supportStep2: "Select items to trade",
     supportStep3: "Send trade offer",
     supportNote:
       "Any CS:2, CS:GO skins or other game items will be accepted with gratitude!",
@@ -95,14 +1260,47 @@ const translations = {
     faceitApiNotLoaded:
       "FaceitAPI not loaded. Check developer console for details.",
     error: "Error",
+
+    win: "WIN",
+    loss: "LOSS",
+    reactionTest: "Reaction Test",
+    startTest: "Start Test",
+    reactionTestWait: 'Press "Start Test"',
+    reactionTestEnd: "Test finished",
+    reactionTestResult: "Your reaction: {reaction} ms",
+    reactionTestWait2: "Wait for green color...",
+    reactionTestClick: "CLICK!",
+    reactionTestPremature: "Too early! Try again.",
+    reactionTestSuspicious: "Too fast! Try again.",
+    noMatchHistory: "No match history available",
+    matchDetailsUnavailable: "Match details unavailable",
+    SteamProfile: "Steam Profile",
+    excellentMap: "Excellent Map",
+    averageMap: "Average Map",
+    poorMap: "Poor Map",
+    showMoreMatches: "Show More",
+    // Дополнительные переводы для статистических блоков
+    name: "Name",
   },
 
   ru: {
     // Header
     title: "FACEIT Analyze",
 
+    // Sidebar
+    sidebarBack: "В главное меню",
+    sidebarOverview: "Обзор",
+    sidebarDetailed: "Детали",
+    sidebarMaps: "Карты",
+    sidebarHistory: "История",
+    sidebarCompare: "Сравнение",
+    sidebarMatches: "Матчи",
+
+    // Mobile drawer
+    drawerTitle: "Статистика игрока",
+
     // Search section
-    searchTitle: "Поиск статистики игроков",
+    searchTitle: "Поиск игрока",
     searchPlaceholder: "Введите никнейм игрока или ссылку на профиль",
     analyzeButton: "АНАЛИЗ",
 
@@ -131,6 +1329,8 @@ const translations = {
     mapName: "Название",
     mapWinRate: "Винрейт",
     mapMatches: "Матчей",
+    adr: "УВР",
+    clutches: "Клатчи",
 
     // Messages
     gettingData: "Получение данных для",
@@ -139,8 +1339,9 @@ const translations = {
     noCs2Stats:
       "Статистика CS:2 для {nickname} не найдена. Игрок не играл в CS:2 или данные недоступны.",
     noCs2Matches:
-      "{nickname} не играл матчи в CS:2. Доступна только статистика CS:GO, которая не учитывается.",
+      "{nickname} не играл матчи CS:2. Доступна только статистика CS:GO, которая не учитывается.",
     notEnoughData: "Недостаточно данных",
+    noMapData: "Нет данных по картам",
 
     // Validation
     enterNicknameValidation:
@@ -148,19 +1349,19 @@ const translations = {
     fillAllFields: "Пожалуйста, заполните все поля",
 
     // Footer
-    supportUs: "Поддержать нас",
-    contactUs: "Связаться с нами",
+    supportUs: "Поддержать",
+    contactUs: "Связаться",
     footerText: "Продвинутая статистика для игроков FACEIT",
 
     // Support modal
     supportTitle: "Поддержать FACEIT Analyze",
-    steamTradeOffer: "Steam Trade Offer",
+    steamTradeOffer: "Трейд-предложение Steam",
     howToSupport: "Как поддержать:",
-    supportStep1: 'Нажмите на кнопку "Steam Trade Offer"',
-    supportStep2: "Выберите предметы для передачи",
-    supportStep3: "Отправьте трейд-оффер",
+    supportStep1: 'Нажмите на кнопку "Трейд-предложение Steam"',
+    supportStep2: "Выберите предметы для обмена",
+    supportStep3: "Отправьте трейд-предложение",
     supportNote:
-      "Любые скины CS:2, CS:GO или другие игровые предметы будут приняты с благодарностью!",
+      "Любые скины CS:2, CS:GO или предметы других игр будут приняты с благодарностью!",
 
     // Contact modal
     contactTitle: "Отправить сообщение",
@@ -174,7 +1375,7 @@ const translations = {
     bugReport: "Сообщить об ошибке",
     featureRequest: "Предложить улучшение",
     support: "Техническая поддержка",
-    partnership: "Сотрудничество",
+    partnership: "Партнерство",
     other: "Другое",
     message: "Сообщение",
     messagePlaceholder: "Опишите ваш вопрос или предложение...",
@@ -183,12 +1384,33 @@ const translations = {
 
     // Success messages
     emailClientOpened:
-      "Gmail открыт для отправки сообщения. Проверьте новую вкладку в браузере.",
+      "Gmail был открыт для отправки сообщения. Проверьте вкладки браузера.",
 
     // Error messages
     faceitApiNotLoaded:
       "FaceitAPI не загружен. Проверьте консоль разработчика для деталей.",
     error: "Ошибка",
+
+    win: "ПОБЕДА",
+    loss: "ПОРАЖЕНИЕ",
+    reactionTest: "Тест на реакцию",
+    startTest: "Начать тест",
+    reactionTestWait: 'Нажмите "Начать тест"',
+    reactionTestEnd: "Тест завершен",
+    reactionTestResult: "Ваша реакция: {reaction} мс",
+    reactionTestWait2: "Ждите зеленый цвет...",
+    reactionTestClick: "КЛИКНИТЕ!",
+    reactionTestPremature: "Слишком рано! Попробуйте снова.",
+    reactionTestSuspicious: "Слишком быстро! Попробуйте снова.",
+    noMatchHistory: "Нет истории матчей",
+    matchDetailsUnavailable: "Детали матча недоступны",
+    SteamProfile: "Профиль Steam",
+    excellentMap: "Отличная карта",
+    averageMap: "Средняя карта",
+    poorMap: "Слабая карта",
+    showMoreMatches: "Показать еще",
+    // Дополнительные переводы для статистических блоков
+    name: "Имя",
   },
 };
 
@@ -248,6 +1470,35 @@ function switchLanguage(lang) {
       }
     }
   }
+
+  // Обновляем тексты в сайдбаре
+  updateSidebarTexts();
+
+  // Обновляем карточки карт если они отображены
+  updateMapsTexts();
+
+  // Обновляем историю матчей если она отображена
+  updateMatchHistoryTexts();
+
+  // Обновляем текущий вид сайдбара если профиль активен
+  if (
+    sidebarManager &&
+    sidebarManager.isPlayerProfileActive &&
+    window.currentPlayerProfile
+  ) {
+    const activeItem = document.querySelector(
+      ".sidebar-item.active, .drawer-item.active"
+    );
+    if (activeItem) {
+      const viewType = activeItem.dataset.view; // Используем dataset.view вместо onclick
+      if (viewType) {
+        // Перерендериваем текущий вид с обновленными переводами
+        setTimeout(() => {
+          sidebarManager.updatePlayerStatsView(viewType);
+        }, 100);
+      }
+    }
+  }
 }
 
 // Функция для обновления активной кнопки языка
@@ -258,6 +1509,32 @@ function updateLanguageButtons() {
     if (btn.dataset.lang === currentLanguage) {
       btn.classList.add("active");
     }
+  });
+}
+
+// Функция для синхронизации обоих переключателей языка
+function setupLanguageSwitchers() {
+  // Получаем все кнопки языка
+  const allLangButtons = document.querySelectorAll(".lang-btn");
+
+  // Добавляем обработчики событий для всех кнопок
+  allLangButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      const lang = this.getAttribute("data-lang");
+
+      // Сначала снимаем класс active со всех кнопок
+      allLangButtons.forEach((btn) => btn.classList.remove("active"));
+
+      // Затем добавляем класс active ко всем кнопкам с выбранным языком
+      document
+        .querySelectorAll(`.lang-btn[data-lang="${lang}"]`)
+        .forEach((btn) => {
+          btn.classList.add("active");
+        });
+
+      // Вызываем существующую функцию смены языка
+      setLanguage(lang);
+    });
   });
 }
 
@@ -289,6 +1566,9 @@ function updatePageTexts() {
     searchButton.textContent = getText("analyzeButton");
   }
 
+  // Обновляем тексты сайдбара
+  updateSidebarTexts();
+
   // Сообщение по умолчанию
   const output = document.getElementById("output");
   if (output) {
@@ -319,6 +1599,13 @@ function updatePageTexts() {
     )}`;
   }
 
+  const reactionBtn = document.getElementById("reactionTestBtn");
+  if (reactionBtn) {
+    reactionBtn.innerHTML = `<i class='fas fa-bolt'></i> ${getText(
+      "reactionTest"
+    )}`;
+  }
+
   const footerText = document.querySelector("footer p");
   if (footerText) {
     footerText.textContent = `© 2025 FACEIT Analyze | ${getText("footerText")}`;
@@ -326,6 +1613,19 @@ function updatePageTexts() {
 
   // Модальные окна
   updateModalTexts();
+}
+
+// Функция для обновления текстов в сайдбаре
+function updateSidebarTexts() {
+  const sidebarItems = document.querySelectorAll(
+    ".sidebar-item span[data-translate]"
+  );
+  sidebarItems.forEach((span) => {
+    const translateKey = span.dataset.translate;
+    if (translateKey) {
+      span.textContent = getText(translateKey);
+    }
+  });
 }
 
 // Функция для обновления текстов в модальных окнах
@@ -366,7 +1666,10 @@ function updateModalTexts() {
     )}`;
   }
 
-  const contactDescription = document.querySelector("#contactModal > p");
+  // Исправляем селектор для contactDescription
+  const contactDescription = document.querySelector(
+    "#contactModal .modal-content > p"
+  );
   if (contactDescription) {
     contactDescription.textContent = getText("contactDescription");
   }
@@ -520,10 +1823,64 @@ function updatePlayerStatsTexts() {
     } else if (index === 1) {
       // Блок лучших и худших карт
       h3.innerHTML = `<i class="fas fa-map"></i> ${getText("bestMapTitle")}`;
+
+      // Обновляем текст параграфов внутри
+      const paragraphs = box.querySelectorAll("p");
+      paragraphs.forEach((p) => {
+        const text = p.textContent;
+        if (text.includes("Карта:") || text.includes("Map:")) {
+          const mapNameValue = text.split(":")[1]?.trim();
+          if (mapNameValue) {
+            p.textContent = `${getText("mapName")}: ${mapNameValue}`;
+          }
+        } else if (text.includes("Винрейт:") || text.includes("Win Rate:")) {
+          const winRateValue = text.split(":")[1]?.trim();
+          if (winRateValue) {
+            p.textContent = `${getText("mapWinRate")}: ${winRateValue}`;
+          }
+        } else if (text.includes("K/D:")) {
+          const kdValue = text.split(":")[1]?.trim();
+          if (kdValue) {
+            p.textContent = `K/D: ${kdValue}`;
+          }
+        } else if (text.includes("Матчей:") || text.includes("Matches:")) {
+          const matchesValue = text.split(":")[1]?.trim();
+          if (matchesValue) {
+            p.textContent = `${getText("mapMatches")}: ${matchesValue}`;
+          }
+        }
+      });
     } else if (index === 2) {
       h3.innerHTML = `<i class="fas fa-map-marked-alt"></i> ${getText(
         "worstMapTitle"
       )}`;
+
+      // Обновляем текст параграфов внутри
+      const paragraphs = box.querySelectorAll("p");
+      paragraphs.forEach((p) => {
+        const text = p.textContent;
+        if (text.includes("Карта:") || text.includes("Map:")) {
+          const mapNameValue = text.split(":")[1]?.trim();
+          if (mapNameValue) {
+            p.textContent = `${getText("mapName")}: ${mapNameValue}`;
+          }
+        } else if (text.includes("Винрейт:") || text.includes("Win Rate:")) {
+          const winRateValue = text.split(":")[1]?.trim();
+          if (winRateValue) {
+            p.textContent = `${getText("mapWinRate")}: ${winRateValue}`;
+          }
+        } else if (text.includes("K/D:")) {
+          const kdValue = text.split(":")[1]?.trim();
+          if (kdValue) {
+            p.textContent = `K/D: ${kdValue}`;
+          }
+        } else if (text.includes("Матчей:") || text.includes("Matches:")) {
+          const matchesValue = text.split(":")[1]?.trim();
+          if (matchesValue) {
+            p.textContent = `${getText("mapMatches")}: ${matchesValue}`;
+          }
+        }
+      });
     }
   });
 }
@@ -558,259 +1915,6 @@ async function updateCountryInPlayerInfo(paragraph, originalText) {
   }
 }
 
-// Запускаем инициализацию после загрузки страницы
-window.addEventListener("load", init);
-
-// Основная функция анализа игрока
-async function analyzePlayer() {
-  const nicknameInput = document.getElementById("nickname");
-  const nickname = nicknameInput?.value?.trim();
-
-  if (!nickname) {
-    alert(getText("enterNicknameValidation"));
-    return;
-  }
-
-  const output = document.getElementById("output");
-  const playerStatsContainer = document.getElementById("playerStats");
-
-  // Инициализируем playerStats если не инициализирована
-  if (!playerStats) {
-    playerStats = playerStatsContainer;
-  }
-
-  if (output) {
-    output.textContent = `${getText("gettingData")} ${nickname}...`;
-  }
-
-  try {
-    // Загружаем конфигурацию если не загружена
-    if (!window.Config.loaded) {
-      await window.Config.loadConfig();
-    }
-
-    const apiKey = window.Config.getApiKey();
-
-    // Получаем данные игрока
-    const playerData = await window.FaceitAPI.getPlayerData(nickname, apiKey);
-    window.currentPlayerData = playerData; // Сохраняем для использования в переводах
-
-    if (output) {
-      output.textContent = `${getText("gettingStats")} ${
-        playerData.nickname
-      }...`;
-    }
-
-    // Получаем статистику CS:2
-    const gameId = "cs2";
-    const statsData = await window.FaceitAPI.getStatsData(
-      playerData.player_id,
-      gameId,
-      apiKey
-    );
-
-    // Получаем актуальное ELO
-    const currentElo = await window.FaceitAPI.getCurrentElo(
-      playerData.player_id,
-      gameId,
-      playerData.games?.[gameId]?.faceit_elo || 0,
-      apiKey
-    );
-
-    // Получаем название страны
-    const countryName = await window.FaceitAPI.getCountryName(
-      playerData.country
-    );
-
-    // Отображаем результаты
-    displayPlayerStats(playerData, statsData, currentElo, countryName);
-
-    if (output) {
-      output.style.display = "none";
-    }
-  } catch (error) {
-    console.error("Ошибка анализа игрока:", error);
-    if (output) {
-      if (error.message.includes("404")) {
-        output.textContent = getText("playerNotFound");
-      } else if (
-        error.message.includes("CS:2") ||
-        error.message.includes("cs2")
-      ) {
-        output.textContent = getText("noCs2Stats", { nickname: nickname });
-      } else {
-        output.textContent = `${getText("error")}: ${error.message}`;
-      }
-    }
-  }
-}
-
-// Функция для отображения статистики игрока
-function displayPlayerStats(playerData, statsData, currentElo, countryName) {
-  const playerStatsContainer = document.getElementById("playerStats");
-  if (!playerStatsContainer) return;
-
-  // Обрабатываем статистику
-  const gameId = "cs2";
-  const lifetime = statsData.lifetime || {};
-  const segments = statsData.segments || [];
-
-  const avgStats = window.FaceitAPI.calculateAvgStats(
-    lifetime,
-    segments,
-    gameId
-  );
-  const mapAnalysis = window.FaceitAPI.analyzeMaps(segments, gameId);
-
-  // Создаем HTML для карточки игрока
-  const playerCardHTML = `
-    <div class="player-card fade-in-animation">
-      <div class="player-header">
-        <div class="player-avatar">
-          <img src="${playerData.avatar || "logooo.png"}" alt="${
-    playerData.nickname
-  }" onerror="this.src='logooo.png'">
-        </div>
-        <div class="player-info">
-          <h2>${playerData.nickname}</h2>
-          <p>${getText("country")}: ${countryName}</p>
-          <p>ELO: ${window.FaceitAPI.formatNumber(currentElo)}</p>
-          <p>${getText("level")}: ${
-    playerData.games?.[gameId]?.skill_level || "N/A"
-  } <span class="level-indicator">⭐</span></p>
-          <p>${getText("matches")}: ${window.FaceitAPI.formatNumber(
-    avgStats.totalMatches
-  )}</p>
-          <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
-          <a href="https://www.faceit.com/${
-            currentLanguage === "ru" ? "ru" : "en"
-          }/players/${playerData.nickname}" target="_blank">${getText(
-    "faceitProfile"
-  )}</a>
-        </div>
-      </div>
-      
-      <div class="stats-container">
-        <div class="stats-box slide-in-animation">
-          <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
-          <p>${getText("killsPerMatch")}: ${avgStats.avgKills}</p>
-          <p>${getText("deathsPerMatch")}: ${avgStats.avgDeaths}</p>
-          <p>K/D: ${avgStats.kd}</p>
-          <p>${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
-    avgStats.totalKills
-  )}</p>
-          <p>${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
-    avgStats.totalDeaths
-  )}</p>
-        </div>
-        
-        <div class="stats-box slide-in-animation">
-          <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
-          ${
-            mapAnalysis.bestMap
-              ? `
-            <p>${getText("mapName")}: ${mapAnalysis.bestMap.name}</p>
-            <p>${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(
-                  1
-                )}%</p>
-            <p>K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}</p>
-            <p>${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}</p>
-          `
-              : `<p>${getText("notEnoughData")}</p>`
-          }
-        </div>
-        
-        <div class="stats-box slide-in-animation">
-          <h3><i class="fas fa-map-marked-alt"></i> ${getText(
-            "worstMapTitle"
-          )}</h3>
-          ${
-            mapAnalysis.worstMap
-              ? `
-            <p>${getText("mapName")}: ${mapAnalysis.worstMap.name}</p>
-            <p>${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
-                  1
-                )}%</p>
-            <p>K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}</p>
-            <p>${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}</p>
-          `
-              : `<p>${getText("notEnoughData")}</p>`
-          }
-        </div>
-      </div>
-    </div>
-  `;
-
-  playerStatsContainer.innerHTML = playerCardHTML;
-  playerStatsContainer.style.display = "block";
-}
-
-// Функции для модальных окон (вызываются из HTML)
-function openSupportModal() {
-  const modal = document.getElementById("supportModal");
-  if (modal) {
-    modal.style.display = "block";
-    // Обновляем тексты в модальном окне поддержки
-    updateModalTexts();
-  }
-}
-
-function closeSupportModal() {
-  const modal = document.getElementById("supportModal");
-  if (modal) {
-    modal.style.display = "none";
-  }
-}
-
-function openContactModal() {
-  const modal = document.getElementById("contactModal");
-  if (modal) {
-    modal.style.display = "block";
-    // Обновляем тексты в модальном окне контактов
-    updateModalTexts();
-  }
-}
-
-function closeContactModal() {
-  const modal = document.getElementById("contactModal");
-  if (modal) {
-    modal.style.display = "none";
-  }
-}
-
-function sendMessage(event) {
-  event.preventDefault();
-
-  const name = document.getElementById("contactName").value;
-  const email = document.getElementById("contactEmail").value;
-  const subject = document.getElementById("contactSubject").value;
-  const message = document.getElementById("contactMessage").value;
-
-  if (!name || !email || !subject || !message) {
-    alert(getText("fillAllFields"));
-    return;
-  }
-
-  // Формируем письмо для Gmail
-  const subjectText = `FACEIT Analyze: ${subject}`;
-  const bodyText = `Имя: ${name}\nEmail: ${email}\n\nСообщение:\n${message}`;
-  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=faceit.analyze@gmail.com&su=${encodeURIComponent(
-    subjectText
-  )}&body=${encodeURIComponent(bodyText)}`;
-
-  // Открываем Gmail в новой вкладке
-  window.open(gmailUrl, "_blank");
-
-  // Показываем сообщение об успехе
-  alert(getText("emailClientOpened"));
-
-  // Закрываем модальное окно
-  closeContactModal();
-
-  // Очищаем форму
-  document.getElementById("contactForm").reset();
-}
-
 // Функция для инициализации приложения
 function init() {
   // Предотвращаем множественную инициализацию
@@ -823,7 +1927,7 @@ function init() {
 
   // Очищаем URL от хеша чтобы избежать проблем
   if (window.location.hash) {
-    history.replaceState(null, null, window.location.pathname);
+    history.replaceState(null, null, window.pathname);
   }
 
   // Устанавливаем язык интерфейса в зависимости от настроек браузера или локального хранилища
@@ -844,8 +1948,18 @@ function init() {
   // Инициализируем playerStats
   playerStats = document.getElementById("playerStats");
 
+  // Инициализируем менеджер сайдбара
+  sidebarManager = new SidebarManager();
+
   // Добавляем обработчики событий ТОЛЬКО ОДИН РАЗ
   initializeEventListeners();
+
+  // Обработчик изменения размера окна для сайдбара
+  window.addEventListener("resize", () => {
+    if (sidebarManager) {
+      sidebarManager.handleResize();
+    }
+  });
 
   // Обновляем интерфейс
   updateLanguageButtons();
@@ -906,6 +2020,20 @@ function initializeEventListeners() {
     });
   }
 
+  // Обработчик клика по кнопке "Тест на реакцию"
+  const reactionBtn = document.getElementById("reactionTestBtn");
+  if (reactionBtn) {
+    reactionBtn.removeAttribute("onclick");
+    const newReactionBtn = reactionBtn.cloneNode(true);
+    reactionBtn.parentNode.replaceChild(newReactionBtn, reactionBtn);
+    document
+      .getElementById("reactionTestBtn")
+      .addEventListener("click", (e) => {
+        e.preventDefault();
+        openReactionTestModal();
+      });
+  }
+
   // Обработчик Enter в поле поиска
   const nicknameInput = document.getElementById("nickname");
   if (nicknameInput) {
@@ -913,6 +2041,13 @@ function initializeEventListeners() {
       if (event.key === "Enter") {
         event.preventDefault();
         analyzePlayer();
+      }
+    });
+
+    // Обработчик изменения в поле поиска - скрываем сайдбар если поле очищено
+    nicknameInput.addEventListener("input", (event) => {
+      if (!event.target.value.trim() && currentPlayerProfile) {
+        clearPlayerProfile();
       }
     });
   }
@@ -934,10 +2069,7 @@ function initializeEventListeners() {
   document.querySelectorAll(".close").forEach((closeBtn) => {
     closeBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      const modal = closeBtn.closest(".modal");
-      if (modal) {
-        modal.style.display = "none";
-      }
+      closeAllModals(); // Используем новую функцию для закрытия всех модальных окон
     });
   });
 
@@ -951,24 +2083,672 @@ function initializeEventListeners() {
   }
 
   // Закрытие модальных окон при клике вне их области
+
   document.addEventListener("click", (event) => {
-    const supportModal = document.getElementById("supportModal");
-    const contactModal = document.getElementById("contactModal");
-    if (
-      (supportModal && event.target === supportModal) ||
-      (contactModal && event.target === contactModal)
-    ) {
-      event.target.style.display = "none";
+    const modals = document.querySelectorAll(".modal");
+    modals.forEach((modal) => {
+      if (event.target === modal) {
+        closeAllModals();
+      }
+    });
+  });
+
+  // Закрытие модальных окон при нажатии Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeAllModals();
     }
   });
 }
 
-// Диагностическая функция для проверки загрузки FaceitAPI
-function checkFaceitAPI() {
-  if (!window.FaceitAPI) {
-    console.error("FaceitAPI не определен в window!");
-    console.warn(getText("faceitApiNotLoaded"));
+// Функция для очистки профиля игрока
+function clearPlayerProfile() {
+  currentPlayerProfile = null;
+  window.currentPlayerData = null;
+
+  // Скрываем статистику
+  const playerStats = document.getElementById("playerStats");
+  if (playerStats) {
+    playerStats.innerHTML = "";
+    playerStats.style.display = "none";
+  }
+
+  //Возвращаем строку поиска
+  const searchSection = document.getElementById("search");
+  if (searchSection) {
+    searchSection.style.display = "block";
+  }
+
+  const HeaderSection = document.getElementById("header");
+  if (HeaderSection) {
+    HeaderSection.style.display = "block";
+  }
+
+  const FooterSection = document.getElementById("footer");
+  if (FooterSection) {
+    FooterSection.style.display = "block";
+  }
+
+  // Показываем сообщение по умолчанию
+  const output = document.getElementById("output");
+  if (output) {
+    output.textContent = getText("enterNickname");
+    output.style.display = "block";
+  }
+
+  // Деактивируем сайдбар
+  if (sidebarManager) {
+    sidebarManager.hideForPlayerProfile();
+  }
+
+  console.log("Профиль игрока очищен");
+}
+
+// Запускаем инициализацию после загрузки страницы
+window.addEventListener("load", init);
+
+// Основная функция анализа игрока
+async function analyzePlayer() {
+  const nicknameInput = document.getElementById("nickname");
+  const nickname = nicknameInput?.value?.trim();
+
+  if (!nickname) {
+    alert(getText("enterNicknameValidation"));
+    return;
+  }
+
+  const output = document.getElementById("output");
+  const playerStatsContainer = document.getElementById("playerStats");
+
+  // Инициализируем playerStats если не инициализирована
+  if (!playerStats) {
+    playerStats = playerStatsContainer;
+  }
+
+  if (output) {
+    output.textContent = `${getText("gettingData")} ${nickname}...`;
+  }
+
+  try {
+    // Загружаем конфигурацию если не загружена
+    if (!window.Config.loaded) {
+      await window.Config.loadConfig();
+    }
+
+    const apiKey = window.Config.getApiKey();
+
+    // Получаем данные игрока
+    const playerData = await window.FaceitAPI.getPlayerData(nickname, apiKey);
+    window.currentPlayerData = playerData; // Сохраняем для использования в переводах
+
+    if (output) {
+      output.textContent = `${getText("gettingStats")} ${
+        playerData.nickname
+      }...`;
+    }
+
+    // Получаем статистику CS:2
+    const gameId = "cs2";
+    const statsData = await window.FaceitAPI.getStatsData(
+      playerData.player_id,
+      gameId,
+      apiKey
+    );
+
+    // DEBUG: выводим statsData после получения статистики игрокца
+    console.log("DEBUG statsData:", statsData);
+
+    // Получаем актуальное ELO
+    const currentElo = await window.FaceitAPI.getCurrentElo(
+      playerData.player_id,
+      gameId,
+      playerData.games?.[gameId]?.faceit_elo || 0
+    );
+
+    // Получаем название страны
+    const countryName = await window.FaceitAPI.getCountryName(
+      playerData.country
+    );
+
+    // Обрабатываем статистику
+    const lifetime = statsData.lifetime || {};
+    const segments = statsData.segments || [];
+
+    const avgStats = window.FaceitAPI.calculateAvgStats(
+      lifetime,
+      segments,
+      gameId
+    );
+    const mapAnalysis = window.FaceitAPI.analyzeMaps(segments, gameId);
+
+    // Сохраняем данные текущего профиля
+    currentPlayerProfile = {
+      playerData,
+      statsData,
+      currentElo,
+      countryName,
+      avgStats,
+      mapAnalysis,
+    };
+
+    // Также сохраняем в window для доступа из других функций
+    window.currentPlayerProfile = currentPlayerProfile;
+
+    // СКРЫВАЕМ полоску с информацией о загрузке СРАЗУ после получения данных
+    if (output) {
+      output.style.display = "none";
+    }
+
+    // Создаем HTML для карточки игрока
+    const playerCardHTML = `
+    <div class="player-card fade-in-animation">
+      <div class="player-header">
+        <div class="player-avatar">
+          <img src="${playerData.avatar || ".png"}" alt="${
+      playerData.nickname
+    }" onerror="this.src='logooo.png'">
+        </div>
+        <div class="player-info">
+          <h2>${playerData.nickname}</h2>
+          <p>${getText("country")}: ${countryName}</p>
+          <p>ELO: ${window.FaceitAPI.formatNumber(currentElo)}</p>
+          ${(() => {
+            const faceitLevel = playerData.games?.[gameId]?.skill_level;
+            if (faceitLevel) {
+              return `<p>${getText(
+                "level"
+              )}: <span style="color: #FF4500; font-family: 'Roboto', sans-serif;">${"⭐".repeat(
+                faceitLevel
+              )}</span></p>`;
+            }
+            return `<p>${getText("level")}: N/A</p>`;
+          })()}
+          <p>${getText("matches")}: ${window.FaceitAPI.formatNumber(
+      avgStats.totalMatches
+    )}</p>
+          <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
+          <img 
+            src="faceit.png" 
+            alt="${getText("faceitProfile")}"
+            title="${getText("faceitProfile")}"
+            onclick="window.open('https://www.faceit.com/${
+              currentLanguage === "ru" ? "ru" : "en"
+            }/players/${playerData.nickname}', '_blank')"
+            style="cursor: pointer; width: 45px; height: 45px; border-radius: 8px; border: 2px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s; margin-right: 10px; object-fit: contain;"
+            onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 10px var(--primary-color)';"
+            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"
+          />
+        </div>
+      </div>
+        
+        <div class="stats-container">
+          <div class="stats-box slide-in-animation">
+            <h3><i class="fas fa-chart-line"></i> ${getText(
+              "avgStatsTitle"
+            )}</h3>
+            <p>${getText("killsPerMatch")}: ${avgStats.avgKills}</p>
+            <p>${getText("deathsPerMatch")}: ${avgStats.avgDeaths}</p>
+            <p>K/D: ${avgStats.kd}</p>
+            <p>${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
+      avgStats.totalKills
+    )}</p>
+            <p>${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
+      avgStats.totalDeaths
+    )}</p>
+          </div>
+          
+          <div class="stats-box slide-in-animation">
+            <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
+            ${
+              mapAnalysis.bestMap
+                ? `
+              <p>${getText("mapName")}: ${mapAnalysis.bestMap.name}</p>
+              <p>${getText(
+                "mapWinRate"
+              )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%</p>
+              <p>K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}</p>
+              <p>${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}</p>
+            `
+                : `<p>${getText("notEnoughData")}</p>`
+            }
+          </div>
+          
+          <div class="stats-box slide-in-animation">
+            <h3><i class="fas fa-map-marked-alt"></i> ${getText(
+              "worstMapTitle"
+            )}</h3>
+            ${
+              mapAnalysis.worstMap
+                ? `
+              <p>${getText("mapName")}: ${mapAnalysis.worstMap.name}</p>
+              <p>${getText(
+                "mapWinRate"
+              )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%</p>
+              <p>K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}</p>
+              <p>${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}</p>
+            `
+                : `<p>${getText("notEnoughData")}</p>`
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+    playerStatsContainer.innerHTML = playerCardHTML;
+    playerStatsContainer.style.display = "block";
+
+    // Добавляем класс для скрытия поиска при активном профиле
+    document.body.classList.add("profile-active");
+
+    // Активируем сайдбар после успешной загрузки профиля
+    if (sidebarManager) {
+      // Задержка для плавного появления
+      setTimeout(() => {
+        sidebarManager.showForPlayerProfile();
+      }, 300);
+    }
+  } catch (error) {
+    console.error("Ошибка при получении данных игрока:", error);
+
+    if (output) {
+      output.textContent = `${getText("error")}: ${error.message}`;
+    }
+
+    // Показываем сообщение об ошибке
+    alert(`${getText("error")}: ${error.message}`);
+  }
+}
+
+// Функции для модальных окон
+function openSupportModal() {
+  // Закрываем все другие модальные окна
+  closeAllModals();
+
+  const modal = document.getElementById("supportModal");
+  if (modal) {
+    modal.style.display = "block";
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden"; // Блокируем скролл
+  }
+}
+
+function openContactModal() {
+  // Закрываем все другие модальные окна
+  closeAllModals();
+
+  const modal = document.getElementById("contactModal");
+  if (modal) {
+    modal.style.display = "block";
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden"; // Блокируем скролл
+  }
+}
+
+// Функция теста на реакцию - ИСПРАВЛЕННАЯ ВЕРСИЯ
+function openReactionTestModal() {
+  // Закрываем все другие модальные окна
+  closeAllModals();
+
+  // Используем существующий модал из HTML
+  const modal = document.getElementById("reactionTestModal");
+  if (!modal) {
+    console.error("Reaction test modal not found in HTML");
+    return;
+  }
+
+  modal.style.display = "block";
+  modal.classList.add("show");
+  document.body.style.overflow = "hidden";
+
+  // Добавляем обработчик закрытия
+  const closeBtn = modal.querySelector(".close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeAllModals);
+  }
+
+  // Инициализируем тест реакции с существующими элементами
+  initReactionTest();
+}
+
+// Функция для непосредственного запуска теста на реакцию
+function startReactionTestDirectly() {
+  // Получаем элементы перед использованием
+  const reactionInstructions = document.getElementById("reactionInstructions");
+  const reactionResults = document.getElementById("reactionResults");
+  const reactionTooEarly = document.getElementById("reactionTooEarly");
+  const reactionWaiting = document.getElementById("reactionWaiting");
+  const reactionReady = document.getElementById("reactionReady");
+
+  // Проверяем существование элементов перед изменением их стиля
+  if (reactionInstructions) reactionInstructions.style.display = "none";
+  if (reactionResults) reactionResults.style.display = "none";
+  if (reactionTooEarly) reactionTooEarly.style.display = "none";
+  if (reactionReady) reactionReady.style.display = "none";
+
+  // Показываем экран ожидания
+  if (reactionWaiting) reactionWaiting.style.display = "block";
+  window.reactionTestActive = true;
+
+  // Случайная задержка между 2-5 секундами
+  const delay = Math.random() * 3000 + 2000;
+
+  window.reactionTestTimeout = setTimeout(() => {
+    if (window.reactionTestActive) {
+      // Показываем зеленый экран
+      if (reactionWaiting) reactionWaiting.style.display = "none";
+      if (reactionReady) reactionReady.style.display = "block";
+      window.reactionStartTime = Date.now();
+    }
+  }, delay);
+}
+
+// Модифицируем функцию initReactionTest
+function initReactionTest() {
+  // Сохраняем переменные в глобальном объекте window для доступа из других функций
+  window.reactionTestTimeout = null;
+  window.reactionStartTime = null;
+  window.reactionTestActive = false;
+
+  // Очищаем обработчики событий у кнопок, заменяя их новыми элементами
+  function replaceElementWithClone(id) {
+    const element = document.getElementById(id);
+    if (element) {
+      const clone = element.cloneNode(true);
+      if (element.parentNode) {
+        element.parentNode.replaceChild(clone, element);
+      }
+      return true;
+    }
     return false;
   }
+
+  // Заменяем все элементы их клонами, чтобы удалить все обработчики событий
+  replaceElementWithClone("startReactionTest");
+  replaceElementWithClone("retryReactionTest");
+  replaceElementWithClone("restartReactionTest");
+  replaceElementWithClone("reactionWaiting");
+  replaceElementWithClone("reactionReady");
+
+  // Добавляем новые обработчики событий
+  const startBtn = document.getElementById("startReactionTest");
+  if (startBtn) {
+    startBtn.addEventListener("click", startReactionTestDirectly);
+  }
+
+  const retryBtn = document.getElementById("retryReactionTest");
+  if (retryBtn) {
+    retryBtn.addEventListener("click", startReactionTestDirectly);
+  }
+
+  const restartBtn = document.getElementById("restartReactionTest");
+  if (restartBtn) {
+    restartBtn.addEventListener("click", () => {
+      resetReactionTest();
+    });
+  }
+
+  // Обработка раннего клика
+  const waitingScreen = document.getElementById("reactionWaiting");
+  if (waitingScreen) {
+    waitingScreen.addEventListener("click", () => {
+      if (
+        window.reactionTestActive &&
+        waitingScreen.style.display === "block"
+      ) {
+        // Кликнули слишком рано
+        clearTimeout(window.reactionTestTimeout);
+        window.reactionTestActive = false;
+
+        waitingScreen.style.display = "none";
+        const tooEarly = document.getElementById("reactionTooEarly");
+        if (tooEarly) tooEarly.style.display = "block";
+      }
+    });
+  }
+
+  // Обработка клика по зеленому экрану
+  const readyScreen = document.getElementById("reactionReady");
+  if (readyScreen) {
+    readyScreen.addEventListener("click", () => {
+      if (window.reactionTestActive && readyScreen.style.display === "block") {
+        const reactionTime = Date.now() - window.reactionStartTime;
+        window.reactionTestActive = false;
+
+        readyScreen.style.display = "none";
+        const results = document.getElementById("reactionResults");
+        if (results) results.style.display = "block";
+
+        // Обновляем отображение результата
+        const timeValue = document.getElementById("reactionTimeValue");
+        if (timeValue) timeValue.textContent = reactionTime;
+
+        // Определяем рейтинг
+        let rating;
+        if (reactionTime < 200) {
+          rating = "Невероятно!";
+        } else if (reactionTime < 250) {
+          rating = "Отлично!";
+        } else if (reactionTime < 300) {
+          rating = "Хорошо!";
+        } else if (reactionTime < 400) {
+          rating = "Нормально";
+        } else {
+          rating = "Медленно";
+        }
+
+        const ratingElement = document.getElementById("reactionRating");
+        if (ratingElement) ratingElement.textContent = rating;
+      }
+    });
+  }
+
+  // Сбрасываем тест
+  resetReactionTest();
+}
+
+// Функция сброса теста реакции
+function resetReactionTest() {
+  clearTimeout(window.reactionTestTimeout);
+  window.reactionTestActive = false;
+
+  // Скрываем все состояния
+  const reactionInstructions = document.getElementById("reactionInstructions");
+  const reactionWaiting = document.getElementById("reactionWaiting");
+  const reactionReady = document.getElementById("reactionReady");
+  const reactionResults = document.getElementById("reactionResults");
+  const reactionTooEarly = document.getElementById("reactionTooEarly");
+
+  // Показываем только инструкции
+  if (reactionInstructions) reactionInstructions.style.display = "block";
+  if (reactionWaiting) reactionWaiting.style.display = "none";
+  if (reactionReady) reactionReady.style.display = "none";
+  if (reactionResults) reactionResults.style.display = "none";
+  if (reactionTooEarly) reactionTooEarly.style.display = "none";
+}
+
+// Функция отправки сообщения
+function sendMessage(event) {
+  event.preventDefault();
+
+  const name = document.getElementById("contactName").value.trim();
+  const email = document.getElementById("contactEmail").value.trim();
+  const subject = document.getElementById("contactSubject").value;
+  const message = document.getElementById("contactMessage").value.trim();
+
+  // Валидация
+  if (!name || !email || !subject || !message) {
+    alert(getText("fillAllFields"));
+    return;
+  }
+
+  // Создаем тело письма
+  const emailBody = `${getText("yourName")}: ${name}%0D%0A${getText(
+    "email"
+  )}: ${email}%0D%0A%0D%0A${getText("message")}:%0D%0A${message}`;
+
+  // Создаем mailto ссылку
+  const mailtoLink = `mailto:contact@faceit-analyze.com?subject=${encodeURIComponent(
+    subject
+  )}&body=${emailBody}`;
+
+  // Открываем почтовый клиент
+  window.open(mailtoLink);
+
+  // Показываем сообщение об успехе
+  alert(getText("emailClientOpened"));
+
+  // Закрываем модальное окно
+  closeAllModals();
+
+  // Очищаем форму
+  document.getElementById("contactForm").reset();
+}
+
+// Диагностическая функция для проверки FaceitAPI
+function checkFaceitAPI() {
+  if (typeof window.FaceitAPI === "undefined") {
+    console.error("FaceitAPI не загружен!");
+    return false;
+  }
+
+  const requiredMethods = [
+    "getPlayerData",
+    "getStatsData",
+    "getCurrentElo",
+    "getCountryName",
+    "calculateAvgStats",
+    "analyzeMaps",
+    "formatNumber",
+  ];
+  const missingMethods = requiredMethods.filter(
+    (method) => typeof window.FaceitAPI[method] !== "function"
+  );
+
+  if (missingMethods.length > 0) {
+    console.error("Отсутствуют методы FaceitAPI:", missingMethods);
+    return false;
+  }
+
+  console.log("FaceitAPI успешно загружен и готов к работе");
   return true;
 }
+
+// Функция для обновления переводов в карточках карт
+function updateMapsTexts() {
+  // Обновляем карточки карт если они отображены
+  const mapCards = document.querySelectorAll(".map-card");
+  if (mapCards.length > 0) {
+    mapCards.forEach((card) => {
+      // Обновляем статистические метки
+      const statLabels = card.querySelectorAll(".stat-label");
+      statLabels.forEach((label) => {
+        const text = label.textContent.toLowerCase();
+        if (text.includes("matches") || text.includes("матчей")) {
+          label.textContent = getText("mapMatches");
+        } else if (text.includes("kills") || text.includes("убийств")) {
+          label.textContent = getText("killsPerMatch");
+        } else if (text.includes("win rate") || text.includes("винрейт")) {
+          label.textContent = getText("mapWinRate");
+        } else if (text.includes("adr") || text.includes("увр")) {
+          label.textContent = getText("adr");
+        } else if (text.includes("clutches") || text.includes("клатчи")) {
+          label.textContent = getText("clutches");
+        }
+      });
+
+      // Обновляем индикаторы производительности
+      const perfIndicator = card.querySelector(".performance-indicator");
+      if (perfIndicator) {
+        const iconElement = perfIndicator.querySelector("i");
+        const icon = iconElement ? iconElement.outerHTML : "";
+        const text = perfIndicator.textContent.toLowerCase();
+
+        if (text.includes("excellent") || text.includes("отличная")) {
+          perfIndicator.innerHTML = `${icon} ${getText("excellentMap")}`;
+        } else if (text.includes("average") || text.includes("средняя")) {
+          perfIndicator.innerHTML = `${icon} ${getText("averageMap")}`;
+        } else if (text.includes("poor") || text.includes("слабая")) {
+          perfIndicator.innerHTML = `${icon} ${getText("poorMap")}`;
+        }
+      }
+    });
+  }
+
+  // Обновляем заголовки таблиц карт если есть
+  const mapsTable = document.querySelector(".maps-table");
+  if (mapsTable) {
+    const headers = mapsTable.querySelectorAll("th");
+    if (headers.length >= 5) {
+      headers[0].textContent = getText("mapName");
+      headers[1].textContent = getText("mapMatches");
+      headers[2].textContent = getText("mapWinRate");
+      headers[3].textContent = "K/D";
+      headers[4].textContent = getText("killsPerMatch");
+    }
+  }
+}
+
+// Функция для обновления переводов в истории матчей
+function updateMatchHistoryTexts() {
+  // Обновляем результаты матчей
+  const matchResults = document.querySelectorAll(".match-result");
+  matchResults.forEach((result) => {
+    const text = result.textContent.toLowerCase();
+    if (text === "win" || text === "победа") {
+      result.textContent = getText("win");
+    } else if (text === "loss" || text === "поражение") {
+      result.textContent = getText("loss");
+    }
+  });
+
+  // Обновляем кнопку "Показать еще"
+  const showMoreBtn = document.querySelector(".show-more-btn");
+  if (showMoreBtn) {
+    const btnText = showMoreBtn.textContent;
+    const matches = btnText.match(/\((\d+)\)/);
+    const remainingCount = matches ? matches[1] : "";
+
+    const icon = showMoreBtn.querySelector("i");
+    const iconHTML = icon
+      ? icon.outerHTML
+      : '<i class="fas fa-chevron-down"></i>';
+
+    showMoreBtn.innerHTML = `${iconHTML} ${getText("showMoreMatches")}${
+      remainingCount ? ` (${remainingCount})` : ""
+    }`;
+  }
+
+  // Обновляем сообщения об ошибках
+  const errorMessages = document.querySelectorAll(".api-error-text");
+  errorMessages.forEach((error) => {
+    const text = error.textContent;
+    if (
+      text.includes("No match history") ||
+      text.includes("Нет истории матчей")
+    ) {
+      error.textContent = getText("noMatchHistory");
+    } else if (
+      text.includes("Match details unavailable") ||
+      text.includes("Детали матча недоступны")
+    ) {
+      error.textContent = getText("matchDetailsUnavailable");
+    }
+  });
+}
+
+// Функция для закрытия всех модальных окон
+function closeAllModals() {
+  const modals = document.querySelectorAll(".modal");
+  modals.forEach((modal) => {
+    modal.style.display = "none";
+    modal.classList.remove("show");
+  });
+  document.body.style.overflow = ""; // Восстанавливаем скролл
+}
+
+// Инициализация после загрузки DOM
+document.addEventListener("DOMContentLoaded", function () {
+  // Синхронизация переключателей языка
+  setupLanguageSwitchers();
+});

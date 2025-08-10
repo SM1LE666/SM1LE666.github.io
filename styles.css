@@ -12,6 +12,7 @@
   --bg-card: #333;
   --accent-glow: #ff7b00;
   --border-radius: 8px;
+  --sidebar-width: 200px;
 }
 
 * {
@@ -58,78 +59,230 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  transition: margin-left 0.3s ease;
 }
 
-/* Добавляем анимированные геометрические элементы на фон */
-body::before {
+/* Единый стиль для всех кнопок */
+button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 85, 0, 0.1);
+  border: 1px solid rgba(255, 85, 0, 0.3);
+  border-radius: var(--border-radius);
+  color: var(--primary-color);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+  background: rgba(255, 85, 0, 0.2);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.3);
+  color: white;
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(255, 85, 0, 0.2);
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.3s ease, visibility 0.3s ease;
+  border-right: 2px solid rgba(255, 85, 0, 0.2);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Состояния сайдбара */
+.sidebar.active {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Сайдбар показывается только когда профиль игрока активен */
+.sidebar.player-profile-active {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+  backdrop-filter: blur(10px);
+}
+
+/* Анимация появления сайдбара при загрузке профиля */
+.sidebar.player-profile-active.slide-in {
+  animation: sidebarSlideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes sidebarSlideIn {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Пульсирующий эффект для активации */
+.sidebar.pulse-glow {
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 85, 0, 0.4);
+  animation: sidebarPulse 2s ease-in-out;
+}
+
+@keyframes sidebarPulse {
+  0%,
+  100% {
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 85, 0, 0.2);
+  }
+  50% {
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 85, 0, 0.6);
+  }
+}
+
+/* Скрытие сайдбара при отсутствии профиля */
+.sidebar.hidden {
+  transform: translateX(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.3s ease, opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.sidebar-content {
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.sidebar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 85, 0, 0.1);
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+}
+
+.sidebar-item.active {
+  background: rgba(255, 85, 0, 0.15);
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+}
+
+.sidebar-item.active::after {
   content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--primary-color);
+  border-radius: 2px 0 0 2px;
+}
+
+.sidebar-item i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-item:hover i {
+  transform: scale(1.1);
+}
+
+.sidebar-item span {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Специальные стили для текста KD и MVP - делаем одинаковый размер */
+.stat-item span,
+.stat-item i {
+  font-size: 0.65rem !important;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+/* Mobile Overlay */
+.mobile-overlay {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background: radial-gradient(
-      circle at 20% 20%,
-      rgba(255, 85, 0, 0.05) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 80% 80%,
-      rgba(255, 123, 0, 0.03) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 60% 40%,
-      rgba(255, 85, 0, 0.02) 0%,
-      transparent 50%
-    );
-  z-index: -2;
-  animation: pulseGlow 8s ease-in-out infinite alternate;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  backdrop-filter: blur(3px);
 }
 
-@keyframes pulseGlow {
-  0% {
-    opacity: 0.3;
+.mobile-overlay.active {
+  display: block;
+  animation: overlayFadeIn 0.3s ease;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
   }
-  100% {
-    opacity: 0.7;
+  to {
+    opacity: 1;
   }
 }
 
-/* Добавляем декоративные элементы */
-body::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(
-      45deg,
-      rgba(255, 85, 0, 0.02) 1px,
-      transparent 1px
-    ),
-    linear-gradient(-45deg, rgba(255, 85, 0, 0.02) 1px, transparent 1px);
-  background-size: 50px 50px, 50px 50px;
-  background-position: 0 0, 25px 25px;
-  z-index: -1;
-  animation: gridMove 20s linear infinite;
+/* Main content adjustment when sidebar is active */
+body.sidebar-open {
+  margin-left: var(--sidebar-width);
 }
 
-@keyframes gridMove {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(50px, 50px);
-  }
+.sidebar.desktop-active {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Header Styles */
 header {
-  background-color: var(--bg-header);
   color: white;
-  padding: 1rem 0;
+  padding: 1rem 2rem;
   text-align: center;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   position: relative;
@@ -137,12 +290,14 @@ header {
 }
 
 .header-content {
-  max-width: 1000px;
+  max-width: none;
+  width: 100%;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start; /* Выравнивание по левому краю вместо центра */
   align-items: center;
-  padding: 0 1rem;
+  padding: 0 2rem; /* Добавляем отступы по бокам */
+  position: relative;
 }
 
 h1 {
@@ -156,7 +311,6 @@ h1 {
   position: relative;
   display: inline-block;
 }
-
 h1::after {
   content: "";
   position: absolute;
@@ -173,71 +327,118 @@ h1::after {
 }
 
 .language-switcher {
+  position: absolute;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%);
+  z-index: 1000;
   display: flex;
   gap: 0.5rem;
+  padding: 0;
 }
 
+/* Language buttons - улучшенные кнопки смены языков */
 .lang-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.5rem 0.8rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--border-radius);
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  transition: all 0.3s;
-  font-size: 0.85rem;
+  background: linear-gradient(
+    135deg,
+    rgba(51, 51, 51, 0.9),
+    rgba(33, 33, 33, 0.9)
+  );
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
   font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
 .lang-btn:hover {
-  background: rgba(255, 85, 0, 0.2);
-  border-color: var(--primary-color);
+  background: linear-gradient(
+    135deg,
+    rgba(51, 51, 51, 0.95),
+    rgba(45, 45, 45, 0.95)
+  );
+  border-color: var(--accent-glow);
   color: white;
   transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(255, 85, 0, 0.4);
 }
 
 .lang-btn.active {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-hover)
+  );
+  border-color: var(--accent-glow);
   color: white;
-  box-shadow: 0 0 10px rgba(255, 85, 0, 0.5);
+  box-shadow: 0 2px 10px rgba(255, 85, 0, 0.5);
+}
+
+.lang-btn.active:hover {
+  background: linear-gradient(135deg, var(--primary-hover), #cc4400);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(255, 85, 0, 0.6);
 }
 
 .lang-btn img {
   width: 16px;
   height: 12px;
   border-radius: 2px;
+  object-fit: cover;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Language Switcher - делаем его фиксированным и всегда видимым */
+.language-switcher-fixed {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 2000; /* Высокий z-index, чтобы быть поверх всех элементов */
+  padding: 6px 10px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
 }
 
 /* Main Content Styles */
 main {
   flex: 1;
-  padding: 3rem 1rem 2rem 1rem;
-  max-width: 1000px;
+  padding: 2rem 1rem;
+  max-width: 1400px; /* Увеличиваем максимальную ширину */
   width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: margin-left 0.3s ease;
+}
+
+body.sidebar-open main {
+  margin-left: var(--sidebar-width);
 }
 
 section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   background: rgba(51, 51, 51, 0.8);
   backdrop-filter: blur(10px);
-  padding: 2rem;
+  padding: 2.5rem; /* Увеличиваем внутренние отступы */
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 85, 0, 0.1);
   position: relative;
   overflow: hidden;
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px; /* Увеличиваем максимальную ширину секций */
 }
 
 section::before {
@@ -281,56 +482,106 @@ h2 {
 #search {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  transform: scale(1);
+  transform-origin: center top;
+  transition: all 0.3s ease;
 }
 
+/* Контейнер для поисковых элементов */
 .search-container {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
   width: 100%;
 }
 
+/* Скрываем секцию поиска только когда показана статистика игрока */
+body.profile-active #search {
+  display: none !important;
+}
+
+/* Скрываем header когда профиль активен */
+body.profile-active header {
+  display: none !important;
+}
+
+/* Скрываем footer когда профиль активен */
+body.profile-active footer {
+  display: none !important;
+}
+
+/* Search Input */
 input[type="text"] {
+  font-family: "Orbitron", sans-serif;
   flex: 1;
-  padding: 0.8rem 1rem;
-  font-size: 1rem;
-  border: none;
+  min-width: 300px;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
   border-radius: var(--border-radius);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   color: #333;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 85, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 85, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 input[type="text"]:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--primary-color), inset 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.2), 0 4px 20px rgba(255, 85, 0, 0.3);
+  background: rgba(255, 255, 255, 1);
 }
 
-button {
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
+/* Специальные стили для основной кнопки поиска */
+#searchButton {
+  font-family: "Orbitron", sans-serif;
+  background: rgba(255, 85, 0, 0.1);
+  border: 1px solid rgba(255, 85, 0, 0.3);
+  color: var(--primary-color);
   font-weight: bold;
-  color: white;
-  background-color: var(--primary-color);
-  border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: all 0.3s;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  font-size: 1.1rem;
+  padding: 0.8rem 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 50px; /* Фиксированная высота для обеих кнопок */
+  min-width: 200px; /* Минимальная ширина для обеих кнопок */
+  text-align: center;
+  justify-content: center;
 }
 
-button:hover {
-  background-color: var(--primary-hover);
+#searchButton:hover {
+  background: rgba(255, 85, 0, 0.2);
+  border-color: var(--primary-color);
   transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.3);
+  color: white;
 }
 
-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+/* Общие стили для кнопок ANALYZE и REACTION TEST */
+#reactionTestBtn {
+  font-family: "Orbitron", sans-serif;
+  background: rgba(255, 85, 0, 0.1);
+  border: 1px solid rgba(255, 85, 0, 0.3);
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 0.8rem 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 50px; /* Фиксированная высота для обеих кнопок */
+  min-width: 200px; /* Минимальная ширина для обеих кнопок */
+  text-align: center;
+  justify-content: center;
+}
+
+#reactionTestBtn:hover {
+  background: rgba(255, 85, 0, 0.2);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.3);
+  color: white;
 }
 
 /* Оформление информационных сообщений */
@@ -380,6 +631,9 @@ button:active {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 0.5rem;
   text-align: center;
+  white-space: nowrap; /* Предотвращаем перенос текста на новую строку */
+  overflow: hidden; /* Скрываем переполнение */
+  text-overflow: ellipsis; /* Добавляем многоточие если текст не помещается */
 }
 
 .stat-value {
@@ -401,24 +655,26 @@ button:active {
 .player-card {
   grid-column: 1 / -1; /* Make player card span full width */
   background: var(--bg-darker);
-  border-radius: 15px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2.5rem; /* Увеличиваем отступы */
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 85, 0, 0.2);
   width: 100%;
+  min-height: 600px; /* Добавляем минимальную высоту */
 }
 
 /* Styles for player card */
 .player-header {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.1));
-  border-radius: var(--border-radius);
-  border: 1px solid rgba(255, 85, 0, 0.2);
+  gap: 2.5rem; /* Увеличиваем отступы */
+  margin-bottom: 3rem;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.15));
+  border-radius: 15px;
+  border: 2px solid rgba(255, 85, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 85, 0, 0.1);
 }
 
 .player-avatar {
@@ -426,11 +682,11 @@ button:active {
 }
 
 .player-avatar img {
-  width: 100px;
-  height: 100px;
+  width: 140px; /* Увеличиваем размер аватара */
+  height: 140px;
   border-radius: 50%;
-  border: 3px solid var(--primary-color);
-  box-shadow: 0 0 15px rgba(255, 85, 0, 0.5);
+  border: 4px solid var(--primary-color);
+  box-shadow: 0 0 20px rgba(255, 85, 0, 0.6);
   object-fit: cover;
 }
 
@@ -439,17 +695,18 @@ button:active {
 }
 
 .player-info h2 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.8rem;
+  margin: 0 0 1rem 0;
+  font-size: 2.5rem; /* Увеличиваем размер заголовка */
   color: var(--primary-color);
-  text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
+  text-shadow: 0 0 10px rgba(255, 85, 0, 0.4);
   font-family: "Orbitron", sans-serif;
 }
 
 .player-info p {
-  margin: 0.3rem 0;
+  margin: 0.5rem 0;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
+  font-size: 1.1rem; /* Увеличиваем размер шрифта */
+  font-weight: 500;
 }
 
 .player-info a {
@@ -477,97 +734,79 @@ button:active {
 
 .stats-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-top: 1rem;
+  grid-template-columns: 1fr 1fr 1fr; /* Три колонки одинакового размера */
+  gap: 2rem;
+  margin-top: 2rem;
+  min-height: 300px;
 }
 
 .stats-box {
-  background: var(--bg-card);
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, var(--bg-card), rgba(255, 85, 0, 0.05));
+  padding: 2rem; /* Увеличиваем внутренние отступы */
+  border-radius: 15px;
+  border: 2px solid rgba(255, 85, 0, 0.2);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  min-height: 200px;
+  height: auto; /* Высота подстраивается под контент */
+  min-height: 150px; /* Минимальная высота */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
+  justify-content: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-glow));
+  border-radius: 15px 15px 0 0;
 }
 
 .stats-box:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 85, 0, 0.3);
+  border-color: var(--primary-color);
 }
 
 .stats-box h3 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.5rem 0;
   color: var(--primary-color);
-  font-size: 1.2rem;
+  font-size: 1.2rem; /* Уменьшаем размер с 1.4rem до 1.2rem */
   text-align: center;
-  border-bottom: 1px solid rgba(255, 85, 0, 0.3);
-  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(255, 85, 0, 0.4);
+  padding-bottom: 1rem;
   font-family: "Orbitron", sans-serif;
+  text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
+  white-space: nowrap; /* Предотвращаем перенос заголовков на новую строку */
+  overflow: hidden; /* Скрываем переполнение */
+  text-overflow: ellipsis; /* Добавляем многоточие если текст не помещается */
 }
 
 .stats-box p {
-  margin: 0.5rem 0;
+  margin: 0.8rem 0;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
+  font-size: 1rem; /* Увеличиваем размер текста */
+  font-weight: 500;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in;
-}
-
-/* Анимации для карточек */
-.fade-in-animation {
-  animation: fadeIn 0.6s ease-in-out;
-}
-
-.slide-in-animation {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: slideIn 0.8s forwards;
-  animation-delay: 0.3s;
-}
-
-.stats-box:nth-child(2).slide-in-animation {
-  animation-delay: 0.5s;
-}
-
-.stats-box:nth-child(3).slide-in-animation {
-  animation-delay: 0.7s;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Выделяем важные значения */
+.stats-box p strong {
+  color: var(--primary-color);
+  font-size: 1.1em;
+  text-shadow: 0 0 3px rgba(255, 85, 0, 0.3);
 }
 
 /* Footer Styles */
 footer {
-  background-color: var(--bg-footer);
   color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 1);
   text-align: center;
-  padding: 2rem 1rem 1rem 1rem;
+  padding: 1.5rem 0rem 1rem 1rem;
   font-size: 0.9rem;
   margin-top: auto;
   width: 100%;
@@ -634,6 +873,10 @@ footer {
 .footer-content p {
   color: var(--primary-color);
   margin: 0;
+}
+
+.footer-btn i {
+  font-size: 1rem;
 }
 
 /* Modal Styles */
@@ -865,210 +1108,1343 @@ footer {
   );
   color: white;
   border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
   font-weight: bold;
   font-size: 1rem;
-  transition: all 0.3s;
   text-transform: uppercase;
   letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
   margin-top: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .submit-btn:hover {
   background: linear-gradient(135deg, var(--primary-hover), #cc4400);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 85, 0, 0.4);
+  box-shadow: 0 6px 15px rgba(255, 85, 0, 0.4);
+  color: white;
 }
 
-.submit-btn:active {
-  transform: translateY(0);
+/* Reaction Test Modal Styles */
+.reaction-btn {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  border: none;
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem auto;
+}
+
+.reaction-btn:hover {
+  background: linear-gradient(135deg, #f7931e, #ff6b35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+}
+
+.reaction-screen {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0; /* Убираем скругление */
+  cursor: pointer;
+  transition: none; /* Убираем анимацию перехода */
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: none; /* Убираем тень */
+}
+
+.reaction-screen.waiting {
+  background: #ff4444; /* Простой красный цвет */
+  color: white;
+  text-shadow: none; /* Убираем тень текста */
+}
+
+.reaction-screen.ready {
+  background: #4caf50; /* Простой зеленый цвет */
+  color: white;
+  text-shadow: none; /* Убираем тень текста */
+  animation: none; /* Убираем анимацию пульсации */
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-top: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.reaction-result {
+  text-align: center;
+  padding: 2rem;
+}
+
+.reaction-result h3 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.reaction-time {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #4caf50;
+  margin: 1rem 0;
+  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.reaction-rating {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+  font-weight: bold;
+}
+
+.reaction-error {
+  text-align: center;
+  padding: 2rem;
+}
+
+.reaction-error h3 {
+  color: #f44336;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.reaction-error p {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2rem;
+}
+
+/* Results section - ИСПРАВЛЕНИЕ ВЫСОТЫ */
+#results {
+  min-height: auto !important;
+  height: auto !important;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+/* КАРДИНАЛЬНОЕ ИСПРАВЛЕНИЕ - убираем flex из body и main на мобильных */
+@media (max-width: 768px) {
+  /* Возвращаем flex для body чтобы футер остался внизу */
+  body {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    height: auto !important;
+  }
+
+  /* Убираем flex только из main */
+  main {
+    display: block !important;
+    flex: none !important;
+    min-height: auto !important;
+    height: auto !important;
+    padding: 1rem 0.5rem !important;
+    max-width: 100% !important;
+  }
+
+  /* Footer остается внизу */
+  footer {
+    margin-top: auto !important;
+  }
+
+  /* Results section - ОКОНЧАТЕЛЬНОЕ ИСПРАВЛЕНИЕ */
+  #results {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+    min-height: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    flex: none !important;
+    display: block !important;
+    overflow: visible !important;
+    /* Принудительно ограничиваем высоту контентом */
+    contain: layout !important;
+  }
+
+  /* Убираем лишние отступы у playerStats на мобильных */
+  #playerStats {
+    margin-top: 1rem !important;
+    gap: 1rem !important;
+    min-height: auto !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  /* Убираем растягивание у всех секций на мобильных */
+  section {
+    min-height: auto !important;
+    height: auto !important;
+    flex: none !important;
+    display: block !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Исправляем основной контейнер результатов */
+  #results .stats-container,
+  #results .maps-grid,
+  #results .match-history,
+  #results #playerStats,
+  #results .player-card {
+    min-height: auto !important;
+    height: auto !important;
+    flex: none !important;
+    display: block !important;
+  }
+
+  /* Исправляем stats-box чтобы они не растягивались */
+  .stats-box {
+    height: auto !important;
+    min-height: auto !important;
+    flex: none !important;
+    margin-bottom: 1rem !important;
+  }
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 0 1rem;
+  .mobile-menu-toggle {
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
 
-  .language-switcher {
-    order: -1;
-    align-self: flex-end;
+  /* Показываем кнопку только при активном профиле */
+  .mobile-menu-toggle.profile-active {
+    opacity: 1;
+    visibility: visible;
   }
 
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.mobile-active {
+    transform: translateX(0);
+  }
+
+  .sidebar.player-profile-active:not(.mobile-active) {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.player-profile-active {
+    backdrop-filter: none; /* Отключаем на мобильных для производительности */
+  }
+
+  body.sidebar-open {
+    margin-left: 0;
+  }
+
+  body.sidebar-open header,
+  body.sidebar-open main,
+  body.sidebar-open footer {
+    margin-left: 0;
+  }
+
+  /* Адаптивные стили для Player Statistics на мобильных */
   main {
-    padding: 2.5rem 1rem 1rem 1rem;
-    width: 100%;
-    max-width: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding: 1.5rem 0.5rem;
+    max-width: 100%;
   }
 
   section {
     padding: 1.5rem;
-    width: calc(100% - 2rem);
-    max-width: 400px;
-    margin: 0 auto 1.5rem auto;
-    text-align: center;
+    margin-bottom: 1.5rem;
+    max-width: 100%;
   }
 
-  h1 {
-    font-size: 2rem;
-  }
-
-  h2 {
-    justify-content: center;
-  }
-
-  .search-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    width: 100%;
-  }
-
-  input[type="text"] {
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto;
-  }
-
-  button {
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto;
+  /* Адаптивная карточка игрока для мобильных */
+  .player-card {
+    padding: 1.5rem;
+    min-height: auto;
+    margin-bottom: 1.5rem;
   }
 
   .player-header {
     flex-direction: column;
     text-align: center;
-    gap: 1rem;
-    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
   }
 
-  .player-info {
-    text-align: center;
+  .player-avatar img {
+    width: 120px;
+    height: 120px;
   }
 
+  .player-info h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .player-info p {
+    font-size: 1rem;
+    margin: 0.4rem 0;
+  }
+
+  /* Адаптивная сетка статистики */
   .stats-container {
     grid-template-columns: 1fr;
-    gap: 1rem;
-    justify-items: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
   }
 
-  #playerStats {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    width: 100%;
-    justify-items: center;
+  .stats-box {
+    padding: 1.5rem;
+    height: auto; /* Высота подстраивается под контент */
+    min-height: 150px; /* Минимальная высота */
+    width: 100%; /* Полная ширина контейнера */
+    max-width: 320px; /* Фиксированная максимальная ширина */
+    margin: 0 auto; /* Центрирование */
   }
 
-  .stat-card {
-    margin: 0 auto;
-    max-width: 320px;
-    width: 100%;
+  .stats-box h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
   }
 
-  .player-card {
-    width: calc(100% - 2rem);
-    max-width: 400px;
-    margin: 0 auto 1rem auto;
+  .stats-box p {
+    font-size: 0.95rem;
+    margin: 0.6rem 0;
   }
 
-  #output {
-    text-align: center;
-    margin: 0 auto 1.5rem auto;
-    width: 100%;
+  /* Улучшенные стили для мобильного оверлея */
+  .mobile-overlay {
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+  }
+
+  .mobile-overlay.active {
+    display: block;
+    animation: overlayFadeIn 0.3s ease;
+  }
+
+  @keyframes overlayFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }
 
-@media (max-width: 480px) {
+/* Дополнительные стили для планшетов */
+@media (min-width: 769px) and (max-width: 1024px) {
+  main {
+    max-width: 1200px;
+    padding: 2rem 1rem;
+  }
+
+  .stats-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.8rem;
+  }
+
+  .player-header {
+    gap: 2rem;
+    padding: 2rem;
+  }
+
+  .player-avatar img {
+    width: 130px;
+    height: 130px;
+  }
+
+  .player-info h2 {
+    font-size: 2.2rem;
+  }
+}
+
+/* Стили для кастомного скроллбара в сайдбаре */
+.sidebar-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 85, 0, 0.5) transparent;
+}
+
+.sidebar-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 85, 0, 0.5);
+  border-radius: 2px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 85, 0, 0.8);
+}
+
+.footer-btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .header-content {
-    padding: 0 0.5rem;
+    padding: 0 1rem;
+    position: relative;
+    flex-direction: row; /* Изменяем на row вместо column */
+    gap: 0.5rem;
+    justify-content: flex-start; /* Выравнивание по левому краю */
   }
 
-  .lang-btn {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.75rem;
-  }
-
-  .lang-btn img {
-    width: 14px;
-    height: 10px;
+  .language-switcher {
+    position: absolute;
+    top: 50%;
+    right: 1rem; /* Уменьшаем отступ справа */
+    transform: translateY(-50%);
+    margin-top: 0;
+    align-self: center;
   }
 
   h1 {
-    font-size: 1.8rem;
-    padding: 0 1rem;
+    font-size: 1.5rem; /* Уменьшаем размер шрифта для лучшего размещения */
+    margin-right: 5rem; /* Добавляем отступ справа, чтобы избежать перекрытия */
+    text-align: left;
   }
 
-  section {
-    padding: 1rem;
-    margin: 0 auto 1rem auto;
-    width: calc(100% - 1rem);
-    max-width: 350px;
+  h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  h2 i {
+    margin-right: 0.3rem;
   }
 
   .search-container {
     flex-direction: column;
-    align-items: center;
-    gap: 0.8rem;
-    width: 100%;
+    gap: 1rem;
+    align-items: stretch;
   }
 
   input[type="text"] {
+    min-width: auto;
     width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
   }
 
-  button {
+  #searchButton,
+  #reactionTestBtn {
     width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
+    margin: 0;
   }
 
-  h2 {
-    font-size: 1.4rem;
-    text-align: center;
-    justify-content: center;
+  .reaction-screen {
+    height: 250px;
+    font-size: 1.2rem;
   }
 
-  .player-avatar img {
-    width: 80px;
-    height: 80px;
+  .reaction-time {
+    font-size: 2.5rem;
   }
 
-  .player-info h2 {
-    font-size: 1.5rem;
-  }
-
-  .stat-card {
-    max-width: 300px;
+  /* Адаптивность для мобильных устройств - НОВЫЙ ДИЗАЙН */
+  .match-item {
+    display: flex;
+    flex-direction: column;
     padding: 1rem;
-    margin: 0 auto;
+    border: 1px solid var(--border-color);
+    background: rgba(40, 42, 54, 0.8);
+    position: relative;
+    gap: 1rem;
+    /* Убираем фиксированную высоту - пусть подстраивается под контент */
+    min-height: auto;
+    height: auto;
   }
 
-  .player-card {
-    max-width: 350px;
+  /* Убираем цветную полосу слева, она больше не нужна */
+  .match-item::before {
+    content: none;
+  }
+
+  .match-content-container {
+    padding: 0;
+    gap: 0;
+  }
+
+  .match-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  /* Блок с датой и результатом (слева) */
+  .match-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    border: none;
+    padding: 0;
+  }
+
+  .match-date {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .match-result {
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    color: #fff;
+    text-transform: uppercase;
+  }
+
+  .match-item.win .match-result {
+    background-color: rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+  }
+
+  .match-item.loss .match-result {
+    background-color: rgba(244, 67, 54, 0.3);
+    color: #f44336;
+  }
+
+  /* Блок с картой и счетом (справа) */
+  .match-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  .match-map {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+
+  .match-score {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+  }
+
+  /* Нижняя часть: статистика (во всю ширину) */
+  .player-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important; /* Строго 3 колонки */
+    grid-template-rows: repeat(2, 1fr) !important; /* Строго 2 ряда */
+    gap: 0.5rem !important; /* Небольшой отступ */
+    padding-top: 1rem !important;
+    border-top: 1px solid var(--border-color) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-items: center !important; /* Центрируем элементы в сетке */
+    align-items: center !important; /* Центрируем элементы по вертикали */
+  }
+
+  .stat-item {
+    background: rgba(0, 0, 0, 0.2) !important;
+    padding: 0.5rem 0.3rem !important;
+    border-radius: 6px !important;
+    text-align: center !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.3rem !important;
+    min-height: 60px !important;
+    height: auto !important;
+    aspect-ratio: 1 !important; /* Делаем квадратными */
+    width: 100% !important; /* Занимаем всю доступную ширину ячейки */
+    max-width: 90px !important; /* Ограничиваем максимальную ширину */
+  }
+
+  .stat-item i {
+    font-size: 1rem !important;
+    color: var(--primary-color) !important;
+    margin: 0 !important;
+  }
+
+  .stat-item span {
+    font-size: 0.8rem !important;
+    color: var(--text-color) !important;
+    font-weight: 500 !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+  }
+
+  /* Стили для текстовых статов (K/D, MVP) - ВОЗВРАЩАЕМ ОРАНЖЕВЫЙ ЦВЕТ */
+  .stat-item span:first-child {
+    font-size: 0.7rem !important;
+    color: var(--primary-color) !important; /* Оранжевый цвет для KD и MVP */
+    font-weight: bold !important;
+  }
+
+  .stat-item span:last-child {
+    font-weight: bold !important;
+    color: var(--text-color) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .match-item {
+    padding: 0.8rem 0.3rem !important; /* Еще меньше отступы для маленьких экранов */
+  }
+
+  .player-stats {
+    gap: 0.4rem !important;
+  }
+
+  .stat-item {
+    padding: 0.4rem 0.2rem !important;
+    min-height: 55px !important;
+    max-width: 80px !important; /* Меньше для очень маленьких экранов */
+  }
+
+  .stat-item i {
+    font-size: 0.9rem !important;
+  }
+
+  .stat-item span {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Match History Styles - Updated with animation and single row layout */
+.match-history {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  width: 100%; /* Ensure full width */
+}
+
+.match-item {
+  display: flex; /* Flex контейнер */
+  flex-direction: row; /* ВСЕ элементы в одну строку */
+  align-items: center; /* Выравнивание по центру */
+  justify-content: space-between; /* Равномерное распределение */
+  gap: 1rem; /* Расстояние между элементами */
+  background: linear-gradient(135deg, var(--bg-card), rgba(255, 85, 0, 0.05));
+  padding: 1.2rem;
+  border-radius: 15px;
+  border: 2px solid rgba(255, 85, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%; /* Ensure full width */
+  box-sizing: border-box; /* Include padding and border in width calculation */
+  min-height: auto; /* Убираем фиксированную высоту */
+  cursor: pointer;
+}
+
+/* Анимация при наведении */
+.match-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 85, 0, 0.3);
+  border-color: var(--primary-color);
+}
+
+/* Анимация появления */
+.match-item.fade-in-animation {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.match-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  min-width: 140px; /* Фиксированная ширина для заголовка */
+}
+
+.match-date {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.match-result {
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.match-item.win .match-result {
+  background-color: rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+}
+
+.match-item.loss .match-result {
+  background-color: rgba(244, 67, 54, 0.3);
+  color: #f44336;
+}
+
+/* Блок с картой и счетом (справа) */
+.match-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.match-map {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 1rem;
+  text-align: center;
+  min-width: 120px; /* Фиксированная ширина для карты */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.match-score {
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
+  color: var(--primary-color);
+  min-width: 80px; /* Фиксированная ширина для счета */
+  white-space: nowrap;
+}
+
+.player-stats {
+  display: flex; /* Flex для размещения в одну строку */
+  flex: 1; /* Занимает оставшееся место */
+  justify-content: space-evenly; /* Равномерное распределение */
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.4rem 0.2rem;
+  border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  min-height: 50px;
+  min-width: 45px; /* Уменьшаем минимальную ширину */
+  max-width: 45px; /* Уменьшаем максимальную ширину */
+  width: 45px; /* Уменьшаем фиксированную ширину */
+  height: 50px; /* Фиксированная высота */
+  border: 1px solid rgba(255, 85, 0, 0.1);
+  transition: all 0.3s ease;
+  flex-shrink: 0; /* Не сжимается */
+  flex-grow: 0; /* Не растягивается */
+  position: relative;
+}
+
+.stat-item:hover {
+  background: rgba(255, 85, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 85, 0, 0.2);
+}
+
+.stat-item i {
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  margin: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50%;
+}
+
+.stat-item span {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 0.65rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Для элементов только с числовыми значениями */
+.stat-item:not(:has(span)):not(:has(i)) {
+  font-weight: bold;
+  color: white;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Стили для сетки карточек карт */
+.maps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+/* Стили для карточек карт */
+.map-card {
+  background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.05));
+  border-radius: 15px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 85, 0, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  min-height: 200px; /* Уменьшаем высоту с 280px до 200px */
+}
+
+.map-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 85, 0, 0.3);
+  border-color: var(--primary-color);
+}
+
+/* Заголовок карточки */
+.map-card-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.map-card-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+}
+
+.map-name {
+  margin: 0;
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.win-rate-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Тело карточки */
+.map-card-body {
+  padding: 1rem; /* Уменьшаем отступы с 1.5rem до 1rem */
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem; /* Уменьшаем отступы между элементами с 1rem до 0.8rem */
+}
+
+.map-stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.map-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 85, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.map-stat-item:hover {
+  background: rgba(255, 85, 0, 0.1);
+  border-color: rgba(255, 85, 0, 0.3);
+  transform: scale(1.02);
+}
+
+.map-stat-item i {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.map-stat-item .stat-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+.map-stat-item .stat-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
+}
+
+/* Подвал карточки */
+.map-card-footer {
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 85, 0, 0.2);
+}
+
+.performance-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Цветовые варианты карточек */
+.map-card.good-performance {
+  border-color: rgba(76, 175, 80, 0.4);
+}
+
+.map-card.good-performance:hover {
+  border-color: #4caf50;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.map-card.good-performance .performance-indicator {
+  color: #4caf50;
+}
+
+.map-card.average-performance {
+  border-color: rgba(255, 152, 0, 0.4);
+}
+
+.map-card.average-performance:hover {
+  border-color: #ff9800;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 152, 0, 0.3);
+}
+
+.map-card.average-performance .performance-indicator {
+  color: #ff9800;
+}
+
+.map-card.poor-performance {
+  border-color: rgba(244, 67, 54, 0.4);
+}
+
+.map-card.poor-performance:hover {
+  border-color: #f44336;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(244, 67, 54, 0.3);
+}
+
+.map-card.poor-performance .performance-indicator {
+  color: #f44336;
+}
+
+/* Адаптивные стили для карточек карт */
+@media (max-width: 768px) {
+  .maps-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .map-card {
+    min-height: 200px;
+  }
+
+  .map-card-header {
+    padding: 0.8rem 1rem;
+  }
+
+  .map-name {
+    font-size: 1.1rem;
+  }
+
+  .win-rate-badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .map-card-body {
     padding: 1rem;
-    margin: 0 auto 1rem auto;
-    width: calc(100% - 1rem);
   }
 
-  .stats-box {
-    padding: 1rem;
+  .map-stat-item {
+    padding: 0.6rem;
   }
 
-  .stats-container {
-    justify-items: center;
+  .map-stat-item .stat-label {
+    font-size: 0.7rem;
   }
+
+  .map-stat-item .stat-value {
+    font-size: 1rem;
+  }
+
+  .map-card-footer {
+    padding: 0.8rem 1rem;
+  }
+
+  .performance-indicator {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-stat-row {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .map-card {
+    min-height: 200px;
+  }
+}
+/* Скрываем десктопные элементы на мобильных и наоборот */
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+}
+
+/* Мобильная шторка - ИСПРАВЛЕННАЯ версия */
+.mobile-sidebar-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  /* Показываем только заголовок по умолчанию */
+  transform: translateY(calc(100% - 70px));
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border: 2px solid rgba(255, 85, 0, 0.2);
+  border-bottom: none;
+  display: none;
+  height: 300px;
+  overflow: hidden;
+}
+
+/* Когда шторка видима */
+.mobile-sidebar-drawer.visible {
+  display: block;
+}
+
+/* Когда шторка развернута */
+.mobile-sidebar-drawer.expanded {
+  transform: translateY(0);
+}
+
+/* Заголовок шторки */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 85, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 85, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 70px;
+  position: relative;
+  flex-shrink: 0;
+  z-index: 1003; /* Заголовок всегда сверху */
+}
+
+.drawer-header:hover {
+  background: rgba(255, 85, 0, 0.15);
+}
+
+/* Индикатор для перетаскивания */
+.drawer-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(255, 85, 0, 0.5);
+  border-radius: 2px;
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Заголовок текст */
+.drawer-title {
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1rem;
+  font-family: "Orbitron", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  flex: 1;
+  text-align: center;
+}
+
+/* Кнопка разворота/сворачивания */
+.drawer-toggle-btn {
+  background: rgba(255, 85, 0, 0.2);
+  border: 1px solid rgba(255, 85, 0, 0.3);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  padding: 0;
+  min-width: unset;
+}
+
+.drawer-toggle-btn:hover {
+  background: rgba(255, 85, 0, 0.3);
+  border-color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+.drawer-toggle-btn i {
+  transition: transform 0.3s ease;
+}
+
+/* Поворачиваем иконку при развороте */
+.mobile-sidebar-drawer.expanded .drawer-toggle-btn i {
+  transform: rotate(180deg);
+}
+
+/* Контент шторки */
+.drawer-content {
+  padding: 1rem;
+  background: var(--bg-dark);
+  height: calc(300px - 70px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /* Контент виден по умолчанию */
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1001;
+}
+
+/* ПОКАЗЫВАЕМ контент ТОЛЬКО при развороте шторки */
+.mobile-sidebar-drawer.expanded .drawer-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}
+
+/* Элементы навигации в шторке */
+.drawer-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 85, 0, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.2rem 0;
+  min-height: 50px;
+  position: relative;
+  z-index: 1002;
+}
+
+.drawer-item:hover {
+  background: rgba(255, 85, 0, 0.2) !important;
+  color: white !important;
+  border-color: rgba(255, 85, 0, 0.5);
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(255, 85, 0, 0.3);
+}
+
+.drawer-item.active {
+  background: rgba(255, 85, 0, 0.25) !important;
+  color: white !important;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px rgba(255, 85, 0, 0.4);
+}
+
+.drawer-item i {
+  font-size: 1.3rem;
+  width: 20px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  color: var(--primary-color);
+}
+
+.drawer-item:hover i {
+  transform: scale(1.1);
+  color: white !important;
+}
+
+.drawer-item span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex: 1;
+  color: inherit;
+}
+
+/* Разделитель в мобильной шторке */
+.drawer-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 85, 0, 0.3),
+    transparent
+  );
+  margin: 0.5rem 0;
+  position: relative;
+}
+
+.drawer-divider::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: rgba(255, 85, 0, 0.5);
+  box-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
+}
+
+/* Специальные стили для кнопки "Назад" */
+.drawer-item.back-button {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 85, 0, 0.15),
+    rgba(255, 85, 0, 0.1)
+  ) !important;
+  border-color: rgba(255, 85, 0, 0.4) !important;
+  color: var(--primary-color) !important;
+  font-weight: bold !important;
+}
+
+.drawer-item.back-button:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 85, 0, 0.3),
+    rgba(255, 85, 0, 0.2)
+  ) !important;
+  border-color: var(--primary-color) !important;
+  transform: translateX(3px) !important;
+  box-shadow: 0 2px 10px rgba(255, 85, 0, 0.4) !important;
+}
+
+.drawer-item.back-button i {
+  color: var(--primary-color) !important;
+  font-size: 1.1rem !important;
+}
+
+.drawer-item.back-button span {
+  color: var(--primary-color) !important;
+  font-weight: bold !important;
 }

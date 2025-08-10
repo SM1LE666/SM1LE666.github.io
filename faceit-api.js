@@ -133,13 +133,6 @@ const FaceitAPI = (function () {
   }
 
   async function getCountryName(countryCode) {
-    console.log(
-      "getCountryName вызвана с кодом:",
-      countryCode,
-      "текущий язык:",
-      window.currentLanguage
-    );
-
     if (!countryCode || countryCode === "Н/Д") {
       // Возвращаем "Неизвестно" в зависимости от текущего языка
       const currentLang = window.currentLanguage || "ru";
@@ -150,7 +143,6 @@ const FaceitAPI = (function () {
 
     if (_countryCache[countryCode]) {
       const result = getCurrentLanguageCountryName(_countryCache[countryCode]);
-      console.log("Из кэша для", countryCode, ":", result);
       return result;
     }
 
@@ -306,25 +298,31 @@ const FaceitAPI = (function () {
     }
   }
 
-  function analyzeMaps(segments, gameId) {
+  function analyzeMaps(segments, gameId, ignoreMinMatches = false) {
     try {
       if (!segments || !Array.isArray(segments) || segments.length === 0) {
-        return { bestMap: null, worstMap: null };
+        return { bestMap: null, worstMap: null, allMaps: [] };
       }
-
-      // Для CS:2 используем более строгие критерии, так как это актуальная игра
-      const MIN_MATCHES = gameId === "cs2" ? 5 : 3; // Для CS:2 требуем больше матчей
-
-      const validMaps = segments.filter((segment) => {
-        const matches = parseInt(
-          segment.stats?.["Matches"] || segment.stats?.["Total Matches"] || "0",
-          10
+      // Для Maps игнорируем ограничение по количеству матчей
+      let validMaps;
+      if (ignoreMinMatches) {
+        validMaps = segments.filter(
+          (segment) => segment.label && segment.stats
         );
-        return matches >= MIN_MATCHES;
-      });
-
+      } else {
+        const MIN_MATCHES = gameId === "cs2" ? 5 : 3;
+        validMaps = segments.filter((segment) => {
+          const matches = parseInt(
+            segment.stats?.["Matches"] ||
+              segment.stats?.["Total Matches"] ||
+              "0",
+            10
+          );
+          return matches >= MIN_MATCHES;
+        });
+      }
       if (validMaps.length === 0) {
-        return { bestMap: null, worstMap: null };
+        return { bestMap: null, worstMap: null, allMaps: [] };
       }
 
       const mapStats = validMaps.map((segment) => {
@@ -393,10 +391,10 @@ const FaceitAPI = (function () {
       const worstMap =
         mapStats.length > 1 ? mapStats[mapStats.length - 1] : null;
 
-      return { bestMap, worstMap };
+      return { bestMap, worstMap, allMaps: mapStats };
     } catch (error) {
       console.error("Ошибка при анализе карт:", error);
-      return { bestMap: null, worstMap: null };
+      return { bestMap: null, worstMap: null, allMaps: [] };
     }
   }
 
@@ -473,7 +471,7 @@ const FaceitAPI = (function () {
 
   // Функция для обхода CORS (может не работать на всех браузерах)
   async function fetchWithCORS(url, options = {}) {
-    // Попробуем использовать fetch с mode: 'cors'
+    // Попробуем использовать fetch сmode: 'cors'
     try {
       return await fetch(url, {
         ...options,
@@ -510,6 +508,85 @@ const FaceitAPI = (function () {
       throw error;
     }
   }
+  // Функция для получения статистики по картам без сложной обработки
+  function getAllMapsStats(segments) {
+    try {
+      if (!segments || !Array.isArray(segments)) return [];
+
+      return segments
+        .filter((segment) => segment.label && segment.stats)
+        .map((segment) => {
+          const mapName = segment.label || "Unknown Map";
+
+          const matches = parseInt(
+            segment.stats?.["Matches"] ||
+              segment.stats?.["Total Matches"] ||
+              "0",
+            10
+          );
+
+          const winRate = parseFloat(segment.stats?.["Win Rate %"] || "0");
+          const kills = parseInt(
+            segment.stats?.["Kills"] ||
+              segment.stats?.["Total Kills"] ||
+              segment.stats?.["Total Kills with extended stats"] ||
+              "0",
+            10
+          );
+
+          const deaths = parseInt(
+            segment.stats?.["Deaths"] || segment.stats?.["Total Deaths"] || "0",
+            10
+          );
+
+          // Добавляем ADR (средний урон в раунде)
+          const adr = parseFloat(
+            segment.stats?.["Average Damage per Round"] ||
+              segment.stats?.["ADR"] ||
+              segment.stats?.["Damage/Round"] ||
+              "0"
+          );
+
+          // Получаем количество выигранных клатчей - упрощенная версия
+          const clutchKeys = [
+            "Total 1v1 Wins",
+            "Total 1v2 Wins",
+            "Total 1v3 Wins",
+            "Total 1v4 Wins",
+            "Total 1v5 Wins",
+          ];
+
+          let clutches = 0;
+          for (const key of clutchKeys) {
+            const value = segment.stats?.[key];
+            if (value !== undefined && value !== null) {
+              const parsedValue = parseInt(value, 10);
+              if (!isNaN(parsedValue) && parsedValue >= 0) {
+                clutches += parsedValue;
+              }
+            }
+          }
+
+          const kd = deaths > 0 ? kills / deaths : kills > 0 ? kills : 0;
+          const avgKills = matches > 0 ? kills / matches : 0;
+
+          return {
+            name: mapName,
+            matches,
+            winRate,
+            kills,
+            deaths,
+            kd: kd.toFixed(2),
+            avgKills: avgKills.toFixed(1),
+            adr: adr.toFixed(1),
+            clutches: clutches,
+          };
+        });
+    } catch (error) {
+      console.error("Error getting maps stats:", error);
+      return [];
+    }
+  }
 
   return {
     extractNicknameFromUrl,
@@ -522,7 +599,9 @@ const FaceitAPI = (function () {
     calculateAvgStats,
     analyzeMaps,
     formatNumber,
+    getAllMapsStats,
   };
 })();
 
+// Экспортируем API в глобальную область видимости
 window.FaceitAPI = FaceitAPI;
