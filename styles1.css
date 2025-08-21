@@ -253,6 +253,7 @@
   border-radius: var(--border-radius);
   font-size: 0.9rem;
   min-height: 60px;
+  min-width: 50px;
   border: 1px solid rgba(255, 85, 0, 0.1);
   transition: all 0.3s ease;
 }

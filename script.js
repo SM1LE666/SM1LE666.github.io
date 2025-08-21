@@ -382,8 +382,9 @@ class SidebarManager {
       this.currentMatches = matches;
       console.log(`Обработано ${matches.length} матчей для отображения`);
 
-      // Отображаем первые 20 матчей
-      this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
+      setTimeout(() => {
+        this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
+      }, 100);
     } catch (error) {
       console.error("Error fetching match history:", error);
       const statsContainer = document.querySelector(".stats-container");
@@ -725,6 +726,8 @@ class SidebarManager {
             if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
               const allMapsStats = window.FaceitAPI.getAllMapsStats(segments);
 
+              allMapsStats.sort((a, b) => b.winRate - a.winRate);
+
               if (allMapsStats && allMapsStats.length > 0) {
                 // Создаем сетку карточек
                 let html = `<div class="maps-grid">`;
@@ -843,6 +846,7 @@ class SidebarManager {
                   mapAnalysis.allMaps &&
                   mapAnalysis.allMaps.length > 0
                 ) {
+                  mapAnalysis.allMaps.sort((a, b) => b.winRate - a.winRate);
                   let html = `<table class="maps-table"><thead><tr>
                     <th>${getText("mapName")}</th>
                     <th>${getText("mapMatches")}</th>
@@ -875,6 +879,12 @@ class SidebarManager {
           } catch (error) {
             console.error("Ошибка при загрузке данных карт:", error);
             statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
+          }
+
+          const loadingIndicator =
+            statsContainer.querySelector(".loading-indicator");
+          if (loadingIndicator) {
+            loadingIndicator.remove();
           }
 
           return;
@@ -935,21 +945,16 @@ class SidebarManager {
           }`;
         }
 
+        // Updated match item structure to match the screenshot exactly
         return `
-        <div class="match-item player-card fade-in-animation ${resultClass}" ${
+        <div class="match-item ${resultClass}" ${
           matchUrl ? `onclick="window.open('${matchUrl}', '_blank')"` : ""
         }>
-          <div class="match-top-row">
-            <div class="match-header">
-              <span class="match-date">${match.date}</span>
-              <span class="match-result">${resultText}</span>
-            </div>
-            <div class="match-details">
-              <div class="match-map">${match.map}</div>
-              <div class="match-score">${match.score}</div>
-            </div>
-          </div>
-        
+          <span class="match-date">${match.date}</span>
+          <span class="match-result">${resultText}</span>
+          <span class="match-map">${match.map}</span>
+          <span class="match-score">${match.score}</span>
+          
           <div class="player-stats">
             <div class="stat-item">
               <i class="fas fa-skull"></i> 
@@ -964,29 +969,18 @@ class SidebarManager {
               <span>${match.assists}</span>
             </div>
             <div class="stat-item">
-              <i class="fas fa-bullseye"></i> 
+              <i class="fas fa-crosshairs"></i> 
               <span>${match.headshots}</span>
             </div>
             <div class="stat-item">
-              <span>KD</span> 
+              <i class="fas fa-chart-line"></i> 
               <span>${kdRatio}</span>
             </div>
             <div class="stat-item">
-              <span>MVP</span> 
+              <i class="fas fa-star"></i> 
               <span>${match.mvps}</span>
             </div>
           </div>
-          
-          ${
-            !matchUrl
-              ? `
-            <div class="match-link-error">
-              <i class="fas fa-exclamation-triangle"></i> 
-              ${getText("matchDetailsUnavailable")}
-            </div>
-          `
-              : ""
-          }
         </div>`;
       })
       .join("");
@@ -2385,186 +2379,174 @@ function openContactModal() {
   }
 }
 
-// Функция теста на реакцию - ИСПРАВЛЕННАЯ ВЕРСИЯ
+let reactionTest = {
+  timeout: null,
+  startTime: 0,
+  isActive: false,
+  delay: 0,
+  scheduledTime: 0,
+};
+
+// Функция для открытия модального окна теста реакции
 function openReactionTestModal() {
-  // Закрываем все другие модальные окна
   closeAllModals();
 
-  // Используем существующий модал из HTML
   const modal = document.getElementById("reactionTestModal");
-  if (!modal) {
-    console.error("Reaction test modal not found in HTML");
-    return;
-  }
+  if (!modal) return;
 
   modal.style.display = "block";
-  modal.classList.add("show");
   document.body.style.overflow = "hidden";
 
-  // Добавляем обработчик закрытия
-  const closeBtn = modal.querySelector(".close");
-  if (closeBtn) {
-    closeBtn.addEventListener("click", closeAllModals);
-  }
-
-  // Инициализируем тест реакции с существующими элементами
+  // Инициализируем тест
   initReactionTest();
 }
 
-// Функция для непосредственного запуска теста на реакцию
-function startReactionTestDirectly() {
-  // Получаем элементы перед использованием
-  const reactionInstructions = document.getElementById("reactionInstructions");
-  const reactionResults = document.getElementById("reactionResults");
-  const reactionTooEarly = document.getElementById("reactionTooEarly");
-  const reactionWaiting = document.getElementById("reactionWaiting");
-  const reactionReady = document.getElementById("reactionReady");
-
-  // Проверяем существование элементов перед изменением их стиля
-  if (reactionInstructions) reactionInstructions.style.display = "none";
-  if (reactionResults) reactionResults.style.display = "none";
-  if (reactionTooEarly) reactionTooEarly.style.display = "none";
-  if (reactionReady) reactionReady.style.display = "none";
-
-  // Показываем экран ожидания
-  if (reactionWaiting) reactionWaiting.style.display = "block";
-  window.reactionTestActive = true;
-
-  // Случайная задержка между 2-5 секундами
-  const delay = Math.random() * 3000 + 2000;
-
-  window.reactionTestTimeout = setTimeout(() => {
-    if (window.reactionTestActive) {
-      // Показываем зеленый экран
-      if (reactionWaiting) reactionWaiting.style.display = "none";
-      if (reactionReady) reactionReady.style.display = "block";
-      window.reactionStartTime = Date.now();
-    }
-  }, delay);
-}
-
-// Модифицируем функцию initReactionTest
+// Инициализация теста реакции
 function initReactionTest() {
-  // Сохраняем переменные в глобальном объекте window для доступа из других функций
-  window.reactionTestTimeout = null;
-  window.reactionStartTime = null;
-  window.reactionTestActive = false;
+  // Сбрасываем состояние
+  resetReactionTest();
 
-  // Очищаем обработчики событий у кнопок, заменяя их новыми элементами
-  function replaceElementWithClone(id) {
-    const element = document.getElementById(id);
-    if (element) {
-      const clone = element.cloneNode(true);
-      if (element.parentNode) {
-        element.parentNode.replaceChild(clone, element);
-      }
-      return true;
-    }
-    return false;
-  }
+  // Обновляем обработчики событий
+  document.getElementById("startReactionTest").onclick = startReactionTest;
+  document.getElementById("retryReactionTest").onclick = startReactionTest;
+  document.getElementById("restartReactionTest").onclick = resetReactionTest;
 
-  // Заменяем все элементы их клонами, чтобы удалить все обработчики событий
-  replaceElementWithClone("startReactionTest");
-  replaceElementWithClone("retryReactionTest");
-  replaceElementWithClone("restartReactionTest");
-  replaceElementWithClone("reactionWaiting");
-  replaceElementWithClone("reactionReady");
-
-  // Добавляем новые обработчики событий
-  const startBtn = document.getElementById("startReactionTest");
-  if (startBtn) {
-    startBtn.addEventListener("click", startReactionTestDirectly);
-  }
-
-  const retryBtn = document.getElementById("retryReactionTest");
-  if (retryBtn) {
-    retryBtn.addEventListener("click", startReactionTestDirectly);
-  }
-
-  const restartBtn = document.getElementById("restartReactionTest");
-  if (restartBtn) {
-    restartBtn.addEventListener("click", () => {
-      resetReactionTest();
-    });
-  }
-
-  // Обработка раннего клика
+  // Обработчик для экрана ожидания (ранний клик)
   const waitingScreen = document.getElementById("reactionWaiting");
   if (waitingScreen) {
-    waitingScreen.addEventListener("click", () => {
-      if (
-        window.reactionTestActive &&
-        waitingScreen.style.display === "block"
-      ) {
-        // Кликнули слишком рано
-        clearTimeout(window.reactionTestTimeout);
-        window.reactionTestActive = false;
-
-        waitingScreen.style.display = "none";
-        const tooEarly = document.getElementById("reactionTooEarly");
-        if (tooEarly) tooEarly.style.display = "block";
+    waitingScreen.onclick = () => {
+      if (reactionTest.isActive && waitingScreen.style.display === "block") {
+        handleEarlyClick();
       }
-    });
+    };
   }
 
-  // Обработка клика по зеленому экрану
+  // Обработчик для зеленого экрана
   const readyScreen = document.getElementById("reactionReady");
   if (readyScreen) {
-    readyScreen.addEventListener("click", () => {
-      if (window.reactionTestActive && readyScreen.style.display === "block") {
-        const reactionTime = Date.now() - window.reactionStartTime;
-        window.reactionTestActive = false;
-
-        readyScreen.style.display = "none";
-        const results = document.getElementById("reactionResults");
-        if (results) results.style.display = "block";
-
-        // Обновляем отображение результата
-        const timeValue = document.getElementById("reactionTimeValue");
-        if (timeValue) timeValue.textContent = reactionTime;
-
-        // Определяем рейтинг
-        let rating;
-        if (reactionTime < 200) {
-          rating = "Невероятно!";
-        } else if (reactionTime < 250) {
-          rating = "Отлично!";
-        } else if (reactionTime < 300) {
-          rating = "Хорошо!";
-        } else if (reactionTime < 400) {
-          rating = "Нормально";
-        } else {
-          rating = "Медленно";
-        }
-
-        const ratingElement = document.getElementById("reactionRating");
-        if (ratingElement) ratingElement.textContent = rating;
+    readyScreen.onclick = () => {
+      if (reactionTest.isActive && readyScreen.style.display === "block") {
+        handleReactionClick();
       }
-    });
+    };
   }
-
-  // Сбрасываем тест
-  resetReactionTest();
 }
 
-// Функция сброса теста реакции
+// Запуск теста реакции
+function startReactionTest() {
+  // Скрываем инструкции и результаты
+  document.getElementById("reactionInstructions").style.display = "none";
+  document.getElementById("reactionResults").style.display = "none";
+  document.getElementById("reactionTooEarly").style.display = "none";
+  document.getElementById("reactionReady").style.display = "none";
+
+  // Показываем экран ожидания
+  document.getElementById("reactionWaiting").style.display = "block";
+
+  // Устанавливаем флаг активности
+  reactionTest.isActive = true;
+
+  // Генерируем случайную задержку от 2 до 5 секунд
+  reactionTest.delay = Math.floor(Math.random() * 3000) + 2000;
+
+  // Записываем время планирования
+  reactionTest.scheduledTime = performance.now();
+
+  // Запускаем таймер
+  reactionTest.timeout = setTimeout(() => {
+    if (!reactionTest.isActive) return;
+
+    // Используем requestAnimationFrame для точной синхронизации с отрисовкой
+    requestAnimationFrame(() => {
+      // Скрываем экран ожидания
+      document.getElementById("reactionWaiting").style.display = "none";
+
+      // Показываем зеленый экран
+      document.getElementById("reactionReady").style.display = "block";
+
+      // Записываем точное время показа зеленого экрана
+      reactionTest.startTime = performance.now();
+
+      console.log(
+        "Задержка планирования:",
+        reactionTest.startTime - reactionTest.scheduledTime,
+        "мс"
+      );
+    });
+  }, reactionTest.delay);
+}
+
+// Обработка клика по зеленому экрану
+function handleReactionClick() {
+  if (!reactionTest.isActive || reactionTest.startTime === 0) return;
+
+  // Вычисляем время реакции
+  const reactionTime = Math.round(performance.now() - reactionTest.startTime);
+
+  // Сбрасываем флаг активности
+  reactionTest.isActive = false;
+
+  // Очищаем таймер
+  clearTimeout(reactionTest.timeout);
+
+  // Скрываем зеленый экран
+  document.getElementById("reactionReady").style.display = "none";
+
+  // Показываем результаты
+  document.getElementById("reactionResults").style.display = "block";
+  document.getElementById("reactionTimeValue").textContent = reactionTime;
+
+  // Устанавливаем рейтинг
+  const ratingElement = document.getElementById("reactionRating");
+  if (reactionTime < 150) {
+    ratingElement.textContent = "Невероятно!";
+  } else if (reactionTime < 200) {
+    ratingElement.textContent = "Отлично!";
+  } else if (reactionTime < 250) {
+    ratingElement.textContent = "Хорошо!";
+  } else if (reactionTime < 350) {
+    ratingElement.textContent = "Нормально";
+  } else {
+    ratingElement.textContent = "Медленно";
+  }
+
+  console.log("Измеренное время реакции:", reactionTime, "мс");
+}
+
+// Обработка раннего клика
+function handleEarlyClick() {
+  // Сбрасываем флаг активности
+  reactionTest.isActive = false;
+
+  // Очищаем таймер
+  clearTimeout(reactionTest.timeout);
+
+  // Скрываем экран ожидания
+  document.getElementById("reactionWaiting").style.display = "none";
+
+  // Показываем сообщение о раннем клике
+  document.getElementById("reactionTooEarly").style.display = "block";
+}
+
+// Сброс теста
 function resetReactionTest() {
-  clearTimeout(window.reactionTestTimeout);
-  window.reactionTestActive = false;
+  // Очищаем таймер
+  clearTimeout(reactionTest.timeout);
 
-  // Скрываем все состояния
-  const reactionInstructions = document.getElementById("reactionInstructions");
-  const reactionWaiting = document.getElementById("reactionWaiting");
-  const reactionReady = document.getElementById("reactionReady");
-  const reactionResults = document.getElementById("reactionResults");
-  const reactionTooEarly = document.getElementById("reactionTooEarly");
+  // Сбрасываем состояние
+  reactionTest.isActive = false;
+  reactionTest.startTime = 0;
+  reactionTest.delay = 0;
+  reactionTest.scheduledTime = 0;
 
-  // Показываем только инструкции
-  if (reactionInstructions) reactionInstructions.style.display = "block";
-  if (reactionWaiting) reactionWaiting.style.display = "none";
-  if (reactionReady) reactionReady.style.display = "none";
-  if (reactionResults) reactionResults.style.display = "none";
-  if (reactionTooEarly) reactionTooEarly.style.display = "none";
+  // Скрываем все экраны
+  document.getElementById("reactionWaiting").style.display = "none";
+  document.getElementById("reactionReady").style.display = "none";
+  document.getElementById("reactionResults").style.display = "none";
+  document.getElementById("reactionTooEarly").style.display = "none";
+
+  // Показываем инструкции
+  document.getElementById("reactionInstructions").style.display = "block";
 }
 
 // Функция отправки сообщения
