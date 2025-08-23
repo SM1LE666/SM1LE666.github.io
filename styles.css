@@ -1923,34 +1923,6 @@ footer {
   }
 }
 
-/* Мобильная шторка - стили для навигации по статистике игрока */
-.mobile-sidebar-drawer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
-  border-top: 2px solid rgba(255, 85, 0, 0.2);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-  z-index: 1001;
-  transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  opacity: 0;
-  visibility: hidden;
-  display: none;
-}
-
-.mobile-sidebar-drawer.visible {
-  display: block;
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(calc(100% - 60px)); /* Показываем только заголовок */
-}
-
-.mobile-sidebar-drawer.expanded {
-  transform: translateY(0); /* Полностью видна при развороте */
-}
-
 .drawer-header {
   height: 60px;
   background: rgba(255, 85, 0, 0.1);
@@ -1990,10 +1962,6 @@ footer {
   cursor: pointer;
   padding: 0.5rem;
   transition: transform 0.3s ease;
-}
-
-.mobile-sidebar-drawer.expanded .drawer-toggle-btn i {
-  transform: rotate(180deg);
 }
 
 .drawer-content {
@@ -2071,13 +2039,6 @@ footer {
   to {
     transform: translateY(100%);
     opacity: 0;
-  }
-}
-
-/* Скрытие на десктопах */
-@media (min-width: 769px) {
-  .mobile-sidebar-drawer {
-    display: none !important;
   }
 }
 
@@ -2170,42 +2131,6 @@ footer {
 
 .map-card.poor-performance .performance-indicator {
   color: #f44336;
-}
-
-/* Maps table fallback styles */
-.maps-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  background: rgba(51, 51, 51, 0.8);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.maps-table th,
-.maps-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 85, 0, 0.2);
-}
-
-.maps-table th {
-  background: rgba(255, 85, 0, 0.1);
-  color: var(--primary-color);
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.9rem;
-}
-
-.maps-table td {
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-}
-
-.maps-table tr:hover {
-  background: rgba(255, 85, 0, 0.05);
 }
 
 /* Мобильная шторка - стили для навигации по статистике игрока */
@@ -2686,9 +2611,8 @@ footer {
   display: flex !important;
   justify-content: center !important;
   width: 100%;
-  margin: 1.5rem 0;
+  margin: 1.5r-em 0;
 }
-
 #showMoreBtn {
   min-width: 200px;
   padding: 1rem 2rem;
@@ -2709,4 +2633,397 @@ footer {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 85, 0, 0.4);
   background: linear-gradient(135deg, var(--primary-hover), #cc4400);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .language-switcher {
+    order: -1;
+    align-self: flex-end;
+  }
+
+  main {
+    padding: 2.5rem 1rem 1rem 1rem;
+    width: 100%;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  section {
+    padding: 1.5rem;
+    width: calc(100% - 2rem);
+    max-width: 400px;
+    margin: 0 auto 1.5rem auto;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    justify-content: center;
+  }
+
+  .search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  button {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .player-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .player-info {
+    text-align: center;
+  }
+
+  #playerStats {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    width: 100%;
+    justify-items: center;
+  }
+
+  .stat-card {
+    margin: 0 auto;
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .player-card {
+    width: calc(100% - 2rem);
+    max-width: 400px;
+    margin: 0 auto 1rem auto;
+  }
+
+  #output {
+    text-align: center;
+    margin: 0 auto 1.5rem auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content {
+    padding: 0 0.5rem;
+  }
+
+  .lang-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .lang-btn img {
+    width: 14px;
+    height: 10px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    padding: 0 1rem;
+  }
+
+  section {
+    padding: 1rem;
+    margin: 0 auto 1rem auto;
+    width: calc(100% - 1rem);
+    max-width: 350px;
+  }
+
+  .search-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  button {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .player-avatar img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .player-info h2 {
+    font-size: 1.5rem;
+  }
+
+  .stat-card {
+    max-width: 300px;
+    padding: 1rem;
+    margin: 0 auto;
+  }
+
+  .player-card {
+    max-width: 350px;
+    padding: 1rem;
+    margin: 0 auto 1rem auto;
+    width: calc(100% - 1rem);
+  }
+
+  .stats-box {
+    padding: 1rem;
+  }
+
+  .stats-container {
+    justify-items: center;
+  }
+  .footer-buttons {
+    grid-template-areas: "grid grid";
+  }
+}
+
+/* Match item status styles */
+.match-item.win {
+  border-left: 4px solid #4caf50;
+}
+
+.match-item.loss {
+  border-left: 4px solid #f44336;
+}
+
+.match-result {
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.match-item.win .match-result {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.match-item.loss .match-result {
+  background-color: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+.match-date {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.match-map {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  text-align: center;
+  width: 100%;
+  margin: 0;
+}
+
+.match-score {
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.player-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 0.3rem;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  min-height: 60px;
+  min-width: 50px;
+  border: 1px solid rgba(255, 85, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: rgba(255, 85, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.stat-item i {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  color: var(--primary-color);
+}
+
+.stat-item span {
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 0.2rem;
+}
+
+.match-map.warning {
+  color: #ff9800;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.match-link-error {
+  color: #f44336;
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 0;
+  padding: 0.5rem;
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: var(--border-radius);
+}
+
+.match-item.error {
+  background-color: rgba(255, 235, 238, 0.1);
+  border: 1px solid #f44336;
+  color: #f44336;
+}
+
+.match-error {
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+}
+
+/* Адаптивные стили для мобильных устройств */
+@media (max-width: 768px) {
+  .match-item {
+    padding: 1rem;
+    gap: 0.6rem;
+    flex-direction: row; /* Оставляем в одну строку даже на мобильных */
+    flex-wrap: wrap; /* Разрешаем перенос при необходимости */
+  }
+
+  .match-header {
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+
+  .match-map {
+    min-width: 80px;
+    font-size: 1.2rem;
+  }
+
+  .match-score {
+    min-width: 60px;
+    font-size: 1.1rem;
+  }
+
+  .player-stats {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    gap: 0.3rem;
+    min-width: 0; /* Позволяет сжиматься */
+  }
+
+  .stat-item {
+    min-height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    width: 40px;
+    height: 40px;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.1rem;
+    flex-shrink: 0;
+    flex-grow: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stat-item i {
+    font-size: 0.8rem;
+    margin: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50%;
+    color: var(--primary-color);
+  }
+
+  .stat-item span {
+    font-size: 0.55rem;
+    margin: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50%;
+    color: var(--primary-color);
+    font-weight: bold;
+  }
+
+  /* Обеспечиваем одинаковый размер для KD и MVP на мобильных */
+  .stat-item span {
+    font-size: 0.8rem !important;
+  }
+  .stat-item i {
+    font-size: 1rem !important;
+  }
+}
+
+/* Убираем анимацию градиента из секций */
+#search,
+#results {
+  background: rgba(51, 51, 51, 0.8) !important; /* Статичный цвет фона */
+  animation: none !important; /* Отключаем анимацию */
+}
+
+/* Убираем псевдоэлемент ::before с анимацией shimmer */
+#search::before,
+#results::before {
+  content: none !important;
 }

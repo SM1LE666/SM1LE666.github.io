@@ -2,6 +2,7 @@ let playerStats;
 let isInitialized = false; // Флаг для предотвращения множественной инициализации
 let currentPlayerProfile = null; // Текущий профиль игрока
 let sidebarManager = null; // Менеджер сайдбара
+const REQUEST_DELAY = 30; // Задержка в мс между запросами
 
 class SidebarManager {
   constructor() {
@@ -129,7 +130,7 @@ class SidebarManager {
     // Обработчик для кнопки сворачивания/разворачивания шторки
     // Используем делегирование событий, так как кнопка может появиться позже
     document.addEventListener("click", (e) => {
-      if (e.target.closest("#drawerToggleBtn")) {
+      if (e.target.closest("#drawerHeader")) {
         e.preventDefault();
         e.stopPropagation();
         if (!this.isPlayerProfileActive) {
@@ -179,7 +180,6 @@ class SidebarManager {
     });
   }
 
-  // Показать сайдбар при загрузке профиля игрока
   showForPlayerProfile() {
     if (this.isPlayerProfileActive) return;
 
@@ -192,19 +192,13 @@ class SidebarManager {
 
     this.isPlayerProfileActive = true;
 
+    this.switchView("overview");
+
     // На десктопе показываем обычный сайдбар
     if (window.innerWidth > 768) {
       this.sidebar.classList.add("player-profile-active");
       this.sidebar.classList.add("slide-in");
       document.body.classList.add("sidebar-open");
-
-      // Пульсация только на десктопе
-      setTimeout(() => {
-        this.sidebar.classList.add("pulse-glow");
-        setTimeout(() => {
-          this.sidebar.classList.remove("pulse-glow");
-        }, 2000);
-      }, 500);
 
       // ГАРАНТИРУЕМ что шторка скрыта на десктопе
       if (this.mobileDrawer) {
@@ -220,15 +214,21 @@ class SidebarManager {
         // Убеждаемся, что шторка свернута по умолчанию
         this.mobileDrawer.classList.remove("expanded");
         this.isDrawerExpanded = false;
+        чч;
+        // Сразу обновляем тексты в шторке на текущем языке
+        updateDrawerTexts();
       }
     }
-
-    console.log("Сайдбар/шторка активированы для профиля игрока");
   }
 
   // Скрыть сайдбар при отсутствии профиля
   hideForPlayerProfile() {
     if (!this.isPlayerProfileActive) return;
+
+    const nicknameInput = document.getElementById("nickname");
+    if (nicknameInput && nicknameInput.value.trim() !== "") {
+      return; // Не скрываем сайдбар, если есть введенный никнейм
+    }
 
     this.isPlayerProfileActive = false;
 
@@ -304,7 +304,7 @@ class SidebarManager {
     });
   }
 
-  // Обновление отображения ошибки API
+  // Обновите метод showMatchesStats
   async showMatchesStats() {
     try {
       const playerId = window.currentPlayerData?.player_id;
@@ -318,7 +318,15 @@ class SidebarManager {
       this.matchesOffset = 0;
       this.isLoadingMore = false;
 
-      // Загружаем все матчи игрока (увеличиваем лимит до 2000)
+      // Показываем индикатор загрузки с переводом
+      const statsContainer = document.querySelector(".stats-container");
+      if (statsContainer) {
+        statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+          "loadingMatchHistory"
+        )}</div>`;
+      }
+
+      // Загружаем все матчи игрока
       const url = `https://open.faceit.com/data/v4/players/${playerId}/history?game=cs2&limit=2000`;
       const response = await fetch(url, {
         headers: {
@@ -349,6 +357,13 @@ class SidebarManager {
         } доступных`
       );
       this.totalMatches = data.total || data.items.length;
+
+      // Показываем индикатор обработки с переводом
+      if (statsContainer) {
+        statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+          "processingMatches"
+        )}</div>`;
+      }
 
       // Получение детальной статистики для каждого матча
       const matches = await Promise.all(
@@ -382,9 +397,8 @@ class SidebarManager {
       this.currentMatches = matches;
       console.log(`Обработано ${matches.length} матчей для отображения`);
 
-      setTimeout(() => {
-        this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
-      }, 100);
+      // Отображаем историю матчей
+      this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
     } catch (error) {
       console.error("Error fetching match history:", error);
       const statsContainer = document.querySelector(".stats-container");
@@ -394,79 +408,71 @@ class SidebarManager {
     }
   }
 
-  // Метод для загрузки следующих матчей
-  loadMoreMatches() {
-    if (this.isLoadingMore) return;
-
-    this.isLoadingMore = true;
-    const nextOffset = this.matchesOffset + 20;
-    const nextMatches = this.currentMatches.slice(nextOffset, nextOffset + 20);
-
-    if (nextMatches.length > 0) {
-      this.matchesOffset = nextOffset;
-      this.displayMatchHistory(
-        this.currentMatches.slice(0, nextOffset + 20),
-        false
-      );
-    }
-
-    this.isLoadingMore = false;
-  }
-
-  // Новый метод: получение статистики матча
-  // Полностью переработанный метод получения статистики матча
+  // Обновите метод fetchMatchStats для повторных попыток
   async fetchMatchStats(matchId, playerId) {
-    try {
-      const url = `https://open.faceit.com/data/v4/matches/${matchId}/stats`;
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer 6f6dd5d6-0ccf-4c2c-a88e-c4386aa0d03a`,
-          Accept: "application/json",
-        },
-      });
+    const MAX_RETRIES = 3;
+    let retries = 0;
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch match stats: ${response.status}`);
-      }
+    while (retries < MAX_RETRIES) {
+      try {
+        const url = `https://open.faceit.com/data/v4/matches/${matchId}/stats`;
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer 6f6dd5d6-0ccf-4c2c-a88e-c4386aa0d03a`,
+            Accept: "application/json",
+          },
+        });
 
-      const statsData = await response.json();
-
-      // Проверяем, есть ли данные по раундам
-      if (!statsData.rounds || statsData.rounds.length === 0) {
-        return {
-          map: "Map data not available",
-          score: "Score not available",
-          playerStats: {},
-        };
-      }
-
-      // Извлекаем основную информацию из первого раунда
-      const round = statsData.rounds[0];
-      const map = round.round_stats.Map || "Unknown Map";
-      const score = round.round_stats.Score || "0 - 0";
-
-      // Находим статистику конкретного игрока
-      let playerStats = {};
-      for (const team of round.teams) {
-        const player = team.players.find((p) => p.player_id === playerId);
-        if (player) {
-          playerStats = player.player_stats;
-          break;
+        if (!response.ok) {
+          if (response.status === 500 && retries < MAX_RETRIES - 1) {
+            retries++;
+            // Увеличиваем задержку с каждой попыткой
+            await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
+            continue;
+          }
+          throw new Error(`Failed to fetch match stats: ${response.status}`);
         }
-      }
 
-      return {
-        map,
-        score,
-        playerStats,
-      };
-    } catch (error) {
-      console.error(`Error fetching match stats for ${matchId}:`, error);
-      return {
-        map: "Error loading map",
-        score: "Error loading score",
-        playerStats: {},
-      };
+        const statsData = await response.json();
+
+        // Проверяем, есть ли данные по раундам
+        if (!statsData.rounds || statsData.rounds.length === 0) {
+          return {
+            map: "Map data not available",
+            score: "Score not available",
+            playerStats: {},
+          };
+        }
+
+        // Извлекаем основную информацию из первого раунда
+        const round = statsData.rounds[0];
+        const map = round.round_stats.Map || "Unknown Map";
+        const score = round.round_stats.Score || "0 - 0";
+
+        // Находим статистику конкретного игрока
+        let playerStats = {};
+        for (const team of round.teams) {
+          const player = team.players.find((p) => p.player_id === playerId);
+          if (player) {
+            playerStats = player.player_stats;
+            break;
+          }
+        }
+
+        return {
+          map,
+          score,
+          playerStats,
+        };
+      } catch (error) {
+        retries++;
+        if (retries >= MAX_RETRIES) {
+          console.error(`Error fetching match stats for ${matchId}:`, error);
+          throw error;
+        }
+        // Увеличиваем задержку с каждой попыткой
+        await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
+      }
     }
   }
 
@@ -535,7 +541,7 @@ class SidebarManager {
 
     const search = document.getElementById("search");
     // Сохраняем элементы .stats-box один раз
-    const statsBoxes = playerHeader.querySelectorAll(".stats-box");
+    const statsBoxes = playerCard.querySelectorAll(".stats-box"); // Исправлено: ищем в playerCard, а не в playerHeader
 
     // Отменяем предыдущий таймаут
     if (this.updateViewTimeout) {
@@ -554,73 +560,8 @@ class SidebarManager {
 
           if (search) search.style.display = "none";
 
-          // Восстанавливаем исходное содержимое контейнера
-          if (this.originalStatsHTML) {
-            statsContainer.innerHTML = this.originalStatsHTML;
-          }
-
-          // Полностью очищаем контейнер и пересоздаем исходную структуру
-          if (!this.originalStatsHTML && window.currentPlayerProfile) {
-            const { playerData, statsData, avgStats, mapAnalysis } =
-              window.currentPlayerProfile;
-            const gameId = "cs2";
-            const lifetime = statsData.lifetime || {};
-
-            statsContainer.innerHTML = `
-              <div class="stats-box slide-in-animation">
-                <h3><i class="fas fa-chart-line"></i> ${getText(
-                  "avgStatsTitle"
-                )}</h3>
-                <p>${getText("killsPerMatch")}: ${avgStats.avgKills}</p>
-                <p>${getText("deathsPerMatch")}: ${avgStats.avgDeaths}</p>
-                <p>K/D: ${avgStats.kd}</p>
-                <p>${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
-              avgStats.totalKills
-            )}</p>
-                <p>${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
-              avgStats.totalDeaths
-            )}</p>
-              </div>
-              
-              <div class="stats-box slide-in-animation">
-                <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
-                ${
-                  mapAnalysis.bestMap
-                    ? `
-                  <p>${getText("mapName")}: ${mapAnalysis.bestMap.name}</p>
-                  <p>${getText(
-                    "mapWinRate"
-                  )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%</p>
-                  <p>K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}</p>
-                  <p>${getText("mapMatches")}: ${
-                        mapAnalysis.bestMap.matches
-                      }</p>
-                `
-                    : `<p>${getText("notEnoughData")}</p>`
-                }
-              </div>
-              
-              <div class="stats-box slide-in-animation">
-                <h3><i class="fas fa-map-marked-alt"></i> ${getText(
-                  "worstMapTitle"
-                )}</h3>
-                ${
-                  mapAnalysis.worstMap
-                    ? `
-                  <p>${getText("mapName")}: ${mapAnalysis.worstMap.name}</p>
-                  <p>${getText(
-                    "mapWinRate"
-                  )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%</p>
-                  <p>K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}</p>
-                  <p>${getText("mapMatches")}: ${
-                        mapAnalysis.worstMap.matches
-                      }</p>
-                `
-                    : `<p>${getText("notEnoughData")}</p>`
-                }
-              </div>
-            `;
-          }
+          // Генерируем HTML для обзора с актуальными переводами
+          renderOverviewStats(statsContainer);
 
           // Восстанавливаем оригинальные стили
           playerCard.style.display = "block";
@@ -643,16 +584,14 @@ class SidebarManager {
             .forEach((element) => {
               element.remove();
             });
-
           break;
 
         case "matches": {
-          // Сохраняем исходное HTML перед изменением
-          if (!this.originalStatsHTML) {
-            this.originalStatsHTML = statsContainer.innerHTML;
-          }
-
-          if (search) search.style.display = "none";
+          // Показываем индикатор загрузки с переводом
+          statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+            "loadingMatchHistory"
+          )}</div>`;
+          statsContainer.style.display = "block";
 
           // Показываем карточку с оригинальным заголовком
           playerCard.style.display = "block";
@@ -666,19 +605,19 @@ class SidebarManager {
             playerHeader.style.gap = "1.5rem";
           }
 
-          statsContainer.style.display = "block";
-
-          // Скрываем блоки статистики
-          statsBoxes.forEach((box) => {
-            box.style.display = "none";
-          });
-
-          this.showMatchesStats();
+          // Загружаем матчи с небольшой задержкой для плавности UI
+          setTimeout(() => {
+            this.showMatchesStats();
+          }, 300);
           break;
         }
-        // В секции case "maps" обновляем обработку данных
+
         case "maps": {
-          if (search) search.style.display = "none";
+          // Показываем индикатор загрузки
+          statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+            "loadingMaps"
+          )}</div>`;
+          statsContainer.style.display = "block";
 
           // Скрываем блоки статистики, но НЕ трогаем player-header
           statsBoxes.forEach((box) => {
@@ -703,189 +642,182 @@ class SidebarManager {
             }
           }
 
-          // Показываем индикатор загрузки
-          statsContainer.innerHTML =
-            '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Загрузка карт...</div>';
+          // Загружаем карты с небольшой задержкой для плавности UI
+          setTimeout(() => {
+            try {
+              const playerProfile = window.currentPlayerProfile;
 
-          try {
-            const playerProfile = window.currentPlayerProfile;
+              if (!playerProfile || !playerProfile.statsData) {
+                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                return;
+              }
 
-            if (!playerProfile || !playerProfile.statsData) {
-              statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-              return;
-            }
+              const segments = playerProfile.statsData.segments || [];
 
-            const segments = playerProfile.statsData.segments || [];
+              if (segments.length === 0) {
+                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                return;
+              }
 
-            if (segments.length === 0) {
-              statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-              return;
-            }
+              // Используем getAllMapsStats для получения данных карт
+              if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
+                const allMapsStats = window.FaceitAPI.getAllMapsStats(segments);
 
-            // Используем getAllMapsStats для получения данных карт
-            if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
-              const allMapsStats = window.FaceitAPI.getAllMapsStats(segments);
+                allMapsStats.sort((a, b) => b.winRate - a.winRate);
 
-              allMapsStats.sort((a, b) => b.winRate - a.winRate);
+                if (allMapsStats && allMapsStats.length > 0) {
+                  // Создаем сетку карточек
+                  let html = `<div class="maps-grid">`;
 
-              if (allMapsStats && allMapsStats.length > 0) {
-                // Создаем сетку карточек
-                let html = `<div class="maps-grid">`;
+                  allMapsStats.forEach((map) => {
+                    // Определяем цвет карточки на основе винрейта
+                    let cardClass = "map-card";
+                    let winRateColor = "#4caf50";
+                    if (map.winRate < 40) {
+                      cardClass += " poor-performance";
+                      winRateColor = "#f44336";
+                    } else if (map.winRate < 55) {
+                      cardClass += " average-performance";
+                      winRateColor = "#ff9800";
+                    } else {
+                      cardClass += " good-performance";
+                      winRateColor = "#4caf50";
+                    }
 
-                allMapsStats.forEach((map) => {
-                  // Определяем цвет карточки на основе винрейта
-                  let cardClass = "map-card";
-                  let winRateColor = "#4caf50";
-                  if (map.winRate < 40) {
-                    cardClass += " poor-performance";
-                    winRateColor = "#f44336"; // красный
-                  } else if (map.winRate < 55) {
-                    cardClass += " average-performance";
-                    winRateColor = "#ff9800"; // оранжевый
-                  } else {
-                    cardClass += " good-performance";
-                    winRateColor = "#4caf50"; // зеленый
-                  }
-
-                  html += `
-                    <div class="${cardClass}">
-                      <div class="map-card-header">
-                        <h3 class="map-name">${map.name}</h3>
-                        <div class="win-rate-badge" style="background: ${winRateColor}">
-                          ${map.winRate.toFixed(1)}%
-                        </div>
-                      </div>
-                      
-                      <div class="map-card-body">
-                        <div class="map-stat-row">
-                          <div class="map-stat-item">
-                            <i class="fas fa-gamepad"></i>
-                            <span class="stat-label">${getText(
-                              "mapMatches"
-                            )}</span>
-                            <span class="stat-value">${map.matches}</span>
-                          </div>
-                          
-                          <div class="map-stat-item">
-                            <i class="fas fa-crosshairs"></i>
-                            <span class="stat-label">K/D</span>
-                            <span class="stat-value">${map.kd}</span>
+                    html += `
+                      <div class="${cardClass}">
+                        <div class="map-card-header">
+                          <h3 class="map-name">${map.name}</h3>
+                          <div class="win-rate-badge" style="background: ${winRateColor}">
+                            ${map.winRate.toFixed(1)}%
                           </div>
                         </div>
                         
-                        <div class="map-stat-row">
-                          <div class="map-stat-item">
-                            <i class="fas fa-skull"></i>
-                            <span class="stat-label">${getText(
-                              "killsPerMatch"
-                            )}</span>
-                            <span class="stat-value">${map.avgKills}</span>
+                        <div class="map-card-body">
+                          <div class="map-stat-row">
+                            <div class="map-stat-item">
+                              <i class="fas fa-gamepad"></i>
+                              <span class="stat-label">${getText(
+                                "mapMatches"
+                              )}</span>
+                              <span class="stat-value">${map.matches}</span>
+                            </div>
+                            
+                            <div class="map-stat-item">
+                              <i class="fas fa-crosshairs"></i>
+                              <span class="stat-label">K/D</span>
+                              <span class="stat-value">${map.kd}</span>
+                            </div>
                           </div>
                           
-                          <div class="map-stat-item">
-                            <i class="fas fa-trophy"></i>
-                            <span class="stat-label">${getText(
-                              "mapWinRate"
-                            )}</span>
-                            <span class="stat-value">${map.winRate.toFixed(
-                              1
-                            )}%</span>
+                          <div class="map-stat-row">
+                            <div class="map-stat-item">
+                              <i class="fas fa-skull"></i>
+                              <span class="stat-label">${getText(
+                                "killsPerMatch"
+                              )}</span>
+                              <span class="stat-value">${map.avgKills}</span>
+                            </div>
+                            
+                            <div class="map-stat-item">
+                              <i class="fas fa-trophy"></i>
+                              <span class="stat-label">${getText(
+                                "mapWinRate"
+                              )}</span>
+                              <span class="stat-value">${map.winRate.toFixed(
+                                1
+                              )}%</span>
+                            </div>
+                          </div>
+                          
+                          <div class="map-stat-row">
+                            <div class="map-stat-item">
+                              <i class="fas fa-fire"></i>
+                              <span class="stat-label">${getText("adr")}</span>
+                              <span class="stat-value">${map.adr}</span>
+                            </div>
+                            
+                            <div class="map-stat-item">
+                              <i class="fas fa-star"></i>
+                              <span class="stat-label">${getText(
+                                "clutches"
+                              )}</span>
+                              <span class="stat-value">${map.clutches}</span>
+                            </div>
                           </div>
                         </div>
                         
-                        <div class="map-stat-row">
-                          <div class="map-stat-item">
-                            <i class="fas fa-fire"></i>
-                            <span class="stat-label">${getText("adr")}</span>
-                            <span class="stat-value">${map.adr}</span>
-                          </div>
-                          
-                          <div class="map-stat-item">
-                            <i class="fas fa-star"></i>
-                            <span class="stat-label">${getText(
-                              "clutches"
-                            )}</span>
-                            <span class="stat-value">${map.clutches}</span>
+                        <div class="map-card-footer">
+                          <div class="performance-indicator">
+                            ${
+                              map.winRate >= 55
+                                ? `<i class="fas fa-arrow-up"></i> ${getText(
+                                    "excellentMap"
+                                  )}`
+                                : map.winRate >= 40
+                                ? `<i class="fas fa-minus"></i> ${getText(
+                                    "averageMap"
+                                  )}`
+                                : `<i class="fas fa-arrow-down"></i> ${getText(
+                                    "poorMap"
+                                  )}`
+                            }
                           </div>
                         </div>
                       </div>
-                      
-                      <div class="map-card-footer">
-                        <div class="performance-indicator">
-                          ${
-                            map.winRate >= 55
-                              ? `<i class="fas fa-arrow-up"></i> ${getText(
-                                  "excellentMap"
-                                )}`
-                              : map.winRate >= 40
-                              ? `<i class="fas fa-minus"></i> ${getText(
-                                  "averageMap"
-                                )}`
-                              : `<i class="fas fa-arrow-down"></i> ${getText(
-                                  "poorMap"
-                                )}`
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  `;
-                });
-
-                html += "</div>";
-                statsContainer.innerHTML = html;
-              } else {
-                // Fallback к analyzeMaps
-                const mapAnalysis = window.FaceitAPI.analyzeMaps(
-                  segments,
-                  "cs2",
-                  true
-                );
-
-                if (
-                  mapAnalysis &&
-                  mapAnalysis.allMaps &&
-                  mapAnalysis.allMaps.length > 0
-                ) {
-                  mapAnalysis.allMaps.sort((a, b) => b.winRate - a.winRate);
-                  let html = `<table class="maps-table"><thead><tr>
-                    <th>${getText("mapName")}</th>
-                    <th>${getText("mapMatches")}</th>
-                    <th>${getText("mapWinRate")}</th>
-                    <th>K/D</th>
-                    <th>${getText("killsPerMatch")}</th>
-                  </tr></thead><tbody>`;
-
-                  mapAnalysis.allMaps.forEach((map) => {
-                    html += `<tr>
-                      <td>${map.name}</td>
-                      <td>${map.matches}</td>
-                      <td>${map.winRate.toFixed(1)}%</td>
-                      <td>${map.kd.toFixed(2)}</td>
-                      <td>${map.avgKills.toFixed(1)}</td>
-                    </tr>`;
+                    `;
                   });
 
-                  html += "</tbody></table>";
+                  html += "</div>";
                   statsContainer.innerHTML = html;
                 } else {
-                  statsContainer.innerHTML = `<p>${getText(
-                    "notEnoughData"
-                  )}</p>`;
-                }
-              }
-            } else {
-              statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-            }
-          } catch (error) {
-            console.error("Ошибка при загрузке данных карт:", error);
-            statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
-          }
+                  // Fallback к analyzeMaps
+                  const mapAnalysis = window.FaceitAPI.analyzeMaps(
+                    segments,
+                    "cs2",
+                    true
+                  );
 
-          const loadingIndicator =
-            statsContainer.querySelector(".loading-indicator");
-          if (loadingIndicator) {
-            loadingIndicator.remove();
-          }
+                  if (
+                    mapAnalysis &&
+                    mapAnalysis.allMaps &&
+                    mapAnalysis.allMaps.length > 0
+                  ) {
+                    mapAnalysis.allMaps.sort((a, b) => b.winRate - a.winRate);
+                    let html = `<table class="maps-table"><thead><tr>
+                      <th>${getText("mapName")}</th>
+                      <th>${getText("mapMatches")}</th>
+                      <th>${getText("mapWinRate")}</th>
+                      <th>K/D</th>
+                      <th>${getText("killsPerMatch")}</th>
+                    </tr></thead><tbody>`;
+
+                    mapAnalysis.allMaps.forEach((map) => {
+                      html += `<tr>
+                        <td>${map.name}</td>
+                        <td>${map.matches}</td>
+                        <td>${map.winRate.toFixed(1)}%</td>
+                        <td>${map.kd.toFixed(2)}</td>
+                        <td>${map.avgKills.toFixed(1)}</td>
+                      </tr>`;
+                    });
+
+                    html += "</tbody></table>";
+                    statsContainer.innerHTML = html;
+                  } else {
+                    statsContainer.innerHTML = `<p>${getText(
+                      "notEnoughData"
+                    )}</p>`;
+                  }
+                }
+              } else {
+                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+              }
+            } catch (error) {
+              console.error("Ошибка при загрузке данных карт:", error);
+              statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
+            }
+          }, 300);
 
           return;
         }
@@ -894,7 +826,6 @@ class SidebarManager {
           console.warn("Unknown view type:", view);
       }
 
-      // Восстанавливаем прозрачность
       playerCard.style.opacity = "1";
     }, 150);
   }
@@ -1020,6 +951,34 @@ class SidebarManager {
         }
       });
     }
+  }
+
+  // Загрузка дополнительных матчей
+  loadMoreMatches() {
+    if (this.isLoadingMore) {
+      return;
+    }
+    this.isLoadingMore = true;
+
+    const showMoreContainer = document.querySelector(".show-more-container");
+    if (showMoreContainer) {
+      showMoreContainer.innerHTML = `<div class="loading-indicator small"><i class="fas fa-spinner fa-spin"></i> ${getText(
+        "processingMatches"
+      )}</div>`;
+    }
+
+    // Небольшая задержка для отображения индикатора загрузки
+    setTimeout(() => {
+      const currentlyDisplayedCount =
+        document.querySelectorAll(".match-item").length;
+      const matchesToLoad = 20;
+      const newTotalDisplayed = currentlyDisplayedCount + matchesToLoad;
+      const matchesToDisplay = this.currentMatches.slice(0, newTotalDisplayed);
+
+      this.displayMatchHistory(matchesToDisplay, false);
+
+      this.isLoadingMore = false;
+    }, 300);
   }
 
   // Mobile sidebar methods (for desktop compatibility)
@@ -1257,15 +1216,6 @@ const translations = {
 
     win: "WIN",
     loss: "LOSS",
-    reactionTest: "Reaction Test",
-    startTest: "Start Test",
-    reactionTestWait: 'Press "Start Test"',
-    reactionTestEnd: "Test finished",
-    reactionTestResult: "Your reaction: {reaction} ms",
-    reactionTestWait2: "Wait for green color...",
-    reactionTestClick: "CLICK!",
-    reactionTestPremature: "Too early! Try again.",
-    reactionTestSuspicious: "Too fast! Try again.",
     noMatchHistory: "No match history available",
     matchDetailsUnavailable: "Match details unavailable",
     SteamProfile: "Steam Profile",
@@ -1275,6 +1225,39 @@ const translations = {
     showMoreMatches: "Show More",
     // Дополнительные переводы для статистических блоков
     name: "Name",
+
+    loadingMatchHistory: "Loading match history...",
+    processingMatches: "Updating matches...",
+    loadingMaps: "Loading maps...",
+
+    //Mobile Sidebar
+    statsforplayer: "Player Stats",
+    mainMenu: "Main Menu",
+    overview: "Overview",
+    matches: "Matches",
+    maps: "Maps",
+
+    reactionTest: "Reaction Test",
+    startTest: "Start Test",
+    reactionInstructions1:
+      "Press the 'Start Test' button and wait for the green screen.",
+    reactionInstructions2:
+      "As soon as the screen turns green - click immediately!",
+    reactionInstructions3:
+      "<strong>Attention:</strong> If you click too early - the test will restart.",
+    reactionWait: "Wait for green color...",
+    reactionClickNow: "CLICK NOW!",
+    reactionYourResult: "Your result:",
+    reactionTimeMs: "ms",
+    reactionTooEarly: "Too early!",
+    reactionTooEarlyText: "You clicked before the green screen appeared.",
+    reactionTryAgain: "Try again",
+    reactionRetryTest: "Retry test",
+    reactionRatingExcellent: "Incredible!",
+    reactionRatingGood: "Excellent!",
+    reactionRatingNormal: "Good!",
+    reactionRatingAverage: "Average",
+    reactionRatingSlow: "Slow",
   },
 
   ru: {
@@ -1387,15 +1370,6 @@ const translations = {
 
     win: "ПОБЕДА",
     loss: "ПОРАЖЕНИЕ",
-    reactionTest: "Тест на реакцию",
-    startTest: "Начать тест",
-    reactionTestWait: 'Нажмите "Начать тест"',
-    reactionTestEnd: "Тест завершен",
-    reactionTestResult: "Ваша реакция: {reaction} мс",
-    reactionTestWait2: "Ждите зеленый цвет...",
-    reactionTestClick: "КЛИКНИТЕ!",
-    reactionTestPremature: "Слишком рано! Попробуйте снова.",
-    reactionTestSuspicious: "Слишком быстро! Попробуйте снова.",
     noMatchHistory: "Нет истории матчей",
     matchDetailsUnavailable: "Детали матча недоступны",
     SteamProfile: "Профиль Steam",
@@ -1405,11 +1379,44 @@ const translations = {
     showMoreMatches: "Показать еще",
     // Дополнительные переводы для статистических блоков
     name: "Имя",
+
+    loadingMatchHistory: "Загрузка истории матчей...",
+    processingMatches: "Обработка матчей...",
+    loadingMaps: "Загрузка карт...",
+
+    //Mobile Sidebar
+    statsforplayer: "Статистика игрока",
+    mainMenu: "В главное меню",
+    overview: "Обзор",
+    matches: "Матчи",
+    maps: "Карты",
+
+    reactionTest: "Тест на реакцию",
+    startTest: "Начать тест",
+    reactionInstructions1:
+      "Нажмите кнопку 'Начать тест' и ждите зеленый экран.",
+    reactionInstructions2:
+      "Как только экран станет зеленым - немедленно кликните по нему!",
+    reactionInstructions3:
+      "<strong>Внимание:</strong> Если кликнете слишком рано - тест начнется заново.",
+    reactionWait: "Ждите зеленый цвет...",
+    reactionClickNow: "КЛИКНИТЕ СЕЙЧАС!",
+    reactionYourResult: "Ваш результат:",
+    reactionTimeMs: "мс",
+    reactionTooEarly: "Слишком рано!",
+    reactionTooEarlyText: "Вы кликнули до появления зеленого экрана.",
+    reactionTryAgain: "Попробовать снова",
+    reactionRetryTest: "Попробовать еще раз",
+    reactionRatingExcellent: "Невероятно!",
+    reactionRatingGood: "Отлично!",
+    reactionRatingNormal: "Хорошо!",
+    reactionRatingAverage: "Нормально",
+    reactionRatingSlow: "Медленно",
   },
 };
 
 // Текущий язык (по умолчанию русский)
-let currentLanguage = "ru";
+let currentLanguage = "en";
 
 // Экспортируем currentLanguage в глобальную область для доступа из других файлов
 window.currentLanguage = currentLanguage;
@@ -1425,6 +1432,85 @@ function getText(key, placeholders = {}) {
   });
 
   return text;
+}
+
+function updateReactionTestTexts() {
+  const modalTitle = document.querySelector("#reactionTestModal h2");
+  if (modalTitle) {
+    modalTitle.innerHTML = `<i class="fas fa-bolt"></i> ${getText(
+      "reactionTest"
+    )}`;
+  }
+
+  const instructions = document.getElementById("reactionInstructions");
+  if (instructions) {
+    const paragraphs = instructions.querySelectorAll("p");
+    if (paragraphs.length >= 3) {
+      paragraphs[0].textContent = getText("reactionInstructions1");
+      paragraphs[1].textContent = getText("reactionInstructions2");
+      paragraphs[2].innerHTML = getText("reactionInstructions3");
+    }
+
+    const startButton = document.getElementById("startReactionTest");
+    if (startButton) {
+      startButton.innerHTML = `<i class="fas fa-play"></i> ${getText(
+        "startTest"
+      )}`;
+    }
+  }
+
+  const waitingScreen = document.querySelector(
+    "#reactionWaiting .reaction-screen p"
+  );
+  if (waitingScreen) {
+    waitingScreen.textContent = getText("reactionWait");
+  }
+
+  const readyScreen = document.querySelector(
+    "#reactionReady .reaction-screen p"
+  );
+  if (readyScreen) {
+    readyScreen.textContent = getText("reactionClickNow");
+  }
+
+  const resultsTitle = document.querySelector("#reactionResults h3");
+  if (resultsTitle) {
+    resultsTitle.textContent = getText("reactionYourResult");
+  }
+
+  const timeSuffix = document.querySelector(".reaction-time");
+  if (timeSuffix) {
+    const timeValue = document.getElementById("reactionTimeValue");
+    if (timeValue) {
+      timeSuffix.innerHTML = `<span id="reactionTimeValue">${
+        timeValue.textContent
+      }</span> ${getText("reactionTimeMs")}`;
+    }
+  }
+
+  const retryButton = document.getElementById("retryReactionTest");
+  if (retryButton) {
+    retryButton.innerHTML = `<i class="fas fa-redo"></i> ${getText(
+      "reactionRetryTest"
+    )}`;
+  }
+
+  const tooEarlyTitle = document.querySelector("#reactionTooEarly h3");
+  if (tooEarlyTitle) {
+    tooEarlyTitle.textContent = getText("reactionTooEarly");
+  }
+
+  const tooEarlyText = document.querySelector("#reactionTooEarly p");
+  if (tooEarlyText) {
+    tooEarlyText.textContent = getText("reactionTooEarlyText");
+  }
+
+  const restartButton = document.getElementById("restartReactionTest");
+  if (restartButton) {
+    restartButton.innerHTML = `<i class="fas fa-redo"></i> ${getText(
+      "reactionTryAgain"
+    )}`;
+  }
 }
 
 // Функция для переключения языка
@@ -1445,6 +1531,11 @@ function switchLanguage(lang) {
 
   // Сохраняем выбранный язык в localStorage
   localStorage.setItem("faceit-analyze-language", lang);
+
+  const reactionModal = document.getElementById("reactionTestModal");
+  if (reactionModal && reactionModal.style.display === "block") {
+    updateReactionTestTexts();
+  }
 
   // Обновляем активную кнопку языка
   updateLanguageButtons();
@@ -1467,6 +1558,9 @@ function switchLanguage(lang) {
 
   // Обновляем тексты в сайдбаре
   updateSidebarTexts();
+
+  // Обновляем тексты в мобильной шторке
+  updateDrawerTexts();
 
   // Обновляем карточки карт если они отображены
   updateMapsTexts();
@@ -1618,6 +1712,26 @@ function updateSidebarTexts() {
     const translateKey = span.dataset.translate;
     if (translateKey) {
       span.textContent = getText(translateKey);
+    }
+  });
+}
+
+// Новая функция для перевода мобильной шторки
+function updateDrawerTexts() {
+  const drawer = document.getElementById("mobileSidebarDrawer");
+  // Проверяем, видима ли шторка. Используем getComputedStyle для точности.
+  if (!drawer || window.getComputedStyle(drawer).display === "none") {
+    return; // Ничего не делаем, если шторка скрыта
+  }
+
+  // Находим все переводимые элементы в шторке (заголовок и пункты меню)
+  const translatableElements = drawer.querySelectorAll(
+    ".drawer-title[data-translate], .drawer-item span[data-translate]"
+  );
+  translatableElements.forEach((element) => {
+    const translateKey = element.dataset.translate;
+    if (translateKey) {
+      element.textContent = getText(translateKey);
     }
   });
 }
@@ -1944,6 +2058,7 @@ function init() {
 
   // Инициализируем менеджер сайдбара
   sidebarManager = new SidebarManager();
+  window.sidebarManager = sidebarManager; // Делаем доступным глобально
 
   // Добавляем обработчики событий ТОЛЬКО ОДИН РАЗ
   initializeEventListeners();
@@ -1964,7 +2079,6 @@ function init() {
 
   // Помечаем как инициализированное
   isInitialized = true;
-  console.log("Приложение успешно инициализировано");
 }
 
 // Отдельная функция для инициализации обработчиков событий
@@ -2099,6 +2213,10 @@ function initializeEventListeners() {
 function clearPlayerProfile() {
   currentPlayerProfile = null;
   window.currentPlayerData = null;
+
+  if (sidebarManager) {
+    sidebarManager.originalStatsHTML = null;
+  }
 
   // Скрываем статистику
   const playerStats = document.getElementById("playerStats");
@@ -2334,12 +2452,20 @@ async function analyzePlayer() {
 
     // Добавляем класс для скрытия поиска при активном профиле
     document.body.classList.add("profile-active");
-
     // Активируем сайдбар после успешной загрузки профиля
     if (sidebarManager) {
       // Задержка для плавного появления
       setTimeout(() => {
         sidebarManager.showForPlayerProfile();
+
+        // Сохраняем исходное состояние statsContainer
+        const statsContainer = document.querySelector(".stats-container");
+        if (statsContainer) {
+          sidebarManager.originalStatsHTML = statsContainer.innerHTML;
+        }
+
+        // Явно устанавливаем Overview как активный вид
+        sidebarManager.switchView("overview");
       }, 300);
     }
   } catch (error) {
@@ -2352,6 +2478,62 @@ async function analyzePlayer() {
     // Показываем сообщение об ошибке
     alert(`${getText("error")}: ${error.message}`);
   }
+}
+
+// Новая функция для рендеринга статистики на вкладке "Обзор"
+function renderOverviewStats(container) {
+  if (!container || !window.currentPlayerProfile) return;
+
+  const { avgStats, mapAnalysis } = window.currentPlayerProfile;
+
+  const overviewHTML = `
+    <div class="stats-box slide-in-animation">
+      <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
+      <p>${getText("killsPerMatch")}: ${avgStats.avgKills}</p>
+      <p>${getText("deathsPerMatch")}: ${avgStats.avgDeaths}</p>
+      <p>K/D: ${avgStats.kd}</p>
+      <p>${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
+    avgStats.totalKills
+  )}</p>
+      <p>${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
+    avgStats.totalDeaths
+  )}</p>
+    </div>
+    
+    <div class="stats-box slide-in-animation">
+      <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
+      ${
+        mapAnalysis.bestMap
+          ? `
+        <p>${getText("mapName")}: ${mapAnalysis.bestMap.name}</p>
+        <p>${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(
+              1
+            )}%</p>
+        <p>K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}</p>
+        <p>${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}</p>
+      `
+          : `<p>${getText("notEnoughData")}</p>`
+      }
+    </div>
+    
+    <div class="stats-box slide-in-animation">
+      <h3><i class="fas fa-map-marked-alt"></i> ${getText("worstMapTitle")}</h3>
+      ${
+        mapAnalysis.worstMap
+          ? `
+        <p>${getText("mapName")}: ${mapAnalysis.worstMap.name}</p>
+        <p>${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
+              1
+            )}%</p>
+        <p>K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}</p>
+        <p>${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}</p>
+      `
+          : `<p>${getText("notEnoughData")}</p>`
+      }
+    </div>
+  `;
+
+  container.innerHTML = overviewHTML;
 }
 
 // Функции для модальных окон
@@ -2394,11 +2576,18 @@ function openReactionTestModal() {
   const modal = document.getElementById("reactionTestModal");
   if (!modal) return;
 
-  modal.style.display = "block";
-  document.body.style.overflow = "hidden";
+  // Сначала скрываем модальное окно
+  modal.style.display = "none";
 
-  // Инициализируем тест
-  initReactionTest();
+  // Даем браузеру время применить стили
+  setTimeout(() => {
+    modal.style.display = "block";
+    document.body.style.overflow = "hidden";
+
+    // Инициализируем тест
+    initReactionTest();
+    updateReactionTestTexts();
+  }, 10);
 }
 
 // Инициализация теста реакции
@@ -2480,34 +2669,26 @@ function startReactionTest() {
 function handleReactionClick() {
   if (!reactionTest.isActive || reactionTest.startTime === 0) return;
 
-  // Вычисляем время реакции
   const reactionTime = Math.round(performance.now() - reactionTest.startTime);
-
-  // Сбрасываем флаг активности
   reactionTest.isActive = false;
-
-  // Очищаем таймер
   clearTimeout(reactionTest.timeout);
 
-  // Скрываем зеленый экран
   document.getElementById("reactionReady").style.display = "none";
-
-  // Показываем результаты
   document.getElementById("reactionResults").style.display = "block";
   document.getElementById("reactionTimeValue").textContent = reactionTime;
 
-  // Устанавливаем рейтинг
+  // Используем переведенные фразы для рейтинга
   const ratingElement = document.getElementById("reactionRating");
   if (reactionTime < 150) {
-    ratingElement.textContent = "Невероятно!";
+    ratingElement.textContent = getText("reactionRatingExcellent");
   } else if (reactionTime < 200) {
-    ratingElement.textContent = "Отлично!";
+    ratingElement.textContent = getText("reactionRatingGood");
   } else if (reactionTime < 250) {
-    ratingElement.textContent = "Хорошо!";
+    ratingElement.textContent = getText("reactionRatingNormal");
   } else if (reactionTime < 350) {
-    ratingElement.textContent = "Нормально";
+    ratingElement.textContent = getText("reactionRatingAverage");
   } else {
-    ratingElement.textContent = "Медленно";
+    ratingElement.textContent = getText("reactionRatingSlow");
   }
 
   console.log("Измеренное время реакции:", reactionTime, "мс");
