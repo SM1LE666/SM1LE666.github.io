@@ -2387,7 +2387,6 @@ footer {
 .map-stat-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1rem;
   gap: 1rem;
 }
 
@@ -2502,18 +2501,6 @@ footer {
   .maps-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
-  }
-
-  .map-card-header {
-    padding: 1rem 1rem 0 1rem;
-  }
-
-  .map-card-body {
-    padding: 0 1rem 1rem 1rem;
-  }
-
-  .map-card-footer {
-    padding: 0 1rem 1rem 1rem;
   }
 
   .map-stat-row {
