@@ -2320,14 +2320,17 @@ footer {
 
 .map-card.average-performance {
   border-color: rgba(255, 152, 0, 0.4);
+  margin-bottom: 1rem;
 }
 
 .map-card.good-performance {
   border-color: rgba(76, 175, 80, 0.4);
+  margin-bottom: 1rem;
 }
 
 .map-card.poor-performance {
   border-color: rgba(244, 67, 54, 0.4);
+  margin-bottom: 1rem;
 }
 
 .map-card.average-performance::before {
