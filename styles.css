@@ -846,6 +846,7 @@ footer {
 .support-btn {
   background: linear-gradient(135deg, #ff6b6b, #ff5252);
   color: white;
+  width: 200px;
 }
 
 .support-btn:hover {
@@ -861,6 +862,7 @@ footer {
     var(--primary-hover)
   );
   color: white;
+  width: 200px;
 }
 
 .contact-btn:hover {
@@ -3017,3 +3019,4 @@ footer {
 #results::before {
   content: none !important;
 }
+
