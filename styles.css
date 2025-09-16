@@ -823,7 +823,6 @@ footer {
 .footer-buttons {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
   justify-content: center;
 }
 
@@ -846,7 +845,7 @@ footer {
 .support-btn {
   background: linear-gradient(135deg, #ff6b6b, #ff5252);
   color: white;
-  width: 200px;
+  width: 170px;
 }
 
 .support-btn:hover {
@@ -862,7 +861,7 @@ footer {
     var(--primary-hover)
   );
   color: white;
-  width: 200px;
+  width: 170px;
 }
 
 .contact-btn:hover {
@@ -3022,5 +3021,6 @@ footer {
 #results::before {
   content: none !important;
 }
+
 
 
