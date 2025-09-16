@@ -1249,7 +1249,6 @@ footer {
   margin-bottom: 2rem;
 }
 
-/* КАРДИНАЛЬНОЕ ИСПРАВЛЕНИЕ - убираем flex из body и main на мобильных */
 @media (max-width: 768px) {
   /* Возвращаем flex для body чтобы футер остался внизу */
   body {
@@ -1272,6 +1271,10 @@ footer {
   /* Footer остается внизу */
   footer {
     margin-top: auto !important;
+  }
+
+  .footer-content p {
+    font-size: 12px;
   }
 
   /* Results section - ОКОНЧАТЕЛЬНОЕ ИСПРАВЛЕНИЕ */
@@ -3019,4 +3022,5 @@ footer {
 #results::before {
   content: none !important;
 }
+
 
