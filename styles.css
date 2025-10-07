@@ -2740,8 +2740,7 @@ footer {
   }
 
   h1 {
-    font-size: 1.8rem;
-    padding: 0 1rem;
+    font-size: 1.6rem;
   }
 
   section {
@@ -3021,6 +3020,7 @@ footer {
 #results::before {
   content: none !important;
 }
+
 
 
 
