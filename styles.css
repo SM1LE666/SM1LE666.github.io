@@ -2016,6 +2016,7 @@ footer {
   height: 1px;
   background: rgba(255, 85, 0, 0.2);
   margin: 0.5rem 1.5rem;
+  display:none;
 }
 
 .back-button {
@@ -3020,6 +3021,7 @@ footer {
 #results::before {
   content: none !important;
 }
+
 
 
 
