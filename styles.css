@@ -3309,3 +3309,21 @@ footer {
   }
 }
 
+@media (max-width: 768px) {
+  #drawerHeader {
+    position: relative; /* anchor for absolute centering */
+  }
+
+  #drawerHeader .drawer-title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 4rem); /* keep side padding for touch/handle */
+    text-align: center;
+    pointer-events: none; /* allow tapping header to toggle */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
