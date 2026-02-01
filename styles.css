@@ -431,7 +431,7 @@ section {
   margin-bottom: 2rem;
   background: rgba(51, 51, 51, 0.8);
   backdrop-filter: blur(10px);
-  padding: 2.5rem; /* Увеличиваем внутренние отступы */
+  padding: 2rem; /* было 2.5rem */
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 85, 0, 0.1);
@@ -472,7 +472,7 @@ h2 {
   color: var(--primary-color);
   text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
   font-size: 1.6rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.1rem; /* было 1.5rem */
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -482,7 +482,6 @@ h2 {
 #search {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
   margin-bottom: 2rem;
   transform: scale(1);
   transform-origin: center top;
@@ -543,7 +542,6 @@ input[type="text"]:focus {
   border: 1px solid rgba(255, 85, 0, 0.3);
   color: var(--primary-color);
   font-weight: bold;
-  font-size: 1.1rem;
   padding: 0.8rem 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   height: 50px; /* Фиксированная высота для обеих кнопок */
@@ -567,13 +565,19 @@ input[type="text"]:focus {
   border: 1px solid rgba(255, 85, 0, 0.3);
   color: var(--primary-color);
   font-weight: bold;
-  font-size: 1.1rem;
   padding: 0.8rem 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   height: 50px; /* Фиксированная высота для обеих кнопок */
   min-width: 200px; /* Минимальная ширина для обеих кнопок */
   text-align: center;
   justify-content: center;
+}
+
+/* Search buttons: make ANALYZE and REACTION TEST одинаковой ширины */
+#searchButton,
+#reactionTestBtn {
+  width: 235px; /* единая ширина на десктопе */
+  min-width: 235px; /* переопределяем возможные различия */
 }
 
 #reactionTestBtn:hover {
@@ -823,6 +827,7 @@ footer {
 .footer-buttons {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
   justify-content: center;
 }
 
@@ -845,7 +850,7 @@ footer {
 .support-btn {
   background: linear-gradient(135deg, #ff6b6b, #ff5252);
   color: white;
-  width: 170px;
+  width: 200px;
 }
 
 .support-btn:hover {
@@ -861,7 +866,7 @@ footer {
     var(--primary-hover)
   );
   color: white;
-  width: 170px;
+  width: 200px;
 }
 
 .contact-btn:hover {
@@ -1248,6 +1253,7 @@ footer {
   margin-bottom: 2rem;
 }
 
+/* КАРДИНАЛЬНОЕ ИСПРАВЛЕНИЕ - убираем flex из body и main на мобильных */
 @media (max-width: 768px) {
   /* Возвращаем flex для body чтобы футер остался внизу */
   body {
@@ -2016,7 +2022,6 @@ footer {
   height: 1px;
   background: rgba(255, 85, 0, 0.2);
   margin: 0.5rem 1.5rem;
-  display:none;
 }
 
 .back-button {
@@ -3009,20 +3014,14 @@ footer {
   }
 }
 
-/* Убираем анимацию градиента из секций */
 #search,
 #results {
-  background: rgba(51, 51, 51, 0.8) !important; /* Статичный цвет фона */
-  animation: none !important; /* Отключаем анимацию */
+  background: rgba(51, 51, 51, 0.8) !important;
+  animation: none !important;
+  padding-top: 1.7rem;
 }
 
-/* Убираем псевдоэлемент ::before с анимацией shimmer */
 #search::before,
 #results::before {
   content: none !important;
 }
-
-
-
-
-
