@@ -1197,6 +1197,9 @@ const translations = {
     // Success messages
     emailClientOpened:
       "Gmail has been opened to send the message. Please check your browser tabs.",
+    messageSent: "Message sent successfully.",
+    messageSendFailed: "Failed to send message.",
+    sendingMessage: "Sending...",
 
     // Error messages
     faceitApiNotLoaded:
@@ -2479,10 +2482,12 @@ function sendMessage(event) {
     return;
   }
 
-  // Создаем тело письма
-  const emailBody = `${getText("yourName")}: ${name}%0D%0A${getText(
-    "email"
-  )}: ${email}%0D%0A%0D%0A${getText("message")}:%0D%0A${message}`;
+  // Создаем тело письма (URL-encoded)
+  const emailBody = encodeURIComponent(
+    `${getText("yourName")}: ${name}\n${getText(
+      "email"
+    )}: ${email}\n\n${getText("message")}:\n${message}`
+  );
 
   // Создаем mailto ссылку
   const mailtoLink = `mailto:contact@faceit-analyze.com?subject=${encodeURIComponent(
@@ -2490,7 +2495,7 @@ function sendMessage(event) {
   )}&body=${emailBody}`;
 
   // Открываем почтовый клиент
-  window.open(mailtoLink);
+  window.location.href = mailtoLink;
 
   // Показываем сообщение об успехе
   alert(getText("emailClientOpened"));
