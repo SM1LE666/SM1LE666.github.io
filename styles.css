@@ -2018,12 +2018,6 @@ footer {
   font-size: 0.9rem;
 }
 
-.drawer-divider {
-  height: 1px;
-  background: rgba(255, 85, 0, 0.2);
-  margin: 0.5rem 1.5rem;
-}
-
 .back-button {
   border-bottom: 1px solid rgba(255, 85, 0, 0.2);
   margin-bottom: 0.5rem;
@@ -2171,104 +2165,8 @@ footer {
   transform: translateY(0); /* Полностью видна при развороте */
 }
 
-.drawer-header {
-  height: 60px;
-  background: rgba(255, 85, 0, 0.1);
-  border-bottom: 1px solid rgba(255, 85, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1rem;
-  cursor: pointer;
-  position: relative;
-}
-
-.drawer-handle {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 4px;
-  background: rgba(255, 85, 0, 0.6);
-  border-radius: 2px;
-}
-
-.drawer-title {
-  color: var(--primary-color);
-  font-weight: bold;
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.drawer-toggle-btn {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  transition: transform 0.3s ease;
-}
-
 .mobile-sidebar-drawer.expanded .drawer-toggle-btn i {
   transform: rotate(180deg);
-}
-
-.drawer-content {
-  max-height: calc(50vh - 60px);
-  overflow-y: auto;
-  padding: 1rem 0;
-  background: var(--bg-darker);
-}
-
-.drawer-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border-left: 3px solid transparent;
-}
-
-.drawer-item:hover {
-  background: rgba(255, 85, 0, 0.1);
-  color: var(--primary-color);
-  border-left-color: var(--primary-color);
-}
-
-.drawer-item.active {
-  background: rgba(255, 85, 0, 0.15);
-  color: var(--primary-color);
-  border-left-color: var(--primary-color);
-}
-
-.drawer-item i {
-  font-size: 1.2rem;
-  width: 20px;
-  text-align: center;
-}
-
-.drawer-item span {
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.9rem;
-}
-
-.drawer-divider {
-  height: 1px;
-  background: rgba(255, 85, 0, 0.2);
-  margin: 0.5rem 1.5rem;
-}
-
-.back-button {
-  border-bottom: 1px solid rgba(255, 85, 0, 0.2);
-  margin-bottom: 0.5rem;
 }
 
 /* Анимации для появления/скрытия шторки */
@@ -3024,4 +2922,22 @@ footer {
 #search::before,
 #results::before {
   content: none !important;
+}
+
+/* Чуть уменьшаем шрифты на мобильных (главное меню и в целом) */
+@media (max-width: 768px) {
+  html {
+    font-size: 15px; /* было ~16px: минус ~1px */
+  }
+
+  /* Заголовки секций в главном меню */
+  #search h2,
+  #results h2 {
+    font-size: 1.2rem; /* было ~1.3rem */
+  }
+
+  /* Основной H1 в шапке (когда виден) */
+  h1 {
+    font-size: 1.4rem; /* было 1.5rem в mobile media */
+  }
 }
