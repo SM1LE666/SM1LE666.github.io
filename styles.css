@@ -311,6 +311,12 @@ h1 {
   position: relative;
   display: inline-block;
 }
+
+/* --- Header underline (talisman) - normalized --- */
+h1 {
+  position: relative;
+}
+
 h1::after {
   content: "";
   position: absolute;
@@ -324,6 +330,19 @@ h1::after {
     var(--primary-color),
     transparent
   );
+}
+
+/* Mobile: don't clip the underline */
+@media (max-width: 768px) {
+  header,
+  .header-content {
+    overflow: visible !important;
+  }
+
+  /* keep the underline close to the title on compact header */
+  header .header-content h1::after {
+    bottom: -5px;
+  }
 }
 
 .language-switcher {
@@ -1466,6 +1485,139 @@ footer {
   }
 }
 
+@media (max-width: 768px) {
+  /* важно: у нас переключатель языков находится ВНЕ header,
+     поэтому резервируем место справа у заголовка и фиксируем его в одну строку */
+  header {
+    padding: 0.6rem 0; /* ниже шапка */
+  }
+
+  .header-content {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    padding: 0 0.6rem !important;
+  }
+
+  h1 {
+    font-size: 1.35rem !important;
+    margin-right: 6.8rem !important; /* чуть больше места под 2 кнопки справа */
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* переносим фиксированный свитчер визуально в область шапки */
+  .language-switcher-fixed {
+    top: 12px !important;
+    right: 8px !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  .language-switcher-fixed .lang-btn {
+    padding: 0.34rem 0.5rem;
+    font-size: 0.72rem;
+    line-height: 1;
+  }
+
+  .language-switcher-fixed .lang-btn img {
+    width: 14px;
+    height: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.28rem !important;
+    margin-right: 6.4rem !important; /* еще чуть больше запаса справа */
+  }
+
+  .language-switcher-fixed {
+    top: 10px !important;
+    right: 6px !important;
+  }
+
+  .language-switcher-fixed .lang-btn {
+    padding: 0.22rem 0.4rem; /* fix typo that breaks padding on some browsers */
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* старый блок ниже в файле переопределял flex-direction: column и увеличивал h1.
+     оставляем актуальную логику: заголовок слева, свитчер справа */
+  .header-content {
+    flex-direction: row !important;
+    gap: 0.4rem !important;
+    padding: 0 0.6rem !important;
+  }
+
+  /* гарантированно скрываем старый .language-switcher (если где-то появится) */
+  .language-switcher {
+    display: none !important;
+  }
+
+  h1 {
+    font-size: 1.33rem !important;
+    margin-right: 7.25rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* чуть уменьшаем иконку в h1, чтобы добрать пару пикселей */
+  h1 i {
+    margin-right: 0.35rem;
+    font-size: 0.95em;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.26rem !important;
+    margin-right: 6.9rem !important;
+  }
+}
+
+/* --- Fix: avoid conflicting header rules on mobile --- */
+@media (max-width: 768px) {
+  /* на странице используется .language-switcher-fixed (fixed),
+     а .language-switcher относится к старой версии. На мобильных скрываем её,
+     чтобы не было конфликтов и непредсказуемых перекрытий. */
+  .language-switcher {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Переопределяем (последним по файлу), чтобы не перетиралось старыми блоками ниже */
+  header {
+    padding: 0.55rem 0 !important;
+  }
+
+  .header-content {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding: 0 0.6rem !important;
+  }
+
+  h1 {
+    font-size: 1.33rem !important;
+    margin-right: 7.25rem !important; /* еще чуть-чуть запаса */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    margin-right: 6.9rem !important;
+  }
+}
+
 /* Дополнительные стили для планшетов */
 @media (min-width: 769px) and (max-width: 1024px) {
   main {
@@ -1535,31 +1687,24 @@ footer {
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-content {
-    padding: 0 0.75rem; /* чуть меньше горизонтальные отступы */
+    padding: 0 0.65rem; /* чуть меньше горизонтальные отступы */
   }
 
   /* Сдвигаем переключатель языков правее и уменьшаем его габариты */
   .language-switcher {
-    right: 0.5rem; /* ближе к правому краю */
-    gap: 0.35rem;
+    right: 0.35rem; /* ближе к правому краю */
+    gap: 0.4rem;
   }
 
   .lang-btn {
-    padding: 0.25rem 0.45rem;
-    font-size: 0.7rem;
-    border-radius: 9px;
-    gap: 4px;
+    padding: 0.32rem 0.45rem; /* +высота */
+    line-height: 1;
   }
 
-  .lang-btn img {
-    width: 14px;
-    height: 10px;
-  }
-
-  /* Освобождаем место под заголовок, чтобы влезал в одну строку */
+  /* больше места справа под язык, чтобы не перекрывать заголовок */
   h1 {
-    margin-right: 4.1rem; /* было 5rem: уменьшаем, т.к. кнопки стали компактнее */
-    white-space: nowrap;
+    margin-right: 5.2rem; /* расширяем "зону" под кнопки справа */
+    padding-right: 0.1rem;
   }
 
   .language-switcher {
@@ -2960,5 +3105,207 @@ footer {
   /* Основной H1 в шапке (когда виден) */
   h1 {
     font-size: 1.4rem; /* было 1.5rem в mobile media */
+  }
+}
+
+/* --- FINAL mobile header override (must be last) --- */
+@media (max-width: 768px) {
+  /* Keep header in one row */
+  .header-content {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Title: reserve enough space for fixed language switcher */
+  h1 {
+    font-size: 1.28rem !important;
+    margin-right: 7.6rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Put switcher tighter to the right, but keep tap area height */
+  .language-switcher-fixed {
+    top: 9px !important;
+    right: 6px !important;
+  }
+
+  .language-switcher-fixed .lang-btn {
+    padding: 0.38rem 0.52rem !important; /* чуть выше */
+    font-size: 0.72rem !important;
+  }
+
+  .language-switcher {
+    display: none !important;
+  }
+
+  h1::after {
+    bottom: -4px;
+    height: 3px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.22rem !important;
+    margin-right: 7.3rem !important;
+  }
+
+  h1::after {
+    bottom: -3px;
+    height: 3px;
+  }
+}
+
+/* Mobile header: make it a bit taller/cleaner */
+@media (max-width: 768px) {
+  header {
+    padding: 0.8rem 0 !important; /* было слишком низко */
+  }
+
+  .header-content {
+    min-height: 44px; /* более аккуратная высота строки */
+  }
+
+  h1 {
+    line-height: 1.15 !important;
+  }
+
+  /* underline чуть ниже, чтобы не прилипала */
+  h1::after {
+    bottom: -6px;
+  }
+
+  .language-switcher-fixed {
+    top: 12px !important; /* синхронизируем с увеличенной высотой */
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 0.75rem 0 !important;
+  }
+
+  .language-switcher-fixed {
+    top: 11px !important;
+  }
+}
+
+/* --- Header CSS hotfixes (typos + conflicting overrides) --- */
+
+/* Fix broken unit: кириллица 'рем' -> 'rem' */
+@media (max-width: 480px) {
+  h1 {
+    margin-right: 6.4rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Another broken unit instance in older responsive block */
+  .lang-btn {
+    padding: 0.32rem 0.45rem;
+  }
+
+  /* Ensure ellipsis works: do not force overflow: visible on the title */
+  h1 {
+    overflow: hidden !important;
+  }
+}
+
+/* --- Mobile: ensure the underline under the header title is visible --- */
+@media (max-width: 768px) {
+  /* some blocks set overflow/contain on parents; make sure header doesn't clip h1::after */
+  header,
+  .header-content {
+    overflow: visible !important;
+  }
+
+  /* target the title inside the header explicitly to win specificity wars */
+  header .header-content h1 {
+    position: relative;
+  }
+
+  header .header-content h1::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--primary-color),
+      transparent
+    );
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 480px) {
+  header .header-content h1::after {
+    bottom: -5px;
+  }
+}
+
+/* --- LAST: force underline for header title on mobile (wins all overrides) --- */
+@media (max-width: 768px) {
+  header .header-content h1 {
+    position: relative !important;
+    overflow: visible !important;
+    margin-left: 1rem;
+  }
+
+  header .header-content h1::after {
+    content: "" !important;
+    position: absolute !important;
+    bottom: -5px !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 3px !important;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--primary-color),
+      transparent
+    ) !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  header .header-content h1::after {
+    bottom: -5px !important;
+    height: 3px !important;
+  }
+}
+
+/* немного увеличиваем заголовок и делаем больше отступ до полоски */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  header .header-content h1::after {
+    bottom: -8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  header .header-content h1::after {
+    bottom: -8px !important;
   }
 }
