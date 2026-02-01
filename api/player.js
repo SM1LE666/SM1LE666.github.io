@@ -6,20 +6,15 @@ export default async function handler(req, res) {
       return;
     }
 
-    const playerId = req.query?.playerId;
-    const gameId = req.query?.gameId;
-    const limit = req.query?.limit ?? "20";
-
-    if (!playerId || !gameId) {
-      res.status(400).json({ error: "playerId and gameId are required" });
+    const nickname = req.query?.nickname;
+    if (!nickname) {
+      res.status(400).json({ error: "nickname is required" });
       return;
     }
 
-    const url = `https://open.faceit.com/data/v4/players/${encodeURIComponent(
-      String(playerId)
-    )}/history?game=${encodeURIComponent(
-      String(gameId)
-    )}&limit=${encodeURIComponent(String(limit))}`;
+    const url = `https://open.faceit.com/data/v4/players?nickname=${encodeURIComponent(
+      String(nickname)
+    )}`;
 
     const r = await fetch(url, {
       headers: {
