@@ -1535,11 +1535,31 @@ footer {
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-content {
-    padding: 0 1rem;
-    position: relative;
-    flex-direction: row; /* Изменяем на row вместо column */
-    gap: 0.5rem;
-    justify-content: flex-start; /* Выравнивание по левому краю */
+    padding: 0 0.75rem; /* чуть меньше горизонтальные отступы */
+  }
+
+  /* Сдвигаем переключатель языков правее и уменьшаем его габариты */
+  .language-switcher {
+    right: 0.5rem; /* ближе к правому краю */
+    gap: 0.35rem;
+  }
+
+  .lang-btn {
+    padding: 0.25rem 0.45rem;
+    font-size: 0.7rem;
+    border-radius: 9px;
+    gap: 4px;
+  }
+
+  .lang-btn img {
+    width: 14px;
+    height: 10px;
+  }
+
+  /* Освобождаем место под заголовок, чтобы влезал в одну строку */
+  h1 {
+    margin-right: 4.1rem; /* было 5rem: уменьшаем, т.к. кнопки стали компактнее */
+    white-space: nowrap;
   }
 
   .language-switcher {
@@ -2634,17 +2654,18 @@ footer {
   }
 
   .lang-btn {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.75rem;
+    padding: 0.22rem 0.4rem;
+    font-size: 0.68rem;
   }
 
   .lang-btn img {
-    width: 14px;
-    height: 10px;
+    width: 13px;
+    height: 9px;
   }
 
   h1 {
     font-size: 1.6rem;
+    margin-right: 3.8rem;
   }
 
   section {
