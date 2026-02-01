@@ -140,16 +140,6 @@ class SidebarManager {
       }
     });
 
-    // Обработчик для заголовка шторки (разворот/сворачивание) - убираем, чтобы избежать конфликтов
-    // const drawerHeader = document.querySelector(".drawer-header");
-    // if (drawerHeader) {
-    //   drawerHeader.addEventListener("click", (e) => {
-    //     e.preventDefault();
-    //     if (!this.isPlayerProfileActive) return;
-    //     this.toggleDrawer();
-    //   });
-    // }
-
     // Desktop mobile toggle (теперь скрыт на мобильных)
     if (this.mobileToggle) {
       this.mobileToggle.addEventListener("click", (e) => {
@@ -214,7 +204,6 @@ class SidebarManager {
         // Убеждаемся, что шторка свернута по умолчанию
         this.mobileDrawer.classList.remove("expanded");
         this.isDrawerExpanded = false;
-        чч;
         // Сразу обновляем тексты в шторке на текущем языке
         updateDrawerTexts();
       }
@@ -1102,7 +1091,7 @@ class SidebarManager {
 
 // Функция для получения текущего языка
 function getCurrentLanguage() {
-  return window.currentLanguage || currentLanguage || "ru";
+  return window.currentLanguage || currentLanguage || "en";
 }
 
 // Объект с переводами
@@ -1259,163 +1248,9 @@ const translations = {
     reactionRatingAverage: "Average",
     reactionRatingSlow: "Slow",
   },
-
-  ru: {
-    // Header
-    title: "FACEIT Analyze",
-
-    // Sidebar
-    sidebarBack: "В главное меню",
-    sidebarOverview: "Обзор",
-    sidebarDetailed: "Детали",
-    sidebarMaps: "Карты",
-    sidebarHistory: "История",
-    sidebarCompare: "Сравнение",
-    sidebarMatches: "Матчи",
-
-    // Mobile drawer
-    drawerTitle: "Статистика игрока",
-
-    // Search section
-    searchTitle: "Поиск игрока",
-    searchPlaceholder: "Введите никнейм игрока или ссылку на профиль",
-    analyzeButton: "АНАЛИЗ",
-
-    // Results section
-    resultsTitle: "Статистика игрока",
-    enterNickname: "Введите никнейм для просмотра результатов.",
-
-    // Player info
-    country: "Страна",
-    elo: "ELO",
-    level: "Уровень",
-    matches: "Матчей",
-    winRate: "Винрейт",
-    faceitProfile: "Профиль FACEIT",
-
-    // Stats
-    avgStatsTitle: "Средняя статистика",
-    killsPerMatch: "Убийств за матч",
-    deathsPerMatch: "Смертей за матч",
-    totalKills: "Всего убийств",
-    totalDeaths: "Всего смертей",
-
-    // Maps
-    bestMapTitle: "Лучшая карта",
-    worstMapTitle: "Худшая карта",
-    mapName: "Название",
-    mapWinRate: "Винрейт",
-    mapMatches: "Матчей",
-    adr: "УВР",
-    clutches: "Клатчи",
-
-    // Messages
-    gettingData: "Получение данных для",
-    gettingStats: "Получение статистики CS:2 для",
-    playerNotFound: "Игрок не найден.",
-    noCs2Stats:
-      "Статистика CS:2 для {nickname} не найдена. Игрок не играл в CS:2 или данные недоступны.",
-    noCs2Matches:
-      "{nickname} не играл матчи CS:2. Доступна только статистика CS:GO, которая не учитывается.",
-    notEnoughData: "Недостаточно данных",
-    noMapData: "Нет данных по картам",
-
-    // Validation
-    enterNicknameValidation:
-      "Пожалуйста, введите никнейм или ссылку на профиль.",
-    fillAllFields: "Пожалуйста, заполните все поля",
-
-    // Footer
-    supportUs: "Поддержать",
-    contactUs: "Связаться",
-    footerText: "Продвинутая статистика для игроков FACEIT",
-
-    // Support modal
-    supportTitle: "Поддержать FACEIT Analyze",
-    steamTradeOffer: "Трейд-предложение Steam",
-    howToSupport: "Как поддержать:",
-    supportStep1: 'Нажмите на кнопку "Трейд-предложение Steam"',
-    supportStep2: "Выберите предметы для обмена",
-    supportStep3: "Отправьте трейд-предложение",
-    supportNote:
-      "Любые скины CS:2, CS:GO или предметы других игр будут приняты с благодарностью!",
-
-    // Contact modal
-    contactTitle: "Отправить сообщение",
-    contactDescription:
-      "Есть вопросы, предложения или нужна помощь? Напишите нам!",
-    yourName: "Ваше имя",
-    enterName: "Введите ваше имя",
-    email: "Email",
-    messageSubject: "Тема сообщения",
-    selectSubject: "Выберите тему",
-    bugReport: "Сообщить об ошибке",
-    featureRequest: "Предложить улучшение",
-    support: "Техническая поддержка",
-    partnership: "Партнерство",
-    other: "Другое",
-    message: "Сообщение",
-    messagePlaceholder: "Опишите ваш вопрос или предложение...",
-    sendMessage: "Отправить сообщение",
-    orWriteDirectly: "Или напишите напрямую:",
-
-    // Success messages
-    emailClientOpened:
-      "Gmail был открыт для отправки сообщения. Проверьте вкладки браузера.",
-
-    // Error messages
-    faceitApiNotLoaded:
-      "FaceitAPI не загружен. Проверьте консоль разработчика для деталей.",
-    error: "Ошибка",
-
-    win: "ПОБЕДА",
-    loss: "ПОРАЖЕНИЕ",
-    noMatchHistory: "Нет истории матчей",
-    matchDetailsUnavailable: "Детали матча недоступны",
-    SteamProfile: "Профиль Steam",
-    excellentMap: "Отличная карта",
-    averageMap: "Средняя карта",
-    poorMap: "Слабая карта",
-    showMoreMatches: "Показать еще",
-    // Дополнительные переводы для статистических блоков
-    name: "Имя",
-
-    loadingMatchHistory: "Загрузка истории матчей...",
-    processingMatches: "Обработка матчей...",
-    loadingMaps: "Загрузка карт...",
-
-    //Mobile Sidebar
-    statsforplayer: "Статистика игрока",
-    mainMenu: "В главное меню",
-    overview: "Обзор",
-    matches: "Матчи",
-    maps: "Карты",
-
-    reactionTest: "Тест на реакцию",
-    startTest: "Начать тест",
-    reactionInstructions1:
-      "Нажмите кнопку 'Начать тест' и ждите зеленый экран.",
-    reactionInstructions2:
-      "Как только экран станет зеленым - немедленно кликните по нему!",
-    reactionInstructions3:
-      "<strong>Внимание:</strong> Если кликнете слишком рано - тест начнется заново.",
-    reactionWait: "Ждите зеленый цвет...",
-    reactionClickNow: "КЛИКНИТЕ СЕЙЧАС!",
-    reactionYourResult: "Ваш результат:",
-    reactionTimeMs: "мс",
-    reactionTooEarly: "Слишком рано!",
-    reactionTooEarlyText: "Вы кликнули до появления зеленого экрана.",
-    reactionTryAgain: "Попробовать снова",
-    reactionRetryTest: "Попробовать еще раз",
-    reactionRatingExcellent: "Невероятно!",
-    reactionRatingGood: "Отлично!",
-    reactionRatingNormal: "Хорошо!",
-    reactionRatingAverage: "Нормально",
-    reactionRatingSlow: "Медленно",
-  },
 };
 
-// Текущий язык (по умолчанию русский)
+// Single-language mode (English only)
 let currentLanguage = "en";
 
 // Экспортируем currentLanguage в глобальную область для доступа из других файлов
@@ -1515,78 +1350,8 @@ function updateReactionTestTexts() {
 
 // Функция для переключения языка
 function switchLanguage(lang) {
-  if (!translations[lang]) {
-    console.error(`Язык ${lang} не поддерживается`);
-    return;
-  }
-
-  // Предотвращаем повторные вызовы для того же языка
-  if (currentLanguage === lang) {
-    return;
-  }
-
-  currentLanguage = lang;
-  // Обновляем глобальную переменную для доступа из других файлов
-  window.currentLanguage = currentLanguage;
-
-  // Сохраняем выбранный язык в localStorage
-  localStorage.setItem("faceit-analyze-language", lang);
-
-  const reactionModal = document.getElementById("reactionTestModal");
-  if (reactionModal && reactionModal.style.display === "block") {
-    updateReactionTestTexts();
-  }
-
-  // Обновляем активную кнопку языка
-  updateLanguageButtons();
-
-  // Обновляем все тексты на странице
-  updatePageTexts();
-
-  // Если есть отображенная статистика игрока, обновляем её
-  if (playerStats && playerStats.innerHTML.trim() !== "") {
-    updatePlayerStatsTexts();
-    // Обновляем названия стран через FaceitAPI если доступно
-    if (window.FaceitAPI && window.FaceitAPI.updateCountryNames) {
-      try {
-        window.FaceitAPI.updateCountryNames();
-      } catch (error) {
-        console.warn("Ошибка при обновлении названий стран:", error);
-      }
-    }
-  }
-
-  // Обновляем тексты в сайдбаре
-  updateSidebarTexts();
-
-  // Обновляем тексты в мобильной шторке
-  updateDrawerTexts();
-
-  // Обновляем карточки карт если они отображены
-  updateMapsTexts();
-
-  // Обновляем историю матчей если она отображена
-  updateMatchHistoryTexts();
-
-  // Обновляем текущий вид сайдбара если профиль активен
-  if (
-    sidebarManager &&
-    sidebarManager.isPlayerProfileActive &&
-    window.currentPlayerProfile
-  ) {
-    const activeItem = document.querySelector(
-      ".sidebar-item.active, .drawer-item.active"
-    );
-    if (activeItem) {
-      const viewType = activeItem.dataset.view; // Используем dataset.view вместо onclick
-      if (viewType) {
-        // Перерендериваем текущий вид с обновленными переводами
-        setTimeout(() => {
-          sidebarManager.updatePlayerStatsView(viewType);
-        }, 100);
-      }
-    }
-  }
+  // Disabled in single-language mode
+  return;
 }
 
 // Функция для обновления активной кнопки языка
@@ -1602,28 +1367,8 @@ function updateLanguageButtons() {
 
 // Функция для синхронизации обоих переключателей языка
 function setupLanguageSwitchers() {
-  // Получаем все кнопки языка
-  const allLangButtons = document.querySelectorAll(".lang-btn");
-
-  // Добавляем обработчики событий для всех кнопок
-  allLangButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      const lang = this.getAttribute("data-lang");
-
-      // Сначала снимаем класс active со всех кнопок
-      allLangButtons.forEach((btn) => btn.classList.remove("active"));
-
-      // Затем добавляем класс active ко всем кнопкам с выбранным языком
-      document
-        .querySelectorAll(`.lang-btn[data-lang="${lang}"]`)
-        .forEach((btn) => {
-          btn.classList.add("active");
-        });
-
-      // Вызываем существующую функцию смены языка
-      setLanguage(lang);
-    });
-  });
+  // No-op in single-language mode
+  return;
 }
 
 // Функция для обновления всех текстов на странице
@@ -2038,19 +1783,8 @@ function init() {
     history.replaceState(null, null, window.pathname);
   }
 
-  // Устанавливаем язык интерфейса в зависимости от настроек браузера или локального хранилища
-  const browserLang = navigator.language || navigator.userLanguage;
-  const savedLang = localStorage.getItem("faceit-analyze-language");
-  const defaultLang = "ru"; // Язык по умолчанию
-
-  const lang = translations[browserLang]
-    ? browserLang
-    : translations[savedLang]
-    ? savedLang
-    : defaultLang;
-
-  // Устанавливаем язык без вызова switchLanguage для избежания циклов
-  currentLanguage = lang;
+  // English-only
+  currentLanguage = "en";
   window.currentLanguage = currentLanguage;
 
   // Инициализируем playerStats
