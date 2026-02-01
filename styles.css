@@ -3082,7 +3082,6 @@ footer {
 #results {
   background: rgba(51, 51, 51, 0.8) !important;
   animation: none !important;
-  padding-top: 1.7rem;
 }
 
 #search::before,
@@ -3309,3 +3308,4 @@ footer {
     bottom: -8px !important;
   }
 }
+
