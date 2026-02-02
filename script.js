@@ -1089,6 +1089,98 @@ class SidebarManager {
   }
 }
 
+// --- Anonymous analytics tracking (Vercel) ---
+function getAnonymousId() {
+  const key = "fa_anonymous_id";
+  try {
+    const existing = localStorage.getItem(key);
+    if (existing) return existing;
+
+    const id =
+      crypto && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    localStorage.setItem(key, id);
+    return id;
+  } catch {
+    // fallback when storage is blocked
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+}
+
+function trackEvent(eventName, props = {}) {
+  try {
+    const payload = {
+      anonymousId: getAnonymousId(),
+      eventName,
+      path: location.pathname + location.search + location.hash,
+      referrer: document.referrer || "",
+      props,
+    };
+
+    const body = JSON.stringify(payload);
+
+    // Prefer sendBeacon (works during unload)
+    if (navigator.sendBeacon) {
+      const blob = new Blob([body], { type: "application/json" });
+      navigator.sendBeacon("/api/track", blob);
+      return;
+    }
+
+    fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    // ignore tracking errors
+  }
+}
+
+// Track page view ASAP
+try {
+  trackEvent("page_view", {
+    title: document.title,
+    lang: document.documentElement.lang || "",
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    screen: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
+  });
+} catch {}
+
+// Global click tracking (only for meaningful elements)
+document.addEventListener(
+  "click",
+  (e) => {
+    const t = e.target;
+    if (!t || !(t instanceof Element)) return;
+
+    const el =
+      t.closest("#searchButton") ||
+      t.closest(".support-btn") ||
+      t.closest(".contact-btn") ||
+      t.closest("#reactionTestBtn") ||
+      t.closest(".sidebar-item") ||
+      t.closest(".drawer-item") ||
+      t.closest(".show-more-btn") ||
+      t.closest(".submit-btn");
+
+    if (!el) return;
+
+    const label =
+      (el.getAttribute("data-view") &&
+        `view:${el.getAttribute("data-view")}`) ||
+      el.getAttribute("data-action") ||
+      el.id ||
+      el.className ||
+      el.tagName;
+
+    trackEvent("click", { label });
+  },
+  { passive: true }
+);
+
 // Функция для получения текущего языка
 function getCurrentLanguage() {
   return window.currentLanguage || currentLanguage || "en";
@@ -1196,7 +1288,7 @@ const translations = {
 
     // Success messages
     emailClientOpened:
-      "Gmail has been opened to send the message. Please check your browser tabs.",
+      "Your email app should open now. If nothing happens, configure a default mail app for mailto: links in Windows (Default apps → Email) or use the address faceit.analyze@gmail.com.",
     messageSent: "Message sent successfully.",
     messageSendFailed: "Failed to send message.",
     sendingMessage: "Sending...",
@@ -2473,14 +2565,21 @@ function sendMessage(event) {
 
   const name = document.getElementById("contactName").value.trim();
   const email = document.getElementById("contactEmail").value.trim();
-  const subject = document.getElementById("contactSubject").value;
+  const subjectSelect = document.getElementById("contactSubject");
+  const subjectValue = subjectSelect ? subjectSelect.value : "";
+  const subjectText = subjectSelect
+    ? subjectSelect.options[subjectSelect.selectedIndex]?.textContent || ""
+    : "";
   const message = document.getElementById("contactMessage").value.trim();
 
   // Валидация
-  if (!name || !email || !subject || !message) {
+  if (!name || !email || !subjectValue || !message) {
     alert(getText("fillAllFields"));
     return;
   }
+
+  // Делаем тему человекочитаемой
+  const finalSubject = subjectText || subjectValue;
 
   // Создаем тело письма (URL-encoded)
   const emailBody = encodeURIComponent(
@@ -2489,22 +2588,33 @@ function sendMessage(event) {
     )}: ${email}\n\n${getText("message")}:\n${message}`
   );
 
-  // Создаем mailto ссылку
   const mailtoLink = `mailto:contact@faceit-analyze.com?subject=${encodeURIComponent(
-    subject
+    finalSubject
   )}&body=${emailBody}`;
 
-  // Открываем почтовый клиент
-  window.location.href = mailtoLink;
+  // На Windows/Chrome window.location/mailto иногда ведет к системному выбору приложений.
+  // Более совместимый способ — инициировать клик по <a href="mailto:...">.
+  try {
+    const a = document.createElement("a");
+    a.href = mailtoLink;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 
-  // Показываем сообщение об успехе
-  alert(getText("emailClientOpened"));
+    alert(
+      "Your email app should open now. If nothing happens, configure a default mail app for mailto: links in Windows (Default apps → Email) or use the address contact@faceit-analyze.com."
+    );
 
-  // Закрываем модальное окно
-  closeAllModals();
-
-  // Очищаем форму
-  document.getElementById("contactForm").reset();
+    // Не закрываем окно моментально — пусть пользователь увидит подсказку/сможет повторить
+    // closeAllModals();
+    // document.getElementById("contactForm").reset();
+  } catch (e) {
+    console.error("Failed to open mail client:", e);
+    alert(
+      "Could not open your email app. Please email us at contact@faceit-analyze.com."
+    );
+  }
 }
 
 // Диагностическая функция для проверки FaceitAPI

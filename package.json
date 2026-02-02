@@ -1,0 +1,10 @@
+{
+  "name": "faceit-analyze",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "json2csv": "^6.0.0-alpha.2",
+    "postgres": "^3.4.4",
+    "resend": "^3.2.0"
+  }
+}
