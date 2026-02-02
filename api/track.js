@@ -30,7 +30,9 @@ export default async function handler(req, res) {
     const body = req.body || {};
 
     const anonymousId = String(body.anonymousId || "").trim();
+    const sessionId = String(body.sessionId || "").trim();
     const eventName = String(body.eventName || "").trim();
+    const eventSource = String(body.eventSource || "web").trim();
     const path = String(body.path || "").trim();
     const referrer = String(body.referrer || "").trim();
     const props =
@@ -52,25 +54,44 @@ export default async function handler(req, res) {
       .split(",")[0]
       .trim();
 
+    const host = String(req.headers.host || "");
+
+    // Optional geo (can be sent from client or provider headers)
+    const country =
+      String(props.country || "") ||
+      String(req.headers["x-vercel-ip-country"] || "");
+
     await sql`
       CREATE TABLE IF NOT EXISTS analytics_events (
         id bigserial PRIMARY KEY,
         created_at timestamptz NOT NULL DEFAULT now(),
         anonymous_id varchar(64) NOT NULL,
+        session_id varchar(64),
         event_name varchar(64) NOT NULL,
+        event_source varchar(32),
+        host text,
         path text,
         referrer text,
         ip text,
         user_agent text,
+        country varchar(8),
         props jsonb
       )
     `;
 
+    // Add columns for existing installations (idempotent)
+    await sql`ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS session_id varchar(64)`;
+    await sql`ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS event_source varchar(32)`;
+    await sql`ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS host text`;
+    await sql`ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS country varchar(8)`;
+
     await sql`
-      INSERT INTO analytics_events (anonymous_id, event_name, path, referrer, ip, user_agent, props)
-      VALUES (${anonymousId}, ${eventName}, ${path}, ${referrer}, ${ip}, ${ua}, ${sql.json(
-      props
-    )})
+      INSERT INTO analytics_events (anonymous_id, session_id, event_name, event_source, host, path, referrer, ip, user_agent, country, props)
+      VALUES (${anonymousId}, ${sessionId || null}, ${eventName}, ${
+      eventSource || null
+    }, ${host || null}, ${path}, ${referrer}, ${ip}, ${ua}, ${
+      country || null
+    }, ${sql.json(props)})
     `;
 
     res.status(200).json({ ok: true });
