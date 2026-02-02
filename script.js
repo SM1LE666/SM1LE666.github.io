@@ -1114,9 +1114,10 @@ function getSessionId() {
   try {
     const existing = sessionStorage.getItem(key);
     if (existing) return existing;
-    const id = (crypto && crypto.randomUUID)
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const id =
+      crypto && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     sessionStorage.setItem(key, id);
     return id;
   } catch {
