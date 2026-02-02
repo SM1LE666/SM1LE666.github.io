@@ -1109,14 +1109,59 @@ function getAnonymousId() {
   }
 }
 
+function getSessionId() {
+  const key = "fa_session_id";
+  try {
+    const existing = sessionStorage.getItem(key);
+    if (existing) return existing;
+    const id = (crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    sessionStorage.setItem(key, id);
+    return id;
+  } catch {
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+}
+
+function getLastAnalyzedPlayer() {
+  try {
+    const nickname = window.currentPlayerData?.nickname || null;
+    const playerId = window.currentPlayerData?.player_id || null;
+    return { nickname, playerId };
+  } catch {
+    return { nickname: null, playerId: null };
+  }
+}
+
 function trackEvent(eventName, props = {}) {
   try {
+    const last = getLastAnalyzedPlayer();
     const payload = {
       anonymousId: getAnonymousId(),
+      sessionId: getSessionId(),
       eventName,
+      eventSource: "web",
       path: location.pathname + location.search + location.hash,
       referrer: document.referrer || "",
-      props,
+      props: {
+        // stable context
+        host: location.host,
+        lang: document.documentElement.lang || "",
+        timezone: (() => {
+          try {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone;
+          } catch {
+            return "";
+          }
+        })(),
+        screen: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
+        // last analyzed player (if any)
+        analyzedNickname: last.nickname,
+        analyzedPlayerId: last.playerId,
+        // custom props
+        ...props,
+      },
     };
 
     const body = JSON.stringify(payload);
@@ -1141,12 +1186,7 @@ function trackEvent(eventName, props = {}) {
 
 // Track page view ASAP
 try {
-  trackEvent("page_view", {
-    title: document.title,
-    lang: document.documentElement.lang || "",
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    screen: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
-  });
+  trackEvent("page_view", { title: document.title });
 } catch {}
 
 // Global click tracking (only for meaningful elements)
@@ -1998,6 +2038,8 @@ function initializeEventListeners() {
 
     document.getElementById("searchButton").addEventListener("click", (e) => {
       e.preventDefault();
+      const nicknameValue = document.getElementById("nickname")?.value?.trim();
+      trackEvent("analyze_click", { input: nicknameValue || null });
       analyzePlayer();
     });
   }
@@ -2088,6 +2130,12 @@ function clearPlayerProfile() {
 // Запускаем инициализацию после загрузки страницы
 window.addEventListener("load", init);
 
+// NOTE: Production does not have config.env. Ensure we never try to fetch it.
+// Some older builds attempted to load "config.env"; keep a harmless no-op for compatibility.
+if (typeof window !== "undefined") {
+  window.__NO_CONFIG_ENV__ = true;
+}
+
 // Основная функция анализа игрока
 async function analyzePlayer() {
   const nicknameInput = document.getElementById("nickname");
@@ -2121,6 +2169,13 @@ async function analyzePlayer() {
     // Получаем данные игрока
     const playerData = await window.FaceitAPI.getPlayerData(nickname, apiKey);
     window.currentPlayerData = playerData; // Сохраняем для использования в переводах
+
+    // Track resolved player (nickname -> player id)
+    trackEvent("analyze_player_resolved", {
+      searched: nickname,
+      resolvedNickname: playerData?.nickname || null,
+      resolvedPlayerId: playerData?.player_id || null,
+    });
 
     if (output) {
       output.textContent = `${getText("gettingStats")} ${
@@ -2174,6 +2229,13 @@ async function analyzePlayer() {
 
     // Также сохраняем в window для доступа из других функций
     window.currentPlayerProfile = currentPlayerProfile;
+
+    // Track overall success
+    trackEvent("analyze_success", {
+      playerNickname: playerData?.nickname || null,
+      playerId: playerData?.player_id || null,
+      gameId: "cs2",
+    });
 
     // СКРЫВАЕМ полоску с информацией о загрузке СРАЗУ после получения данных
     if (output) {
@@ -2299,6 +2361,11 @@ async function analyzePlayer() {
     }
   } catch (error) {
     console.error("Ошибка при получении данных игрока:", error);
+
+    trackEvent("analyze_error", {
+      searched: nickname,
+      message: String(error?.message || error),
+    });
 
     if (output) {
       output.textContent = `${getText("error")}: ${error.message}`;
