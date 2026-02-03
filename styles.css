@@ -856,9 +856,8 @@ footer {
   color: rgba(255, 255, 255, 0.7);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 1);
   text-align: center;
-  padding: 1.5rem 0rem 1rem 1rem;
+  padding: 2rem 0rem 1rem 0rem;
   font-size: 0.9rem;
-  margin-top: auto;
   width: 100%;
 }
 
@@ -3511,3 +3510,4 @@ footer {
     padding: 0.75rem 1.8rem !important;
   }
 }
+
