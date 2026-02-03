@@ -8,77 +8,83 @@ const DATABASE_URL =
   process.env.POSTGRES_PRISMA_URL;
 const sql = DATABASE_URL ? postgres(DATABASE_URL, { ssl: "require" }) : null;
 
-function unauthorized(res) {
-  res.status(401).json({ ok: false, error: "Unauthorized" });
-}
+const resendKey = process.env.RESEND_API_KEY;
+const from = process.env.REPORT_FROM || "analytics@smile666.app";
+const to = (process.env.REPORT_TO || "faceit.analyze@gmail.com")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 export default async function handler(req, res) {
-  // Vercel Cron sends GET
-  if (req.method !== "GET") {
-    res.setHeader("Allow", "GET");
-    res.status(405).json({ ok: false, error: "Method not allowed" });
-    return;
+  // Security: allow only cron calls (optional)
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret) {
+    const provided = String(req.headers["x-cron-secret"] || "");
+    if (provided !== cronSecret) {
+      res.status(401).json({ ok: false, error: "Unauthorized" });
+      return;
+    }
   }
-
-  // Protect cron endpoint
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = String(req.headers.authorization || "");
-    const q = String(req.query?.secret || "");
-    const ok = auth === `Bearer ${secret}` || q === secret;
-    if (!ok) return unauthorized(res);
-  }
-
-  if (!sql) {
-    res.status(500).json({ ok: false, error: "DATABASE_URL is not set" });
-    return;
-  }
-
-  const resendKey = process.env.RESEND_API_KEY;
-  const to = process.env.ANALYTICS_REPORT_TO;
-  const from = process.env.ANALYTICS_REPORT_FROM;
-
-  if (!resendKey || !to || !from) {
-    res
-      .status(500)
-      .json({ ok: false, error: "Resend email is not configured" });
-    return;
-  }
-
-  const window = String(process.env.ANALYTICS_REPORT_WINDOW || "1d");
-  const limit = Number(process.env.ANALYTICS_REPORT_LIMIT || 100000);
-
-  // window: "1d" | "7d" etc
-  const interval = /^\d+d$/.test(window)
-    ? `${Number(window.slice(0, -1))} day`
-    : "1 day";
 
   try {
-    const { rows } = await sql`
-      SELECT id, created_at, anonymous_id, event_name, path, referrer, ip, user_agent, props
+    if (!sql) {
+      res.status(500).json({ ok: false, error: "DATABASE_URL is not set" });
+      return;
+    }
+
+    if (!resendKey) {
+      res.status(500).json({ ok: false, error: "RESEND_API_KEY is not set" });
+      return;
+    }
+
+    if (!to.length) {
+      res.status(500).json({ ok: false, error: "REPORT_TO is not set" });
+      return;
+    }
+
+    const window = String(process.env.ANALYTICS_REPORT_WINDOW || "1d");
+    const limit = Number(process.env.ANALYTICS_REPORT_LIMIT || 100000);
+
+    // Optional: exclude sensitive columns from the CSV export
+    const includeIp =
+      String(process.env.ANALYTICS_REPORT_INCLUDE_IP || "1").toLowerCase() !==
+      "0";
+    const includeUserAgent =
+      String(
+        process.env.ANALYTICS_REPORT_INCLUDE_USER_AGENT || "1"
+      ).toLowerCase() !== "0";
+
+    // window: "1d" | "7d" etc
+    const interval = /^\d+d$/.test(window)
+      ? `${Number(window.slice(0, -1))} day`
+      : "1 day";
+
+    const rows = await sql`
+      SELECT id, created_at, anonymous_id, event_name, referrer, ip, user_agent, props
       FROM analytics_events
       WHERE created_at >= now() - (${interval}::interval)
       ORDER BY created_at ASC
       LIMIT ${limit}
     `;
 
-    const parser = new Parser({
-      fields: [
-        "id",
-        "created_at",
-        "anonymous_id",
-        "event_name",
-        "path",
-        "referrer",
-        "ip",
-        "user_agent",
-        "props",
-      ],
-    });
+    const fields = [
+      "id",
+      "created_at",
+      "anonymous_id",
+      "event_name",
+      "referrer",
+    ];
+    if (includeIp) fields.push("ip");
+    if (includeUserAgent) fields.push("user_agent");
+    fields.push("props");
+
+    const parser = new Parser({ fields });
 
     const csv = parser.parse(
       rows.map((r) => ({
         ...r,
+        ip: includeIp ? r.ip : undefined,
+        user_agent: includeUserAgent ? r.user_agent : undefined,
         props: r.props ? JSON.stringify(r.props) : "",
       }))
     );

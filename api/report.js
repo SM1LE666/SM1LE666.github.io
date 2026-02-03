@@ -45,7 +45,7 @@ export default async function handler(req, res) {
     const toDate = to ? new Date(to) : new Date();
 
     const rows = await sql`
-      SELECT id, created_at, anonymous_id, event_name, path, referrer, ip, user_agent, props
+      SELECT id, created_at, anonymous_id, event_name, referrer, ip, user_agent, props
       FROM analytics_events
       WHERE created_at >= ${fromDate.toISOString()}::timestamptz
         AND created_at <= ${toDate.toISOString()}::timestamptz
@@ -59,7 +59,6 @@ export default async function handler(req, res) {
         "created_at",
         "anonymous_id",
         "event_name",
-        "path",
         "referrer",
         "ip",
         "user_agent",

@@ -33,7 +33,6 @@ export default async function handler(req, res) {
     const sessionId = String(body.sessionId || "").trim();
     const eventName = String(body.eventName || "").trim();
     const eventSource = String(body.eventSource || "web").trim();
-    const path = String(body.path || "").trim();
     const referrer = String(body.referrer || "").trim();
     const props =
       body.props && typeof body.props === "object" ? body.props : {};
@@ -54,8 +53,6 @@ export default async function handler(req, res) {
       .split(",")[0]
       .trim();
 
-    const host = String(req.headers.host || "");
-
     // Optional geo (can be sent from client or provider headers)
     const country =
       String(props.country || "") ||
@@ -69,8 +66,6 @@ export default async function handler(req, res) {
         session_id varchar(64),
         event_name varchar(64) NOT NULL,
         event_source varchar(32),
-        host text,
-        path text,
         referrer text,
         ip text,
         user_agent text,
@@ -82,16 +77,35 @@ export default async function handler(req, res) {
     // Add columns for existing installations (idempotent)
     await sql`ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS session_id varchar(64)`;
     await sql`ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS event_source varchar(32)`;
-    await sql`ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS host text`;
     await sql`ALTER TABLE analytics_events ADD COLUMN IF NOT EXISTS country varchar(8)`;
 
+    // Remove deprecated columns if they exist (idempotent)
+    await sql`ALTER TABLE analytics_events DROP COLUMN IF EXISTS host`;
+    await sql`ALTER TABLE analytics_events DROP COLUMN IF EXISTS path`;
+
     await sql`
-      INSERT INTO analytics_events (anonymous_id, session_id, event_name, event_source, host, path, referrer, ip, user_agent, country, props)
-      VALUES (${anonymousId}, ${sessionId || null}, ${eventName}, ${
-      eventSource || null
-    }, ${host || null}, ${path}, ${referrer}, ${ip}, ${ua}, ${
-      country || null
-    }, ${sql.json(props)})
+      INSERT INTO analytics_events (
+        anonymous_id,
+        session_id,
+        event_name,
+        event_source,
+        referrer,
+        ip,
+        user_agent,
+        country,
+        props
+      )
+      VALUES (
+        ${anonymousId},
+        ${sessionId || null},
+        ${eventName},
+        ${eventSource || null},
+        ${referrer},
+        ${ip},
+        ${ua},
+        ${country || null},
+        ${sql.json(props)}
+      )
     `;
 
     res.status(200).json({ ok: true });
