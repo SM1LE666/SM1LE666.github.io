@@ -148,6 +148,38 @@
       </div>
     </footer>
 
+    <!-- Cookie Consent Modal -->
+    <div id="cookieModal" class="modal" translate="no">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2><i class="fas fa-cookie-bite"></i> Cookie Settings</h2>
+        <p>
+          We use cookies/local storage to make the site work and to collect
+          anonymous analytics. You can accept or reject analytics.
+        </p>
+
+        <div class="cookie-actions">
+          <button id="cookieRejectBtn" class="cookie-btn secondary">
+            <i class="fas fa-times"></i> Reject analytics
+          </button>
+          <button id="cookieAcceptBtn" class="cookie-btn primary">
+            <i class="fas fa-check"></i> Accept analytics
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating cookie settings button -->
+    <button
+      id="cookieFab"
+      class="cookie-fab"
+      type="button"
+      aria-label="Cookie settings"
+      title="Cookie settings"
+    >
+      <i class="fas fa-cookie-bite" aria-hidden="true"></i>
+    </button>
+
     <!-- Support Modal -->
     <div id="supportModal" class="modal" translate="no">
       <div class="modal-content">

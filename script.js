@@ -168,6 +168,40 @@ class SidebarManager {
         }
       }
     });
+
+    // Floating cookie settings button
+    const cookieFab = document.getElementById("cookieFab");
+    if (cookieFab) {
+      cookieFab.addEventListener("click", (e) => {
+        e.preventDefault();
+        // Close other modals so it behaves like the others
+        closeAllModals();
+        openCookieModal();
+      });
+    }
+
+    // Cookie modal buttons
+    const cookieAcceptBtn = document.getElementById("cookieAcceptBtn");
+    if (cookieAcceptBtn) {
+      cookieAcceptBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        setCookieConsent("accepted");
+        closeCookieModal();
+        // Send a one-time event after consent
+        trackEvent("cookie_consent", { value: "accepted" });
+        updateCookieFabVisibility();
+      });
+    }
+
+    const cookieRejectBtn = document.getElementById("cookieRejectBtn");
+    if (cookieRejectBtn) {
+      cookieRejectBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        setCookieConsent("rejected");
+        closeCookieModal();
+        updateCookieFabVisibility();
+      });
+    }
   }
 
   showForPlayerProfile() {
@@ -1135,8 +1169,61 @@ function getLastAnalyzedPlayer() {
   }
 }
 
+// --- Cookie consent (analytics) ---
+const COOKIE_CONSENT_KEY = "fa_cookie_consent_v1"; // 'accepted' | 'rejected'
+
+function getCookieConsent() {
+  try {
+    const v = localStorage.getItem(COOKIE_CONSENT_KEY);
+    return v === "accepted" || v === "rejected" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function setCookieConsent(value) {
+  try {
+    localStorage.setItem(COOKIE_CONSENT_KEY, value);
+  } catch {
+    // ignore
+  }
+}
+
+function isAnalyticsAllowed() {
+  const consent = getCookieConsent();
+  return consent === "accepted";
+}
+
+function openCookieModal() {
+  const modal = document.getElementById("cookieModal");
+  if (!modal) return;
+  modal.style.display = "block";
+  modal.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function closeCookieModal() {
+  const modal = document.getElementById("cookieModal");
+  if (!modal) return;
+  modal.style.display = "none";
+  modal.classList.remove("show");
+  document.body.style.overflow = "";
+}
+
+function updateCookieFabVisibility() {
+  const fab = document.getElementById("cookieFab");
+  if (!fab) return;
+  // Keep it visible for users who rejected (so they can change their mind).
+  // If accepted, we can still keep it, but hide by default to reduce UI noise.
+  const consent = getCookieConsent();
+  fab.style.display = consent === "accepted" ? "none" : "inline-flex";
+}
+
 function trackEvent(eventName, props = {}) {
   try {
+    // Gate analytics events by consent
+    if (!isAnalyticsAllowed()) return;
+
     const last = getLastAnalyzedPlayer();
     const payload = {
       anonymousId: getAnonymousId(),
@@ -2831,4 +2918,13 @@ function closeAllModals() {
 document.addEventListener("DOMContentLoaded", function () {
   // Синхронизация переключателей языка
   setupLanguageSwitchers();
+
+  updateCookieFabVisibility();
+
+  // Show cookie modal only the first time (when no prior choice exists).
+  if (!getCookieConsent()) {
+    setTimeout(() => {
+      openCookieModal();
+    }, 600);
+  }
 });
