@@ -599,6 +599,34 @@ input[type="text"]:focus {
   min-width: 235px; /* переопределяем возможные различия */
 }
 
+/* --- Fix: Reaction Test button sizing (avoid being overridden by generic mobile button rules) --- */
+#searchButton,
+#reactionTestBtn {
+  height: 50px;
+  width: 235px;
+  min-width: 235px;
+  max-width: 235px;
+}
+
+@media (max-width: 768px) {
+  /* On mobile these buttons should still be equal and not rely on generic button {max-width:320px} */
+  #searchButton,
+  #reactionTestBtn {
+    width: 100% !important;
+    max-width: 320px !important;
+    min-width: 0 !important;
+    height: 50px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #searchButton,
+  #reactionTestBtn {
+    max-width: 300px !important;
+    height: 50px !important;
+  }
+}
+
 #reactionTestBtn:hover {
   background: rgba(255, 85, 0, 0.2);
   border-color: var(--primary-color);
@@ -1697,7 +1725,7 @@ footer {
   }
 
   .lang-btn {
-    padding: 0.32rem 0.45rem; /* +высота */
+    padding: 0.32rem 0.45рем; /* +высота */
     line-height: 1;
   }
 
@@ -3438,5 +3466,48 @@ footer {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+/* Footer buttons: <=480px make Support/Contact smaller and in one row */
+@media (max-width: 480px) {
+  .footer-buttons {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    gap: 0.6rem !important;
+    width: 100% !important;
+  }
+
+  /* Make the two main footer buttons compact so they fit side-by-side */
+  .footer-btn,
+  .support-btn,
+  .contact-btn {
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0.6rem 0.8rem !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.5px !important;
+    gap: 0.35rem !important;
+    white-space: nowrap;
+  }
+
+  .footer-btn i {
+    font-size: 0.85rem !important;
+  }
+}
+
+.support-btn,
+.contact-btn {
+  width: 205px;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  .footer-btn,
+  .support-btn,
+  .contact-btn {
+    padding: 0.75rem 1.8rem !important;
   }
 }
