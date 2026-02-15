@@ -3516,3 +3516,66 @@ footer {
     padding: 0.75rem 1.8rem !important;
   }
 }
+
+/* --- Desktop Overview: compact layout to avoid scrolling --- */
+@media (min-width: 1025px) {
+  /* Make the results section less tall */
+  #results {
+    padding: 1.5rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Player card overall spacing */
+  .player-card {
+    padding: 1.6rem;
+    margin-bottom: 1rem;
+    min-height: 0; /* remove forced height that makes page scroll */
+  }
+
+  /* Header block inside player card */
+  .player-header {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    gap: 1.6rem;
+  }
+
+  .player-avatar img {
+    width: 115px;
+    height: 115px;
+  }
+
+  .player-info h2 {
+    font-size: 2.05rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .player-info p {
+    font-size: 1rem;
+    margin: 0.35rem 0;
+    line-height: 1.35;
+  }
+
+  /* Stats cards grid */
+  .stats-container {
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  .stats-box {
+    padding: 1.35rem;
+    height: auto; /* let content define height */
+    min-height: 0;
+  }
+
+  .stats-box h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.7rem;
+  }
+
+  .stats-box p {
+    font-size: 0.92rem;
+    margin: 0.5rem 0;
+    line-height: 1.32;
+  }
+}
