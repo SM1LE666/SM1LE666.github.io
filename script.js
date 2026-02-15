@@ -2944,6 +2944,13 @@ function closeAllModals() {
 
 // Инициализация после загрузки DOM
 document.addEventListener("DOMContentLoaded", function () {
+  // Start the app (bind event listeners, init sidebar, set language, etc.)
+  try {
+    init();
+  } catch (e) {
+    console.error("Init failed:", e);
+  }
+
   // Синхронизация переключателей языка
   setupLanguageSwitchers();
 
