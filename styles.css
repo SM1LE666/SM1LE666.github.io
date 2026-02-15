@@ -1633,7 +1633,7 @@ footer {
     flex-direction: row !important;
     justify-content: flex-start !important;
     align-items: center !important;
-    padding: 0 0.6rem !important;
+    padding: 0 0.6re !important;
   }
 
   h1 {
@@ -1730,7 +1730,7 @@ footer {
   }
 
   .lang-btn {
-    padding: 0.32rem 0.45рем; /* +высота */
+    padding: 0.32rem 0.45rem; /* +высота */
     line-height: 1;
   }
 
@@ -3341,7 +3341,6 @@ footer {
 
 /* --- Header CSS hotfixes (typos + conflicting overrides) --- */
 
-/* Fix broken unit: кириллица 'рем' -> 'rem' */
 @media (max-width: 480px) {
   h1 {
     margin-right: 6.4rem !important;
@@ -3349,12 +3348,10 @@ footer {
 }
 
 @media (max-width: 768px) {
-  /* Another broken unit instance in older responsive block */
   .lang-btn {
     padding: 0.32rem 0.45rem;
   }
 
-  /* Ensure ellipsis works: do not force overflow: visible on the title */
   h1 {
     overflow: hidden !important;
   }
@@ -3362,13 +3359,11 @@ footer {
 
 /* --- Mobile: ensure the underline under the header title is visible --- */
 @media (max-width: 768px) {
-  /* some blocks set overflow/contain on parents; make sure header doesn't clip h1::after */
   header,
   .header-content {
     overflow: visible !important;
   }
 
-  /* target the title inside the header explicitly to win specificity wars */
   header .header-content h1 {
     position: relative;
   }
@@ -3517,7 +3512,6 @@ footer {
   }
 }
 
-/* --- Desktop Overview: compact layout to avoid scrolling --- */
 @media (min-width: 1025px) {
   /* Make the results section less tall */
   #results {
@@ -3529,7 +3523,7 @@ footer {
   .player-card {
     padding: 1.6rem;
     margin-bottom: 1rem;
-    min-height: 0; /* remove forced height that makes page scroll */
+    min-height: 0;
   }
 
   /* Header block inside player card */
@@ -3579,3 +3573,101 @@ footer {
     line-height: 1.32;
   }
 }
+
+/* --- Desktop Overview: stats-box fixed height + better row spacing/alignment --- */
+/* (disabled: replaced by `.stats-box p.stat-row` rules below)
+@media (min-width: 1025px) {
+  .stats-box {
+    height: 280px;
+    min-height: 280px;
+  }
+
+  .stats-box p {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+
+    font-size: 0.98rem;
+    margin: 0.65rem 0;
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+
+  .stats-box p::before {
+    content: none;
+  }
+
+  .stats-box p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+*/
+
+/* (disabled: replaced by `.stats-box p.stat-row` rules below)
+@media (min-width: 1025px) {
+  .stats-box p {
+    white-space: normal;
+  }
+
+  .stats-box p {
+    justify-content: flex-start;
+  }
+
+  .stats-box p {
+    position: relative;
+  }
+
+  .stats-box p::after {
+    content: "";
+    flex: 1;
+  }
+
+  .stats-box {
+    font-variant-numeric: tabular-nums;
+  }
+}
+*/
+
+/* --- Desktop Overview: stats rows left/right (uses formatStatRow spans) --- */
+@media (min-width: 1025px) {
+  .stats-box {
+    height: 280px;
+    min-height: 280px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stats-box p.stat-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0.75rem 0; /* больше расстояние между строками */
+    font-size: 1rem; /* трохи больше */
+    line-height: 1.35;
+  }
+
+  .stats-box p.stat-row .stat-row-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stats-box p.stat-row .stat-row-value {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+}
+
+/* --- Cleanup: remove earlier conflicting desktop stats-box p rules (replaced by .stat-row rules below) --- */
+/* The following blocks were superseded by the final `.stats-box p.stat-row` rules:
+   - Desktop Overview: stats-box fixed height + better row spacing/alignment
+   - refine row layout ... spacer ::after
+   Keeping them causes conflicts on desktop.
+*/

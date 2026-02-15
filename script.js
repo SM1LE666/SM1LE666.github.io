@@ -2404,15 +2404,23 @@ async function analyzePlayer() {
             <h3><i class="fas fa-chart-line"></i> ${getText(
               "avgStatsTitle"
             )}</h3>
-            <p>${getText("killsPerMatch")}: ${avgStats.avgKills}</p>
-            <p>${getText("deathsPerMatch")}: ${avgStats.avgDeaths}</p>
-            <p>K/D: ${avgStats.kd}</p>
-            <p>${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
-      avgStats.totalKills
-    )}</p>
-            <p>${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
-      avgStats.totalDeaths
-    )}</p>
+            <p class="stat-row">${formatStatRow(
+              `${getText("killsPerMatch")}: ${avgStats.avgKills}`
+            )}</p>
+            <p class="stat-row">${formatStatRow(
+              `${getText("deathsPerMatch")}: ${avgStats.avgDeaths}`
+            )}</p>
+            <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
+            <p class="stat-row">${formatStatRow(
+              `${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
+                avgStats.totalKills
+              )}`
+            )}</p>
+            <p class="stat-row">${formatStatRow(
+              `${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
+                avgStats.totalDeaths
+              )}`
+            )}</p>
           </div>
           
           <div class="stats-box slide-in-animation">
@@ -2420,12 +2428,20 @@ async function analyzePlayer() {
             ${
               mapAnalysis.bestMap
                 ? `
-              <p>${getText("mapName")}: ${mapAnalysis.bestMap.name}</p>
-              <p>${getText(
-                "mapWinRate"
-              )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%</p>
-              <p>K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}</p>
-              <p>${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}</p>
+              <p class="stat-row">${formatStatRow(
+                `${getText("mapName")}: ${mapAnalysis.bestMap.name}`
+              )}</p>
+              <p class="stat-row">${formatStatRow(
+                `${getText(
+                  "mapWinRate"
+                )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`
+              )}</p>
+              <p class="stat-row">${formatStatRow(
+                `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`
+              )}</p>
+              <p class="stat-row">${formatStatRow(
+                `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`
+              )}</p>
             `
                 : `<p>${getText("notEnoughData")}</p>`
             }
@@ -2438,12 +2454,20 @@ async function analyzePlayer() {
             ${
               mapAnalysis.worstMap
                 ? `
-              <p>${getText("mapName")}: ${mapAnalysis.worstMap.name}</p>
-              <p>${getText(
-                "mapWinRate"
-              )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%</p>
-              <p>K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}</p>
-              <p>${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}</p>
+              <p class="stat-row">${formatStatRow(
+                `${getText("mapName")}: ${mapAnalysis.worstMap.name}`
+              )}</p>
+              <p class="stat-row">${formatStatRow(
+                `${getText(
+                  "mapWinRate"
+                )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%`
+              )}</p>
+              <p class="stat-row">${formatStatRow(
+                `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`
+              )}</p>
+              <p class="stat-row">${formatStatRow(
+                `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`
+              )}</p>
             `
                 : `<p>${getText("notEnoughData")}</p>`
             }
@@ -2500,15 +2524,23 @@ function renderOverviewStats(container) {
   const overviewHTML = `
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
-      <p>${getText("killsPerMatch")}: ${avgStats.avgKills}</p>
-      <p>${getText("deathsPerMatch")}: ${avgStats.avgDeaths}</p>
-      <p>K/D: ${avgStats.kd}</p>
-      <p>${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
-    avgStats.totalKills
-  )}</p>
-      <p>${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
-    avgStats.totalDeaths
-  )}</p>
+      <p class="stat-row">${formatStatRow(
+        `${getText("killsPerMatch")}: ${avgStats.avgKills}`
+      )}</p>
+      <p class="stat-row">${formatStatRow(
+        `${getText("deathsPerMatch")}: ${avgStats.avgDeaths}`
+      )}</p>
+      <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
+      <p class="stat-row">${formatStatRow(
+        `${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
+          avgStats.totalKills
+        )}`
+      )}</p>
+      <p class="stat-row">${formatStatRow(
+        `${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
+          avgStats.totalDeaths
+        )}`
+      )}</p>
     </div>
     
     <div class="stats-box slide-in-animation">
@@ -2516,12 +2548,18 @@ function renderOverviewStats(container) {
       ${
         mapAnalysis.bestMap
           ? `
-        <p>${getText("mapName")}: ${mapAnalysis.bestMap.name}</p>
-        <p>${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(
-              1
-            )}%</p>
-        <p>K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}</p>
-        <p>${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}</p>
+        <p class="stat-row">${formatStatRow(
+          `${getText("mapName")}: ${mapAnalysis.bestMap.name}`
+        )}</p>
+        <p class="stat-row">${formatStatRow(
+          `${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`
+        )}</p>
+        <p class="stat-row">${formatStatRow(
+          `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`
+        )}</p>
+        <p class="stat-row">${formatStatRow(
+          `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`
+        )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
       }
@@ -2532,12 +2570,20 @@ function renderOverviewStats(container) {
       ${
         mapAnalysis.worstMap
           ? `
-        <p>${getText("mapName")}: ${mapAnalysis.worstMap.name}</p>
-        <p>${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
-              1
-            )}%</p>
-        <p>K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}</p>
-        <p>${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}</p>
+        <p class="stat-row">${formatStatRow(
+          `${getText("mapName")}: ${mapAnalysis.worstMap.name}`
+        )}</p>
+        <p class="stat-row">${formatStatRow(
+          `${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
+            1
+          )}%`
+        )}</p>
+        <p class="stat-row">${formatStatRow(
+          `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`
+        )}</p>
+        <p class="stat-row">${formatStatRow(
+          `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`
+        )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
       }
@@ -2545,6 +2591,17 @@ function renderOverviewStats(container) {
   `;
 
   container.innerHTML = overviewHTML;
+}
+
+// Helper: format a "Label: value" string into left/right spans without changing text.
+function formatStatRow(text) {
+  const idx = text.indexOf(":");
+  if (idx === -1) {
+    return `<span class="stat-row-full">${text}</span>`;
+  }
+  const label = text.slice(0, idx + 1).trim();
+  const value = text.slice(idx + 1).trim();
+  return `<span class="stat-row-label">${label}</span><span class="stat-row-value">${value}</span>`;
 }
 
 // Функции для модальных окон
