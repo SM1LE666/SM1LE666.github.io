@@ -1350,10 +1350,10 @@ const translations = {
 
     // Stats
     avgStatsTitle: "Average Statistics",
-    killsPerMatch: "Kills per match",
-    deathsPerMatch: "Deaths per match",
-    totalKills: "Total kills",
-    totalDeaths: "Total deaths",
+    killsPerMatch: "Avg. Kills",
+    deathsPerMatch: "Avg. Deaths",
+    totalKills: "Kills",
+    totalDeaths: "Deaths",
 
     // Maps
     bestMapTitle: "Best Map",
