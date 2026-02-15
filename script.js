@@ -1230,11 +1230,9 @@ function trackEvent(eventName, props = {}) {
       sessionId: getSessionId(),
       eventName,
       eventSource: "web",
-      path: location.pathname + location.search + location.hash,
       referrer: document.referrer || "",
       props: {
         // stable context
-        host: location.host,
         lang: document.documentElement.lang || "",
         timezone: (() => {
           try {
@@ -1244,6 +1242,7 @@ function trackEvent(eventName, props = {}) {
           }
         })(),
         screen: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
+        url: location.href,
         // last analyzed player (if any)
         analyzedNickname: last.nickname,
         analyzedPlayerId: last.playerId,
@@ -2215,13 +2214,31 @@ function clearPlayerProfile() {
   console.log("Профиль игрока очищен");
 }
 
-// Запускаем инициализацию после загрузки страницы
-window.addEventListener("load", init);
+// Detect if input looks like a Steam profile URL / SteamID64 / vanity and should be resolved via Faceit.
+function isSteamInput(value) {
+  if (!value) return false;
+  const v = String(value).trim();
+  if (!v) return false;
+  if (/^\d{17}$/.test(v)) return true; // steamid64
+  if (/steamcommunity\.com\/(id|profiles)\//i.test(v)) return true;
+  // If it contains no spaces and is reasonably short, allow as vanity when it doesn't look like a Faceit URL
+  if (/^[a-zA-Z0-9_-]{2,64}$/.test(v) && !/faceit\.com\//i.test(v)) return true;
+  return false;
+}
 
-// NOTE: Production does not have config.env. Ensure we never try to fetch it.
-// Some older builds attempted to load "config.env"; keep a harmless no-op for compatibility.
-if (typeof window !== "undefined") {
-  window.__NO_CONFIG_ENV__ = true;
+async function resolveFaceitPlayerFromSteam(steamInput) {
+  const url = `/api/faceit-by-steam?steam=${encodeURIComponent(
+    String(steamInput).trim()
+  )}`;
+  const r = await fetch(url, { headers: { Accept: "application/json" } });
+  const data = await r.json().catch(() => null);
+  if (!r.ok) {
+    throw new Error(data?.error || `Steam resolve failed (${r.status})`);
+  }
+  if (!data?.player) {
+    throw new Error("Faceit player not found for this Steam account");
+  }
+  return data.player;
 }
 
 // Основная функция анализа игрока
@@ -2254,11 +2271,22 @@ async function analyzePlayer() {
 
     const apiKey = window.Config.getApiKey();
 
-    // Получаем данные игрока
-    const playerData = await window.FaceitAPI.getPlayerData(nickname, apiKey);
+    let playerData;
+
+    // If user pasted Steam link/SteamID/vanity, resolve Faceit player first.
+    if (isSteamInput(nickname)) {
+      trackEvent("analyze_input_steam", { input: nickname });
+      const faceitPlayer = await resolveFaceitPlayerFromSteam(nickname);
+      // `faceitPlayer` is the same shape as /players?nickname response
+      playerData = faceitPlayer;
+    } else {
+      // Получаем данные игрока по никнейму/Faceit URL
+      playerData = await window.FaceitAPI.getPlayerData(nickname, apiKey);
+    }
+
     window.currentPlayerData = playerData; // Сохраняем для использования в переводах
 
-    // Track resolved player (nickname -> player id)
+    // Track resolved player (input -> player id)
     trackEvent("analyze_player_resolved", {
       searched: nickname,
       resolvedNickname: playerData?.nickname || null,
