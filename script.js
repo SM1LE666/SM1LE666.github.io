@@ -2214,15 +2214,14 @@ function clearPlayerProfile() {
   console.log("Профиль игрока очищен");
 }
 
-// Detect if input looks like a Steam profile URL / SteamID64 / vanity and should be resolved via Faceit.
+// Detect if input looks like a Steam profile URL / SteamID64 and should be resolved via Faceit.
 function isSteamInput(value) {
   if (!value) return false;
   const v = String(value).trim();
   if (!v) return false;
-  if (/^\d{17}$/.test(v)) return true; // steamid64
-  if (/steamcommunity\.com\/(id|profiles)\//i.test(v)) return true;
-  // If it contains no spaces and is reasonably short, allow as vanity when it doesn't look like a Faceit URL
-  if (/^[a-zA-Z0-9_-]{2,64}$/.test(v) && !/faceit\.com\//i.test(v)) return true;
+  // Treat as Steam only when the user clearly provides Steam identifiers.
+  if (/^\d{17}$/.test(v)) return true; // SteamID64
+  if (/steamcommunity\.com\/(id|profiles)\//i.test(v)) return true; // Steam URL
   return false;
 }
 
