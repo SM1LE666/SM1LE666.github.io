@@ -3783,8 +3783,8 @@ footer {
 @media (max-width: 768px) {
   /* Only affects Overview rows rendered as .stat-row */
   .stats-box {
-    height: 280px !important;
-    min-height: 280px !important;
+    height: 260px !important;
+    min-height: 260px !important;
     font-variant-numeric: tabular-nums;
   }
 
@@ -3814,3 +3814,4 @@ footer {
     white-space: nowrap;
   }
 }
+
