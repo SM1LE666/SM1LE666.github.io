@@ -349,11 +349,13 @@ class SidebarManager {
         )}</div>`;
       }
 
-      // Загружаем все матчи игрока
-      const url = `https://open.faceit.com/data/v4/players/${playerId}/history?game=cs2&limit=2000`;
-      const response = await fetch(url, {
+      // Загружаем все матчи игрока (через прокси)
+      const historyUrl = `/api/history?playerId=${encodeURIComponent(
+        String(playerId)
+      )}&gameId=cs2&limit=2000`;
+
+      const response = await fetch(historyUrl, {
         headers: {
-          Authorization: `Bearer 6f6dd5d6-0ccf-4c2c-a88e-c4386aa0d03a`,
           Accept: "application/json",
         },
       });
@@ -438,10 +440,13 @@ class SidebarManager {
 
     while (retries < MAX_RETRIES) {
       try {
-        const url = `https://open.faceit.com/data/v4/matches/${matchId}/stats`;
+        // Fetch match-room statistics via serverless proxy
+        const url = `/api/match-stats?matchId=${encodeURIComponent(
+          String(matchId)
+        )}`;
+
         const response = await fetch(url, {
           headers: {
-            Authorization: `Bearer 6f6dd5d6-0ccf-4c2c-a88e-c4386aa0d03a`,
             Accept: "application/json",
           },
         });
@@ -449,7 +454,6 @@ class SidebarManager {
         if (!response.ok) {
           if (response.status === 500 && retries < MAX_RETRIES - 1) {
             retries++;
-            // Увеличиваем задержку с каждой попыткой
             await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
             continue;
           }
@@ -458,7 +462,7 @@ class SidebarManager {
 
         const statsData = await response.json();
 
-        // Проверяем, есть ли данные по раундам
+        // V4 match stats response contains rounds
         if (!statsData.rounds || statsData.rounds.length === 0) {
           return {
             map: "Map data not available",
@@ -467,17 +471,17 @@ class SidebarManager {
           };
         }
 
-        // Извлекаем основную информацию из первого раунда
         const round = statsData.rounds[0];
-        const map = round.round_stats.Map || "Unknown Map";
-        const score = round.round_stats.Score || "0 - 0";
+        const map = round.round_stats?.Map || "Unknown Map";
+        const score = round.round_stats?.Score || "0 - 0";
 
-        // Находим статистику конкретного игрока
         let playerStats = {};
-        for (const team of round.teams) {
-          const player = team.players.find((p) => p.player_id === playerId);
+        for (const team of round.teams || []) {
+          const player = (team.players || []).find(
+            (p) => p.player_id === playerId
+          );
           if (player) {
-            playerStats = player.player_stats;
+            playerStats = player.player_stats || {};
             break;
           }
         }
@@ -493,7 +497,6 @@ class SidebarManager {
           console.error(`Error fetching match stats for ${matchId}:`, error);
           throw error;
         }
-        // Увеличиваем задержку с каждой попыткой
         await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
       }
     }
