@@ -2753,8 +2753,7 @@ footer {
     align-items: center;
     justify-content: space-between;
     flex-wrap: nowrap;
-    padding: 0.8rem 1.5rem;
-    gap: 1.5rem;
+    gap: 2.5rem;
     border-radius: 15px;
   }
 
@@ -3199,8 +3198,8 @@ footer {
   padding: 0.6rem 0.3rem;
   border-radius: var(--border-radius);
   font-size: 0.9rem;
-  min-height: 60px;
-  min-width: 50px;
+  min-height: 43px;
+  min-width: 40px;
   border: 1px solid rgba(255, 85, 0, 0.1);
   transition: all 0.3s ease;
 }
@@ -3814,6 +3813,7 @@ footer {
     white-space: nowrap;
   }
 }
+
 
 
 
