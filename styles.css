@@ -2022,6 +2022,113 @@ footer {
   color: white;
 }
 
+.match-item {
+  padding: 8px 16px;
+  margin-bottom: 6px;
+  border-radius: 22px;
+}
+
+.player-stats {
+  gap: 6px;
+}
+
+.stat-item {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.stat-item i {
+  font-size: 14px !important;
+  margin-bottom: 1px;
+}
+
+.stat-item span {
+  font-size: 11px !important;
+  line-height: 1.05;
+}
+
+/* Desktop specific: keep everything on one line but tighter */
+@media (min-width: 769px) {
+  .match-item {
+    padding: 0.55rem 1.1rem;
+    gap: 12px;
+    border-radius: 14px;
+  }
+
+  .match-date {
+    font-size: 0.75rem;
+    min-width: 90px;
+  }
+
+  .match-result {
+    font-size: 0.78rem;
+    min-width: 62px;
+    padding: 0.12rem 0.35rem;
+  }
+
+  .match-map {
+    font-size: 0.88rem;
+    min-width: 105px;
+  }
+
+  .match-score {
+    font-size: 1.05rem;
+    min-width: 60px;
+  }
+
+  .player-stats {
+    gap: 6px;
+  }
+
+  .stat-item {
+    width: 32px;
+    height: 32px;
+    padding: 2px 0;
+  }
+
+  .stat-item i {
+    font-size: 0.7rem;
+    margin-bottom: 1px;
+  }
+
+  .stat-item span {
+    font-size: 0.66rem;
+    line-height: 1.05;
+  }
+}
+
+/* Mobile: smaller tiles, less vertical padding */
+@media (max-width: 768px) {
+  .match-item {
+    padding: 0.75rem 0.9rem;
+    gap: 0.5rem;
+    border-radius: 16px;
+  }
+
+  .player-stats {
+    gap: 0.25rem;
+  }
+
+  .stat-item {
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+    min-width: 34px;
+    max-width: 34px;
+    padding: 0.15rem 0.1rem;
+  }
+
+  .stat-item i {
+    font-size: 0.78rem !important;
+  }
+
+  .stat-item span {
+    font-size: 0.52rem !important;
+    line-height: 1;
+  }
+}
+
 /* Mobile view for match items */
 @media (max-width: 768px) {
   .match-item {
@@ -3671,3 +3778,39 @@ footer {
    - refine row layout ... spacer ::after
    Keeping them causes conflicts on desktop.
 */
+
+/* --- Mobile Overview: stats-box fixed height + left/right rows (like desktop) --- */
+@media (max-width: 768px) {
+  /* Only affects Overview rows rendered as .stat-row */
+  .stats-box {
+    height: 280px !important;
+    min-height: 280px !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stats-box p.stat-row {
+    display: flex !important;
+    align-items: baseline !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
+    margin: 0.7rem 0 !important; /* чуть больше воздуха между строками */
+    font-size: 0.98rem !important; /* трохи больше */
+    line-height: 1.32 !important;
+  }
+
+  .stats-box p.stat-row .stat-row-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stats-box p.stat-row .stat-row-value {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+}
