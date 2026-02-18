@@ -2507,11 +2507,12 @@ footer {
 /* Maps Grid Styles */
 .maps-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(300px, 0.5fr));
+  grid-template-columns: repeat(3, minmax(300px, 0.34fr));
   gap: 0.75rem;
   margin-top: 1rem;
   width: 100%;
   justify-content: center;
+  padding-left: 30px;
 }
 
 .map-card {
@@ -3663,9 +3664,11 @@ footer {
 
   /* Header block inside player card */
   .player-header {
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    gap: 1.6rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        gap: 1.6rem;
+        width: 1027px;
+        margin-left: 30px;
   }
 
   .player-avatar img {
@@ -3910,5 +3913,6 @@ footer {
     justify-content: center; /* keep the two tiles centered in the row */
   }
 }
+
 
 
