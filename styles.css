@@ -2507,10 +2507,11 @@ footer {
 /* Maps Grid Styles */
 .maps-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(300px, 0.5fr));
+  gap: 0.75rem;
   margin-top: 1rem;
   width: 100%;
+  justify-content: center;
 }
 
 .map-card {
@@ -2523,10 +2524,10 @@ footer {
   transition: all 0.3s ease;
   position: relative;
   min-height: 200px;
-  /* allow per-map backgrounds */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  width: 330px;
 }
 
 /* darken image for readability */
@@ -3909,3 +3910,4 @@ footer {
     justify-content: center; /* keep the two tiles centered in the row */
   }
 }
+
