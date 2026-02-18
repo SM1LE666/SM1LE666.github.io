@@ -3897,3 +3897,15 @@ footer {
     font-size: 0.98rem;
   }
 }
+
+/* --- Maps: reduce map-stat-item width on desktop (stop full stretching) --- */
+@media (min-width: 769px) {
+  .maps-grid .map-stat-item {
+    flex: 0 1 130px; /* was flex:1 (fills whole row); now narrower tiles */
+    max-width: 140px;
+  }
+
+  .maps-grid .map-stat-row {
+    justify-content: center; /* keep the two tiles centered in the row */
+  }
+}
