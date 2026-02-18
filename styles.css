@@ -3841,3 +3841,59 @@ footer {
     white-space: nowrap;
   }
 }
+
+/* --- Maps: make map-stat-item tiles more compact/narrow --- */
+.maps-grid .map-stat-row {
+  gap: 0.8rem;
+}
+
+.maps-grid .map-stat-item {
+  padding: 0.55rem 0.6rem;
+  height: 118px; /* was 150px */
+  border-radius: 7px;
+}
+
+.maps-grid .map-stat-item i {
+  font-size: 1.05rem;
+  margin-bottom: 0.35rem;
+}
+
+.maps-grid .map-stat-item .stat-label {
+  font-size: 0.72rem;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.4px;
+}
+
+.maps-grid .map-stat-item .stat-value {
+  font-size: 1rem;
+}
+
+@media (min-width: 769px) {
+  /* Make tiles visually narrower by allowing more card width around them */
+  .maps-grid .map-card-body {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .maps-grid .map-stat-row {
+    gap: 0.75rem;
+  }
+
+  .maps-grid .map-stat-item {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Mobile: rows become columns; keep them compact too */
+  .maps-grid .map-stat-item {
+    padding: 0.55rem 0.7rem;
+  }
+
+  .maps-grid .map-stat-item i {
+    font-size: 1rem;
+  }
+
+  .maps-grid .map-stat-item .stat-value {
+    font-size: 0.98rem;
+  }
+}
