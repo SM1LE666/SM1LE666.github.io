@@ -2608,7 +2608,7 @@ footer {
 
 /* Mirage (de_mirage / Mirage) */
 .map-card[data-map="mirage"] {
-  background-image: url("1771451925a9b2.png");
+  background-image: url('images/mirage.png');
 }
 
 .map-card-header {
@@ -3913,6 +3913,7 @@ footer {
     justify-content: center; /* keep the two tiles centered in the row */
   }
 }
+
 
 
 
