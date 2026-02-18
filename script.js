@@ -804,6 +804,9 @@ class SidebarManager {
 
                   html += "</div>";
                   statsContainer.innerHTML = html;
+
+                  // Применяем фоны для карточек карт
+                  applyMapCardBackgrounds(statsContainer);
                 } else {
                   // Fallback к analyzeMaps
                   const mapAnalysis = window.FaceitAPI.analyzeMaps(
@@ -3030,3 +3033,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 600);
   }
 });
+
+// Map backgrounds (Maps view): mapKey -> image filename in /images
+const MAP_BG_IMAGES = {
+  mirage: "mirage.png",
+  // add more here: inferno: "inferno.png", ancient: "ancient.png", etc.
+};
+
+function applyMapCardBackgrounds(root = document) {
+  const cards = root.querySelectorAll(".map-card[data-map]");
+  cards.forEach((card) => {
+    const key = String(card.dataset.map || "")
+      .trim()
+      .toLowerCase();
+    const file = MAP_BG_IMAGES[key];
+
+    if (!file) {
+      // No mapping -> keep original CSS background
+      card.style.removeProperty("--map-bg-url");
+      card.classList.remove("has-map-bg");
+      return;
+    }
+
+    // Set CSS variable; CSS will only use it when .has-map-bg is present.
+    card.style.setProperty("--map-bg-url", `url('images/${file}')`);
+    card.classList.add("has-map-bg");
+  });
+}
