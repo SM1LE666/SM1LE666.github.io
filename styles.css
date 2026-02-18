@@ -2679,7 +2679,7 @@ footer {
 .map-card-footer {
   padding: 1rem 1.5rem;
   background: rgba(0, 0, 0, 0.2);
-  border-top: 1px solid rgba(255, 85, 0, 0.2);
+  border-top: 1px solid rgba(255, 85, 0, 0.5);
 }
 
 .performance-indicator {
@@ -3913,6 +3913,7 @@ footer {
     justify-content: center; /* keep the two tiles centered in the row */
   }
 }
+
 
 
 
