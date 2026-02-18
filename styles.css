@@ -2527,7 +2527,7 @@ footer {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  width: 330px;
+  width: 310px;
 }
 
 /* darken image for readability */
@@ -3910,4 +3910,5 @@ footer {
     justify-content: center; /* keep the two tiles centered in the row */
   }
 }
+
 
