@@ -710,8 +710,16 @@ class SidebarManager {
                       winRateColor = "#4caf50";
                     }
 
+                    // Normalize map key for styling/backgrounds
+                    const mapKey = String(map.name || "")
+                      .trim()
+                      .toLowerCase()
+                      .replace(/^de_/, "")
+                      .replace(/\s+/g, "_")
+                      .replace(/[^a-z0-9_]/g, "");
+
                     html += `
-                      <div class="${cardClass}">
+                      <div class="${cardClass}" data-map="${mapKey}">
                         <div class="map-card-header">
                           <h3 class="map-name">${map.name}</h3>
                           <div class="win-rate-badge" style="background: ${winRateColor}">

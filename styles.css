@@ -2523,6 +2523,28 @@ footer {
   transition: all 0.3s ease;
   position: relative;
   min-height: 200px;
+  /* allow per-map backgrounds */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* darken image for readability */
+.map-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+  pointer-events: none;
+}
+
+.map-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .map-card:hover {
@@ -2580,6 +2602,11 @@ footer {
   height: 4px;
   background: linear-gradient(90deg, var(--primary-color), var(--accent-glow));
   border-radius: 15px 15px 0 0;
+}
+
+/* Mirage (de_mirage / Mirage) */
+.map-card[data-map="mirage"] {
+  background-image: url("1771451925a9b2.png");
 }
 
 .map-card-header {
@@ -2753,7 +2780,8 @@ footer {
     align-items: center;
     justify-content: space-between;
     flex-wrap: nowrap;
-    gap: 2.5rem;
+    padding: 0.8rem 1.5rem;
+    gap: 1.5rem;
     border-radius: 15px;
   }
 
@@ -3198,8 +3226,8 @@ footer {
   padding: 0.6rem 0.3rem;
   border-radius: var(--border-radius);
   font-size: 0.9rem;
-  min-height: 43px;
-  min-width: 40px;
+  min-height: 60px;
+  min-width: 50px;
   border: 1px solid rgba(255, 85, 0, 0.1);
   transition: all 0.3s ease;
 }
@@ -3782,8 +3810,8 @@ footer {
 @media (max-width: 768px) {
   /* Only affects Overview rows rendered as .stat-row */
   .stats-box {
-    height: 250px !important;
-    min-height: 250px !important;
+    height: 280px !important;
+    min-height: 280px !important;
     font-variant-numeric: tabular-nums;
   }
 
@@ -3813,7 +3841,3 @@ footer {
     white-space: nowrap;
   }
 }
-
-
-
-
