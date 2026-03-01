@@ -2966,44 +2966,6 @@ function closeAllModals() {
   document.body.style.overflow = ""; // Восстанавливаем скролл
 }
 
-// --- Featured pro photos: local-first resolver ---
-function buildLocalProPhotoCandidates(nick) {
-  const safe = String(nick || "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/[^a-z0-9_-]/g, "");
-
-  return [
-    `images/pros/${safe}.jpg`,
-    `images/pros/${safe}.png`,
-    `images/pros/${safe}.jpeg`,
-    `images/pros/${safe}.webp`,
-  ];
-}
-
-async function tryLoadImage(url) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = url;
-  });
-}
-
-async function resolveProPhotoUrl(nick) {
-  // 1) Prefer local images from /images/pros (stable)
-  const candidates = buildLocalProPhotoCandidates(nick);
-  for (const url of candidates) {
-    // eslint-disable-next-line no-await-in-loop
-    const ok = await tryLoadImage(url);
-    if (ok) return url;
-  }
-
-  // 2) Best-effort remote avatar (if available)
-  const remote = await fetchProAvatar(nick);
-  if (remote) return remote;
-
-  // 3) Final fallback
-  return "logooo.png";
-}
+// NOTE: Featured pro players cards functionality was rolled back.
+// The helper functions for pro photos were also removed because they referenced
+// undefined symbols (e.g. fetchProAvatar) and could break the whole script.
