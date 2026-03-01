@@ -1480,7 +1480,7 @@ footer {
 @media (max-width: 480px) {
   h1 {
     font-size: 1.28rem !important;
-    margin-right: 6.4rem !important; /* еще чуть больше запаса справа */
+    margin-right: 6.4рем !important; /* еще чуть больше запаса справа */
   }
 
   .language-switcher-fixed {
@@ -3731,8 +3731,8 @@ footer {
 @media (max-width: 768px) {
   /* Only affects Overview rows rendered as .stat-row */
   .stats-box {
-    height: 280px !important;
-    min-height: 280px !important;
+    height: auto !important;
+    min-height: 150px !important;
     font-variant-numeric: tabular-nums;
   }
 

@@ -27,58 +27,6 @@ class SidebarManager {
     this.initializeEventListeners();
   }
 
-  handleResize() {
-    // Добавьте этот код для обновления стилей при изменении размера окна
-    const playerCard = document.querySelector(".player-card");
-    const playerHeader = playerCard
-      ? playerCard.querySelector(".player-header")
-      : null;
-
-    if (playerHeader && this.currentView === "matches") {
-      if (window.innerWidth <= 768) {
-        playerHeader.style.flexDirection = "column";
-        playerHeader.style.textAlign = "center";
-        playerHeader.style.alignItems = "center";
-        playerHeader.style.gap = "1.5rem";
-      } else {
-        playerHeader.style.flexDirection = "";
-        playerHeader.style.textAlign = "";
-        playerHeader.style.alignItems = "";
-        playerHeader.style.gap = "";
-      }
-    }
-
-    // ПРИНУДИТЕЛЬНО скрываем мобильную шторку на десктопе
-    if (window.innerWidth > 768) {
-      if (this.mobileDrawer) {
-        this.mobileDrawer.style.display = "none !important";
-        this.mobileDrawer.classList.remove("expanded", "visible");
-        this.isDrawerExpanded = false;
-      }
-      // Скрываем мобильный overlay
-      if (this.mobileOverlay) {
-        this.mobileOverlay.classList.remove("active");
-      }
-      document.body.style.overflow = "";
-
-      // Показываем десктопный сайдбар если профиль активен
-      if (this.isPlayerProfileActive) {
-        this.sidebar.classList.add("player-profile-active");
-        document.body.classList.add("sidebar-open");
-      }
-    } else {
-      // На мобильных ПОЛНОСТЬЮ скрываем десктопный сайдбар
-      this.sidebar.classList.remove("player-profile-active");
-      document.body.classList.remove("sidebar-open");
-
-      // Показываем шторку только если профиль активен
-      if (this.isPlayerProfileActive && this.mobileDrawer) {
-        this.mobileDrawer.style.display = "block";
-        this.mobileDrawer.classList.add("visible");
-      }
-    }
-  }
-
   initializeEventListeners() {
     // Обработчики для элементов сайдбара (десктоп)
     const sidebarItems = document.querySelectorAll(".sidebar-item");
@@ -1111,26 +1059,32 @@ class SidebarManager {
       this.closeMobileSidebar();
       this.collapseDrawer();
 
+      if (this.mobileDrawer) {
+        // Полностью скрываем мобильную шторку на десктопе
+        this.mobileDrawer.classList.remove("visible", "expanded");
+        this.mobileDrawer.style.display = "none";
+      }
+
       if (this.isPlayerProfileActive) {
         // Показываем обычный сайдбар
         this.sidebar.classList.add("player-profile-active");
         this.sidebar.classList.add("slide-in");
         document.body.classList.add("sidebar-open");
-
-        // Скрываем мобильную шторку
-        if (this.mobileDrawer) {
-          this.mobileDrawer.classList.remove("visible");
-        }
       }
     } else {
       // На мобильных
       document.body.classList.remove("sidebar-open");
       this.sidebar.classList.remove("slide-in");
+      this.sidebar.classList.remove("player-profile-active");
 
-      if (this.isPlayerProfileActive) {
-        // Показываем мобильную шторку
-        if (this.mobileDrawer) {
+      if (this.mobileDrawer) {
+        // На мобильных шторка должна быть видна только при активном профиле
+        if (this.isPlayerProfileActive) {
+          this.mobileDrawer.style.display = "block";
           this.mobileDrawer.classList.add("visible");
+        } else {
+          this.mobileDrawer.classList.remove("visible", "expanded");
+          this.mobileDrawer.style.display = "none";
         }
       }
     }
