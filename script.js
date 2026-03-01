@@ -3036,8 +3036,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Map backgrounds (Maps view): mapKey -> image filename in /images
 const MAP_BG_IMAGES = {
-  mirage: "mirage.png",
-  // add more here: inferno: "inferno.png", ancient: "ancient.png", etc.
+  mirage: "mirage.jpg",
+  inferno: "inferno.jpg",
+  ancient: "ancient.jpg",
+  dust2: "dust2.jpg",
+  anubis: "anubis.jpg",
+  nuke: "nuke.jpg",
+  overpass: "overpass.jpg",
+  vertigo: "vertigo.jpg",
 };
 
 function applyMapCardBackgrounds(root = document) {
