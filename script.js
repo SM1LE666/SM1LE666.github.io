@@ -3146,18 +3146,13 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 
 function setMainMenuMode(isMainMenu) {
-  const search = document.getElementById("search");
   const results = document.getElementById("results");
-
-  // Main menu: show search + featured, hide results.
+  if (!results) return;
   if (isMainMenu) {
-    if (search) search.style.display = "block";
-    if (results) results.style.display = "none";
-    return;
+    results.style.display = "none";
+  } else {
+    results.style.display = document.body.classList.contains("profile-active")
+      ? "block"
+      : "none";
   }
-
-  // Leaving main menu (e.g. clicking a featured card):
-  // hide search, show results container. The profile UI will fill it shortly.
-  if (search) search.style.display = "none";
-  if (results) results.style.display = "block";
 }
