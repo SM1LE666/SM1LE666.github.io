@@ -346,91 +346,6 @@ h1::after {
     bottom: -5px;
   }
 }
-
-.language-switcher {
-  position: absolute;
-  top: 50%;
-  right: 2rem;
-  transform: translateY(-50%);
-  z-index: 1000;
-  display: flex;
-  gap: 0.5rem;
-  padding: 0;
-}
-
-/* Language buttons - улучшенные кнопки смены языков */
-.lang-btn {
-  background: linear-gradient(
-    135deg,
-    rgba(51, 51, 51, 0.9),
-    rgba(33, 33, 33, 0.9)
-  );
-  border: 1px solid var(--primary-color);
-  color: var(--primary-color);
-  padding: 0.4rem 0.7rem;
-  font-size: 0.8rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-
-.lang-btn:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(51, 51, 51, 0.95),
-    rgba(45, 45, 45, 0.95)
-  );
-  border-color: var(--accent-glow);
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(255, 85, 0, 0.4);
-}
-
-.lang-btn.active {
-  background: linear-gradient(
-    135deg,
-    var(--primary-color),
-    var(--primary-hover)
-  );
-  border-color: var(--accent-glow);
-  color: white;
-  box-shadow: 0 2px 10px rgba(255, 85, 0, 0.5);
-}
-
-.lang-btn.active:hover {
-  background: linear-gradient(135deg, var(--primary-hover), #cc4400);
-  transform: translateY(-1px);
-  box-shadow: 0 3px 12px rgba(255, 85, 0, 0.6);
-}
-
-.lang-btn img {
-  width: 16px;
-  height: 12px;
-  border-radius: 2px;
-  object-fit: cover;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-/* Language Switcher - делаем его фиксированным и всегда видимым */
-.language-switcher-fixed {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  gap: 0.5rem;
-  z-index: 2000; /* Высокий z-index, чтобы быть поверх всех элементов */
-  padding: 6px 10px;
-  border-radius: 20px;
-  transition: all 0.3s ease;
-}
-
 /* Main Content Styles */
 main {
   flex: 1;
@@ -1305,6 +1220,11 @@ footer {
   margin-bottom: 2rem;
 }
 
+/* Results must never be visible in the main menu */
+body:not(.profile-active) #results {
+  display: none !important;
+}
+
 /* КАРДИНАЛЬНОЕ ИСПРАВЛЕНИЕ - убираем flex из body и main на мобильных */
 @media (max-width: 768px) {
   /* Возвращаем flex для body чтобы футер остался внизу */
@@ -1730,7 +1650,7 @@ footer {
   }
 
   .lang-btn {
-    padding: 0.32rem 0.45rem; /* +высота */
+    padding: 0.32rem 0.45рем; /* +высота */
     line-height: 1;
   }
 
@@ -1740,18 +1660,9 @@ footer {
     padding-right: 0.1rem;
   }
 
-  .language-switcher {
-    position: absolute;
-    top: 50%;
-    right: 1rem; /* Уменьшаем отступ справа */
-    transform: translateY(-50%);
-    margin-top: 0;
-    align-self: center;
-  }
-
   h1 {
-    font-size: 1.5rem; /* Уменьшаем размер шрифта для лучшего размещения */
-    margin-right: 5rem; /* Добавляем отступ справа, чтобы избежать перекрытия */
+    font-size: 1.5rem;
+    margin-right: 5rem;
     text-align: left;
   }
 
@@ -2645,7 +2556,7 @@ footer {
 .map-stat-row {
   display: flex;
   justify-content: space-between;
-  gap: 23px;
+  gap: 1rem;
 }
 
 .map-stat-item {
@@ -2656,7 +2567,7 @@ footer {
   justify-content: center;
   flex: 1;
   padding: 0.8rem;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   transition: all 0.3s ease;
   height: 150px;
@@ -2692,7 +2603,7 @@ footer {
 .map-card-footer {
   padding: 1rem 1.5rem;
   background: rgba(0, 0, 0, 0.2);
-  border-top: 1px solid rgba(255, 85, 0, 0.4);
+  border-top: 1px solid rgba(255, 85, 0, 0.2);
 }
 
 .performance-indicator {
@@ -3857,6 +3768,11 @@ footer {
   }
 }
 
+/* --- Maps: make map-stat-item tiles more compact/narrow --- */
+.maps-grid .map-stat-row {
+  gap: 0.8rem;
+}
+
 .maps-grid .map-stat-item {
   padding: 0.55rem 0.6rem;
   height: 118px; /* was 150px */
@@ -3882,6 +3798,10 @@ footer {
   /* Make tiles visually narrower by allowing more card width around them */
   .maps-grid .map-card-body {
     padding: 0.85rem 0.9rem;
+  }
+
+  .maps-grid .map-stat-row {
+    gap: 0.75rem;
   }
 
   .maps-grid .map-stat-item {
@@ -3916,4 +3836,168 @@ footer {
   }
 }
 
+/* --- Featured Pro Players (Main menu) --- */
+.featured-players-grid {
+  width: 100%;
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
 
+.featured-player-card {
+  background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.05));
+  border-radius: 15px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 85, 0, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  width: 300px;
+  height: 330px;
+}
+
+.featured-player-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 18px rgba(255, 85, 0, 0.25);
+  border-color: var(--primary-color);
+}
+
+.featured-player-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff5500, #ff7b00);
+  border-radius: 15px 15px 0 0;
+  z-index: 2;
+}
+
+.featured-player-card-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
+  padding: 0.8rem 1.1rem;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #fff;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.featured-player-card-body {
+  padding: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.featured-player-photo {
+  width: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 85, 0, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* --- Featured Pro Players: tighter grid spacing + responsive card sizing --- */
+.featured-players-grid {
+  gap: 0.55rem !important;
+  margin-top: 0.75rem;
+}
+
+.featured-player-card {
+  width: 100% !important; /* remove fixed 300px that creates big gaps */
+  max-width: 260px;
+  height: 300px;
+  justify-self: center;
+}
+
+@media (max-width: 1024px) {
+  .featured-players-grid {
+    gap: 0.5rem !important;
+  }
+
+  .featured-player-card {
+    max-width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .featured-players-grid {
+    gap: 0.6rem !important;
+  }
+
+  .featured-player-card {
+    max-width: 320px;
+    height: 300px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .featured-players-grid {
+    grid-template-columns: repeat(3, minmax(190px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .featured-player-photo {
+    height: 130px;
+  }
+}
+
+@media (max-width: 768px) {
+  .featured-players-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .featured-player-photo {
+    height: 170px;
+  }
+}
+
+/* Hide featured pro cards when profile is active (main menu only) */
+body.profile-active #featuredPlayersGrid {
+  display: none !important;
+}
+
+/* --- Featured Pro Players (Main menu): use FLEX instead of GRID --- */
+.featured-players-grid {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.55rem !important;
+}
+
+/* Cards: fixed basis so spacing is tight and consistent */
+.featured-player-card {
+  flex: 0 1 240px; /* width target */
+  max-width: 260px;
+  width: auto !important;
+  justify-self: auto; /* irrelevant for flex */
+}
+
+@media (max-width: 1024px) {
+  .featured-player-card {
+    flex-basis: 220px;
+    max-width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .featured-players-grid {
+    gap: 0.6rem !important;
+  }
+
+  .featured-player-card {
+    flex-basis: 320px;
+    max-width: 320px;
+  }
+}

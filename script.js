@@ -3012,59 +3012,147 @@ function closeAllModals() {
   document.body.style.overflow = ""; // Восстанавливаем скролл
 }
 
-// Инициализация после загрузки DOM
-document.addEventListener("DOMContentLoaded", function () {
-  // Start the app (bind event listeners, init sidebar, set language, etc.)
-  try {
-    init();
-  } catch (e) {
-    console.error("Init failed:", e);
-  }
+// --- Featured pro photos: local-first resolver ---
+function buildLocalProPhotoCandidates(nick) {
+  const safe = String(nick || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9_-]/g, "");
 
-  // Синхронизация переключателей языка
-  setupLanguageSwitchers();
+  return [
+    `images/pros/${safe}.jpg`,
+    `images/pros/${safe}.png`,
+    `images/pros/${safe}.jpeg`,
+    `images/pros/${safe}.webp`,
+  ];
+}
 
-  updateCookieFabVisibility();
-
-  // Show cookie modal only the first time (when no prior choice exists).
-  if (!getCookieConsent()) {
-    setTimeout(() => {
-      openCookieModal();
-    }, 600);
-  }
-});
-
-// Map backgrounds (Maps view): mapKey -> image filename in /images
-const MAP_BG_IMAGES = {
-  mirage: "mirage.jpg",
-  inferno: "inferno.jpg",
-  ancient: "ancient.jpg",
-  dust2: "dust2.jpg",
-  anubis: "anubis.jpg",
-  nuke: "nuke.jpg",
-  overpass: "overpass.jpg",
-  vertigo: "vertigo.jpg",
-  train: "train.jpg",
-};
-
-function applyMapCardBackgrounds(root = document) {
-  const cards = root.querySelectorAll(".map-card[data-map]");
-  cards.forEach((card) => {
-    const key = String(card.dataset.map || "")
-      .trim()
-      .toLowerCase();
-    const file = MAP_BG_IMAGES[key];
-
-    if (!file) {
-      // No mapping -> keep original CSS background
-      card.style.removeProperty("--map-bg-url");
-      card.classList.remove("has-map-bg");
-      return;
-    }
-
-    // Set CSS variable; CSS will only use it when .has-map-bg is present.
-    card.style.setProperty("--map-bg-url", `url('images/${file}')`);
-    card.classList.add("has-map-bg");
+async function tryLoadImage(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
   });
 }
 
+async function resolveProPhotoUrl(nick) {
+  // 1) Prefer local images from /images/pros (stable)
+  const candidates = buildLocalProPhotoCandidates(nick);
+  for (const url of candidates) {
+    // eslint-disable-next-line no-await-in-loop
+    const ok = await tryLoadImage(url);
+    if (ok) return url;
+  }
+
+  // 2) Best-effort remote avatar (if available)
+  const remote = await fetchProAvatar(nick);
+  if (remote) return remote;
+
+  // 3) Final fallback
+  return "logooo.png";
+}
+
+// --- Featured Pro Players (Main menu) ---
+const FEATURED_PROS = [
+  { nickname: "s1mple", query: "https://steamcommunity.com/id/officials1mple" },
+  {
+    nickname: "ZywOo",
+    query: "https://steamcommunity.com/profiles/76561198113666193",
+  },
+  { nickname: "donk", query: "https://steamcommunity.com/id/donkgojo" },
+  { nickname: "m0NESY", query: "https://steamcommunity.com/id/m0NESY-" },
+];
+
+function startFeaturedAnalysis(queryOrNickname) {
+  const input = document.getElementById("nickname");
+  if (!input) return;
+
+  input.value = queryOrNickname;
+
+  // Ensure results section is visible before analysis starts
+  setMainMenuMode(false);
+
+  // Trigger analysis
+  analyzePlayer();
+}
+
+async function renderFeaturedPros() {
+  const grid = document.getElementById("featuredPlayersGrid");
+  if (!grid) return;
+
+  grid.innerHTML = FEATURED_PROS.map(
+    (p) => `
+      <div class="featured-player-card" data-nick="${p.nickname}" data-query="${
+      p.query ? p.query : p.nickname
+    }" role="button" tabindex="0">
+        <div class="featured-player-card-header">${p.nickname}</div>
+        <div class="featured-player-card-body">
+          <img class="featured-player-photo" src="logooo.png" alt="${
+            p.nickname
+          }" loading="lazy" />
+        </div>
+      </div>
+    `
+  ).join("");
+
+  const cards = grid.querySelectorAll(".featured-player-card");
+  cards.forEach(async (card) => {
+    const nick = card.getAttribute("data-nick");
+    const query = card.getAttribute("data-query") || nick;
+    if (!nick) return;
+
+    const activate = () => startFeaturedAnalysis(query);
+    card.addEventListener("click", activate);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        activate();
+      }
+    });
+
+    const img = card.querySelector("img.featured-player-photo");
+    if (!img) return;
+
+    const photoUrl = await resolveProPhotoUrl(nick);
+    img.src = photoUrl;
+
+    // Avoid leaking referrer for remote sources
+    if (/^https?:\/\//i.test(photoUrl)) {
+      img.referrerPolicy = "no-referrer";
+    }
+  });
+}
+
+// Ensure featured list is rendered
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    renderFeaturedPros();
+    // Default state is main menu
+    setMainMenuMode(true);
+  } catch (e) {
+    console.error("Failed to render featured pros:", e);
+  }
+});
+
+// --- Patch: when returning to main menu, restore featured section ---
+(function patchGoBackToMainMenu() {
+  const original = SidebarManager.prototype.goBackToMainMenu;
+  SidebarManager.prototype.goBackToMainMenu = function () {
+    original.call(this);
+    setMainMenuMode(true);
+  };
+})();
+
+function setMainMenuMode(isMainMenu) {
+  const results = document.getElementById("results");
+  if (!results) return;
+  if (isMainMenu) {
+    results.style.display = "none";
+  } else {
+    results.style.display = document.body.classList.contains("profile-active")
+      ? "block"
+      : "none";
+  }
+}
