@@ -2969,3 +2969,11 @@ function closeAllModals() {
 // NOTE: Featured pro players cards functionality was rolled back.
 // The helper functions for pro photos were also removed because they referenced
 // undefined symbols (e.g. fetchProAvatar) and could break the whole script.
+
+// Bootstrapping: init once DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init, { once: true });
+} else {
+  // If script is loaded after DOM (or cached), init immediately
+  init();
+}
