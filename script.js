@@ -3044,6 +3044,7 @@ const MAP_BG_IMAGES = {
   nuke: "nuke.jpg",
   overpass: "overpass.jpg",
   vertigo: "vertigo.jpg",
+  train: "train.jpg",
 };
 
 function applyMapCardBackgrounds(root = document) {
@@ -3066,3 +3067,4 @@ function applyMapCardBackgrounds(root = document) {
     card.classList.add("has-map-bg");
   });
 }
+
