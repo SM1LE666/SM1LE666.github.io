@@ -2645,7 +2645,7 @@ footer {
 .map-stat-row {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 23px;
 }
 
 .map-stat-item {
@@ -3857,11 +3857,6 @@ footer {
   }
 }
 
-/* --- Maps: make map-stat-item tiles more compact/narrow --- */
-.maps-grid .map-stat-row {
-  gap: 0.8rem;
-}
-
 .maps-grid .map-stat-item {
   padding: 0.55rem 0.6rem;
   height: 118px; /* was 150px */
@@ -3887,10 +3882,6 @@ footer {
   /* Make tiles visually narrower by allowing more card width around them */
   .maps-grid .map-card-body {
     padding: 0.85rem 0.9rem;
-  }
-
-  .maps-grid .map-stat-row {
-    gap: 0.75rem;
   }
 
   .maps-grid .map-stat-item {
@@ -3924,3 +3915,4 @@ footer {
     justify-content: center; /* keep the two tiles centered in the row */
   }
 }
+
