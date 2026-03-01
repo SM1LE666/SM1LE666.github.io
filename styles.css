@@ -1220,11 +1220,6 @@ footer {
   margin-bottom: 2rem;
 }
 
-/* Results must never be visible in the main menu */
-body:not(.profile-active) #results {
-  display: none !important;
-}
-
 /* КАРДИНАЛЬНОЕ ИСПРАВЛЕНИЕ - убираем flex из body и main на мобильных */
 @media (max-width: 768px) {
   /* Возвращаем flex для body чтобы футер остался внизу */

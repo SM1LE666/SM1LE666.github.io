@@ -3146,13 +3146,20 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 
 function setMainMenuMode(isMainMenu) {
+  const search = document.getElementById("search");
   const results = document.getElementById("results");
-  if (!results) return;
+  const featured = document.getElementById("featuredPlayersGrid");
+
   if (isMainMenu) {
-    results.style.display = "none";
-  } else {
-    results.style.display = document.body.classList.contains("profile-active")
-      ? "block"
-      : "none";
+    if (search) search.style.display = "flex";
+    if (featured) featured.style.display = "flex";
+    if (results) results.style.display = "none";
+    return;
   }
+
+  // Leaving main menu (Analyze click / featured card click):
+  // show the results container immediately (it will be filled by analyzePlayer)
+  if (search) search.style.display = "none";
+  if (featured) featured.style.display = "none";
+  if (results) results.style.display = "block";
 }
