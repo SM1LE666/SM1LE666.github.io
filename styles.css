@@ -1481,7 +1481,7 @@ footer {
 @media (max-width: 480px) {
   h1 {
     font-size: 1.28rem !important;
-    margin-right: 6.4рем !important; /* еще чуть больше запаса справа */
+    margin-right: 6.4rem !important; /* еще чуть больше запаса справа */
   }
 
   .language-switcher-fixed {
@@ -1554,7 +1554,7 @@ footer {
 
   h1 {
     font-size: 1.33rem !important;
-    margin-right: 7.25рем !important; /* еще чуть-чуть запаса */
+    margin-right: 7.25rem !important; /* еще чуть-чуть запаса */
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -2023,7 +2023,7 @@ footer {
     min-height: 34px;
     min-width: 34px;
     max-width: 34px;
-    padding: 0.15rem 0.1рем;
+    padding: 0.15rem 0.1rem;
   }
 
   .stat-item i {
@@ -3001,7 +3001,7 @@ footer {
   }
 
   .lang-btn {
-    padding: 0.22rem 0.4рем;
+    padding: 0.22rem 0.4rem;
     font-size: 0.68rem;
   }
 
