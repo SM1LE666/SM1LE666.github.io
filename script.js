@@ -2981,54 +2981,6 @@ function updateMapsTexts() {
   }
 }
 
-// Функция для обновления переводов в истории матчей
-function updateMatchHistoryTexts() {
-  // Обновляем результаты матчей
-  const matchResults = document.querySelectorAll(".match-result");
-  matchResults.forEach((result) => {
-    const text = result.textContent.toLowerCase();
-    if (text === "win" || text === "победа") {
-      result.textContent = getText("win");
-    } else if (text === "loss" || text === "поражение") {
-      result.textContent = getText("loss");
-    }
-  });
-
-  // Обновляем кнопку "Показать еще"
-  const showMoreBtn = document.querySelector(".show-more-btn");
-  if (showMoreBtn) {
-    const btnText = showMoreBtn.textContent;
-    const matches = btnText.match(/\((\d+)\)/);
-    const remainingCount = matches ? matches[1] : "";
-
-    const icon = showMoreBtn.querySelector("i");
-    const iconHTML = icon
-      ? icon.outerHTML
-      : '<i class="fas fa-chevron-down"></i>';
-
-    showMoreBtn.innerHTML = `${iconHTML} ${getText("showMoreMatches")}${
-      remainingCount ? ` (${remainingCount})` : ""
-    }`;
-  }
-
-  // Обновляем сообщения об ошибках
-  const errorMessages = document.querySelectorAll(".api-error-text");
-  errorMessages.forEach((error) => {
-    const text = error.textContent;
-    if (
-      text.includes("No match history") ||
-      text.includes("Нет истории матчей")
-    ) {
-      error.textContent = getText("noMatchHistory");
-    } else if (
-      text.includes("Match details unavailable") ||
-      text.includes("Детали матча недоступны")
-    ) {
-      error.textContent = getText("matchDetailsUnavailable");
-    }
-  });
-}
-
 // Функция для закрытия всех модальных окон
 function closeAllModals() {
   const modals = document.querySelectorAll(".modal");
@@ -3039,9 +2991,43 @@ function closeAllModals() {
   document.body.style.overflow = ""; // Восстанавливаем скролл
 }
 
+// Функция для применения фоновых изображений к карточкам карт
+function applyMapCardBackgrounds(container) {
+  if (!container) return;
+
+  const mapCards = container.querySelectorAll(".map-card");
+
+  // Маппинг названий карт к фоновым изображениям
+  const mapBackgrounds = {
+    ancient: "./images/ancient.jpg",
+    anubis: "./images/anubis.jpg",
+    dust2: "./images/dust2.jpg",
+    inferno: "./images/inferno.jpg",
+    mirage: "./images/mirage.jpg",
+    nuke: "./images/nuke.jpg",
+    overpass: "./images/overpass.jpg",
+    train: "./images/train.jpg",
+    vertigo: "./images/vertigo.jpg",
+  };
+
+  mapCards.forEach((card) => {
+    const mapKey = card.getAttribute("data-map");
+
+    if (mapKey && mapBackgrounds[mapKey]) {
+      const cardBody = card.querySelector(".map-card-body");
+      if (cardBody) {
+        cardBody.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('${mapBackgrounds[mapKey]}')`;
+        cardBody.style.backgroundSize = "cover";
+        cardBody.style.backgroundPosition = "center";
+        cardBody.style.backgroundRepeat = "no-repeat";
+      }
+    }
+  });
+
+  console.log("Map card backgrounds applied");
+}
+
 // NOTE: Featured pro players cards functionality was rolled back.
-// The helper functions for pro photos were also removed because they referenced
-// undefined symbols (e.g. fetchProAvatar) and could break the whole script.
 
 // Bootstrapping: init once DOM is ready
 if (document.readyState === "loading") {
