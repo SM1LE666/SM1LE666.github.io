@@ -2133,6 +2133,65 @@ function initializeEventListeners() {
       closeAllModals();
     }
   });
+
+  // Обработчики для карточек профессиональных игроков
+  initializeProPlayerCards();
+}
+
+// Функция для инициализации карточек про-игроков
+function initializeProPlayerCards() {
+  // Данные про-игроков с их Steam профилями
+  const proPlayers = {
+    donk: "https://steamcommunity.com/id/donkgojo",
+    m0NESY: "https://steamcommunity.com/id/m0NESY-",
+    s1mple: "https://steamcommunity.com/id/officials1mple",
+    ZywOo: "https://steamcommunity.com/profiles/76561198113666193",
+  };
+
+  // Находим все карточки игроков
+  const proCards = document.querySelectorAll(".pro-card");
+
+  proCards.forEach((card) => {
+    const playerName = card.querySelector(".pro-name")?.textContent.trim();
+
+    if (playerName && proPlayers[playerName]) {
+      // Добавляем класс для указателя курсора
+      card.style.cursor = "pointer";
+
+      // Добавляем обработчик клика
+      card.addEventListener("click", () => {
+        const steamUrl = proPlayers[playerName];
+        const nicknameInput = document.getElementById("nickname");
+
+        if (nicknameInput) {
+          // Подставляем Steam URL в поле ввода
+          nicknameInput.value = steamUrl;
+
+          // Прокручиваем к началу страницы для видимости поля поиска
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+
+          // Запускаем анализ игрока через небольшую задержку для плавности
+          setTimeout(() => {
+            analyzePlayer();
+          }, 300);
+        }
+      });
+
+      // Добавляем эффект при наведении
+      card.addEventListener("mouseenter", () => {
+        card.style.transform = "translateY(-5px)";
+      });
+
+      card.addEventListener("mouseleave", () => {
+        card.style.transform = "translateY(0)";
+      });
+    }
+  });
+
+  console.log("Pro player cards initialized with Steam profiles");
 }
 
 // Функция для очистки профиля игрока
@@ -2151,20 +2210,22 @@ function clearPlayerProfile() {
     playerStats.style.display = "none";
   }
 
+  // Скрываем секцию results
+  const resultsSection = document.getElementById("results");
+  if (resultsSection) {
+    resultsSection.style.display = "none";
+  }
+
+  // Показываем pro-grid
+  const proGrid = document.querySelector(".pro-grid");
+  if (proGrid) {
+    proGrid.style.display = "flex";
+  }
+
   //Возвращаем строку поиска
   const searchSection = document.getElementById("search");
   if (searchSection) {
     searchSection.style.display = "block";
-  }
-
-  const HeaderSection = document.getElementById("header");
-  if (HeaderSection) {
-    HeaderSection.style.display = "block";
-  }
-
-  const FooterSection = document.getElementById("footer");
-  if (FooterSection) {
-    FooterSection.style.display = "block";
   }
 
   // Показываем сообщение по умолчанию
@@ -2448,8 +2509,20 @@ async function analyzePlayer() {
     playerStatsContainer.innerHTML = playerCardHTML;
     playerStatsContainer.style.display = "block";
 
+    // Показываем секцию results и скрываем pro-grid
+    const resultsSection = document.getElementById("results");
+    if (resultsSection) {
+      resultsSection.style.display = "block";
+    }
+
+    const proGrid = document.querySelector(".pro-grid");
+    if (proGrid) {
+      proGrid.style.display = "none";
+    }
+
     // Добавляем класс для скрытия поиска при активном профиле
     document.body.classList.add("profile-active");
+
     // Активируем сайдбар после успешной загрузки профиля
     if (sidebarManager) {
       // Задержка для плавного появления

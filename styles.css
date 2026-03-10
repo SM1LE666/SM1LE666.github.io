@@ -13,6 +13,7 @@
   --accent-glow: #ff7b00;
   --border-radius: 8px;
   --sidebar-width: 200px;
+  --pro-photo-scale: 0.88; /* tweak 0.8..0.9 */
 }
 
 * {
@@ -1553,7 +1554,7 @@ footer {
 
   h1 {
     font-size: 1.33rem !important;
-    margin-right: 7.25rem !important; /* еще чуть-чуть запаса */
+    margin-right: 7.25рем !important; /* еще чуть-чуть запаса */
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -1645,7 +1646,7 @@ footer {
   }
 
   .lang-btn {
-    padding: 0.32rem 0.45рем; /* +высота */
+    padding: 0.32rem 0.45rem; /* +высота */
     line-height: 1;
   }
 
@@ -2022,7 +2023,7 @@ footer {
     min-height: 34px;
     min-width: 34px;
     max-width: 34px;
-    padding: 0.15rem 0.1rem;
+    padding: 0.15rem 0.1рем;
   }
 
   .stat-item i {
@@ -3000,7 +3001,7 @@ footer {
   }
 
   .lang-btn {
-    padding: 0.22rem 0.4rem;
+    padding: 0.22rem 0.4рем;
     font-size: 0.68rem;
   }
 
@@ -3832,15 +3833,19 @@ footer {
 }
 
 /* --- Featured Pro Players (Main menu) --- */
+/* --- Pro Players (Main menu): pro-card styles (map-card-like) --- */
+/* Grid: 4 cards in one row on desktop with tight gap */
 .featured-players-grid {
-  width: 100%;
-  margin-top: 1rem;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
-  gap: 0.85rem;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem !important;
+  align-items: stretch;
+  justify-items: stretch;
 }
 
-.featured-player-card {
+/* Alias old markup class -> new pro-card styling */
+.featured-player-card,
+.pro-card {
   background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.05));
   border-radius: 15px;
   padding: 0;
@@ -3850,17 +3855,13 @@ footer {
   transition: all 0.3s ease;
   position: relative;
   cursor: pointer;
-  width: 300px;
-  height: 330px;
+  width: 200px !important;
+  max-width: none;
+  height: 260px;
 }
 
-.featured-player-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 18px rgba(255, 85, 0, 0.25);
-  border-color: var(--primary-color);
-}
-
-.featured-player-card::before {
+.featured-player-card::before,
+.pro-card::before {
   content: "";
   position: absolute;
   top: 0;
@@ -3872,9 +3873,17 @@ footer {
   z-index: 2;
 }
 
-.featured-player-card-header {
+.featured-player-card:hover,
+.pro-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 85, 0, 0.3);
+  border-color: var(--primary-color);
+}
+
+.featured-player-card-header,
+.pro-card-header {
   background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
-  padding: 0.8rem 1.1rem;
+  padding: 0.9rem 1.1rem;
   font-family: "Orbitron", sans-serif;
   font-weight: 800;
   letter-spacing: 0.8px;
@@ -3882,117 +3891,157 @@ footer {
   text-align: center;
   position: relative;
   z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.featured-player-card-body {
-  padding: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
+.featured-player-card-body,
+.pro-card-body {
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  position: relative !important;
+  z-index: 1 !important;
+  overflow: hidden !important;
 }
 
-.featured-player-photo {
+/* Удаляем все конфликтующие блоки для фотографий */
+.featured-player-photo,
+.pro-card-photo {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 45% !important; /* Смещаем вниз с 40% до 45% */
+  display: block !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: none !important;
+}
+
+/* Disable legacy pro-card photo scaling block that breaks centering/cropping */
+/*
+.featured-player-photo,
+.pro-card-photo {
+  width: 90% !important;
+  height: 90% !important;
+}
+*/
+
+/* FINAL pro-card photo rule: fill body and keep subject centered */
+.featured-player-photo,
+.pro-card-photo {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: 50% 20% !important;
+}
+
+.featured-player-photo,
+.pro-card-photo {
   width: 100%;
+  height: 100%;
   object-fit: cover;
+  object-position: 50% 20%;
   border-radius: 12px;
   border: 1px solid rgba(255, 85, 0, 0.25);
   background: rgba(255, 255, 255, 0.06);
 }
-
-/* --- Featured Pro Players: tighter grid spacing + responsive card sizing --- */
-.featured-players-grid {
-  gap: 0.55rem !important;
-  margin-top: 0.75rem;
+.pro-grid {
+  display: flex;
+  gap: 3rem;
+  background: none;
+  border: none;
+  box-shadow: none;
+  justify-content: center;
+}
+.pro {
+  text-align: center;
 }
 
-.featured-player-card {
-  width: 100% !important; /* remove fixed 300px that creates big gaps */
-  max-width: 260px;
-  height: 300px;
-  justify-self: center;
-}
-
+/* Responsive: keep 4 on wide, 2 on tablet, 1 on mobile */
 @media (max-width: 1024px) {
   .featured-players-grid {
-    gap: 0.5rem !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem !important;
   }
 
-  .featured-player-card {
-    max-width: 240px;
-  }
-}
-
-@media (max-width: 768px) {
-  .featured-players-grid {
-    gap: 0.6rem !important;
-  }
-
-  .featured-player-card {
-    max-width: 320px;
-    height: 300px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .featured-players-grid {
-    grid-template-columns: repeat(3, minmax(190px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .featured-player-photo {
-    height: 130px;
+  .featured-player-card,
+  .pro-card {
+    height: 320px;
   }
 }
 
 @media (max-width: 768px) {
   .featured-players-grid {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 0.75rem !important;
   }
 
-  .featured-player-photo {
-    height: 170px;
+  .featured-player-card,
+  .pro-card {
+    height: 300px;
   }
 }
 
-/* Hide featured pro cards when profile is active (main menu only) */
-body.profile-active #featuredPlayersGrid {
-  display: none !important;
-}
-
-/* --- Featured Pro Players (Main menu): use FLEX instead of GRID --- */
+/* --- FINAL: Pro cards layout + image fit (override conflicting earlier blocks) --- */
 .featured-players-grid {
-  display: flex !important;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 0.55rem !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 0.35rem !important;
+  justify-items: stretch !important;
+  align-items: stretch !important;
 }
 
-/* Cards: fixed basis so spacing is tight and consistent */
-.featured-player-card {
-  flex: 0 1 240px; /* width target */
-  max-width: 260px;
-  width: auto !important;
-  justify-self: auto; /* irrelevant for flex */
+.featured-player-card,
+.pro-card {
+  max-width: none !important;
+  height: 260px !important;
+  overflow: hidden !important;
+}
+
+.featured-player-card-body,
+.pro-card-body {
+  height: calc(100% + 150px) !important;
+  padding: 0 !important;
+  display: flex !important;
+  overflow: hidden !important;
+}
+
+/* ФИНАЛЬНОЕ ПРАВИЛО: центрируем игрока по центру карточки */
+.featured-player-photo,
+.pro-card-photo {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  display: block !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  border-radius: 0 !important;
+  border: none !important;
 }
 
 @media (max-width: 1024px) {
-  .featured-player-card {
-    flex-basis: 220px;
-    max-width: 240px;
+  .featured-players-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.45rem !important;
+  }
+  .featured-player-card,
+  .pro-card {
+    height: 300px !important;
   }
 }
 
 @media (max-width: 768px) {
   .featured-players-grid {
-    gap: 0.6rem !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.55rem !important;
   }
-
-  .featured-player-card {
-    flex-basis: 320px;
-    max-width: 320px;
+  .featured-player-card,
+  .pro-card {
+    height: 300px !important;
   }
 }
