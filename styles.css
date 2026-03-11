@@ -1369,7 +1369,7 @@ footer {
     text-align: center;
     gap: 1.5rem;
     padding: 1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.2rem;
   }
 
   .player-avatar img {
@@ -1863,8 +1863,6 @@ footer {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important; /* Строго 3 колонки */
     grid-template-rows: repeat(2, 1fr) !important; /* Строго 2 ряда */
-    gap: 0.5rem !important; /* Небольшой отступ */
-    padding-top: 1rem !important;
     border-top: 1px solid var(--border-color) !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -3275,11 +3273,8 @@ footer {
   font-weight: bold;
 }
 
-/* Адаптивные стили для мобильных устройств */
 @media (max-width: 768px) {
   .match-item {
-    padding: 1rem;
-    gap: 0.6rem;
     flex-direction: row; /* Оставляем в одну строку даже на мобильных */
     flex-wrap: wrap; /* Разрешаем перенос при необходимости */
   }
