@@ -1432,6 +1432,102 @@ footer {
       opacity: 1;
     }
   }
+
+  /* Управление отображением секций на мобильных */
+  #search {
+    display: block;
+  }
+
+  #results {
+    display: none; /* По умолчанию скрыта */
+  }
+
+  /* Показываем results только когда профиль активен */
+  body.profile-active #search {
+    display: none !important;
+  }
+
+  body.profile-active #results {
+    display: block !important;
+  }
+
+  /* Скрываем карточки про-игроков при активном профиле */
+  body.profile-active .featured-players-grid {
+    display: none !important;
+  }
+
+  /* Pro-grid управление */
+  .pro-grid {
+    display: grid !important;
+    grid-template-areas: "grid grid";
+    gap: 1rem;
+    padding: 0 1rem;
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Скрываем pro-grid когда профиль активен */
+  body.profile-active .pro-grid {
+    display: none !important;
+  }
+
+  /* Карточки про-игроков на мобильных */
+  .featured-players-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem !important;
+    padding: 0 0.5rem;
+  }
+
+  .featured-player-card,
+  .pro-card {
+    height: 280px !important;
+    max-width: 100%;
+    width: 100% !important;
+    margin: 0 auto;
+  }
+
+  .pro-card-header,
+  .featured-player-card-header {
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+  }
+
+  .pro-card-body,
+  .featured-player-card-body {
+    height: calc(100% - 50px) !important;
+  }
+
+  .pro-card-photo,
+  .featured-player-photo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center 30% !important;
+  }
+
+  /* Header и Footer на мобильных */
+  body.profile-active header {
+    display: none !important;
+  }
+
+  body.profile-active footer {
+    display: none !important;
+  }
+
+  /* Улучшение отступов main на мобильных */
+  main {
+    padding: 1rem 0.5rem;
+    width: 100%;
+  }
+
+  /* Секции на мобильных */
+  section {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1455,26 +1551,6 @@ footer {
     white-space: nowrap !important;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  /* переносим фиксированный свитчер визуально в область шапки */
-  .language-switcher-fixed {
-    top: 12px !important;
-    right: 8px !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-  }
-
-  .language-switcher-fixed .lang-btn {
-    padding: 0.34rem 0.5rem;
-    font-size: 0.72rem;
-    line-height: 1;
-  }
-
-  .language-switcher-fixed .lang-btn img {
-    width: 14px;
-    height: 10px;
   }
 }
 
@@ -3834,6 +3910,140 @@ footer {
 
 /* --- Featured Pro Players (Main menu) --- */
 /* --- Pro Players (Main menu): pro-card styles (map-card-like) --- */
+/* Grid: 2 cards in one row on desktop with gap and side margins */
+.featured-players-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 1.5rem !important;
+  max-width: 600px !important;
+  margin: 0 auto !important;
+  padding: 0 2rem !important;
+}
+
+/* Pro card: smaller and more compact */
+.featured-player-card,
+.pro-card {
+  background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.05));
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 85, 0, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  width: 100% !important;
+  max-width: none !important;
+  height: 200px !important;
+}
+
+.featured-player-card::before,
+.pro-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ff5500, #ff7b00);
+  border-radius: 12px 12px 0 0;
+  z-index: 2;
+}
+
+.featured-player-card:hover,
+.pro-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 85, 0, 0.3);
+  border-color: var(--primary-color);
+}
+
+.featured-player-card-header,
+.pro-card-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
+  padding: 0.6rem 0.8rem;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  color: #fff;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.featured-player-card-body,
+.pro-card-body {
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  position: relative !important;
+  z-index: 1 !important;
+  overflow: hidden !important;
+  height: calc(100% - 38px) !important;
+}
+
+.featured-player-photo,
+.pro-card-photo {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 20% !important;
+  display: block !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Responsive: tablet - keep 2 columns */
+@media (max-width: 1024px) {
+  .featured-players-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.2rem !important;
+    max-width: 500px !important;
+    padding: 0 1.5rem !important;
+  }
+
+  .featured-player-card,
+  .pro-card {
+    height: 180px !important;
+  }
+}
+
+/* Mobile: single column */
+@media (max-width: 768px) {
+  .featured-players-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+    max-width: 350px !important;
+    padding: 0 1rem !important;
+  }
+
+  .featured-player-card,
+  .pro-card {
+    height: 220px !important;
+  }
+
+  .pro-card-header,
+  .featured-player-card-header {
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+  }
+
+  .pro-card-body,
+  .featured-player-card-body {
+    height: calc(100% - 45px) !important;
+  }
+
+  .pro-card-photo,
+  .featured-player-photo {
+    object-position: center 25% !important;
+  }
+}
+
+/* --- Pro Players (Main menu): pro-card styles (map-card-like) --- */
 /* Grid: 4 cards in one row on desktop with tight gap */
 .featured-players-grid {
   display: grid !important;
@@ -3916,7 +4126,6 @@ footer {
   display: block !important;
   border-radius: 0 !important;
   border: none !important;
-  background: none !important;
 }
 
 /* Disable legacy pro-card photo scaling block that breaks centering/cropping */
@@ -3975,14 +4184,95 @@ footer {
 }
 
 @media (max-width: 768px) {
+  /* Управление отображением секций на мобильных */
+  #search {
+    display: block !important;
+  }
+
+  #results {
+    display: none !important; /* По умолчанию скрыта */
+  }
+
+  /* Показываем results только когда профиль активен */
+  body.profile-active #search {
+    display: none !important;
+  }
+
+  body.profile-active #results {
+    display: block !important;
+  }
+
+  /* Pro-grid управление */
+  .pro-grid {
+    display: grid;
+    grid-template-areas: "grid grid";
+    gap: 1rem;
+    padding: 0 1rem;
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Скрываем pro-grid когда профиль активен */
+  body.profile-active .pro-grid {
+    display: none !important;
+  }
+
+  /* Карточки про-игроков на мобильных */
   .featured-players-grid {
     grid-template-columns: 1fr;
-    gap: 0.75rem !important;
+    gap: 1rem !important;
+    padding: 0 0.5rem;
   }
 
   .featured-player-card,
   .pro-card {
-    height: 300px;
+    height: 280px !important;
+    max-width: 100%;
+    width: 100% !important;
+    margin: 0 auto;
+  }
+
+  .pro-card-header,
+  .featured-player-card-header {
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+  }
+
+  .pro-card-body,
+  .featured-player-card-body {
+    height: calc(100% - 50px) !important;
+  }
+
+  .pro-card-photo,
+  .featured-player-photo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center 30% !important;
+  }
+
+  /* Header и Footer на мобильных */
+  body.profile-active header {
+    display: none !important;
+  }
+
+  body.profile-active footer {
+    display: none !important;
+  }
+
+  /* Улучшение отступов main на мобильных */
+  main {
+    padding: 1rem 0.5rem;
+    width: 100%;
+  }
+
+  /* Секции на мобильных */
+  section {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 100%;
   }
 }
 
@@ -4042,6 +4332,9 @@ footer {
   }
   .featured-player-card,
   .pro-card {
-    height: 300px !important;
+    height: 210px !important;
+  }
+  .pro-card img {
+    scale: 0.8;
   }
 }
