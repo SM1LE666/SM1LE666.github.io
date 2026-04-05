@@ -684,20 +684,35 @@ class SidebarManager {
                               )}</span>
                               <span class="stat-value">${map.matches}</span>
                             </div>
-                            
                             <div class="map-stat-item">
-                              <i class="fas fa-crosshairs"></i>
-                              <span class="stat-label">K/D</span>
-                              <span class="stat-value">${map.kd}</span>
+                              <i class="fas fa-percentage"></i>
+                              <span class="stat-label">${getText(
+                                "mapWinRate",
+                              )}</span>
+                              <span class="stat-value">${map.winRate.toFixed(
+                                1,
+                              )}%</span>
                             </div>
                           </div>
                           
                           <div class="map-stat-row">
                             <div class="map-stat-item">
-                              <i class="fas fa-skull"></i>
+                              <i class="fas fa-crosshairs"></i>
+                              <span class="stat-label">K/D</span>
+                              <span class="stat-value">${map.kd.toFixed(2)}</span>
+                            </div>
+                            <div class="map-stat-item">
+                              <i class="fas fa-bullseye"></i>
                               <span class="stat-label">${getText(
-                                "killsPerMatch",
+                                "hsPercentage",
                               )}</span>
+                              <span class="stat-value">${map.hs.toFixed(1)}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  });
                               <span class="stat-value">${map.avgKills}</span>
                             </div>
                             
@@ -2567,14 +2582,7 @@ function renderOverviewStats(container) {
       )}</p>
       <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
       <p class="stat-row">${formatStatRow(
-        `${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
-          avgStats.totalKills,
-        )}`,
-      )}</p>
-      <p class="stat-row">${formatStatRow(
-        `${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
-          avgStats.totalDeaths,
-        )}`,
+        `${getText("hsPercentage")}: ${avgStats.avgHs}%`,
       )}</p>
     </div>
     
@@ -2587,13 +2595,16 @@ function renderOverviewStats(container) {
           `${getText("mapName")}: ${mapAnalysis.bestMap.name}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
+          `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
+        )}</p>
+        <p class="stat-row">${formatStatRow(
           `${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
         )}</p>
         <p class="stat-row">${formatStatRow(
           `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
+          `${getText("hsPercentage")}: ${mapAnalysis.bestMap.hs.toFixed(1)}%`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
@@ -2609,6 +2620,9 @@ function renderOverviewStats(container) {
           `${getText("mapName")}: ${mapAnalysis.worstMap.name}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
+          `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
+        )}</p>
+        <p class="stat-row">${formatStatRow(
           `${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
             1,
           )}%`,
@@ -2617,7 +2631,7 @@ function renderOverviewStats(container) {
           `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
+          `${getText("hsPercentage")}: ${mapAnalysis.worstMap.hs.toFixed(1)}%`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
