@@ -45,10 +45,10 @@ const FaceitAPI = (function () {
 
       const url = USE_PROXY
         ? `${PROXY_BASE}/api/player?nickname=${encodeURIComponent(
-            playerNickname
+            playerNickname,
           )}`
         : `${FACEIT_API_URL}/players?nickname=${encodeURIComponent(
-            playerNickname
+            playerNickname,
           )}`;
 
       const response = await fetchWithCORS(url, {
@@ -59,7 +59,7 @@ const FaceitAPI = (function () {
 
       if (!response.ok) {
         throw new Error(
-          `Ошибка API: ${response.status} ${response.statusText}`
+          `Ошибка API: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -82,7 +82,7 @@ const FaceitAPI = (function () {
 
       const url = USE_PROXY
         ? `${PROXY_BASE}/api/stats?playerId=${encodeURIComponent(
-            playerId
+            playerId,
           )}&gameId=${encodeURIComponent(gameId)}`
         : `${FACEIT_API_URL}/players/${playerId}/stats/${gameId}`;
 
@@ -94,7 +94,7 @@ const FaceitAPI = (function () {
 
       if (!response.ok) {
         throw new Error(
-          `Ошибка API: ${response.status} ${response.statusText}`
+          `Ошибка API: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -111,7 +111,7 @@ const FaceitAPI = (function () {
     try {
       const url = USE_PROXY
         ? `${PROXY_BASE}/api/history?playerId=${encodeURIComponent(
-            playerId
+            playerId,
           )}&gameId=${encodeURIComponent(gameId)}&limit=1`
         : `${FACEIT_API_URL}/players/${playerId}/history?game=${gameId}&limit=1`;
 
@@ -155,7 +155,7 @@ const FaceitAPI = (function () {
 
     try {
       const response = await fetch(
-        `https://restcountries.com/v3.1/alpha/${countryCode}`
+        `https://restcountries.com/v3.1/alpha/${countryCode}`,
       );
       if (!response.ok) {
         throw new Error("Не удалось получить данные о стране");
@@ -263,7 +263,7 @@ const FaceitAPI = (function () {
       const totalMatches = parseInt(lifetime["Total Matches"] || "0", 10);
       const totalKills = parseInt(
         lifetime["Total Kills with extended stats"] || "0",
-        10
+        10,
       );
 
       // Используем Average K/D Ratio (правильный K/D)
@@ -284,6 +284,10 @@ const FaceitAPI = (function () {
       const avgDeaths =
         totalMatches > 0 ? (totalDeaths / totalMatches).toFixed(1) : "0.0";
 
+      const headshotPercentage = parseFloat(
+        lifetime["Average Headshots %"] || "0",
+      );
+
       return {
         totalMatches,
         totalKills,
@@ -291,6 +295,7 @@ const FaceitAPI = (function () {
         kd,
         avgKills,
         avgDeaths,
+        headshotPercentage,
       };
     } catch (error) {
       console.error("Ошибка при расчете средних показателей:", error);
@@ -301,6 +306,7 @@ const FaceitAPI = (function () {
         kd: "0.00",
         avgKills: "0.0",
         avgDeaths: "0.0",
+        headshotPercentage: 0,
       };
     }
   }
@@ -314,7 +320,7 @@ const FaceitAPI = (function () {
       let validMaps;
       if (ignoreMinMatches) {
         validMaps = segments.filter(
-          (segment) => segment.label && segment.stats
+          (segment) => segment.label && segment.stats,
         );
       } else {
         const MIN_MATCHES = gameId === "cs2" ? 5 : 3;
@@ -323,7 +329,7 @@ const FaceitAPI = (function () {
             segment.stats?.["Matches"] ||
               segment.stats?.["Total Matches"] ||
               "0",
-            10
+            10,
           );
           return matches >= MIN_MATCHES;
         });
@@ -336,7 +342,7 @@ const FaceitAPI = (function () {
         const mapName = segment.label || "Неизвестная карта";
         const matches = parseInt(
           segment.stats?.["Matches"] || segment.stats?.["Total Matches"] || "0",
-          10
+          10,
         );
         const winRate = parseFloat(segment.stats?.["Win Rate %"] || "0");
 
@@ -346,13 +352,13 @@ const FaceitAPI = (function () {
             segment.stats?.["Total Kills"] ||
             segment.stats?.["Total Kills with extended stats"] ||
             "0",
-          10
+          10,
         );
 
         // Пытаемся получить смерти или вычислить их через K/D
         let deaths = parseInt(
           segment.stats?.["Deaths"] || segment.stats?.["Total Deaths"] || "0",
-          10
+          10,
         );
 
         // Если смертей нет, но есть K/D, вычисляем смерти
@@ -360,7 +366,7 @@ const FaceitAPI = (function () {
           const segmentKD = parseFloat(
             segment.stats?.["K/D Ratio"] ||
               segment.stats?.["Average K/D Ratio"] ||
-              "0"
+              "0",
           );
           if (segmentKD > 0) {
             deaths = Math.round(kills / segmentKD);
@@ -369,6 +375,9 @@ const FaceitAPI = (function () {
 
         const kd = deaths > 0 ? kills / deaths : kills > 0 ? kills : 0;
         const avgKills = matches > 0 ? kills / matches : 0;
+        const headshotPercentage = parseFloat(
+          segment.stats?.["Average Headshots %"] || "0",
+        );
 
         // Комплексная формула оценки карты (0-100) с учетом специфики игры
         const mapScore = calculateMapScore(
@@ -376,7 +385,7 @@ const FaceitAPI = (function () {
           kd,
           avgKills,
           matches,
-          gameId
+          gameId,
         );
 
         return {
@@ -387,6 +396,7 @@ const FaceitAPI = (function () {
           deaths,
           kd,
           avgKills,
+          headshotPercentage,
           score: mapScore, // Добавляем общую оценку
         };
       });
@@ -493,7 +503,7 @@ const FaceitAPI = (function () {
   // Функция для использования публичного CORS прокси
   async function fetchWithProxy(url, options = {}) {
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(
-      url
+      url,
     )}`;
 
     try {
@@ -529,7 +539,7 @@ const FaceitAPI = (function () {
             segment.stats?.["Matches"] ||
               segment.stats?.["Total Matches"] ||
               "0",
-            10
+            10,
           );
 
           const winRate = parseFloat(segment.stats?.["Win Rate %"] || "0");
@@ -538,12 +548,12 @@ const FaceitAPI = (function () {
               segment.stats?.["Total Kills"] ||
               segment.stats?.["Total Kills with extended stats"] ||
               "0",
-            10
+            10,
           );
 
           const deaths = parseInt(
             segment.stats?.["Deaths"] || segment.stats?.["Total Deaths"] || "0",
-            10
+            10,
           );
 
           // Добавляем ADR (средний урон в раунде)
@@ -551,7 +561,7 @@ const FaceitAPI = (function () {
             segment.stats?.["Average Damage per Round"] ||
               segment.stats?.["ADR"] ||
               segment.stats?.["Damage/Round"] ||
-              "0"
+              "0",
           );
 
           // Получаем количество выигранных клатчей - упрощенная версия

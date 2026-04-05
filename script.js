@@ -293,13 +293,13 @@ class SidebarManager {
       const statsContainer = document.querySelector(".stats-container");
       if (statsContainer) {
         statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-          "loadingMatchHistory"
+          "loadingMatchHistory",
         )}</div>`;
       }
 
       // Загружаем все матчи игрока (через прокси)
       const historyUrl = `/api/history?playerId=${encodeURIComponent(
-        String(playerId)
+        String(playerId),
       )}&gameId=cs2&limit=2000`;
 
       const response = await fetch(historyUrl, {
@@ -327,14 +327,14 @@ class SidebarManager {
       console.log(
         `Загружено ${data.items.length} матчей из ${
           data.total || data.items.length
-        } доступных`
+        } доступных`,
       );
       this.totalMatches = data.total || data.items.length;
 
       // Показываем индикатор обработки с переводом
       if (statsContainer) {
         statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-          "processingMatches"
+          "processingMatches",
         )}</div>`;
       }
 
@@ -348,22 +348,22 @@ class SidebarManager {
               stats,
               playerId,
               index,
-              this.totalMatches
+              this.totalMatches,
             );
           } catch (error) {
             console.error(
               `Error fetching stats for match ${match.match_id}:`,
-              error
+              error,
             );
             return this.formatMatchData(
               match,
               null,
               playerId,
               index,
-              this.totalMatches
+              this.totalMatches,
             );
           }
-        })
+        }),
       );
 
       // Сохраняем все матчи
@@ -390,7 +390,7 @@ class SidebarManager {
       try {
         // Fetch match-room statistics via serverless proxy
         const url = `/api/match-stats?matchId=${encodeURIComponent(
-          String(matchId)
+          String(matchId),
         )}`;
 
         const response = await fetch(url, {
@@ -426,7 +426,7 @@ class SidebarManager {
         let playerStats = {};
         for (const team of round.teams || []) {
           const player = (team.players || []).find(
-            (p) => p.player_id === playerId
+            (p) => p.player_id === playerId,
           );
           if (player) {
             playerStats = player.player_stats || {};
@@ -534,9 +534,6 @@ class SidebarManager {
 
           if (search) search.style.display = "none";
 
-          // Генерируем HTML для обзора с актуальными переводами
-          renderOverviewStats(statsContainer);
-
           // Восстанавливаем оригинальные стили
           playerCard.style.display = "block";
           playerHeader.style.display = "flex";
@@ -563,7 +560,7 @@ class SidebarManager {
         case "matches": {
           // Показываем индикатор загрузки с переводом
           statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-            "loadingMatchHistory"
+            "loadingMatchHistory",
           )}</div>`;
           statsContainer.style.display = "block";
 
@@ -589,7 +586,7 @@ class SidebarManager {
         case "maps": {
           // Показываем индикатор загрузки
           statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-            "loadingMaps"
+            "loadingMaps",
           )}</div>`;
           statsContainer.style.display = "block";
 
@@ -680,7 +677,7 @@ class SidebarManager {
                             <div class="map-stat-item">
                               <i class="fas fa-gamepad"></i>
                               <span class="stat-label">${getText(
-                                "mapMatches"
+                                "mapMatches",
                               )}</span>
                               <span class="stat-value">${map.matches}</span>
                             </div>
@@ -696,7 +693,7 @@ class SidebarManager {
                             <div class="map-stat-item">
                               <i class="fas fa-skull"></i>
                               <span class="stat-label">${getText(
-                                "killsPerMatch"
+                                "killsPerMatch",
                               )}</span>
                               <span class="stat-value">${map.avgKills}</span>
                             </div>
@@ -704,10 +701,10 @@ class SidebarManager {
                             <div class="map-stat-item">
                               <i class="fas fa-trophy"></i>
                               <span class="stat-label">${getText(
-                                "mapWinRate"
+                                "mapWinRate",
                               )}</span>
                               <span class="stat-value">${map.winRate.toFixed(
-                                1
+                                1,
                               )}%</span>
                             </div>
                           </div>
@@ -722,7 +719,7 @@ class SidebarManager {
                             <div class="map-stat-item">
                               <i class="fas fa-star"></i>
                               <span class="stat-label">${getText(
-                                "clutches"
+                                "clutches",
                               )}</span>
                               <span class="stat-value">${map.clutches}</span>
                             </div>
@@ -734,15 +731,15 @@ class SidebarManager {
                             ${
                               map.winRate >= 55
                                 ? `<i class="fas fa-arrow-up"></i> ${getText(
-                                    "excellentMap"
+                                    "excellentMap",
                                   )}`
                                 : map.winRate >= 40
-                                ? `<i class="fas fa-minus"></i> ${getText(
-                                    "averageMap"
-                                  )}`
-                                : `<i class="fas fa-arrow-down"></i> ${getText(
-                                    "poorMap"
-                                  )}`
+                                  ? `<i class="fas fa-minus"></i> ${getText(
+                                      "averageMap",
+                                    )}`
+                                  : `<i class="fas fa-arrow-down"></i> ${getText(
+                                      "poorMap",
+                                    )}`
                             }
                           </div>
                         </div>
@@ -760,7 +757,7 @@ class SidebarManager {
                   const mapAnalysis = window.FaceitAPI.analyzeMaps(
                     segments,
                     "cs2",
-                    true
+                    true,
                   );
 
                   if (
@@ -791,7 +788,7 @@ class SidebarManager {
                     statsContainer.innerHTML = html;
                   } else {
                     statsContainer.innerHTML = `<p>${getText(
-                      "notEnoughData"
+                      "notEnoughData",
                     )}</p>`;
                   }
                 }
@@ -847,8 +844,8 @@ class SidebarManager {
           match.deaths > 0
             ? (match.kills / match.deaths).toFixed(2)
             : match.kills > 0
-            ? "∞"
-            : "0.00";
+              ? "∞"
+              : "0.00";
 
         let matchUrl = "";
         if (match.matchId && match.matchId.startsWith("1-")) {
@@ -948,7 +945,7 @@ class SidebarManager {
     const showMoreContainer = document.querySelector(".show-more-container");
     if (showMoreContainer) {
       showMoreContainer.innerHTML = `<div class="loading-indicator small"><i class="fas fa-spinner fa-spin"></i> ${getText(
-        "processingMatches"
+        "processingMatches",
       )}</div>`;
     }
 
@@ -1273,7 +1270,7 @@ document.addEventListener(
 
     trackEvent("click", { label });
   },
-  { passive: true }
+  { passive: true },
 );
 
 // Функция для получения текущего языка
@@ -1322,6 +1319,7 @@ const translations = {
     deathsPerMatch: "Avg. Deaths",
     totalKills: "Kills",
     totalDeaths: "Deaths",
+    headshotPercentage: "Headshots %",
 
     // Maps
     bestMapTitle: "Best Map",
@@ -1463,7 +1461,7 @@ function updateReactionTestTexts() {
   const modalTitle = document.querySelector("#reactionTestModal h2");
   if (modalTitle) {
     modalTitle.innerHTML = `<i class="fas fa-bolt"></i> ${getText(
-      "reactionTest"
+      "reactionTest",
     )}`;
   }
 
@@ -1479,20 +1477,20 @@ function updateReactionTestTexts() {
     const startButton = document.getElementById("startReactionTest");
     if (startButton) {
       startButton.innerHTML = `<i class="fas fa-play"></i> ${getText(
-        "startTest"
+        "startTest",
       )}`;
     }
   }
 
   const waitingScreen = document.querySelector(
-    "#reactionWaiting .reaction-screen p"
+    "#reactionWaiting .reaction-screen p",
   );
   if (waitingScreen) {
     waitingScreen.textContent = getText("reactionWait");
   }
 
   const readyScreen = document.querySelector(
-    "#reactionReady .reaction-screen p"
+    "#reactionReady .reaction-screen p",
   );
   if (readyScreen) {
     readyScreen.textContent = getText("reactionClickNow");
@@ -1516,7 +1514,7 @@ function updateReactionTestTexts() {
   const retryButton = document.getElementById("retryReactionTest");
   if (retryButton) {
     retryButton.innerHTML = `<i class="fas fa-redo"></i> ${getText(
-      "reactionRetryTest"
+      "reactionRetryTest",
     )}`;
   }
 
@@ -1533,7 +1531,7 @@ function updateReactionTestTexts() {
   const restartButton = document.getElementById("restartReactionTest");
   if (restartButton) {
     restartButton.innerHTML = `<i class="fas fa-redo"></i> ${getText(
-      "reactionTryAgain"
+      "reactionTryAgain",
     )}`;
   }
 }
@@ -1567,14 +1565,14 @@ function updatePageTexts() {
   const searchTitle = document.querySelector("#search h2");
   if (searchTitle) {
     searchTitle.innerHTML = `<i class="fas fa-search"></i> ${getText(
-      "searchTitle"
+      "searchTitle",
     )}`;
   }
 
   const resultsTitle = document.querySelector("#results h2");
   if (resultsTitle) {
     resultsTitle.innerHTML = `<i class="fas fa-trophy"></i> ${getText(
-      "resultsTitle"
+      "resultsTitle",
     )}`;
   }
 
@@ -1611,21 +1609,21 @@ function updatePageTexts() {
   const supportBtn = document.querySelector(".support-btn");
   if (supportBtn) {
     supportBtn.innerHTML = `<i class="fas fa-heart"></i> ${getText(
-      "supportUs"
+      "supportUs",
     )}`;
   }
 
   const contactBtn = document.querySelector(".contact-btn");
   if (contactBtn) {
     contactBtn.innerHTML = `<i class="fas fa-envelope"></i> ${getText(
-      "contactUs"
+      "contactUs",
     )}`;
   }
 
   const reactionBtn = document.getElementById("reactionTestBtn");
   if (reactionBtn) {
     reactionBtn.innerHTML = `<i class='fas fa-bolt'></i> ${getText(
-      "reactionTest"
+      "reactionTest",
     )}`;
   }
 
@@ -1641,7 +1639,7 @@ function updatePageTexts() {
 // Функция для обновления текстов в сайдбаре
 function updateSidebarTexts() {
   const sidebarItems = document.querySelectorAll(
-    ".sidebar-item span[data-translate]"
+    ".sidebar-item span[data-translate]",
   );
   sidebarItems.forEach((span) => {
     const translateKey = span.dataset.translate;
@@ -1661,7 +1659,7 @@ function updateDrawerTexts() {
 
   // Находим все переводимые элементы в шторке (заголовок и пункты меню)
   const translatableElements = drawer.querySelectorAll(
-    ".drawer-title[data-translate], .drawer-item span[data-translate]"
+    ".drawer-title[data-translate], .drawer-item span[data-translate]",
   );
   translatableElements.forEach((element) => {
     const translateKey = element.dataset.translate;
@@ -1677,14 +1675,14 @@ function updateModalTexts() {
   const supportModalTitle = document.querySelector("#supportModal h2");
   if (supportModalTitle) {
     supportModalTitle.innerHTML = `<i class="fas fa-heart"></i> ${getText(
-      "supportTitle"
+      "supportTitle",
     )}`;
   }
 
   const steamLink = document.querySelector(".steam-support");
   if (steamLink) {
     steamLink.innerHTML = `<i class="fab fa-steam"></i> ${getText(
-      "steamTradeOffer"
+      "steamTradeOffer",
     )}`;
   }
 
@@ -1705,13 +1703,13 @@ function updateModalTexts() {
   const contactModalTitle = document.querySelector("#contactModal h2");
   if (contactModalTitle) {
     contactModalTitle.innerHTML = `<i class="fas fa-envelope"></i> ${getText(
-      "contactTitle"
+      "contactTitle",
     )}`;
   }
 
   // Исправляем селектор для contactDescription
   const contactDescription = document.querySelector(
-    "#contactModal .modal-content > p"
+    "#contactModal .modal-content > p",
   );
   if (contactDescription) {
     contactDescription.textContent = getText("contactDescription");
@@ -1751,7 +1749,7 @@ function updateModalTexts() {
   const submitBtn = document.querySelector(".submit-btn");
   if (submitBtn) {
     submitBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${getText(
-      "sendMessage"
+      "sendMessage",
     )}`;
   }
 }
@@ -1818,7 +1816,7 @@ function updatePlayerStatsTexts() {
     if (index === 0) {
       // Блок средней статистики
       h3.innerHTML = `<i class="fas fa-chart-line"></i> ${getText(
-        "avgStatsTitle"
+        "avgStatsTitle",
       )}`;
 
       // Обновляем текст параграфов внутри
@@ -1832,7 +1830,7 @@ function updatePlayerStatsTexts() {
           const killsPerMatchValue = text.split(":")[1]?.trim();
           if (killsPerMatchValue) {
             p.textContent = `${getText(
-              "killsPerMatch"
+              "killsPerMatch",
             )}: ${killsPerMatchValue}`;
           }
         } else if (
@@ -1842,7 +1840,7 @@ function updatePlayerStatsTexts() {
           const deathsPerMatchValue = text.split(":")[1]?.trim();
           if (deathsPerMatchValue) {
             p.textContent = `${getText(
-              "deathsPerMatch"
+              "deathsPerMatch",
             )}: ${deathsPerMatchValue}`;
           }
         } else if (
@@ -1895,7 +1893,7 @@ function updatePlayerStatsTexts() {
       });
     } else if (index === 2) {
       h3.innerHTML = `<i class="fas fa-map-marked-alt"></i> ${getText(
-        "worstMapTitle"
+        "worstMapTitle",
       )}`;
 
       // Обновляем текст параграфов внутри
@@ -2256,7 +2254,7 @@ function isSteamInput(value) {
 
 async function resolveFaceitPlayerFromSteam(steamInput) {
   const url = `/api/faceit-by-steam?steam=${encodeURIComponent(
-    String(steamInput).trim()
+    String(steamInput).trim(),
   )}`;
   const r = await fetch(url, { headers: { Accept: "application/json" } });
   const data = await r.json().catch(() => null);
@@ -2332,7 +2330,7 @@ async function analyzePlayer() {
     const statsData = await window.FaceitAPI.getStatsData(
       playerData.player_id,
       gameId,
-      apiKey
+      apiKey,
     );
 
     // DEBUG: выводим statsData после получения статистики игрокца
@@ -2342,12 +2340,12 @@ async function analyzePlayer() {
     const currentElo = await window.FaceitAPI.getCurrentElo(
       playerData.player_id,
       gameId,
-      playerData.games?.[gameId]?.faceit_elo || 0
+      playerData.games?.[gameId]?.faceit_elo || 0,
     );
 
     // Получаем название страны
     const countryName = await window.FaceitAPI.getCountryName(
-      playerData.country
+      playerData.country,
     );
 
     // Обрабатываем статистику
@@ -2357,7 +2355,7 @@ async function analyzePlayer() {
     const avgStats = window.FaceitAPI.calculateAvgStats(
       lifetime,
       segments,
-      gameId
+      gameId,
     );
     const mapAnalysis = window.FaceitAPI.analyzeMaps(segments, gameId);
 
@@ -2392,8 +2390,8 @@ async function analyzePlayer() {
       <div class="player-header">
         <div class="player-avatar">
           <img src="${playerData.avatar || ".png"}" alt="${
-      playerData.nickname
-    }" onerror="this.src='logooo.png'">
+            playerData.nickname
+          }" onerror="this.src='logooo.png'">
         </div>
         <div class="player-info">
           <h2>${playerData.nickname}</h2>
@@ -2403,16 +2401,16 @@ async function analyzePlayer() {
             const faceitLevel = playerData.games?.[gameId]?.skill_level;
             if (faceitLevel) {
               return `<p>${getText(
-                "level"
+                "level",
               )}: <span style="color: #FF4500; font-family: 'Roboto', sans-serif;">${"⭐".repeat(
-                faceitLevel
+                faceitLevel,
               )}</span></p>`;
             }
             return `<p>${getText("level")}: N/A</p>`;
           })()}
           <p>${getText("matches")}: ${window.FaceitAPI.formatNumber(
-      avgStats.totalMatches
-    )}</p>
+            avgStats.totalMatches,
+          )}</p>
           <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
           <img 
             src="faceit.png" 
@@ -2431,24 +2429,17 @@ async function analyzePlayer() {
         <div class="stats-container">
           <div class="stats-box slide-in-animation">
             <h3><i class="fas fa-chart-line"></i> ${getText(
-              "avgStatsTitle"
+              "avgStatsTitle",
             )}</h3>
             <p class="stat-row">${formatStatRow(
-              `${getText("killsPerMatch")}: ${avgStats.avgKills}`
+              `${getText("killsPerMatch")}: ${avgStats.avgKills}`,
             )}</p>
             <p class="stat-row">${formatStatRow(
-              `${getText("deathsPerMatch")}: ${avgStats.avgDeaths}`
+              `${getText("deathsPerMatch")}: ${avgStats.avgDeaths}`,
             )}</p>
             <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
             <p class="stat-row">${formatStatRow(
-              `${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
-                avgStats.totalKills
-              )}`
-            )}</p>
-            <p class="stat-row">${formatStatRow(
-              `${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
-                avgStats.totalDeaths
-              )}`
+              `${getText("headshotPercentage")}: ${avgStats.headshotPercentage}%`,
             )}</p>
           </div>
           
@@ -2458,18 +2449,23 @@ async function analyzePlayer() {
               mapAnalysis.bestMap
                 ? `
               <p class="stat-row">${formatStatRow(
-                `${getText("mapName")}: ${mapAnalysis.bestMap.name}`
+                `${getText("mapName")}: ${mapAnalysis.bestMap.name}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
                 `${getText(
-                  "mapWinRate"
-                )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`
+                  "mapWinRate",
+                )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`
+                `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`
+                `${getText("headshotPercentage")}: ${
+                  mapAnalysis.bestMap.headshotPercentage
+                }%`,
+              )}</p>
+              <p class="stat-row">${formatStatRow(
+                `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
               )}</p>
             `
                 : `<p>${getText("notEnoughData")}</p>`
@@ -2478,24 +2474,29 @@ async function analyzePlayer() {
           
           <div class="stats-box slide-in-animation">
             <h3><i class="fas fa-map-marked-alt"></i> ${getText(
-              "worstMapTitle"
+              "worstMapTitle",
             )}</h3>
             ${
               mapAnalysis.worstMap
                 ? `
               <p class="stat-row">${formatStatRow(
-                `${getText("mapName")}: ${mapAnalysis.worstMap.name}`
+                `${getText("mapName")}: ${mapAnalysis.worstMap.name}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
                 `${getText(
-                  "mapWinRate"
-                )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%`
+                  "mapWinRate",
+                )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`
+                `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`
+                `${getText("headshotPercentage")}: ${
+                  mapAnalysis.worstMap.headshotPercentage
+                }%`,
+              )}</p>
+              <p class="stat-row">${formatStatRow(
+                `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
               )}</p>
             `
                 : `<p>${getText("notEnoughData")}</p>`
@@ -2566,21 +2567,21 @@ function renderOverviewStats(container) {
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
       <p class="stat-row">${formatStatRow(
-        `${getText("killsPerMatch")}: ${avgStats.avgKills}`
+        `${getText("killsPerMatch")}: ${avgStats.avgKills}`,
       )}</p>
       <p class="stat-row">${formatStatRow(
-        `${getText("deathsPerMatch")}: ${avgStats.avgDeaths}`
+        `${getText("deathsPerMatch")}: ${avgStats.avgDeaths}`,
       )}</p>
       <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
       <p class="stat-row">${formatStatRow(
         `${getText("totalKills")}: ${window.FaceitAPI.formatNumber(
-          avgStats.totalKills
-        )}`
+          avgStats.totalKills,
+        )}`,
       )}</p>
       <p class="stat-row">${formatStatRow(
         `${getText("totalDeaths")}: ${window.FaceitAPI.formatNumber(
-          avgStats.totalDeaths
-        )}`
+          avgStats.totalDeaths,
+        )}`,
       )}</p>
     </div>
     
@@ -2590,16 +2591,16 @@ function renderOverviewStats(container) {
         mapAnalysis.bestMap
           ? `
         <p class="stat-row">${formatStatRow(
-          `${getText("mapName")}: ${mapAnalysis.bestMap.name}`
+          `${getText("mapName")}: ${mapAnalysis.bestMap.name}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`
+          `${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`
+          `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`
+          `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
@@ -2612,18 +2613,18 @@ function renderOverviewStats(container) {
         mapAnalysis.worstMap
           ? `
         <p class="stat-row">${formatStatRow(
-          `${getText("mapName")}: ${mapAnalysis.worstMap.name}`
+          `${getText("mapName")}: ${mapAnalysis.worstMap.name}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
           `${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
-            1
-          )}%`
+            1,
+          )}%`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`
+          `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`
+          `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
@@ -2768,7 +2769,7 @@ function startReactionTest() {
       console.log(
         "Задержка планирования:",
         reactionTest.startTime - reactionTest.scheduledTime,
-        "мс"
+        "мс",
       );
     });
   }, reactionTest.delay);
@@ -2864,12 +2865,12 @@ function sendMessage(event) {
   // Создаем тело письма (URL-encoded)
   const emailBody = encodeURIComponent(
     `${getText("yourName")}: ${name}\n${getText(
-      "email"
-    )}: ${email}\n\n${getText("message")}:\n${message}`
+      "email",
+    )}: ${email}\n\n${getText("message")}:\n${message}`,
   );
 
   const mailtoLink = `mailto:contact@faceit-analyze.com?subject=${encodeURIComponent(
-    finalSubject
+    finalSubject,
   )}&body=${emailBody}`;
 
   // На Windows/Chrome window.location/mailto иногда ведет к системному выбору приложений.
@@ -2883,7 +2884,7 @@ function sendMessage(event) {
     a.remove();
 
     alert(
-      "Your email app should open now. If nothing happens, configure a default mail app for mailto: links in Windows (Default apps → Email) or use the address contact@faceit-analyze.com."
+      "Your email app should open now. If nothing happens, configure a default mail app for mailto: links in Windows (Default apps → Email) or use the address contact@faceit-analyze.com.",
     );
 
     // Не закрываем окно моментально — пусть пользователь увидит подсказку/сможет повторить
@@ -2892,7 +2893,7 @@ function sendMessage(event) {
   } catch (e) {
     console.error("Failed to open mail client:", e);
     alert(
-      "Could not open your email app. Please email us at contact@faceit-analyze.com."
+      "Could not open your email app. Please email us at contact@faceit-analyze.com.",
     );
   }
 }
@@ -2914,7 +2915,7 @@ function checkFaceitAPI() {
     "formatNumber",
   ];
   const missingMethods = requiredMethods.filter(
-    (method) => typeof window.FaceitAPI[method] !== "function"
+    (method) => typeof window.FaceitAPI[method] !== "function",
   );
 
   if (missingMethods.length > 0) {
