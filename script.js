@@ -314,64 +314,51 @@ class SidebarManager {
       }
 
       const data = await response.json();
-
       if (!data || !data.items || data.items.length === 0) {
-        console.warn("No match history found for the player.");
-        const statsContainer = document.querySelector(".stats-container");
-        if (statsContainer) {
-          statsContainer.innerHTML = `<p class=\"api-error-text\">No match history available for this player.</p>`;
-        }
+        this.currentMatches = [];
+        this.allMatchesLoaded = true;
         return;
       }
 
-      console.log(
-        `Загружено ${data.items.length} матчей из ${
-          data.total || data.items.length
-        } доступных`,
-      );
-      this.totalMatches = data.total || data.items.length;
-
-      // Показываем индикатор обработки с переводом
-      if (statsContainer) {
-        statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-          "processingMatches",
-        )}</div>`;
-      }
-
-      // Получение детальной статистики для каждого матча
-      const matches = await Promise.all(
-        data.items.map(async (match, index) => {
-          try {
-            const stats = await this.fetchMatchStats(match.match_id, playerId);
-            return this.formatMatchData(
-              match,
-              stats,
-              playerId,
-              index,
-              this.totalMatches,
-            );
-          } catch (error) {
-            console.error(
-              `Error fetching stats for match ${match.match_id}:`,
-              error,
-            );
-            return this.formatMatchData(
-              match,
-              null,
-              playerId,
-              index,
-              this.totalMatches,
-            );
+      // NEW LOGIC: Process matches directly from history data
+      const matches = data.items
+        .map((match) => {
+          const stats = match.stats; // Use stats from history endpoint
+          if (!stats) {
+            return { result: "Error", reason: "No stats in history item" };
           }
-        }),
-      );
 
-      // Сохраняем все матчи
+          const playerTeam = match.teams.find((team) =>
+            team.players.some((p) => p.player_id === playerId),
+          );
+          const playerTeamStats = playerTeam?.stats;
+          const isWinner = playerTeamStats?.team_stats.team_win === "1";
+
+          const kd =
+            parseFloat(stats.deaths) > 0
+              ? parseFloat(stats.kills) / parseFloat(stats.deaths)
+              : parseFloat(stats.kills);
+
+          return {
+            matchId: match.match_id,
+            date: match.started_at * 1000,
+            map: stats.map,
+            score: playerTeamStats?.team_stats.final_score || "N/A",
+            result: isWinner ? "Win" : "Loss",
+            kills: parseInt(stats.kills, 10),
+            assists: parseInt(stats.assists, 10),
+            deaths: parseInt(stats.deaths, 10),
+            hs: parseInt(stats.headshots, 10),
+            hsPercentage: parseFloat(stats.headshots_percentage),
+            mvps: parseInt(stats.mvps, 10),
+            kd: kd,
+            kdd: parseInt(stats.kills, 10) - parseInt(stats.deaths, 10),
+          };
+        })
+        .filter((m) => m.result !== "Error");
+
       this.currentMatches = matches;
-      console.log(`Обработано ${matches.length} матчей для отображения`);
-
-      // Отображаем историю матчей
-      this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
+      this.allMatchesLoaded = true;
     } catch (error) {
       console.error("Error fetching match history:", error);
       const statsContainer = document.querySelector(".stats-container");
