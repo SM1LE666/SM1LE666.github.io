@@ -816,6 +816,212 @@ class SidebarManager {
     }, 150);
   }
 
+  async showRecordsView(statsContainer, playerHeader) {
+    statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+      "loadingMatchHistory",
+    )}</div>`;
+    statsContainer.style.display = "block";
+
+    if (playerHeader) {
+      playerHeader.style.display = "flex";
+      // ... (playerHeader styling)
+    }
+
+    // Load all matches if not already loaded
+    if (!this.allMatchesLoaded) {
+      await this.loadAllMatchesForRecords();
+    }
+
+    // Render the records view with sorting options
+    this.renderRecords();
+  }
+
+  async loadAllMatchesForRecords() {
+    try {
+      const playerId = window.currentPlayerData?.player_id;
+      if (!playerId) {
+        console.error("Player ID is not available for records.");
+        return;
+      }
+
+      if (this.allMatchesLoaded) {
+        return;
+      }
+
+      const historyUrl = `/api/history?playerId=${encodeURIComponent(
+        String(playerId),
+      )}&gameId=cs2&limit=2000`;
+      const response = await fetch(historyUrl, {
+        headers: { Accept: "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch match history for records.");
+      }
+
+      const data = await response.json();
+      if (!data || !data.items || data.items.length === 0) {
+        this.currentMatches = [];
+        this.allMatchesLoaded = true;
+        return;
+      }
+
+      const matches = await Promise.all(
+        data.items.map(async (match, index) => {
+          try {
+            const stats = await this.fetchMatchStats(match.match_id, playerId);
+            const formattedMatch = this.formatMatchData(
+              match,
+              stats,
+              playerId,
+              index,
+              data.total || data.items.length,
+            );
+            // Add K/D difference for sorting
+            if (formattedMatch.result !== "Error") {
+              formattedMatch.kdd = formattedMatch.kills - formattedMatch.deaths;
+            }
+            return formattedMatch;
+          } catch (error) {
+            const formattedMatch = this.formatMatchData(
+              match,
+              null,
+              playerId,
+              index,
+              data.total || data.items.length,
+            );
+            formattedMatch.kdd = 0;
+            return formattedMatch;
+          }
+        }),
+      );
+
+      this.currentMatches = matches.filter((m) => m.result !== "Error");
+      this.allMatchesLoaded = true;
+    } catch (error) {
+      console.error("Error loading all matches for records:", error);
+      const statsContainer = document.querySelector(".stats-container");
+      if (statsContainer) {
+        statsContainer.innerHTML = `<p class="api-error-text">${error.message}</p>`;
+      }
+    }
+  }
+
+  bubbleSort(arr, key) {
+    const n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+      for (let j = 0; j < n - i - 1; j++) {
+        if (arr[j][key] < arr[j + 1][key]) {
+          [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        }
+      }
+    }
+    return arr;
+  }
+
+  renderRecords() {
+    const statsContainer = document.querySelector(".stats-container");
+    if (!this.currentMatches || this.currentMatches.length === 0) {
+      statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+      return;
+    }
+
+    const sortCriteria = [
+      { key: "kills", label: "Most Kills" },
+      { key: "kd", label: "Best K/D" },
+      { key: "mvps", label: "Most MVPs" },
+      { key: "kdd", label: "Best K-D Diff" },
+    ];
+
+    let buttonsHtml = '<div class="records-controls">';
+    sortCriteria.forEach((criterion) => {
+      buttonsHtml += `<button class="record-sort-btn" data-sort-key="${criterion.key}">${criterion.label}</button>`;
+    });
+    buttonsHtml += "</div>";
+
+    const recordsContentHtml = '<div id="records-display"></div>';
+
+    statsContainer.innerHTML = `
+      <div class="records-container">
+        ${buttonsHtml}
+        ${recordsContentHtml}
+      </div>
+    `;
+
+    const buttons = statsContainer.querySelectorAll(".record-sort-btn");
+    buttons.forEach((button) => {
+      button.addEventListener("click", (e) => {
+        buttons.forEach((btn) => btn.classList.remove("active"));
+        e.target.classList.add("active");
+        const sortKey = e.target.getAttribute("data-sort-key");
+        this.displaySortedRecords(sortKey);
+      });
+    });
+
+    // Set default view
+    const defaultButton = statsContainer.querySelector(
+      '.record-sort-btn[data-sort-key="kills"]',
+    );
+    if (defaultButton) {
+      defaultButton.classList.add("active");
+      this.displaySortedRecords("kills");
+    }
+  }
+
+  displaySortedRecords(sortKey) {
+    const displayContainer = document.getElementById("records-display");
+    if (!displayContainer) return;
+
+    displayContainer.innerHTML = `<div class="loading-indicator small"><i class="fas fa-spinner fa-spin"></i> Sorting...</div>`;
+
+    setTimeout(() => {
+      const matchesToSort = [...this.currentMatches].filter(
+        (m) => m[sortKey] !== undefined,
+      );
+
+      // Using the requested bubble sort
+      const sortedMatches = this.bubbleSort(matchesToSort, sortKey);
+
+      const top5 = sortedMatches.slice(0, 5);
+
+      let listHtml = '<div class="record-list">';
+      if (top5.length > 0) {
+        top5.forEach((match) => {
+          listHtml += this.formatRecordMatch(match, sortKey);
+        });
+      } else {
+        listHtml += `<p class="no-records">${getText("notEnoughData")}</p>`;
+      }
+      listHtml += "</div>";
+
+      displayContainer.innerHTML = listHtml;
+    }, 50); // Small delay for UI feedback
+  }
+
+  formatRecordMatch(match, recordKey) {
+    const mapName = match.map;
+    const score = match.score;
+    const date = new Date(match.date).toLocaleDateString();
+    const value = match[recordKey];
+    const resultClass = match.result === "Win" ? "result-win" : "result-loss";
+
+    let displayValue = value;
+    if (typeof value === "number" && !Number.isInteger(value)) {
+      displayValue = value.toFixed(2);
+    }
+
+    return `
+      <div class="record-match-item">
+        <div class="record-match-info">
+          <span class="record-map">${mapName}</span>
+          <span class="record-score ${resultClass}">${score}</span>
+          <span class="record-date">${date}</span>
+        </div>
+        <div class="record-value">${displayValue}</div>
+      </div>
+    `;
+  }
+
   // В классе SidebarManager
   displayMatchHistory(matches, isInitialLoad = false) {
     const statsContainer = document.querySelector(".stats-container");
