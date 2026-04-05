@@ -1380,8 +1380,6 @@ footer {
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     max-width: 100%;
-    margin: 0 auto 1.5rem auto;
-    text-align: center;
   }
 
   /* Адаптивная карточка игрока для мобильных */
@@ -2002,11 +2000,9 @@ footer {
 }
 
 .player-stats {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 0.5rem;
-  width: 100%;
-  margin: 0;
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .stat-item {
@@ -2014,6 +2010,8 @@ footer {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 36px;
+  height: 36px;
   background: #272727;
   border-radius: 4px;
   color: white;
@@ -2028,7 +2026,6 @@ footer {
 .stat-item span {
   font-size: 12px !important;
   color: white;
-  font-weight: bold;
 }
 
 .match-item {
@@ -2084,7 +2081,6 @@ footer {
   .match-score {
     font-size: 1.05rem;
     min-width: 60px;
-    text-align: center;
   }
 
   .player-stats {
@@ -4031,13 +4027,15 @@ footer {
 /* Responsive: tablet - keep 2 columns */
 @media (max-width: 1024px) {
   .featured-players-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.45rem !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.2rem !important;
+    max-width: 500px !important;
+    padding: 0 1.5rem !important;
   }
 
   .featured-player-card,
   .pro-card {
-    height: 300px !important;
+    height: 180px !important;
   }
 }
 
@@ -4045,14 +4043,30 @@ footer {
 @media (max-width: 768px) {
   .featured-players-grid {
     grid-template-columns: 1fr !important;
-    gap: 0.55rem !important;
+    gap: 1rem !important;
+    max-width: 350px !important;
+    padding: 0 1rem !important;
   }
+
   .featured-player-card,
   .pro-card {
-    height: 210px !important;
+    height: 220px !important;
   }
-  .pro-card img {
-    scale: 0.8;
+
+  .pro-card-header,
+  .featured-player-card-header {
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+  }
+
+  .pro-card-body,
+  .featured-player-card-body {
+    height: calc(100% - 45px) !important;
+  }
+
+  .pro-card-photo,
+  .featured-player-photo {
+    object-position: center 25% !important;
   }
 }
 
@@ -4159,6 +4173,169 @@ footer {
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
+  object-fit: cover !important;
+  object-position: 50% 20% !important;
+}
+
+.featured-player-photo,
+.pro-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 85, 0, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+}
+.pro-grid {
+  display: flex;
+  gap: 3rem;
+  background: none;
+  border: none;
+  box-shadow: none;
+  justify-content: center;
+}
+.pro {
+  text-align: center;
+}
+
+/* Responsive: keep 4 on wide, 2 on tablet, 1 on mobile */
+@media (max-width: 1024px) {
+  .featured-players-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem !important;
+  }
+
+  .featured-player-card,
+  .pro-card {
+    height: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Управление отображением секций на мобильных */
+  #search {
+    display: block !important;
+  }
+
+  #results {
+    display: none !important; /* По умолчанию скрыта */
+  }
+
+  /* Показываем results только когда профиль активен */
+  body.profile-active #search {
+    display: none !important;
+  }
+
+  body.profile-active #results {
+    display: block !important;
+  }
+
+  /* Pro-grid управление */
+  .pro-grid {
+    display: grid;
+    grid-template-areas: "grid grid";
+    gap: 1rem;
+    padding: 0 1rem;
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Скрываем pro-grid когда профиль активен */
+  body.profile-active .pro-grid {
+    display: none !important;
+  }
+
+  /* Карточки про-игроков на мобильных */
+  .featured-players-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem !important;
+    padding: 0 0.5rem;
+  }
+
+  .featured-player-card,
+  .pro-card {
+    height: 280px !important;
+    max-width: 100%;
+    width: 100% !important;
+    margin: 0 auto;
+  }
+
+  .pro-card-header,
+  .featured-player-card-header {
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+  }
+
+  .pro-card-body,
+  .featured-player-card-body {
+    height: calc(100% - 50px) !important;
+  }
+
+  .pro-card-photo,
+  .featured-player-photo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center 30% !important;
+  }
+
+  /* Header и Footer на мобильных */
+  body.profile-active header {
+    display: none !important;
+  }
+
+  body.profile-active footer {
+    display: none !important;
+  }
+
+  /* Улучшение отступов main на мобильных */
+  main {
+    padding: 1rem 0.5rem;
+    width: 100%;
+  }
+
+  /* Секции на мобильных */
+  section {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* --- FINAL: Pro cards layout + image fit (override conflicting earlier blocks) --- */
+.featured-players-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 0.35rem !important;
+  justify-items: stretch !important;
+  align-items: stretch !important;
+}
+
+.featured-player-card,
+.pro-card {
+  max-width: none !important;
+  height: 260px !important;
+  overflow: hidden !important;
+}
+
+.featured-player-card-body,
+.pro-card-body {
+  height: calc(100% + 150px) !important;
+  padding: 0 !important;
+  display: flex !important;
+  overflow: hidden !important;
+}
+
+/* ФИНАЛЬНОЕ ПРАВИЛО: центрируем игрока по центру карточки */
+.featured-player-photo,
+.pro-card-photo {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
   display: block !important;
   object-fit: cover !important;
   object-position: center center !important;
@@ -4168,10 +4345,9 @@ footer {
 
 @media (max-width: 1024px) {
   .featured-players-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 0.45rem !important;
   }
-
   .featured-player-card,
   .pro-card {
     height: 300px !important;
@@ -4190,83 +4366,4 @@ footer {
   .pro-card img {
     scale: 0.8;
   }
-}
-
-/* Records View Styles */
-.records-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.record-category {
-  background: var(--bg-card);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 85, 0, 0.1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.record-category h3 {
-  font-family: "Orbitron", sans-serif;
-  color: var(--primary-color);
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.2rem;
-}
-
-.record-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.record-match-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--bg-dark);
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition:
-    background 0.3s,
-    transform 0.3s;
-  border-left: 3px solid transparent;
-}
-
-.record-match-item:hover {
-  background: rgba(255, 85, 0, 0.1);
-  transform: translateX(5px);
-  border-left-color: var(--primary-color);
-}
-
-.record-match-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.record-match-map {
-  font-weight: bold;
-  color: #fff;
-  font-size: 0.9rem;
-}
-
-.record-match-date {
-  font-size: 0.8rem;
-  color: #aaa;
-}
-
-.record-match-stat {
-  display: flex;
-  align-items: center;
-}
-
-.record-stat-value {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: var(--primary-color);
-  font-family: "Orbitron", sans-serif;
 }
