@@ -2452,6 +2452,9 @@ async function analyzePlayer() {
                 `${getText("mapName")}: ${mapAnalysis.bestMap.name}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
+                `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
+              )}</p>
+              <p class="stat-row">${formatStatRow(
                 `${getText(
                   "mapWinRate",
                 )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
@@ -2463,9 +2466,6 @@ async function analyzePlayer() {
                 `${getText("headshotPercentage")}: ${
                   mapAnalysis.bestMap.headshotPercentage
                 }%`,
-              )}</p>
-              <p class="stat-row">${formatStatRow(
-                `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
               )}</p>
             `
                 : `<p>${getText("notEnoughData")}</p>`
@@ -2483,6 +2483,9 @@ async function analyzePlayer() {
                 `${getText("mapName")}: ${mapAnalysis.worstMap.name}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
+                `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
+              )}</p>
+              <p class="stat-row">${formatStatRow(
                 `${getText(
                   "mapWinRate",
                 )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%`,
@@ -2494,9 +2497,6 @@ async function analyzePlayer() {
                 `${getText("headshotPercentage")}: ${
                   mapAnalysis.worstMap.headshotPercentage
                 }%`,
-              )}</p>
-              <p class="stat-row">${formatStatRow(
-                `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
               )}</p>
             `
                 : `<p>${getText("notEnoughData")}</p>`
