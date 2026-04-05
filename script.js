@@ -276,84 +276,109 @@ class SidebarManager {
   }
 
   // Обновите метод showMatchesStats
-  async showMatchesStats(statsContainer, playerHeader, page = 0) {
-    // Reset the allMatchesLoaded flag when switching to the matches view
-    this.allMatchesLoaded = false;
-    this.currentMatches = []; // Also clear the matches array
+  async showMatchesStats() {
+    try {
+      const playerId = window.currentPlayerData?.player_id;
+      if (!playerId) {
+        console.error("Player ID is not available.");
+        return;
+      }
 
-    statsContainer.style.display = "block";
-    if (playerHeader) {
-      // Сохраняем исходное состояние statsContainer
-      this.originalStatsHTML = statsContainer.innerHTML;
-    }
-
-    // Показываем индикатор загрузки с переводом
-    statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-      "loadingMatchHistory",
-    )}</div>`;
-
-    // Загружаем все матчи игрока (через прокси)
-    const historyUrl = `/api/history?playerId=${encodeURIComponent(
-      String(playerData.player_id),
-    )}&gameId=cs2&limit=2000`;
-
-    const response = await fetch(historyUrl, {
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      console.error(`API Error: ${response.status} ${response.statusText}`);
-      throw new Error("Failed to fetch match history from FACEIT API.");
-    }
-
-    const data = await response.json();
-    if (!data || !data.items || data.items.length === 0) {
+      // Сбрасываем состояние при новой загрузке
       this.currentMatches = [];
-      this.allMatchesLoaded = true;
-      return;
-    }
+      this.matchesOffset = 0;
+      this.isLoadingMore = false;
 
-    // NEW LOGIC: Process matches directly from history data
-    const matches = data.items
-      .map((match) => {
-        const stats = match.stats; // Use stats from history endpoint
-        if (!stats) {
-          return { result: "Error", reason: "No stats in history item" };
+      // Показываем индикатор загрузки с переводом
+      const statsContainer = document.querySelector(".stats-container");
+      if (statsContainer) {
+        statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+          "loadingMatchHistory",
+        )}</div>`;
+      }
+
+      // Загружаем все матчи игрока (через прокси)
+      const historyUrl = `/api/history?playerId=${encodeURIComponent(
+        String(playerId),
+      )}&gameId=cs2&limit=2000`;
+
+      const response = await fetch(historyUrl, {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        console.error(`API Error: ${response.status} ${response.statusText}`);
+        throw new Error("Failed to fetch match history from FACEIT API.");
+      }
+
+      const data = await response.json();
+
+      if (!data || !data.items || data.items.length === 0) {
+        console.warn("No match history found for the player.");
+        const statsContainer = document.querySelector(".stats-container");
+        if (statsContainer) {
+          statsContainer.innerHTML = `<p class=\"api-error-text\">No match history available for this player.</p>`;
         }
+        return;
+      }
 
-        const playerTeam = match.teams.find((team) =>
-          team.players.some((p) => p.player_id === playerId),
-        );
-        const playerTeamStats = playerTeam?.stats;
-        const isWinner = playerTeamStats?.team_stats.team_win === "1";
+      console.log(
+        `Загружено ${data.items.length} матчей из ${
+          data.total || data.items.length
+        } доступных`,
+      );
+      this.totalMatches = data.total || data.items.length;
 
-        const kd =
-          parseFloat(stats.deaths) > 0
-            ? parseFloat(stats.kills) / parseFloat(stats.deaths)
-            : parseFloat(stats.kills);
+      // Показываем индикатор обработки с переводом
+      if (statsContainer) {
+        statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+          "processingMatches",
+        )}</div>`;
+      }
 
-        return {
-          matchId: match.match_id,
-          date: match.started_at * 1000,
-          map: stats.map,
-          score: playerTeamStats?.team_stats.final_score || "N/A",
-          result: isWinner ? "Win" : "Loss",
-          kills: parseInt(stats.kills, 10),
-          assists: parseInt(stats.assists, 10),
-          deaths: parseInt(stats.deaths, 10),
-          hs: parseInt(stats.headshots, 10),
-          hsPercentage: parseFloat(stats.headshots_percentage),
-          mvps: parseInt(stats.mvps, 10),
-          kd: kd,
-          kdd: parseInt(stats.kills, 10) - parseInt(stats.deaths, 10),
-        };
-      })
-      .filter((m) => m.result !== "Error");
+      // Получение детальной статистики для каждого матча
+      const matches = await Promise.all(
+        data.items.map(async (match, index) => {
+          try {
+            const stats = await this.fetchMatchStats(match.match_id, playerId);
+            return this.formatMatchData(
+              match,
+              stats,
+              playerId,
+              index,
+              this.totalMatches,
+            );
+          } catch (error) {
+            console.error(
+              `Error fetching stats for match ${match.match_id}:`,
+              error,
+            );
+            return this.formatMatchData(
+              match,
+              null,
+              playerId,
+              index,
+              this.totalMatches,
+            );
+          }
+        }),
+      );
 
-    this.currentMatches = matches;
-    this.allMatchesLoaded = true;
+      // Сохраняем все матчи
+      this.currentMatches = matches;
+      console.log(`Обработано ${matches.length} матчей для отображения`);
+
+      // Отображаем историю матчей
+      this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
+    } catch (error) {
+      console.error("Error fetching match history:", error);
+      const statsContainer = document.querySelector(".stats-container");
+      if (statsContainer) {
+        statsContainer.innerHTML = `<p class="api-error-text">${error.message}</p>`;
+      }
+    }
   }
 
   // Обновите метод fetchMatchStats для повторных попыток
@@ -509,6 +534,9 @@ class SidebarManager {
 
           if (search) search.style.display = "none";
 
+          // Генерируем HTML для обзора с актуальными переводами
+          renderOverviewStats(statsContainer);
+
           // Восстанавливаем оригинальные стили
           playerCard.style.display = "block";
           playerHeader.style.display = "flex";
@@ -553,7 +581,7 @@ class SidebarManager {
 
           // Загружаем матчи с небольшой задержкой для плавности UI
           setTimeout(() => {
-            this.showMatchesStats(statsContainer, playerHeader);
+            this.showMatchesStats();
           }, 300);
           break;
         }
@@ -779,240 +807,12 @@ class SidebarManager {
           return;
         }
 
-        case "records":
-          this.showRecordsView(statsContainer, playerHeader);
-          break;
-
         default:
           console.warn("Unknown view type:", view);
       }
 
       playerCard.style.opacity = "1";
     }, 150);
-  }
-
-  async showRecordsView(statsContainer, playerHeader) {
-    statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-      "loadingMatchHistory",
-    )}</div>`;
-    statsContainer.style.display = "block";
-
-    if (playerHeader) {
-      playerHeader.style.display = "flex";
-      // ... (playerHeader styling)
-    }
-
-    // Load all matches if not already loaded
-    if (!this.allMatchesLoaded) {
-      await this.loadAllMatchesForRecords();
-    }
-
-    // Render the records view with sorting options
-    this.renderRecords();
-  }
-
-  async loadAllMatchesForRecords() {
-    try {
-      const playerId = window.currentPlayerData?.player_id;
-      if (!playerId) {
-        console.error("Player ID is not available for records.");
-        return;
-      }
-
-      if (this.allMatchesLoaded) {
-        return;
-      }
-
-      const historyUrl = `/api/history?playerId=${encodeURIComponent(
-        String(playerId),
-      )}&gameId=cs2&limit=2000`;
-      const response = await fetch(historyUrl, {
-        headers: { Accept: "application/json" },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch match history for records.");
-      }
-
-      const data = await response.json();
-      if (!data || !data.items || data.items.length === 0) {
-        this.currentMatches = [];
-        this.allMatchesLoaded = true;
-        return;
-      }
-
-      const matches = await Promise.all(
-        data.items.map(async (match, index) => {
-          try {
-            const stats = await this.fetchMatchStats(match.match_id, playerId);
-            const formattedMatch = this.formatMatchData(
-              match,
-              stats,
-              playerId,
-              index,
-              data.total || data.items.length,
-            );
-            // Add K/D difference for sorting
-            if (formattedMatch.result !== "Error") {
-              formattedMatch.kdd = formattedMatch.kills - formattedMatch.deaths;
-            }
-            return formattedMatch;
-          } catch (error) {
-            const formattedMatch = this.formatMatchData(
-              match,
-              null,
-              playerId,
-              index,
-              data.total || data.items.length,
-            );
-            formattedMatch.kdd = 0;
-            return formattedMatch;
-          }
-        }),
-      );
-
-      this.currentMatches = matches.filter((m) => m.result !== "Error");
-      this.allMatchesLoaded = true;
-    } catch (error) {
-      console.error("Error loading all matches for records:", error);
-      const statsContainer = document.querySelector(".stats-container");
-      if (statsContainer) {
-        statsContainer.innerHTML = `<p class="api-error-text">${error.message}</p>`;
-      }
-    }
-  }
-
-  bubbleSort(arr, key) {
-    const n = arr.length;
-    for (let i = 0; i < n - 1; i++) {
-      for (let j = 0; j < n - i - 1; j++) {
-        if (arr[j][key] < arr[j + 1][key]) {
-          [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-        }
-      }
-    }
-    return arr;
-  }
-
-  renderRecords() {
-    const statsContainer = document.querySelector(".stats-container");
-    if (!this.currentMatches || this.currentMatches.length === 0) {
-      statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-      return;
-    }
-
-    const sortCriteria = [
-      { key: "kills", label: "Most Kills" },
-      { key: "kd", label: "Best K/D" },
-      { key: "mvps", label: "Most MVPs" },
-      { key: "kdd", label: "Best K-D Diff" },
-    ];
-
-    let buttonsHtml = '<div class="records-controls">';
-    sortCriteria.forEach((criterion) => {
-      buttonsHtml += `<button class="record-sort-btn" data-sort-key="${criterion.key}">${criterion.label}</button>`;
-    });
-    buttonsHtml += "</div>";
-
-    const recordsContentHtml = '<div id="records-display"></div>';
-
-    statsContainer.innerHTML = `
-      <div class="records-container">
-        ${buttonsHtml}
-        ${recordsContentHtml}
-      </div>
-    `;
-
-    const buttons = statsContainer.querySelectorAll(".record-sort-btn");
-    buttons.forEach((button) => {
-      button.addEventListener("click", (e) => {
-        buttons.forEach((btn) => btn.classList.remove("active"));
-        e.target.classList.add("active");
-        const sortKey = e.target.getAttribute("data-sort-key");
-        this.displaySortedRecords(sortKey);
-      });
-    });
-
-    // Set default view
-    const defaultButton = statsContainer.querySelector(
-      '.record-sort-btn[data-sort-key="kills"]',
-    );
-    if (defaultButton) {
-      defaultButton.classList.add("active");
-      this.displaySortedRecords("kills");
-    }
-  }
-
-  displaySortedRecords(sortKey) {
-    const displayContainer = document.getElementById("records-display");
-    if (!displayContainer) return;
-
-    displayContainer.innerHTML = `<div class="loading-indicator small"><i class="fas fa-spinner fa-spin"></i> Sorting...</div>`;
-
-    setTimeout(() => {
-      const matchesToSort = [...this.currentMatches].filter(
-        (m) => m[sortKey] !== undefined,
-      );
-
-      // Using the requested bubble sort
-      const sortedMatches = this.bubbleSort(matchesToSort, sortKey);
-
-      const top5 = sortedMatches.slice(0, 5);
-
-      let listHtml = '<div class="record-list">';
-      if (top5.length > 0) {
-        top5.forEach((match) => {
-          listHtml += this.formatRecordMatch(match, sortKey);
-        });
-      } else {
-        listHtml += `<p class="no-records">${getText("notEnoughData")}</p>`;
-      }
-      listHtml += "</div>";
-
-      displayContainer.innerHTML = listHtml;
-    }, 50); // Small delay for UI feedback
-  }
-
-  formatRecordMatch(match, recordKey) {
-    const resultClass = match.result.toLowerCase();
-    const resultText = getText(match.result.toLowerCase());
-    const value = match[recordKey];
-
-    let matchUrl = "";
-    if (match.matchId && match.matchId.startsWith("1-")) {
-      matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/cs2/room/${
-        match.matchId
-      }`;
-    } else if (match.matchId) {
-      matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/matchroom/${
-        match.matchId
-      }`;
-    }
-
-    let displayValue = value;
-    if (typeof value === "number" && !Number.isInteger(value)) {
-      displayValue = value.toFixed(2);
-    }
-
-    // Reusing styles from .match-item
-    return `
-      <div class="match-item ${resultClass}" ${
-        matchUrl ? `onclick="window.open('${matchUrl}', '_blank')"` : ""
-      }>
-        <span class="match-date">${new Date(
-          match.date,
-        ).toLocaleDateString()}</span>
-        <span class="match-result">${resultText}</span>
-        <span class="match-map">${match.map}</span>
-        <span class="match-score">${match.score}</span>
-        
-        <div class="player-stats" style="justify-content: flex-end;">
-          <div class="stat-item record-value">
-            <i class="fas fa-star"></i> 
-            <span>${displayValue}</span>
-          </div>
-        </div>
-      </div>`;
   }
 
   // В классе SidebarManager
@@ -1495,7 +1295,6 @@ const translations = {
     sidebarHistory: "History",
     sidebarCompare: "Compare",
     sidebarMatches: "Matches",
-    sidebarRecords: "Records",
 
     // Mobile drawer
     drawerTitle: "Player Statistics",
@@ -1617,7 +1416,6 @@ const translations = {
     overview: "Overview",
     matches: "Matches",
     maps: "Maps",
-    records: "Records",
 
     reactionTest: "Reaction Test",
     startTest: "Start Test",
@@ -2657,9 +2455,6 @@ async function analyzePlayer() {
                 `${getText("mapName")}: ${mapAnalysis.bestMap.name}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
-              )}</p>
-              <p class="stat-row">${formatStatRow(
                 `${getText(
                   "mapWinRate",
                 )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
@@ -2668,9 +2463,7 @@ async function analyzePlayer() {
                 `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `${getText("headshotPercentage")}: ${
-                  mapAnalysis.bestMap.headshotPercentage
-                }%`,
+                `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
               )}</p>
             `
                 : `<p>${getText("notEnoughData")}</p>`
@@ -2688,9 +2481,6 @@ async function analyzePlayer() {
                 `${getText("mapName")}: ${mapAnalysis.worstMap.name}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
-              )}</p>
-              <p class="stat-row">${formatStatRow(
                 `${getText(
                   "mapWinRate",
                 )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%`,
@@ -2699,9 +2489,7 @@ async function analyzePlayer() {
                 `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `${getText("headshotPercentage")}: ${
-                  mapAnalysis.worstMap.headshotPercentage
-                }%`,
+                `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
               )}</p>
             `
                 : `<p>${getText("notEnoughData")}</p>`
@@ -2799,20 +2587,13 @@ function renderOverviewStats(container) {
           `${getText("mapName")}: ${mapAnalysis.bestMap.name}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
-        )}</p>
-        <p class="stat-row">${formatStatRow(
-          `${getText(
-            "mapWinRate",
-          )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
+          `${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
         )}</p>
         <p class="stat-row">${formatStatRow(
           `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("headshotPercentage")}: ${
-            mapAnalysis.bestMap.headshotPercentage
-          }%`,
+          `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
@@ -2828,20 +2609,15 @@ function renderOverviewStats(container) {
           `${getText("mapName")}: ${mapAnalysis.worstMap.name}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
-        )}</p>
-        <p class="stat-row">${formatStatRow(
-          `${getText(
-            "mapWinRate",
-          )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%`,
+          `${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
+            1,
+          )}%`,
         )}</p>
         <p class="stat-row">${formatStatRow(
           `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("headshotPercentage")}: ${
-            mapAnalysis.worstMap.headshotPercentage
-          }%`,
+          `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
