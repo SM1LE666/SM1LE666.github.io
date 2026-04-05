@@ -108,8 +108,10 @@ button:active {
   background: linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
   z-index: 1000;
   transform: translateX(-100%);
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.3s ease,
+    visibility 0.3s ease;
   border-right: 2px solid rgba(255, 85, 0, 0.2);
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
   opacity: 0;
@@ -149,17 +151,23 @@ button:active {
 
 /* Пульсирующий эффект для активации */
 .sidebar.pulse-glow {
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 85, 0, 0.4);
+  box-shadow:
+    4px 0 20px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(255, 85, 0, 0.4);
   animation: sidebarPulse 2s ease-in-out;
 }
 
 @keyframes sidebarPulse {
   0%,
   100% {
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 85, 0, 0.2);
+    box-shadow:
+      4px 0 20px rgba(0, 0, 0, 0.3),
+      0 0 15px rgba(255, 85, 0, 0.2);
   }
   50% {
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 85, 0, 0.6);
+    box-shadow:
+      4px 0 20px rgba(0, 0, 0, 0.3),
+      0 0 30px rgba(255, 85, 0, 0.6);
   }
 }
 
@@ -168,7 +176,10 @@ button:active {
   transform: translateX(-100%);
   opacity: 0;
   visibility: hidden;
-  transition: transform 0.3s ease, opacity 0.2s ease, visibility 0.2s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.2s ease,
+    visibility 0.2s ease;
 }
 
 .sidebar-content {
@@ -308,7 +319,9 @@ h1 {
   font-size: 2.5rem;
   font-weight: bold;
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px var(--accent-glow);
+  text-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 10px var(--accent-glow);
   letter-spacing: 2px;
   color: #fff;
   position: relative;
@@ -471,7 +484,9 @@ input[type="text"] {
 input[type="text"]:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.2), 0 4px 20px rgba(255, 85, 0, 0.3);
+  box-shadow:
+    0 0 0 3px rgba(255, 85, 0, 0.2),
+    0 4px 20px rgba(255, 85, 0, 0.3);
   background: rgba(255, 255, 255, 1);
 }
 
@@ -581,7 +596,9 @@ input[type="text"]:focus {
   padding: 1.5rem;
   border-radius: var(--border-radius);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -591,7 +608,9 @@ input[type="text"]:focus {
 
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 85, 0, 0.2);
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.3),
+    0 0 15px rgba(255, 85, 0, 0.2);
 }
 
 .stat-card h3 {
@@ -717,7 +736,9 @@ input[type="text"]:focus {
   border-radius: 15px;
   border: 2px solid rgba(255, 85, 0, 0.2);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   height: 400px;
   min-height: 150px; /* Минимальная высота */
   display: flex;
@@ -740,7 +761,9 @@ input[type="text"]:focus {
 
 .stats-box:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 85, 0, 0.3);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 85, 0, 0.3);
   border-color: var(--primary-color);
 }
 
@@ -1309,7 +1332,9 @@ footer {
     display: block;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
   }
 
   /* Показываем кнопку только при активном профиле */
@@ -1355,6 +1380,8 @@ footer {
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     max-width: 100%;
+    margin: 0 auto 1.5rem auto;
+    text-align: center;
   }
 
   /* Адаптивная карточка игрока для мобильных */
@@ -2056,6 +2083,7 @@ footer {
   .match-score {
     font-size: 1.05rem;
     min-width: 60px;
+    text-align: center;
   }
 
   .player-stats {
@@ -2514,11 +2542,8 @@ footer {
 .map-card.has-map-bg {
   /* keep existing gradient as fallback layer, image on top */
 
-  background-image: linear-gradient(
-      135deg,
-      rgba(26, 26, 26, 0.25),
-      rgba(255, 85, 0, 0.08)
-    ),
+  background-image:
+    linear-gradient(135deg, rgba(26, 26, 26, 0.25), rgba(255, 85, 0, 0.08)),
     var(--map-bg-url);
 }
 
@@ -2550,7 +2575,9 @@ footer {
 
 .map-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 85, 0, 0.3);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 85, 0, 0.3);
   border-color: var(--primary-color);
 }
 
@@ -2924,7 +2951,9 @@ footer {
   border: 1px solid rgba(255, 85, 0, 0.32);
   color: var(--primary-color);
 
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 14px rgba(255, 85, 0, 0.18);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.45),
+    0 0 14px rgba(255, 85, 0, 0.18);
   backdrop-filter: blur(8px);
   cursor: pointer;
   padding: 0;
@@ -2939,7 +2968,9 @@ footer {
   border-color: var(--primary-color);
   transform: translateY(-2px);
   color: #fff;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55), 0 0 22px rgba(255, 85, 0, 0.35);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(255, 85, 0, 0.35);
 }
 
 .cookie-fab:active {
@@ -2951,7 +2982,9 @@ footer {
 }
 
 .cookie-fab:focus-visible {
-  box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.35), 0 14px 30px rgba(0, 0, 0, 0.55),
+  box-shadow:
+    0 0 0 3px rgba(255, 85, 0, 0.35),
+    0 14px 30px rgba(0, 0, 0, 0.55),
     0 0 22px rgba(255, 85, 0, 0.35);
 }
 
@@ -3948,7 +3981,9 @@ footer {
 .featured-player-card:hover,
 .pro-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 85, 0, 0.3);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.4),
+    0 0 15px rgba(255, 85, 0, 0.3);
   border-color: var(--primary-color);
 }
 
@@ -4081,7 +4116,9 @@ footer {
 .featured-player-card:hover,
 .pro-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 85, 0, 0.3);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 85, 0, 0.3);
   border-color: var(--primary-color);
 }
 
@@ -4139,169 +4176,6 @@ footer {
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
-  object-fit: cover !important;
-  object-position: 50% 20% !important;
-}
-
-.featured-player-photo,
-.pro-card-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 20%;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 85, 0, 0.25);
-  background: rgba(255, 255, 255, 0.06);
-}
-.pro-grid {
-  display: flex;
-  gap: 3rem;
-  background: none;
-  border: none;
-  box-shadow: none;
-  justify-content: center;
-}
-.pro {
-  text-align: center;
-}
-
-/* Responsive: keep 4 on wide, 2 on tablet, 1 on mobile */
-@media (max-width: 1024px) {
-  .featured-players-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.7rem !important;
-  }
-
-  .featured-player-card,
-  .pro-card {
-    height: 320px;
-  }
-}
-
-@media (max-width: 768px) {
-  /* Управление отображением секций на мобильных */
-  #search {
-    display: block !important;
-  }
-
-  #results {
-    display: none !important; /* По умолчанию скрыта */
-  }
-
-  /* Показываем results только когда профиль активен */
-  body.profile-active #search {
-    display: none !important;
-  }
-
-  body.profile-active #results {
-    display: block !important;
-  }
-
-  /* Pro-grid управление */
-  .pro-grid {
-    display: grid;
-    grid-template-areas: "grid grid";
-    gap: 1rem;
-    padding: 0 1rem;
-    background: none;
-    border: none;
-    box-shadow: none;
-  }
-
-  /* Скрываем pro-grid когда профиль активен */
-  body.profile-active .pro-grid {
-    display: none !important;
-  }
-
-  /* Карточки про-игроков на мобильных */
-  .featured-players-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem !important;
-    padding: 0 0.5rem;
-  }
-
-  .featured-player-card,
-  .pro-card {
-    height: 280px !important;
-    max-width: 100%;
-    width: 100% !important;
-    margin: 0 auto;
-  }
-
-  .pro-card-header,
-  .featured-player-card-header {
-    padding: 0.8rem 1rem;
-    font-size: 1.1rem;
-  }
-
-  .pro-card-body,
-  .featured-player-card-body {
-    height: calc(100% - 50px) !important;
-  }
-
-  .pro-card-photo,
-  .featured-player-photo {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    object-position: center 30% !important;
-  }
-
-  /* Header и Footer на мобильных */
-  body.profile-active header {
-    display: none !important;
-  }
-
-  body.profile-active footer {
-    display: none !important;
-  }
-
-  /* Улучшение отступов main на мобильных */
-  main {
-    padding: 1rem 0.5rem;
-    width: 100%;
-  }
-
-  /* Секции на мобильных */
-  section {
-    padding: 1.5rem 1rem;
-    margin-bottom: 1rem;
-    width: 100%;
-    max-width: 100%;
-  }
-}
-
-/* --- FINAL: Pro cards layout + image fit (override conflicting earlier blocks) --- */
-.featured-players-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 0.35rem !important;
-  justify-items: stretch !important;
-  align-items: stretch !important;
-}
-
-.featured-player-card,
-.pro-card {
-  max-width: none !important;
-  height: 260px !important;
-  overflow: hidden !important;
-}
-
-.featured-player-card-body,
-.pro-card-body {
-  height: calc(100% + 150px) !important;
-  padding: 0 !important;
-  display: flex !important;
-  overflow: hidden !important;
-}
-
-/* ФИНАЛЬНОЕ ПРАВИЛО: центрируем игрока по центру карточки */
-.featured-player-photo,
-.pro-card-photo {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
   display: block !important;
   object-fit: cover !important;
   object-position: center center !important;
@@ -4311,9 +4185,10 @@ footer {
 
 @media (max-width: 1024px) {
   .featured-players-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.45rem !important;
   }
+
   .featured-player-card,
   .pro-card {
     height: 300px !important;
@@ -4332,4 +4207,83 @@ footer {
   .pro-card img {
     scale: 0.8;
   }
+}
+
+/* Records View Styles */
+.records-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.record-category {
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 85, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.record-category h3 {
+  font-family: "Orbitron", sans-serif;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.record-match-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-dark);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background 0.3s,
+    transform 0.3s;
+  border-left: 3px solid transparent;
+}
+
+.record-match-item:hover {
+  background: rgba(255, 85, 0, 0.1);
+  transform: translateX(5px);
+  border-left-color: var(--primary-color);
+}
+
+.record-match-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.record-match-map {
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.record-match-date {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.record-match-stat {
+  display: flex;
+  align-items: center;
+}
+
+.record-stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  font-family: "Orbitron", sans-serif;
 }

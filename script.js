@@ -804,6 +804,10 @@ class SidebarManager {
           return;
         }
 
+        case "records":
+          this.showRecordsView(statsContainer, playerHeader);
+          break;
+
         default:
           console.warn("Unknown view type:", view);
       }
@@ -1292,6 +1296,7 @@ const translations = {
     sidebarHistory: "History",
     sidebarCompare: "Compare",
     sidebarMatches: "Matches",
+    sidebarRecords: "Records",
 
     // Mobile drawer
     drawerTitle: "Player Statistics",
@@ -1413,6 +1418,7 @@ const translations = {
     overview: "Overview",
     matches: "Matches",
     maps: "Maps",
+    records: "Records",
 
     reactionTest: "Reaction Test",
     startTest: "Start Test",
@@ -2594,13 +2600,20 @@ function renderOverviewStats(container) {
           `${getText("mapName")}: ${mapAnalysis.bestMap.name}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
+          `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
+        )}</p>
+        <p class="stat-row">${formatStatRow(
+          `${getText(
+            "mapWinRate",
+          )}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
         )}</p>
         <p class="stat-row">${formatStatRow(
           `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
+          `${getText("headshotPercentage")}: ${
+            mapAnalysis.bestMap.headshotPercentage
+          }%`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
@@ -2616,15 +2629,20 @@ function renderOverviewStats(container) {
           `${getText("mapName")}: ${mapAnalysis.worstMap.name}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
-            1,
-          )}%`,
+          `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
+        )}</p>
+        <p class="stat-row">${formatStatRow(
+          `${getText(
+            "mapWinRate",
+          )}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%`,
         )}</p>
         <p class="stat-row">${formatStatRow(
           `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
+          `${getText("headshotPercentage")}: ${
+            mapAnalysis.worstMap.headshotPercentage
+          }%`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
