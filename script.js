@@ -276,96 +276,84 @@ class SidebarManager {
   }
 
   // Обновите метод showMatchesStats
-  async showMatchesStats() {
-    try {
-      const playerId = window.currentPlayerData?.player_id;
-      if (!playerId) {
-        console.error("Player ID is not available.");
-        return;
-      }
+  async showMatchesStats(statsContainer, playerHeader, page = 0) {
+    // Reset the allMatchesLoaded flag when switching to the matches view
+    this.allMatchesLoaded = false;
+    this.currentMatches = []; // Also clear the matches array
 
-      // Сбрасываем состояние при новой загрузке
-      this.currentMatches = [];
-      this.matchesOffset = 0;
-      this.isLoadingMore = false;
-
-      // Показываем индикатор загрузки с переводом
-      const statsContainer = document.querySelector(".stats-container");
-      if (statsContainer) {
-        statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-          "loadingMatchHistory",
-        )}</div>`;
-      }
-
-      // Загружаем все матчи игрока (через прокси)
-      const historyUrl = `/api/history?playerId=${encodeURIComponent(
-        String(playerId),
-      )}&gameId=cs2&limit=2000`;
-
-      const response = await fetch(historyUrl, {
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        console.error(`API Error: ${response.status} ${response.statusText}`);
-        throw new Error("Failed to fetch match history from FACEIT API.");
-      }
-
-      const data = await response.json();
-      if (!data || !data.items || data.items.length === 0) {
-        this.currentMatches = [];
-        this.allMatchesLoaded = true;
-        return;
-      }
-
-      // NEW LOGIC: Process matches directly from history data
-      const matches = data.items
-        .map((match) => {
-          const stats = match.stats; // Use stats from history endpoint
-          if (!stats) {
-            return { result: "Error", reason: "No stats in history item" };
-          }
-
-          const playerTeam = match.teams.find((team) =>
-            team.players.some((p) => p.player_id === playerId),
-          );
-          const playerTeamStats = playerTeam?.stats;
-          const isWinner = playerTeamStats?.team_stats.team_win === "1";
-
-          const kd =
-            parseFloat(stats.deaths) > 0
-              ? parseFloat(stats.kills) / parseFloat(stats.deaths)
-              : parseFloat(stats.kills);
-
-          return {
-            matchId: match.match_id,
-            date: match.started_at * 1000,
-            map: stats.map,
-            score: playerTeamStats?.team_stats.final_score || "N/A",
-            result: isWinner ? "Win" : "Loss",
-            kills: parseInt(stats.kills, 10),
-            assists: parseInt(stats.assists, 10),
-            deaths: parseInt(stats.deaths, 10),
-            hs: parseInt(stats.headshots, 10),
-            hsPercentage: parseFloat(stats.headshots_percentage),
-            mvps: parseInt(stats.mvps, 10),
-            kd: kd,
-            kdd: parseInt(stats.kills, 10) - parseInt(stats.deaths, 10),
-          };
-        })
-        .filter((m) => m.result !== "Error");
-
-      this.currentMatches = matches;
-      this.allMatchesLoaded = true;
-    } catch (error) {
-      console.error("Error fetching match history:", error);
-      const statsContainer = document.querySelector(".stats-container");
-      if (statsContainer) {
-        statsContainer.innerHTML = `<p class="api-error-text">${error.message}</p>`;
-      }
+    statsContainer.style.display = "block";
+    if (playerHeader) {
+      // Сохраняем исходное состояние statsContainer
+      this.originalStatsHTML = statsContainer.innerHTML;
     }
+
+    // Показываем индикатор загрузки с переводом
+    statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+      "loadingMatchHistory",
+    )}</div>`;
+
+    // Загружаем все матчи игрока (через прокси)
+    const historyUrl = `/api/history?playerId=${encodeURIComponent(
+      String(playerData.player_id),
+    )}&gameId=cs2&limit=2000`;
+
+    const response = await fetch(historyUrl, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`API Error: ${response.status} ${response.statusText}`);
+      throw new Error("Failed to fetch match history from FACEIT API.");
+    }
+
+    const data = await response.json();
+    if (!data || !data.items || data.items.length === 0) {
+      this.currentMatches = [];
+      this.allMatchesLoaded = true;
+      return;
+    }
+
+    // NEW LOGIC: Process matches directly from history data
+    const matches = data.items
+      .map((match) => {
+        const stats = match.stats; // Use stats from history endpoint
+        if (!stats) {
+          return { result: "Error", reason: "No stats in history item" };
+        }
+
+        const playerTeam = match.teams.find((team) =>
+          team.players.some((p) => p.player_id === playerId),
+        );
+        const playerTeamStats = playerTeam?.stats;
+        const isWinner = playerTeamStats?.team_stats.team_win === "1";
+
+        const kd =
+          parseFloat(stats.deaths) > 0
+            ? parseFloat(stats.kills) / parseFloat(stats.deaths)
+            : parseFloat(stats.kills);
+
+        return {
+          matchId: match.match_id,
+          date: match.started_at * 1000,
+          map: stats.map,
+          score: playerTeamStats?.team_stats.final_score || "N/A",
+          result: isWinner ? "Win" : "Loss",
+          kills: parseInt(stats.kills, 10),
+          assists: parseInt(stats.assists, 10),
+          deaths: parseInt(stats.deaths, 10),
+          hs: parseInt(stats.headshots, 10),
+          hsPercentage: parseFloat(stats.headshots_percentage),
+          mvps: parseInt(stats.mvps, 10),
+          kd: kd,
+          kdd: parseInt(stats.kills, 10) - parseInt(stats.deaths, 10),
+        };
+      })
+      .filter((m) => m.result !== "Error");
+
+    this.currentMatches = matches;
+    this.allMatchesLoaded = true;
   }
 
   // Обновите метод fetchMatchStats для повторных попыток
@@ -565,7 +553,7 @@ class SidebarManager {
 
           // Загружаем матчи с небольшой задержкой для плавности UI
           setTimeout(() => {
-            this.showMatchesStats();
+            this.showMatchesStats(statsContainer, playerHeader);
           }, 300);
           break;
         }
