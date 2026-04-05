@@ -666,6 +666,16 @@ class SidebarManager {
                       .replace(/\s+/g, "_")
                       .replace(/[^a-z0-9_]/g, "");
 
+                    // Ensure kd and avgKills are numbers
+                    const kd =
+                      typeof map.kd === "number" ? map.kd : parseFloat(map.kd);
+                    const avgKills =
+                      typeof map.avgKills === "number"
+                        ? map.avgKills
+                        : parseFloat(map.avgKills);
+                    const hs =
+                      typeof map.hs === "number" ? map.hs : parseFloat(map.hs);
+
                     html += `
                       <div class="${cardClass}" data-map="${mapKey}">
                         <div class="map-card-header">
@@ -699,14 +709,14 @@ class SidebarManager {
                             <div class="map-stat-item">
                               <i class="fas fa-crosshairs"></i>
                               <span class="stat-label">K/D</span>
-                              <span class="stat-value">${map.kd.toFixed(2)}</span>
+                              <span class="stat-value">${!isNaN(kd) ? kd.toFixed(2) : "-"}</span>
                             </div>
                             <div class="map-stat-item">
                               <i class="fas fa-bullseye"></i>
                               <span class="stat-label">${getText(
                                 "hsPercentage",
                               )}</span>
-                              <span class="stat-value">${map.hs.toFixed(1)}%</span>
+                              <span class="stat-value">${!isNaN(hs) ? hs.toFixed(1) : "-"}%</span>
                             </div>
                           </div>
                         </div>
