@@ -713,57 +713,6 @@ class SidebarManager {
                       </div>
                     `;
                   });
-                              <span class="stat-value">${map.avgKills}</span>
-                            </div>
-                            
-                            <div class="map-stat-item">
-                              <i class="fas fa-trophy"></i>
-                              <span class="stat-label">${getText(
-                                "mapWinRate",
-                              )}</span>
-                              <span class="stat-value">${map.winRate.toFixed(
-                                1,
-                              )}%</span>
-                            </div>
-                          </div>
-                          
-                          <div class="map-stat-row">
-                            <div class="map-stat-item">
-                              <i class="fas fa-fire"></i>
-                              <span class="stat-label">${getText("adr")}</span>
-                              <span class="stat-value">${map.adr}</span>
-                            </div>
-                            
-                            <div class="map-stat-item">
-                              <i class="fas fa-star"></i>
-                              <span class="stat-label">${getText(
-                                "clutches",
-                              )}</span>
-                              <span class="stat-value">${map.clutches}</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div class="map-card-footer">
-                          <div class="performance-indicator">
-                            ${
-                              map.winRate >= 55
-                                ? `<i class="fas fa-arrow-up"></i> ${getText(
-                                    "excellentMap",
-                                  )}`
-                                : map.winRate >= 40
-                                  ? `<i class="fas fa-minus"></i> ${getText(
-                                      "averageMap",
-                                    )}`
-                                  : `<i class="fas fa-arrow-down"></i> ${getText(
-                                      "poorMap",
-                                    )}`
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    `;
-                  });
 
                   html += "</div>";
                   statsContainer.innerHTML = html;
@@ -819,7 +768,7 @@ class SidebarManager {
             }
           }, 300);
 
-          return;
+          break;
         }
 
         default:
