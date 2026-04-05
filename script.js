@@ -986,27 +986,45 @@ class SidebarManager {
   }
 
   formatRecordMatch(match, recordKey) {
-    const mapName = match.map;
-    const score = match.score;
-    const date = new Date(match.date).toLocaleDateString();
+    const resultClass = match.result.toLowerCase();
+    const resultText = getText(match.result.toLowerCase());
     const value = match[recordKey];
-    const resultClass = match.result === "Win" ? "result-win" : "result-loss";
+
+    let matchUrl = "";
+    if (match.matchId && match.matchId.startsWith("1-")) {
+      matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/cs2/room/${
+        match.matchId
+      }`;
+    } else if (match.matchId) {
+      matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/matchroom/${
+        match.matchId
+      }`;
+    }
 
     let displayValue = value;
     if (typeof value === "number" && !Number.isInteger(value)) {
       displayValue = value.toFixed(2);
     }
 
+    // Reusing styles from .match-item
     return `
-      <div class="record-match-item">
-        <div class="record-match-info">
-          <span class="record-map">${mapName}</span>
-          <span class="record-score ${resultClass}">${score}</span>
-          <span class="record-date">${date}</span>
+      <div class="match-item ${resultClass}" ${
+        matchUrl ? `onclick="window.open('${matchUrl}', '_blank')"` : ""
+      }>
+        <span class="match-date">${new Date(
+          match.date,
+        ).toLocaleDateString()}</span>
+        <span class="match-result">${resultText}</span>
+        <span class="match-map">${match.map}</span>
+        <span class="match-score">${match.score}</span>
+        
+        <div class="player-stats" style="justify-content: flex-end;">
+          <div class="stat-item record-value">
+            <i class="fas fa-star"></i> 
+            <span>${displayValue}</span>
+          </div>
         </div>
-        <div class="record-value">${displayValue}</div>
-      </div>
-    `;
+      </div>`;
   }
 
   // В классе SidebarManager
