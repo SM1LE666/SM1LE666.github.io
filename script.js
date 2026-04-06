@@ -2417,7 +2417,7 @@ async function analyzePlayer() {
             )}</p>
             <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
             <p class="stat-row">${formatStatRow(
-              `${getText("headshotPercentage")}: ${avgStats.headshotPercentage}%`,
+              `${getText("Headshots")}: ${avgStats.headshotPercentage}%`,
             )}</p>
           </div>
           
