@@ -2000,7 +2000,7 @@ footer {
 }
 
 .player-stats {
-  display: flex;
+  display: grid;
   gap: 8px;
   margin-left: auto;
 }
@@ -4019,171 +4019,16 @@ footer {
 .pro-card-photo {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;
-  object-position: center 20% !important;
+  max-width: none !important;
+  max-height: none !important;
   display: block !important;
+  object-fit: cover !important;
+  object-position: center center !important;
   border-radius: 0 !important;
   border: none !important;
 }
 
 /* Responsive: tablet - keep 2 columns */
-@media (max-width: 1024px) {
-  .featured-players-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 1.2rem !important;
-    max-width: 500px !important;
-    padding: 0 1.5rem !important;
-  }
-
-  .featured-player-card,
-  .pro-card {
-    height: 180px !important;
-  }
-}
-
-/* Mobile: single column */
-@media (max-width: 768px) {
-  .featured-players-grid {
-    grid-template-columns: 1fr !important;
-    gap: 1rem !important;
-    max-width: 350px !important;
-    padding: 0 1rem !important;
-  }
-
-  .featured-player-card,
-  .pro-card {
-    height: 220px !important;
-  }
-
-  .pro-card-header,
-  .featured-player-card-header {
-    padding: 0.7rem 1rem;
-    font-size: 1rem;
-  }
-
-  .pro-card-body,
-  .featured-player-card-body {
-    height: calc(100% - 45px) !important;
-  }
-
-  .pro-card-photo,
-  .featured-player-photo {
-    object-position: center 25% !important;
-  }
-}
-
-/* --- Pro Players (Main menu): pro-card styles (map-card-like) --- */
-/* Grid: 4 cards in one row on desktop with tight gap */
-.featured-players-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.6rem !important;
-  align-items: stretch;
-  justify-items: stretch;
-}
-
-/* Alias old markup class -> new pro-card styling */
-.featured-player-card,
-.pro-card {
-  background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.05));
-  border-radius: 15px;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(255, 85, 0, 0.2);
-  transition: all 0.3s ease;
-  position: relative;
-  cursor: pointer;
-  width: 200px !important;
-  max-width: none;
-  height: 260px;
-}
-
-.featured-player-card::before,
-.pro-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #ff5500, #ff7b00);
-  border-radius: 15px 15px 0 0;
-  z-index: 2;
-}
-
-.featured-player-card:hover,
-.pro-card:hover {
-  transform: translateY(-5px);
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(255, 85, 0, 0.3);
-  border-color: var(--primary-color);
-}
-
-.featured-player-card-header,
-.pro-card-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
-  padding: 0.9rem 1.1rem;
-  font-family: "Orbitron", sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  color: #fff;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.featured-player-card-body,
-.pro-card-body {
-  padding: 0 !important;
-  display: flex !important;
-  justify-content: center !important;
-  position: relative !important;
-  z-index: 1 !important;
-  overflow: hidden !important;
-}
-
-/* Удаляем все конфликтующие блоки для фотографий */
-.featured-player-photo,
-.pro-card-photo {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  display: block !important;
-  object-fit: cover !important;
-  object-position: center center !important;
-  border-radius: 0 !important;
-  border: none !important;
-}
-
-/* Disable legacy pro-card photo scaling block that breaks centering/cropping */
-/*
-.featured-player-photo,
-.pro-card-photo {
-  width: 90% !important;
-  height: 90% !important;
-}
-*/
-
-/* FINAL pro-card photo rule: fill body and keep subject centered */
-.featured-player-photo,
-.pro-card-photo {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  display: block !important;
-  object-fit: cover !important;
-  object-position: center center !important;
-  border-radius: 0 !important;
-  border: none !important;
-}
-
 @media (max-width: 1024px) {
   .featured-players-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4195,10 +4040,13 @@ footer {
   }
 }
 
+/* Mobile: single column */
 @media (max-width: 768px) {
   .featured-players-grid {
     grid-template-columns: 1fr !important;
     gap: 0.55rem !important;
+    max-width: 350px !important;
+    padding: 0 1rem !important;
   }
   .featured-player-card,
   .pro-card {

@@ -2471,7 +2471,9 @@ async function analyzePlayer() {
               "avgStatsTitle",
             )}</h3>
             <p class="stat-row">${formatStatRow(
-              `${getText("Matches")}: ${window.FaceitAPI.formatNumber(avgStats.totalMatches)}`,
+              `${getText("totalMatches")}: ${window.FaceitAPI.formatNumber(
+                avgStats.totalMatches,
+              )}`,
             )}</p>
             <p class="stat-row">${formatStatRow(
               `${getText("killsPerMatch")}: ${avgStats.avgKills}`,
