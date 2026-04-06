@@ -714,7 +714,7 @@ class SidebarManager {
                             <div class="map-stat-item">
                               <i class="fas fa-bullseye"></i>
                               <span class="stat-label">${getText(
-                                "hsPercentage",
+                                "Headshots",
                               )}</span>
                               <span class="stat-value">${!isNaN(hs) ? hs.toFixed(1) : "-"}%</span>
                             </div>
@@ -1367,7 +1367,6 @@ const translations = {
     faceitApiNotLoaded:
       "FaceitAPI not loaded. Check developer console for details.",
     error: "Error",
-
     win: "WIN",
     loss: "LOSS",
     noMatchHistory: "No match history available",
@@ -1377,7 +1376,6 @@ const translations = {
     averageMap: "Average Map",
     poorMap: "Poor Map",
     showMoreMatches: "Show More",
-    // Дополнительные переводы для статистических блоков
     name: "Name",
 
     loadingMatchHistory: "Loading match history...",
@@ -2409,6 +2407,9 @@ async function analyzePlayer() {
               "avgStatsTitle",
             )}</h3>
             <p class="stat-row">${formatStatRow(
+              `${getText("Matches")}: ${window.FaceitAPI.formatNumber(avgStats.totalMatches)}`,
+            )}</p>
+            <p class="stat-row">${formatStatRow(
               `${getText("killsPerMatch")}: ${avgStats.avgKills}`,
             )}</p>
             <p class="stat-row">${formatStatRow(
@@ -2533,6 +2534,11 @@ function renderOverviewStats(container) {
   const overviewHTML = `
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
+      <p class="stat-row">${formatStatRow(
+        `${getText("matches")}: ${window.FaceitAPI.formatNumber(
+          avgStats.totalMatches,
+        )}`,
+      )}</p>
       <p class="stat-row">${formatStatRow(
         `${getText("killsPerMatch")}: ${avgStats.avgKills}`,
       )}</p>
