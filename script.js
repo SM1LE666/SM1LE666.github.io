@@ -1009,87 +1009,121 @@ class SidebarManager {
       return;
     }
 
-    let bestMatch = null;
-    let recordValue = -Infinity;
-    let recordLabel = "";
+    const recordLabelMap = {
+      mostKills: getText("mostKills"),
+      highestKD: getText("highestKD"),
+      highestKDDifference: getText("highestKDDifference"),
+      mostMVPs: getText("mostMVPs"),
+      highestHeadshotPct: getText("highestHeadshotPct"),
+    };
 
-    this.currentMatches.forEach((match) => {
-      if (match.result === "Error") return;
+    const recordLabel = recordLabelMap[recordType] || "";
 
-      let currentValue;
-      switch (recordType) {
-        case "mostKills":
-          currentValue = Number(match.kills);
-          recordLabel = getText("mostKills");
-          break;
-        case "highestKD":
-          currentValue = Number(match.kdRatio);
-          recordLabel = getText("highestKD");
-          break;
-        case "highestKDDifference":
-          currentValue = Number(match.kills) - Number(match.deaths);
-          recordLabel = getText("highestKDDifference");
-          break;
-        case "mostMVPs":
-          currentValue = Number(match.mvps);
-          recordLabel = getText("mostMVPs");
-          break;
-        case "highestHeadshotPct": {
-          const kills = Number(match.kills);
-          const headshots = Number(match.headshots);
-          currentValue = kills > 0 ? (headshots / kills) * 100 : 0;
-          recordLabel = getText("highestHeadshotPct");
-          break;
+    const rankedMatches = this.currentMatches
+      .filter((match) => match.result !== "Error")
+      .map((match) => {
+        let value;
+        switch (recordType) {
+          case "mostKills":
+            value = Number(match.kills);
+            break;
+          case "highestKD":
+            value = Number(match.kdRatio);
+            break;
+          case "highestKDDifference":
+            value = Number(match.kills) - Number(match.deaths);
+            break;
+          case "mostMVPs":
+            value = Number(match.mvps);
+            break;
+          case "highestHeadshotPct": {
+            const kills = Number(match.kills);
+            const headshots = Number(match.headshots);
+            value = kills > 0 ? (headshots / kills) * 100 : 0;
+            break;
+          }
+          default:
+            value = null;
         }
-        default:
-          return;
-      }
+        return value === null || Number.isNaN(value) ? null : { match, value };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
 
-      if (currentValue > recordValue) {
-        recordValue = currentValue;
-        bestMatch = match;
-      }
-    });
-
-    if (bestMatch) {
-      recordDisplay.innerHTML = this.formatRecord(
-        bestMatch,
-        recordValue,
-        recordType,
-        recordLabel,
-      );
-    } else {
+    if (rankedMatches.length === 0) {
       recordDisplay.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+      return;
     }
+
+    recordDisplay.innerHTML = this.formatRecord(rankedMatches, recordLabel);
   }
 
-  formatRecord(match, value, recordType, label) {
-    let displayValue;
-    if (recordType === "highestHeadshotPct") {
-      displayValue = `${value.toFixed(1)}%`;
-    } else if (recordType === "highestKD") {
-      displayValue = value.toFixed(2);
-    } else if (recordType === "highestKDDifference") {
-      displayValue = `+${Math.round(value)}`;
-    } else {
-      displayValue = Math.round(value);
-    }
+  formatRecord(rankedMatches, label) {
+    const itemsHtml = rankedMatches
+      .map(({ match }) => {
+        const resultClass = match.result.toLowerCase();
+        const resultText = getText(match.result.toLowerCase());
 
-    const matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/cs2/room/${match.matchId}`;
+        const kdRatio =
+          match.deaths > 0
+            ? (match.kills / match.deaths).toFixed(2)
+            : match.kills > 0
+              ? ""
+              : "0.00";
+
+        let matchUrl = "";
+        if (match.matchId && match.matchId.startsWith("1-")) {
+          matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/cs2/room/${match.matchId}`;
+        } else if (match.matchId) {
+          matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/matchroom/${match.matchId}`;
+        }
+
+        return `
+          <div class="match-item ${resultClass}" ${
+            matchUrl ? `onclick="window.open('${matchUrl}', '_blank')"` : ""
+          }>
+            <span class="match-date">${match.date}</span>
+            <span class="match-result">${resultText}</span>
+            <span class="match-map">${match.map}</span>
+            <span class="match-score">${match.score}</span>
+            <div class="player-stats">
+              <div class="stat-item">
+                <i class="fas fa-skull"></i>
+                <span>${match.kills}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-skull-crossbones"></i>
+                <span>${match.deaths}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-handshake"></i>
+                <span>${match.assists}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-crosshairs"></i>
+                <span>${match.headshots}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-chart-line"></i>
+                <span>${kdRatio}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-star"></i>
+                <span>${match.mvps}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
 
     return `
-      <div class="record-match-item">
+      <div class="record-match-list">
         <h3>${label}</h3>
-        <div class="record-value">${displayValue}</div>
-        <div class="record-match-details">
-          <div><strong>Map:</strong> ${match.map}</div>
-          <div><strong>Score:</strong> ${match.score}</div>
-          <div><strong>K-D-A:</strong> ${match.kills}-${match.deaths}-${match.assists}</div>
-          <div><strong>Date:</strong> ${match.date}</div>
+        <div class="match-history">
+          ${itemsHtml}
         </div>
-        <a href="${matchUrl}" target="_blank" class="record-match-link">
-          View Match <i class="fas fa-external-link-alt"></i>
-        </a>
       </div>
     `;
   }
