@@ -992,6 +992,108 @@ class SidebarManager {
     }, 300);
   }
 
+  async showRecord(recordType) {
+    const recordDisplay = document.querySelector(".record-display");
+    if (!recordDisplay) return;
+
+    recordDisplay.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+      "loadingRecords",
+    )}</div>`;
+
+    if (this.currentMatches.length === 0) {
+      await this.showMatchesStats();
+    }
+
+    if (this.currentMatches.length === 0) {
+      recordDisplay.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+      return;
+    }
+
+    let bestMatch = null;
+    let recordValue = -Infinity;
+    let recordLabel = "";
+
+    this.currentMatches.forEach((match) => {
+      if (match.result === "Error") return;
+
+      let currentValue;
+      switch (recordType) {
+        case "mostKills":
+          currentValue = Number(match.kills);
+          recordLabel = getText("mostKills");
+          break;
+        case "highestKD":
+          currentValue = Number(match.kdRatio);
+          recordLabel = getText("highestKD");
+          break;
+        case "highestKDDifference":
+          currentValue = Number(match.kills) - Number(match.deaths);
+          recordLabel = getText("highestKDDifference");
+          break;
+        case "mostMVPs":
+          currentValue = Number(match.mvps);
+          recordLabel = getText("mostMVPs");
+          break;
+        case "highestHeadshotPct": {
+          const kills = Number(match.kills);
+          const headshots = Number(match.headshots);
+          currentValue = kills > 0 ? (headshots / kills) * 100 : 0;
+          recordLabel = getText("highestHeadshotPct");
+          break;
+        }
+        default:
+          return;
+      }
+
+      if (currentValue > recordValue) {
+        recordValue = currentValue;
+        bestMatch = match;
+      }
+    });
+
+    if (bestMatch) {
+      recordDisplay.innerHTML = this.formatRecord(
+        bestMatch,
+        recordValue,
+        recordType,
+        recordLabel,
+      );
+    } else {
+      recordDisplay.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+    }
+  }
+
+  formatRecord(match, value, recordType, label) {
+    let displayValue;
+    if (recordType === "highestHeadshotPct") {
+      displayValue = `${value.toFixed(1)}%`;
+    } else if (recordType === "highestKD") {
+      displayValue = value.toFixed(2);
+    } else if (recordType === "highestKDDifference") {
+      displayValue = `+${Math.round(value)}`;
+    } else {
+      displayValue = Math.round(value);
+    }
+
+    const matchUrl = `https://www.faceit.com/${getCurrentLanguage()}/cs2/room/${match.matchId}`;
+
+    return `
+      <div class="record-match-item">
+        <h3>${label}</h3>
+        <div class="record-value">${displayValue}</div>
+        <div class="record-match-details">
+          <div><strong>Map:</strong> ${match.map}</div>
+          <div><strong>Score:</strong> ${match.score}</div>
+          <div><strong>K-D-A:</strong> ${match.kills}-${match.deaths}-${match.assists}</div>
+          <div><strong>Date:</strong> ${match.date}</div>
+        </div>
+        <a href="${matchUrl}" target="_blank" class="record-match-link">
+          View Match <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    `;
+  }
+
   // Mobile sidebar methods (for desktop compatibility)
   toggleMobileSidebar() {
     if (!this.isPlayerProfileActive) return;
