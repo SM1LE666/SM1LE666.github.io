@@ -2547,7 +2547,7 @@ function renderOverviewStats(container) {
       )}</p>
       <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
       <p class="stat-row">${formatStatRow(
-        `${getText("hsPercentage")}: ${avgStats.avgHs}%`,
+        `${getText("Headshots")}: ${avgStats.avgHs}%`,
       )}</p>
     </div>
     
