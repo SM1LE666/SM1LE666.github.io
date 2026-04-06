@@ -2026,6 +2026,7 @@ footer {
 .stat-item span {
   font-size: 12px !important;
   color: white;
+  font-weight: bold;
 }
 
 .match-item {
@@ -2081,6 +2082,7 @@ footer {
   .match-score {
     font-size: 1.05rem;
     min-width: 60px;
+    text-align: center;
   }
 
   .player-stats {
@@ -3790,7 +3792,8 @@ footer {
 /* --- Desktop Overview: stats rows left/right (uses formatStatRow spans) --- */
 @media (min-width: 1025px) {
   .stats-box {
-    height: 260px;
+    height: 280px;
+    min-height: 280px;
     font-variant-numeric: tabular-nums;
   }
 
@@ -4149,9 +4152,11 @@ footer {
 .pro-card-photo {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;
-  object-position: center 45% !important; /* Смещаем вниз с 40% до 45% */
+  max-width: none !important;
+  max-height: none !important;
   display: block !important;
+  object-fit: cover !important;
+  object-position: center center !important;
   border-radius: 0 !important;
   border: none !important;
 }
@@ -4172,169 +4177,6 @@ footer {
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
-  object-fit: cover !important;
-  object-position: 50% 20% !important;
-}
-
-.featured-player-photo,
-.pro-card-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 20%;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 85, 0, 0.25);
-  background: rgba(255, 255, 255, 0.06);
-}
-.pro-grid {
-  display: flex;
-  gap: 3rem;
-  background: none;
-  border: none;
-  box-shadow: none;
-  justify-content: center;
-}
-.pro {
-  text-align: center;
-}
-
-/* Responsive: keep 4 on wide, 2 on tablet, 1 on mobile */
-@media (max-width: 1024px) {
-  .featured-players-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.7rem !important;
-  }
-
-  .featured-player-card,
-  .pro-card {
-    height: 320px;
-  }
-}
-
-@media (max-width: 768px) {
-  /* Управление отображением секций на мобильных */
-  #search {
-    display: block !important;
-  }
-
-  #results {
-    display: none !important; /* По умолчанию скрыта */
-  }
-
-  /* Показываем results только когда профиль активен */
-  body.profile-active #search {
-    display: none !important;
-  }
-
-  body.profile-active #results {
-    display: block !important;
-  }
-
-  /* Pro-grid управление */
-  .pro-grid {
-    display: grid;
-    grid-template-areas: "grid grid";
-    gap: 1rem;
-    padding: 0 1rem;
-    background: none;
-    border: none;
-    box-shadow: none;
-  }
-
-  /* Скрываем pro-grid когда профиль активен */
-  body.profile-active .pro-grid {
-    display: none !important;
-  }
-
-  /* Карточки про-игроков на мобильных */
-  .featured-players-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem !important;
-    padding: 0 0.5rem;
-  }
-
-  .featured-player-card,
-  .pro-card {
-    height: 280px !important;
-    max-width: 100%;
-    width: 100% !important;
-    margin: 0 auto;
-  }
-
-  .pro-card-header,
-  .featured-player-card-header {
-    padding: 0.8rem 1rem;
-    font-size: 1.1rem;
-  }
-
-  .pro-card-body,
-  .featured-player-card-body {
-    height: calc(100% - 50px) !important;
-  }
-
-  .pro-card-photo,
-  .featured-player-photo {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    object-position: center 30% !important;
-  }
-
-  /* Header и Footer на мобильных */
-  body.profile-active header {
-    display: none !important;
-  }
-
-  body.profile-active footer {
-    display: none !important;
-  }
-
-  /* Улучшение отступов main на мобильных */
-  main {
-    padding: 1rem 0.5rem;
-    width: 100%;
-  }
-
-  /* Секции на мобильных */
-  section {
-    padding: 1.5rem 1rem;
-    margin-bottom: 1rem;
-    width: 100%;
-    max-width: 100%;
-  }
-}
-
-/* --- FINAL: Pro cards layout + image fit (override conflicting earlier blocks) --- */
-.featured-players-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 0.35rem !important;
-  justify-items: stretch !important;
-  align-items: stretch !important;
-}
-
-.featured-player-card,
-.pro-card {
-  max-width: none !important;
-  height: 260px !important;
-  overflow: hidden !important;
-}
-
-.featured-player-card-body,
-.pro-card-body {
-  height: calc(100% + 150px) !important;
-  padding: 0 !important;
-  display: flex !important;
-  overflow: hidden !important;
-}
-
-/* ФИНАЛЬНОЕ ПРАВИЛО: центрируем игрока по центру карточки */
-.featured-player-photo,
-.pro-card-photo {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
   display: block !important;
   object-fit: cover !important;
   object-position: center center !important;
@@ -4344,7 +4186,7 @@ footer {
 
 @media (max-width: 1024px) {
   .featured-players-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.45rem !important;
   }
   .featured-player-card,

@@ -586,6 +586,58 @@ class SidebarManager {
           break;
         }
 
+        case "records": {
+          this.hideApiErrorText();
+          if (search) search.style.display = "none";
+
+          playerCard.style.display = "block";
+          playerHeader.style.display = "flex";
+          statsContainer.style.display = "block"; // Changed from grid to block
+
+          // Render record filter buttons
+          statsContainer.innerHTML = `
+            <div class="record-filters">
+              <button class="record-filter-btn active" data-record="mostKills">${getText(
+                "mostKills",
+              )}</button>
+              <button class="record-filter-btn" data-record="highestKD">${getText(
+                "highestKD",
+              )}</button>
+              <button class="record-filter-btn" data-record="highestKDDifference">${getText(
+                "highestKDDifference",
+              )}</button>
+              <button class="record-filter-btn" data-record="mostMVPs">${getText(
+                "mostMVPs",
+              )}</button>
+              <button class="record-filter-btn" data-record="highestHeadshotPct">${getText(
+                "highestHeadshotPct",
+              )}</button>
+            </div>
+            <div class="record-display">
+              <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+                "loadingRecords",
+              )}</div>
+            </div>
+          `;
+
+          // Add event listeners for filter buttons
+          statsContainer
+            .querySelectorAll(".record-filter-btn")
+            .forEach((button) => {
+              button.addEventListener("click", (e) => {
+                statsContainer
+                  .querySelectorAll(".record-filter-btn")
+                  .forEach((btn) => btn.classList.remove("active"));
+                e.target.classList.add("active");
+                this.showRecord(e.target.dataset.record);
+              });
+            });
+
+          // Initially show the default record
+          this.showRecord("mostKills");
+          break;
+        }
+
         case "maps": {
           // Показываем индикатор загрузки
           statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
@@ -1269,6 +1321,7 @@ const translations = {
     sidebarHistory: "History",
     sidebarCompare: "Compare",
     sidebarMatches: "Matches",
+    sidebarRecords: "Records",
 
     // Mobile drawer
     drawerTitle: "Player Statistics",
@@ -1296,7 +1349,16 @@ const translations = {
     deathsPerMatch: "Avg. Deaths",
     totalKills: "Kills",
     totalDeaths: "Deaths",
-    headshotPercentage: "Headshots %",
+    headshotPercentage: "Headshots",
+    Headshots: "Headshots",
+
+    // Records
+    recordsTitle: "Records",
+    mostKills: "Most Kills",
+    highestKD: "Highest K/D",
+    highestKDDifference: "Highest K-D Diff",
+    mostMVPs: "Most MVPs",
+    highestHeadshotPct: "Highest HS %",
 
     // Maps
     bestMapTitle: "Best Map",
@@ -1381,6 +1443,7 @@ const translations = {
     loadingMatchHistory: "Loading match history...",
     processingMatches: "Updating matches...",
     loadingMaps: "Loading maps...",
+    loadingRecords: "Loading records...",
 
     //Mobile Sidebar
     statsforplayer: "Player Stats",
@@ -1388,6 +1451,7 @@ const translations = {
     overview: "Overview",
     matches: "Matches",
     maps: "Maps",
+    records: "Records",
 
     reactionTest: "Reaction Test",
     startTest: "Start Test",
@@ -2417,7 +2481,7 @@ async function analyzePlayer() {
             )}</p>
             <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
             <p class="stat-row">${formatStatRow(
-              `${getText("Headshots")}: ${avgStats.headshotPercentage}%`,
+              `${getText("Headshots")}: ${avgStats.avgHs}%`,
             )}</p>
           </div>
           
@@ -2535,7 +2599,7 @@ function renderOverviewStats(container) {
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
       <p class="stat-row">${formatStatRow(
-        `${getText("matches")}: ${window.FaceitAPI.formatNumber(
+        `${getText("totalMatches")}: ${window.FaceitAPI.formatNumber(
           avgStats.totalMatches,
         )}`,
       )}</p>
