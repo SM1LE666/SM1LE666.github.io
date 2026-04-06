@@ -276,7 +276,7 @@ class SidebarManager {
   }
 
   // Обновите метод showMatchesStats
-  async showMatchesStats() {
+  async showMatchesStats(render = true) {
     try {
       const playerId = window.currentPlayerData?.player_id;
       if (!playerId) {
@@ -291,7 +291,7 @@ class SidebarManager {
 
       // Показываем индикатор загрузки с переводом
       const statsContainer = document.querySelector(".stats-container");
-      if (statsContainer) {
+      if (render && statsContainer) {
         statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
           "loadingMatchHistory",
         )}</div>`;
@@ -317,8 +317,7 @@ class SidebarManager {
 
       if (!data || !data.items || data.items.length === 0) {
         console.warn("No match history found for the player.");
-        const statsContainer = document.querySelector(".stats-container");
-        if (statsContainer) {
+        if (render && statsContainer) {
           statsContainer.innerHTML = `<p class=\"api-error-text\">No match history available for this player.</p>`;
         }
         return;
@@ -332,7 +331,7 @@ class SidebarManager {
       this.totalMatches = data.total || data.items.length;
 
       // Показываем индикатор обработки с переводом
-      if (statsContainer) {
+      if (render && statsContainer) {
         statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
           "processingMatches",
         )}</div>`;
@@ -371,11 +370,13 @@ class SidebarManager {
       console.log(`Обработано ${matches.length} матчей для отображения`);
 
       // Отображаем историю матчей
-      this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
+      if (render) {
+        this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
+      }
     } catch (error) {
       console.error("Error fetching match history:", error);
       const statsContainer = document.querySelector(".stats-container");
-      if (statsContainer) {
+      if (render && statsContainer) {
         statsContainer.innerHTML = `<p class="api-error-text">${error.message}</p>`;
       }
     }
@@ -1001,7 +1002,7 @@ class SidebarManager {
     )}</div>`;
 
     if (this.currentMatches.length === 0) {
-      await this.showMatchesStats();
+      await this.showMatchesStats(false);
     }
 
     if (this.currentMatches.length === 0) {

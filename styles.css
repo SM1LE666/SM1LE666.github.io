@@ -4043,11 +4043,31 @@ footer {
   }
 }
 .record-filters {
-  display: grid;
-  width: 70px;
-  grid-template-areas: "grid grid grid grid grid";
-  text-align: center;
-  text-wrap: nowrap;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.record-filter-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  text-transform: none;
+  letter-spacing: 0.3px;
+}
+.record-filter h3 {
+  display: none;
+}
+
+.record-filter-btn.active {
+  background: rgba(255, 85, 0, 0.25);
+  border-color: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 85, 0, 0.35);
 }
 .pro-grid {
   margin-bottom: 2rem;
