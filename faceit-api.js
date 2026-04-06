@@ -287,6 +287,7 @@ const FaceitAPI = (function () {
       const headshotPercentage = parseFloat(
         lifetime["Average Headshots %"] || "0",
       );
+      const totalHeadshots = parseInt(lifetime["Total Headshots %"] || "0", 10);
 
       return {
         totalMatches,
@@ -295,7 +296,8 @@ const FaceitAPI = (function () {
         kd,
         avgKills,
         avgDeaths,
-        headshotPercentage,
+        avgHs: headshotPercentage,
+        totalHs: totalHeadshots,
       };
     } catch (error) {
       console.error("Ошибка при расчете средних показателей:", error);
@@ -306,7 +308,8 @@ const FaceitAPI = (function () {
         kd: "0.00",
         avgKills: "0.0",
         avgDeaths: "0.0",
-        headshotPercentage: 0,
+        avgHs: 0,
+        totalHs: 0,
       };
     }
   }
@@ -378,6 +381,10 @@ const FaceitAPI = (function () {
         const headshotPercentage = parseFloat(
           segment.stats?.["Average Headshots %"] || "0",
         );
+        const totalHeadshots = parseInt(
+          segment.stats?.["Total Headshots %"] || "0",
+          10,
+        );
 
         // Комплексная формула оценки карты (0-100) с учетом специфики игры
         const mapScore = calculateMapScore(
@@ -396,7 +403,8 @@ const FaceitAPI = (function () {
           deaths,
           kd,
           avgKills,
-          headshotPercentage,
+          hs: headshotPercentage,
+          totalHs: totalHeadshots,
           score: mapScore, // Добавляем общую оценку
         };
       });
