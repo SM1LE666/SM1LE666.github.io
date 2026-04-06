@@ -3935,18 +3935,6 @@ footer {
   }
 }
 
-/* --- Featured Pro Players (Main menu) --- */
-/* --- Pro Players (Main menu): pro-card styles (map-card-like) --- */
-/* Grid: 2 cards in one row on desktop with gap and side margins */
-.featured-players-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important;
-  gap: 1.5rem !important;
-  max-width: 600px !important;
-  margin: 0 auto !important;
-  padding: 0 2rem !important;
-}
-
 /* Pro card: smaller and more compact */
 .featured-player-card,
 .pro-card {
@@ -3958,10 +3946,9 @@ footer {
   border: 2px solid rgba(255, 85, 0, 0.2);
   transition: all 0.3s ease;
   position: relative;
-  cursor: pointer;
-  width: 100% !important;
+  width: 200px !important;
   max-width: none !important;
-  height: 200px !important;
+  height: 260px !important;
 }
 
 .featured-player-card::before,
@@ -4012,7 +3999,6 @@ footer {
   position: relative !important;
   z-index: 1 !important;
   overflow: hidden !important;
-  height: calc(100% - 38px) !important;
 }
 
 .featured-player-photo,
@@ -4055,4 +4041,27 @@ footer {
   .pro-card img {
     scale: 0.8;
   }
+}
+.record-filters {
+  display: grid;
+  width: 70px;
+  grid-template-areas: "grid grid grid grid grid";
+  text-align: center;
+  text-wrap: nowrap;
+}
+.pro-grid {
+  margin-bottom: 2rem;
+  background: rgba(51, 51, 51, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 85, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 1200px;
+  pointer-events: auto;
+  gap: 3rem;
+  justify-content: center;
 }
