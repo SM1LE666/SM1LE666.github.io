@@ -3790,8 +3790,7 @@ footer {
 /* --- Desktop Overview: stats rows left/right (uses formatStatRow spans) --- */
 @media (min-width: 1025px) {
   .stats-box {
-    height: 280px;
-    min-height: 280px;
+    height: 260px;
     font-variant-numeric: tabular-nums;
   }
 
