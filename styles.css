@@ -4059,10 +4059,9 @@ footer {
   text-transform: none;
   letter-spacing: 0.3px;
 }
-.record-filter h3 {
+.record-match-list h3 {
   display: none;
 }
-
 .record-filter-btn.active {
   background: rgba(255, 85, 0, 0.25);
   border-color: var(--primary-color);
@@ -4070,6 +4069,8 @@ footer {
   box-shadow: 0 0 12px rgba(255, 85, 0, 0.35);
 }
 .pro-grid {
+  display: grid;
+  grid-template-areas: "grid grid grid grid";
   margin-bottom: 2rem;
   background: rgba(51, 51, 51, 0.8);
   backdrop-filter: blur(10px);

@@ -2608,7 +2608,7 @@ async function analyzePlayer() {
               "avgStatsTitle",
             )}</h3>
             <p class="stat-row">${formatStatRow(
-              `${getText("totalMatches")}: ${window.FaceitAPI.formatNumber(
+              `${getText("Matches")}: ${window.FaceitAPI.formatNumber(
                 avgStats.totalMatches,
               )}`,
             )}</p>
@@ -2738,7 +2738,7 @@ function renderOverviewStats(container) {
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
       <p class="stat-row">${formatStatRow(
-        `${getText("totalMatches")}: ${window.FaceitAPI.formatNumber(
+        `${getText("Matches")}: ${window.FaceitAPI.formatNumber(
           avgStats.totalMatches,
         )}`,
       )}</p>
