@@ -728,6 +728,10 @@ class SidebarManager {
                         : parseFloat(map.avgKills);
                     const hs =
                       typeof map.hs === "number" ? map.hs : parseFloat(map.hs);
+                    const adr =
+                      typeof map.adr === "number"
+                        ? map.adr
+                        : parseFloat(map.adr);
 
                     html += `
                       <div class="${cardClass}" data-map="${mapKey}">
@@ -766,7 +770,7 @@ class SidebarManager {
                             <div class="map-stat-item">
                               <i class="fas fa-fire"></i>
                               <span class="stat-label">ADR</span>
-                              <span class="stat-value">${typeof map.adr === "number" ? map.adr.toFixed(1) : "-"}</span>
+                              <span class="stat-value">${!isNaN(adr) ? adr.toFixed(1) : "-"}</span>
                             </div>
                             <div class="map-stat-item">
                               <i class="fas fa-star"></i>
