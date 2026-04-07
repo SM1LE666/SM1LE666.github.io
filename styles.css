@@ -2681,7 +2681,7 @@ footer {
 }
 
 .map-stat-item i {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   color: var(--primary-color);
   margin-bottom: 0.5rem;
 }
@@ -3885,7 +3885,7 @@ footer {
 }
 
 .maps-grid .map-stat-item i {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   margin-bottom: 0.35rem;
 }
 

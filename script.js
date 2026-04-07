@@ -761,7 +761,7 @@ class SidebarManager {
                               <span class="stat-value">${!isNaN(avgKills) ? avgKills.toFixed(1) : "-"}</span>
                             </div>
                             <div class="map-stat-item">
-                              <i class="fas fa-percentage"></i>
+                              <i class="fas fa-trophy"></i>
                               <span class="stat-label">${getText("mapWinRate")}</span>
                               <span class="stat-value">${map.winRate.toFixed(1)}%</span>
                             </div>
