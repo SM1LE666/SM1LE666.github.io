@@ -737,39 +737,41 @@ class SidebarManager {
                             ${map.winRate.toFixed(1)}%
                           </div>
                         </div>
-                        
                         <div class="map-card-body">
                           <div class="map-stat-row">
                             <div class="map-stat-item">
                               <i class="fas fa-gamepad"></i>
-                              <span class="stat-label">${getText(
-                                "mapMatches",
-                              )}</span>
+                              <span class="stat-label">${getText("mapMatches")}</span>
                               <span class="stat-value">${map.matches}</span>
                             </div>
-                            <div class="map-stat-item">
-                              <i class="fas fa-percentage"></i>
-                              <span class="stat-label">${getText(
-                                "mapWinRate",
-                              )}</span>
-                              <span class="stat-value">${map.winRate.toFixed(
-                                1,
-                              )}%</span>
-                            </div>
-                          </div>
-                          
-                          <div class="map-stat-row">
                             <div class="map-stat-item">
                               <i class="fas fa-crosshairs"></i>
                               <span class="stat-label">K/D</span>
                               <span class="stat-value">${!isNaN(kd) ? kd.toFixed(2) : "-"}</span>
                             </div>
+                          </div>
+                          <div class="map-stat-row">
                             <div class="map-stat-item">
-                              <i class="fas fa-bullseye"></i>
-                              <span class="stat-label">${getText(
-                                "Headshots",
-                              )}</span>
-                              <span class="stat-value">${!isNaN(hs) ? hs.toFixed(1) : "-"}%</span>
+                              <i class="fas fa-bolt"></i>
+                              <span class="stat-label">Avg.kills</span>
+                              <span class="stat-value">${!isNaN(avgKills) ? avgKills.toFixed(1) : "-"}</span>
+                            </div>
+                            <div class="map-stat-item">
+                              <i class="fas fa-percentage"></i>
+                              <span class="stat-label">${getText("mapWinRate")}</span>
+                              <span class="stat-value">${map.winRate.toFixed(1)}%</span>
+                            </div>
+                          </div>
+                          <div class="map-stat-row">
+                            <div class="map-stat-item">
+                              <i class="fas fa-fire"></i>
+                              <span class="stat-label">ADR</span>
+                              <span class="stat-value">${typeof map.adr === "number" ? map.adr.toFixed(1) : "-"}</span>
+                            </div>
+                            <div class="map-stat-item">
+                              <i class="fas fa-star"></i>
+                              <span class="stat-label">Clutches</span>
+                              <span class="stat-value">${typeof map.clutches === "number" ? map.clutches : "-"}</span>
                             </div>
                           </div>
                         </div>
