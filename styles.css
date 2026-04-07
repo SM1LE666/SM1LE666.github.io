@@ -2391,10 +2391,11 @@ footer {
 }
 
 .map-card-body {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  padding: 1.2rem 1rem 0.5rem 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, auto);
+  gap: 0.5rem 1.2rem;
 }
 
 .stat-label {
@@ -2423,6 +2424,8 @@ footer {
   color: #ff9800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.7rem;
 }
 
 /* Цвета для различных уровней производительности */
@@ -2515,9 +2518,10 @@ footer {
 /* Maps Grid Styles */
 .maps-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 1.5rem;
-  margin-top: 1rem;
+  margin: 2rem 0;
   width: 100%;
 }
 
@@ -2530,8 +2534,11 @@ footer {
   border: 2px solid rgba(255, 85, 0, 0.2);
   transition: all 0.3s ease;
   position: relative;
-  min-height: 200px;
-  /* allow per-map backgrounds */
+  min-height: 260px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
