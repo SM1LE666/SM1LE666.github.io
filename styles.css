@@ -4038,15 +4038,9 @@ footer {
 
 /* Mobile: single column */
 @media (max-width: 768px) {
-  .featured-players-grid {
-    grid-template-columns: 1fr !important;
-    gap: 0.55rem !important;
-    max-width: 350px !important;
-    padding: 0 1rem !important;
-  }
-  .featured-player-card,
   .pro-card {
     height: 210px !important;
+    width: 170px !important;
   }
   .pro-card img {
     scale: 0.8;
