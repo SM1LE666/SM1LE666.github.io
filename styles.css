@@ -1464,7 +1464,7 @@ footer {
   }
 
   #results {
-    display: none; /* По умолчанию скрыта */
+    display: none !important;
   }
 
   /* Показываем results только когда профиль активен */
@@ -1484,12 +1484,12 @@ footer {
   /* Pro-grid управление */
   .pro-grid {
     display: grid !important;
-    grid-template-areas: "grid grid";
-    gap: 1rem;
+    grid-template-areas: "grid grid" !important;
+    gap: 1rem !important;
     padding: 0 1rem;
-    background: none;
-    border: none;
-    box-shadow: none;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   /* Скрываем pro-grid когда профиль активен */
@@ -1520,7 +1520,7 @@ footer {
 
   .pro-card-body,
   .featured-player-card-body {
-    height: calc(100% - 50px) !important;
+    height: calc(100% + 35px) !important;
   }
 
   .pro-card-photo,
