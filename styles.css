@@ -1520,7 +1520,7 @@ footer {
 
   .pro-card-body,
   .featured-player-card-body {
-    height: calc(100% + 35px) !important;
+    height: calc(100% + 110px) !important;
   }
 
   .pro-card-photo,
@@ -4076,12 +4076,12 @@ footer {
   display: grid;
   grid-template-areas: "grid grid grid grid";
   margin-bottom: 2rem;
-  background: rgba(51, 51, 51, 0.8);
-  backdrop-filter: blur(10px);
+  background: none;
+  backdrop-filter: none;
   padding: 2rem;
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 85, 0, 0.1);
+  box-shadow: none;
+  border: none;
   position: relative;
   overflow: hidden;
   width: 100%;
