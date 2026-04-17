@@ -2812,7 +2812,7 @@ footer {
     align-items: center;
     justify-content: space-between;
     flex-wrap: nowrap;
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 1rem;
     gap: 1.5rem;
     border-radius: 15px;
   }
@@ -3239,7 +3239,7 @@ footer {
 }
 
 .match-score {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: bold;
   text-align: center;
   width: 100%;
@@ -3264,7 +3264,7 @@ footer {
   padding: 0.6rem 0.3rem;
   border-radius: var(--border-radius);
   font-size: 0.9rem;
-  min-height: 60px;
+  min-height: 53px;
   min-width: 50px;
   border: 1px solid rgba(255, 85, 0, 0.1);
   transition: all 0.3s ease;
