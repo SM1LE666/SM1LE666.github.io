@@ -140,7 +140,12 @@ const FaceitAPI = (function () {
   }
 
   async function getCountryName(countryCode) {
-    if (!countryCode || countryCode === "Н/Д") {
+    const normalizedCode =
+      typeof countryCode === "string"
+        ? countryCode.trim().toUpperCase()
+        : countryCode;
+
+    if (!normalizedCode || normalizedCode === "Н/Д") {
       // Возвращаем "Неизвестно" в зависимости от текущего языка
       const currentLang = window.currentLanguage || "ru";
       const result = currentLang === "ru" ? "Неизвестно" : "Unknown";
@@ -148,14 +153,16 @@ const FaceitAPI = (function () {
       return result;
     }
 
-    if (_countryCache[countryCode]) {
-      const result = getCurrentLanguageCountryName(_countryCache[countryCode]);
+    if (_countryCache[normalizedCode]) {
+      const result = getCurrentLanguageCountryName(
+        _countryCache[normalizedCode],
+      );
       return result;
     }
 
     try {
       const response = await fetch(
-        `https://restcountries.com/v3.1/alpha/${countryCode}`,
+        `https://restcountries.com/v3.1/alpha/${normalizedCode}`,
       );
       if (!response.ok) {
         throw new Error("Не удалось получить данные о стране");
@@ -171,7 +178,7 @@ const FaceitAPI = (function () {
         rus: data[0].translations.rus?.common || data[0].name.common,
         eng: data[0].name.common,
       };
-      _countryCache[countryCode] = countryData;
+      _countryCache[normalizedCode] = countryData;
 
       // Возвращаем название в зависимости от текущего языка
       return getCurrentLanguageCountryName(countryData);
