@@ -2508,7 +2508,8 @@ footer {
   display: grid;
   grid-template-columns: repeat(3, 300px);
   grid-template-rows: repeat(2, auto);
-  gap: 1.5rem;
+  row-gap: 24px;
+  column-gap: 52px;
   margin: 2rem 0;
   width: 100%;
   justify-content: center;
@@ -2525,6 +2526,7 @@ footer {
   transition: all 0.3s ease;
   position: relative;
   min-height: 260px;
+  height: 437px;
   margin: 0;
   width: 310px;
   max-width: 310px;
