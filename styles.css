@@ -2526,8 +2526,8 @@ footer {
   position: relative;
   min-height: 260px;
   margin: 0;
-  width: 300px;
-  max-width: 300px;
+  width: 310px;
+  max-width: 310px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
