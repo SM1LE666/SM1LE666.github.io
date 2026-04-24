@@ -470,6 +470,11 @@ class SidebarManager {
         result = "WIN";
       }
 
+      const kills = Number(statsData.playerStats.Kills) || 0;
+      const headshots = Number(statsData.playerStats.Headshots) || 0;
+      const headshotPercentage =
+        kills > 0 ? Math.round((headshots / kills) * 100) : 0;
+
       return {
         matchId: match.match_id || "Unknown Match ID",
         totalMatchNumber,
@@ -477,10 +482,10 @@ class SidebarManager {
         map,
         score,
         playerStats: statsData.playerStats || {},
-        kills: statsData.playerStats.Kills || 0,
+        kills: kills,
         deaths: statsData.playerStats.Deaths || 0,
         assists: statsData.playerStats.Assists || 0,
-        headshots: statsData.playerStats.Headshots || 0,
+        headshots: headshotPercentage,
         kdRatio: statsData.playerStats["K/D Ratio"] || 0,
         mvps: statsData.playerStats.MVPs || 0,
         result,
@@ -918,8 +923,8 @@ class SidebarManager {
               <span>${match.assists}</span>
             </div>
             <div class="stat-item">
-              <i class="fas fa-crosshairs"></i> 
-              <span>${match.headshots}</span>
+              <i class="fas fa-percentage"></i> 
+              <span>${match.headshots}%</span>
             </div>
             <div class="stat-item">
               <i class="fas fa-chart-line"></i> 
@@ -1108,8 +1113,8 @@ class SidebarManager {
                 <span>${match.assists}</span>
               </div>
               <div class="stat-item">
-                <i class="fas fa-crosshairs"></i>
-                <span>${match.headshots}</span>
+                <i class="fas fa-percentage"></i>
+                <span>${match.headshots}%</span>
               </div>
               <div class="stat-item">
                 <i class="fas fa-chart-line"></i>
@@ -2778,7 +2783,7 @@ function renderOverviewStats(container) {
           `K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("hsPercentage")}: ${mapAnalysis.bestMap.hs.toFixed(1)}%`,
+          `${getText("Headshots")}: ${mapAnalysis.bestMap.hs.toFixed(1)}%`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`
@@ -2805,7 +2810,7 @@ function renderOverviewStats(container) {
           `K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`,
         )}</p>
         <p class="stat-row">${formatStatRow(
-          `${getText("hsPercentage")}: ${mapAnalysis.worstMap.hs.toFixed(1)}%`,
+          `${getText("Headshots")}: ${mapAnalysis.worstMap.hs.toFixed(1)}%`,
         )}</p>
       `
           : `<p>${getText("notEnoughData")}</p>`

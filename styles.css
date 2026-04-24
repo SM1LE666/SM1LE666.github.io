@@ -1886,13 +1886,13 @@ footer {
   /* Нижняя часть: статистика (во всю ширину) */
   .player-stats {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important; /* Строго 3 колонки */
-    grid-template-rows: repeat(2, 1fr) !important; /* Строго 2 ряда */
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
     border-top: 1px solid var(--border-color) !important;
     width: 100% !important;
     max-width: 100% !important;
-    justify-items: center !important; /* Центрируем элементы в сетке */
-    align-items: center !important; /* Центрируем элементы по вертикали */
+    justify-items: center !important;
+    align-items: center !important;
   }
 
   .stat-item {
@@ -1909,9 +1909,9 @@ footer {
     gap: 0.3rem !important;
     min-height: 55px !important;
     height: auto !important;
-    aspect-ratio: 1 !important; /* Делаем квадратными */
-    width: 100% !important; /* Занимаем всю доступную ширину ячейки */
-    max-width: 90px !important; /* Ограничиваем максимальную ширину */
+    aspect-ratio: 1 !important;
+    width: 100% !important;
+    max-width: 90px !important;
   }
 
   .stat-item i {
@@ -1928,10 +1928,9 @@ footer {
     margin: 0 !important;
   }
 
-  /* Стили для текстовых статов (K/D, MVP) - ВОЗВРАЩАЕМ ОРАНЖЕВЫЙ ЦВЕТ */
   .stat-item span:first-child {
     font-size: 0.7rem !important;
-    color: var(--primary-color) !important; /* Оранжевый цвет для KD и MVP */
+    color: var(--primary-color) !important;
     font-weight: bold !important;
   }
 
@@ -1941,7 +1940,7 @@ footer {
   }
 }
 
-/* Match History Styles - ИСПРАВЛЕНО: всегда в одну строчку */
+/* Match History Styles */
 .match-history {
   display: flex;
   flex-direction: column;
@@ -2039,19 +2038,14 @@ footer {
   gap: 6px;
 }
 
-.stat-item {
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-}
-
 .stat-item i {
-  font-size: 14px !important;
+  margin-top: 0.2rem;
+  font-size: 13.5px !important;
   margin-bottom: 1px;
 }
 
 .stat-item span {
-  font-size: 11px !important;
+  font-size: 11.7px !important;
   line-height: 1.05;
 }
 
@@ -2087,12 +2081,6 @@ footer {
 
   .player-stats {
     gap: 6px;
-  }
-
-  .stat-item {
-    width: 32px;
-    height: 32px;
-    padding: 2px 0;
   }
 
   .stat-item i {
@@ -2182,6 +2170,7 @@ footer {
     cursor: pointer;
     transition: all 0.2s ease;
     border-left: 4px solid #4caf50;
+    background: rgb(51 51 51 / 70%) !important;
   }
 
   .match-item.loss {
@@ -2815,6 +2804,7 @@ footer {
     padding: 0.8rem 1rem;
     gap: 1.5rem;
     border-radius: 15px;
+    height: 70px !important;
   }
 
   .match-date {
@@ -2873,7 +2863,7 @@ footer {
   display: flex !important;
   justify-content: center !important;
   width: 100%;
-  margin: 1.5r-em 0;
+  margin-top: 0.9rem;
 }
 #showMoreBtn {
   min-width: 200px;
@@ -3264,8 +3254,8 @@ footer {
   padding: 0.6rem 0.3rem;
   border-radius: var(--border-radius);
   font-size: 0.9rem;
-  min-height: 53px;
-  min-width: 50px;
+  min-height: 47px;
+  min-width: 47px;
   border: 1px solid rgba(255, 85, 0, 0.1);
   transition: all 0.3s ease;
 }
@@ -3742,62 +3732,6 @@ footer {
     line-height: 1.32;
   }
 }
-
-/* --- Desktop Overview: stats-box fixed height + better row spacing/alignment --- */
-/* (disabled: replaced by `.stats-box p.stat-row` rules below)
-@media (min-width: 1025px) {
-  .stats-box {
-    height: 280px;
-    min-height: 280px;
-  }
-
-  .stats-box p {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-
-    font-size: 0.98rem;
-    margin: 0.65rem 0;
-    line-height: 1.35;
-    white-space: nowrap;
-  }
-
-  .stats-box p::before {
-    content: none;
-  }
-
-  .stats-box p {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-*/
-
-/* (disabled: replaced by `.stats-box p.stat-row` rules below)
-@media (min-width: 1025px) {
-  .stats-box p {
-    white-space: normal;
-  }
-
-  .stats-box p {
-    justify-content: flex-start;
-  }
-
-  .stats-box p {
-    position: relative;
-  }
-
-  .stats-box p::after {
-    content: "";
-    flex: 1;
-  }
-
-  .stats-box {
-    font-variant-numeric: tabular-nums;
-  }
-}
-*/
 
 /* --- Desktop Overview: stats rows left/right (uses formatStatRow spans) --- */
 @media (min-width: 1025px) {
