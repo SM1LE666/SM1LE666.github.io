@@ -3195,6 +3195,7 @@ function applyMapCardBackgrounds(container) {
     overpass: "./images/overpass.jpg",
     train: "./images/train.jpg",
     vertigo: "./images/vertigo.jpg",
+    cache: "./images/cache.jpg",
   };
 
   mapCards.forEach((card) => {
