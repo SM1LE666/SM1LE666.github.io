@@ -1545,7 +1545,7 @@ const translations = {
     supportStep2: "Select items to trade",
     supportStep3: "Send trade offer",
     supportNote:
-      "Any CS:2, CS:GO skins or other game items will be accepted with gratitude!",
+      "Any CS:2 skins or other game items will be accepted with gratitude!",
 
     // Contact modal
     contactTitle: "Send Message",
