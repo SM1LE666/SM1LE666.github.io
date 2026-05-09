@@ -14,16 +14,29 @@ function updateUrlForPlayer(nickname) {
   // Обновляем URL, только если он отличается, чтобы не создавать лишних записей в истории
   if (window.location.pathname !== path) {
     history.pushState({ nickname: nickname }, title, path);
+    lastHandledPath = path; // Синхронизируем состояние пути
   }
   // Заголовок документа обновляем всегда
   document.title = title;
 }
+
+let lastHandledPath = null; // Защита от двойного вызова handleUrlChange
 
 /**
  * Обрабатывает изменения URL (при загрузке или навигации) и загружает соответствующий контент.
  */
 async function handleUrlChange() {
   const path = window.location.pathname;
+
+  // Защита от множественных вызовов для одного пути
+  if (lastHandledPath === path) {
+    console.log("Path уже обработан, игнорируем:", path);
+    return;
+  }
+
+  lastHandledPath = path;
+  console.log("Обработка нового пути:", path);
+
   // Ищем URL вида /player/nickname
   const match = path.match(/^\/player\/([a-zA-Z0-9_-]+)$/);
 
