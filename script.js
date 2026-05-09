@@ -35,8 +35,9 @@ async function handleUrlChange() {
     }
     // Запускаем поиск, но указываем, что URL обновлять не нужно (мы уже на нем)
     await searchPlayer(false);
-  } else if (path === "/") {
-    // Если мы на главной странице, сбрасываем все
+  } else {
+    // Любой другой путь, не являющийся профилем игрока, считаем главной страницей.
+    // Это исправляет проблему с работой на GitHub Pages в подпапках.
     const nicknameInput = document.getElementById("nickname");
     if (nicknameInput && nicknameInput.value) {
       nicknameInput.value = "";
