@@ -1,4 +1,5 @@
 {
+  "rewrites": [{ "source": "/player/:nickname", "destination": "/" }],
   "crons": [
     {
       "path": "/api/cron-report",

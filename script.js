@@ -4,6 +4,47 @@ let currentPlayerProfile = null; // Текущий профиль игрока
 let sidebarManager = null; // Менеджер сайдбара
 const REQUEST_DELAY = 30; // Задержка в мс между запросами
 
+/**
+ * Обновляет URL в адресной строке для отображаемого игрока.
+ * @param {string | null} nickname - Никнейм игрока или null для сброса на главную.
+ */
+function updateUrlForPlayer(nickname) {
+  const path = nickname ? `/player/${nickname}` : "/";
+  const title = nickname ? `FACEIT Analyze - ${nickname}` : "FACEIT Analyze";
+  // Обновляем URL, только если он отличается, чтобы не создавать лишних записей в истории
+  if (window.location.pathname !== path) {
+    history.pushState({ nickname: nickname }, title, path);
+  }
+  // Заголовок документа обновляем всегда
+  document.title = title;
+}
+
+/**
+ * Обрабатывает изменения URL (при загрузке или навигации) и загружает соответствующий контент.
+ */
+async function handleUrlChange() {
+  const path = window.location.pathname;
+  // Ищем URL вида /player/nickname
+  const match = path.match(/^\/player\/([a-zA-Z0-9_-]+)$/);
+
+  if (match && match[1]) {
+    const nickname = match[1];
+    const nicknameInput = document.getElementById("nickname");
+    if (nicknameInput) {
+      nicknameInput.value = nickname;
+    }
+    // Запускаем поиск, но указываем, что URL обновлять не нужно (мы уже на нем)
+    await searchPlayer(false);
+  } else if (path === "/") {
+    // Если мы на главной странице, сбрасываем все
+    const nicknameInput = document.getElementById("nickname");
+    if (nicknameInput && nicknameInput.value) {
+      nicknameInput.value = "";
+    }
+    goBackToMain(false); // Не обновляем URL, так как мы уже на главной
+  }
+}
+
 class SidebarManager {
   constructor() {
     this.sidebar = document.getElementById("sidebar");
@@ -150,6 +191,10 @@ class SidebarManager {
         updateCookieFabVisibility();
       });
     }
+  }
+
+  goBackToMainMenu() {
+    goBackToMain(true); // true означает, что нужно обновить URL
   }
 
   showForPlayerProfile() {
@@ -1081,7 +1126,7 @@ class SidebarManager {
           match.deaths > 0
             ? (match.kills / match.deaths).toFixed(2)
             : match.kills > 0
-              ? ""
+              ? "∞"
               : "0.00";
 
         let matchUrl = "";
