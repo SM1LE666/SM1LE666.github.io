@@ -2225,6 +2225,13 @@ function init() {
     }
   });
 
+  // === ИСПРАВЛЕНИЕ SPA-МАРШРУТИЗАЦИИ ===
+  // Обработчик для кнопок "Назад" и "Вперед" в браузере
+  window.addEventListener("popstate", handleUrlChange);
+
+  // Обработчик маршрутизации при загрузке страницы
+  handleUrlChange();
+
   // Обновляем интерфейс
   updateLanguageButtons();
   updatePageTexts();
@@ -2304,6 +2311,11 @@ function initializeEventListeners() {
       if (event.key === "Enter") {
         event.preventDefault();
         analyzePlayer();
+        // Обновляем URL после анализа
+        const nickname = event.target.value.trim();
+        if (nickname) {
+          updateUrlForPlayer(nickname);
+        }
       }
     });
 
@@ -2327,6 +2339,10 @@ function initializeEventListeners() {
       const nicknameValue = document.getElementById("nickname")?.value?.trim();
       trackEvent("analyze_click", { input: nicknameValue || null });
       analyzePlayer();
+      // Обновляем URL после анализа
+      if (nicknameValue) {
+        updateUrlForPlayer(nicknameValue);
+      }
     });
   }
 
@@ -2782,6 +2798,82 @@ async function analyzePlayer() {
 
     // Показываем сообщение об ошибке
     alert(`${getText("error")}: ${error.message}`);
+  }
+}
+
+/**
+ * Функция для поиска игрока из маршрутизации (handleUrlChange).
+ * @param {boolean} updateUrl - Нужно ли обновлять URL (true для поиска вручную, false при загрузке из URL)
+ */
+async function searchPlayer(updateUrl = true) {
+  const nicknameInput = document.getElementById("nickname");
+  const nickname = nicknameInput?.value?.trim();
+
+  if (!nickname) {
+    console.warn("Никнейм пуст, игнорируем поиск");
+    return;
+  }
+
+  // Вызываем основную функцию анализа
+  await analyzePlayer();
+
+  // Обновляем URL если нужно (т.е. если поиск инициирован вручную)
+  if (updateUrl) {
+    updateUrlForPlayer(nickname);
+  }
+}
+
+/**
+ * Функция для возврата на главную страницу.
+ * @param {boolean} updateUrl - Нужно ли обновлять URL
+ */
+function goBackToMain(updateUrl = true) {
+  const output = document.getElementById("output");
+  const playerStatsContainer = document.getElementById("playerStats");
+  const resultsSection = document.getElementById("results");
+  const proGrid = document.querySelector(".pro-grid");
+
+  // Скрываем результаты поиска
+  if (playerStatsContainer) {
+    playerStatsContainer.innerHTML = "";
+    playerStatsContainer.style.display = "none";
+  }
+
+  if (resultsSection) {
+    resultsSection.style.display = "none";
+  }
+
+  // Показываем про сетку и очищаем вывод
+  if (proGrid) {
+    proGrid.style.display = "block";
+  }
+
+  if (output) {
+    output.style.display = "none";
+    output.textContent = "";
+  }
+
+  // Убираем класс для восстановления видимости поиска
+  document.body.classList.remove("profile-active");
+
+  // Деактивируем сайдбар
+  if (sidebarManager) {
+    sidebarManager.hideForPlayerProfile();
+  }
+
+  // Очищаем поле ввода
+  const nicknameInput = document.getElementById("nickname");
+  if (nicknameInput) {
+    nicknameInput.value = "";
+  }
+
+  // Сбрасываем текущий профиль
+  currentPlayerProfile = null;
+  window.currentPlayerProfile = null;
+
+  // Обновляем URL если нужно
+  if (updateUrl) {
+    updateUrlForPlayer(null);
   }
 }
 
