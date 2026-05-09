@@ -2841,8 +2841,10 @@ async function searchPlayer(updateUrl = true) {
   await analyzePlayer();
 
   // Обновляем URL если нужно (т.е. если поиск инициирован вручную)
+  // Используем реальный ник FACEIT из playerData (особенно важно для Steam вводов)
   if (updateUrl) {
-    updateUrlForPlayer(nickname);
+    const faceitNickname = window.currentPlayerData?.nickname || nickname;
+    updateUrlForPlayer(faceitNickname);
   }
 }
 
@@ -2908,6 +2910,7 @@ function renderOverviewStats(container) {
 
   // Полностью очищаем контейнер
   container.innerHTML = "";
+  console.log("Overview container cleared, rendering new content...");
 
   const overviewHTML = `
     <div class="stats-box slide-in-animation">
@@ -2982,7 +2985,8 @@ function renderOverviewStats(container) {
     </div>
   `;
 
-  container.innerHTML += overviewHTML;
+  container.innerHTML = overviewHTML;
+  console.log("Overview stats rendered successfully");
 }
 
 // Helper: format a "Label: value" string into left/right spans without changing text.
@@ -3347,6 +3351,7 @@ function applyMapCardBackgrounds(container) {
   if (!container) return;
 
   const mapCards = container.querySelectorAll(".map-card");
+  console.log("Found map cards:", mapCards.length);
 
   // Маппинг названий карт к фоновым изображениям
   const mapBackgrounds = {
@@ -3362,8 +3367,10 @@ function applyMapCardBackgrounds(container) {
     cache: "./images/cache.jpg",
   };
 
+  let appliedCount = 0;
   mapCards.forEach((card) => {
     const mapKey = card.getAttribute("data-map");
+    console.log("Processing map card with key:", mapKey);
 
     if (mapKey && mapBackgrounds[mapKey]) {
       // Применяем фон непосредственно к карточке (не к body)
@@ -3373,10 +3380,14 @@ function applyMapCardBackgrounds(container) {
       card.style.backgroundRepeat = "no-repeat";
       // Добавляем класс для активации оверлея
       card.classList.add("has-map-bg");
+      appliedCount++;
+      console.log(`Applied background for ${mapKey}`);
     }
   });
 
-  console.log("Map card backgrounds applied");
+  console.log(
+    `Map card backgrounds applied: ${appliedCount} of ${mapCards.length}`,
+  );
 }
 
 // NOTE: Featured pro players cards functionality was rolled back.
