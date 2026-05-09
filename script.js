@@ -2327,12 +2327,8 @@ function initializeEventListeners() {
     nicknameInput.addEventListener("keypress", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        analyzePlayer();
-        // Обновляем URL после анализа
-        const nickname = event.target.value.trim();
-        if (nickname) {
-          updateUrlForPlayer(nickname);
-        }
+        // Используем searchPlayer вместо analyzePlayer для правильной маршрутизации
+        searchPlayer(true);
       }
     });
 
@@ -2355,11 +2351,8 @@ function initializeEventListeners() {
       e.preventDefault();
       const nicknameValue = document.getElementById("nickname")?.value?.trim();
       trackEvent("analyze_click", { input: nicknameValue || null });
-      analyzePlayer();
-      // Обновляем URL после анализа
-      if (nicknameValue) {
-        updateUrlForPlayer(nicknameValue);
-      }
+      // Используем searchPlayer вместо analyzePlayer для правильной маршрутизации
+      searchPlayer(true);
     });
   }
 

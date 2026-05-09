@@ -3890,7 +3890,7 @@ footer {
   border: 2px solid rgba(255, 85, 0, 0.2);
   transition: all 0.3s ease;
   position: relative;
-  width: 100% !important;
+  width: 200px !important;
   max-width: none !important;
   height: 260px !important;
 }
@@ -3960,10 +3960,6 @@ footer {
 
 /* Responsive: tablet - keep 2 columns */
 @media (max-width: 1024px) {
-  .pro-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
   .featured-players-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.45rem !important;
@@ -3976,15 +3972,10 @@ footer {
 
 /* Mobile: single column */
 @media (max-width: 768px) {
-  .pro-grid {
-    grid-template-columns: 1fr;
-    gap: 1.2rem;
-    padding: 1rem 0.5rem;
-  }
   .pro-card {
     height: 200px !important;
-    width: 100% !important;
-    max-width: none !important;
+    width: 150px !important;
+    max-width: 100% !important;
   }
   .pro-card img {
     width: 100% !important;
@@ -4021,7 +4012,7 @@ footer {
 }
 .pro-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-areas: "grid grid grid grid";
   margin-bottom: 2rem;
   background: none;
   backdrop-filter: none;
@@ -4034,7 +4025,6 @@ footer {
   width: 100%;
   max-width: 1200px;
   pointer-events: auto;
-  gap: 2rem;
+  gap: 3rem;
   justify-content: center;
-  align-items: stretch;
 }
