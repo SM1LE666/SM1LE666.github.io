@@ -45,14 +45,21 @@ async function handleUrlChange() {
     const nickname = decodeURIComponent(match[1]);
     console.log("Загрузка профиля для:", nickname);
 
+    // Убеждаемся что поле ввода существует и содержит никнейм
     const nicknameInput = document.getElementById("nickname");
     if (nicknameInput) {
       nicknameInput.value = nickname;
+      console.log("Установлено значение в input:", nickname);
+    } else {
+      console.warn("Input поле 'nickname' не найдено в DOM");
     }
 
     try {
-      // Запускаем поиск, но указываем, что URL обновлять не нужно (мы уже на нем)
-      await searchPlayer(false);
+      // Даем браузеру время обновить DOM перед вызовом searchPlayer
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Запускаем поиск без обновления URL (мы уже на нем)
+      await searchPlayer(nickname, false);
       console.log("Профиль успешно загружен:", nickname);
     } catch (error) {
       console.error("Ошибка при загрузке профиля:", error);
@@ -2259,6 +2266,15 @@ async function init() {
   updateLanguageButtons();
   updatePageTexts();
 
+  // ВАЖНО: загружаем конфигурацию ДО обработки маршрутов
+  console.log("Загрузка конфигурации...");
+  try {
+    await window.Config.loadConfig();
+    console.log("Конфигурация успешно загружена");
+  } catch (error) {
+    console.error("Ошибка при загрузке конфигурации:", error);
+  }
+
   // Диагностическая проверка загрузки FaceitAPI
   checkFaceitAPI();
 
@@ -2266,7 +2282,9 @@ async function init() {
   isInitialized = true;
 
   // Обработчик маршрутизации при загрузке страницы (с await для ожидания загрузки профиля)
+  console.log("Обработка маршрутизации...");
   await handleUrlChange();
+  console.log("Инициализация завершена");
 }
 
 // Отдельная функция для инициализации обработчиков событий
@@ -2337,7 +2355,8 @@ function initializeEventListeners() {
       if (event.key === "Enter") {
         event.preventDefault();
         // Используем searchPlayer вместо analyzePlayer для правильной маршрутизации
-        searchPlayer(true);
+        // null = берет из input, true = обновляет URL
+        searchPlayer(null, true);
       }
     });
 
@@ -2361,7 +2380,8 @@ function initializeEventListeners() {
       const nicknameValue = document.getElementById("nickname")?.value?.trim();
       trackEvent("analyze_click", { input: nicknameValue || null });
       // Используем searchPlayer вместо analyzePlayer для правильной маршрутизации
-      searchPlayer(true);
+      // null = берет из input, true = обновляет URL
+      searchPlayer(null, true);
     });
   }
 
@@ -2425,7 +2445,7 @@ function initializeProPlayerCards() {
       card.style.cursor = "pointer";
 
       // Добавляем обработчик клика
-      card.addEventListener("click", () => {
+      card.addEventListener("click", async () => {
         const steamUrl = proPlayers[playerName];
         const nicknameInput = document.getElementById("nickname");
 
@@ -2439,13 +2459,21 @@ function initializeProPlayerCards() {
             behavior: "smooth",
           });
 
-          // Запускаем анализ игрока через небольшую задержку для плавности
-          setTimeout(() => {
-            analyzePlayer();
-            // Обновляем URL с именем про-игрока для SPA-маршрутизации
-            // Используем playerName как идентификатор для URL
-            updateUrlForPlayer(playerName);
-          }, 300);
+          // Запускаем анализ игрока и ЖДЕМ завершения
+          try {
+            // Даем браузеру время на рендеринг
+            await new Promise((resolve) => setTimeout(resolve, 300));
+
+            // Анализируем игрока и ждем результат
+            await analyzePlayer();
+
+            // ТЕПЕРЬ используем правильный FACEIT ник из window.currentPlayerData
+            const faceitNick = window.currentPlayerData?.nickname || playerName;
+            console.log("Pro-card: обновляем URL с ником", faceitNick);
+            updateUrlForPlayer(faceitNick);
+          } catch (error) {
+            console.error("Pro-card: ошибка при анализе игрока:", error);
+          }
         }
       });
 
@@ -2547,9 +2575,12 @@ async function analyzePlayer() {
   const nickname = nicknameInput?.value?.trim();
 
   if (!nickname) {
+    console.error("Никнейм не указан в поле ввода");
     alert(getText("enterNicknameValidation"));
     return;
   }
+
+  console.log("analyzePlayer: начало анализа для", nickname);
 
   const output = document.getElementById("output");
   const playerStatsContainer = document.getElementById("playerStats");
@@ -2566,8 +2597,16 @@ async function analyzePlayer() {
   try {
     // Загружаем конфигурацию если не загружена
     if (!window.Config.loaded) {
+      console.log("analyzePlayer: загрузка конфигурации...");
       await window.Config.loadConfig();
     }
+
+    // Убеждаемся что FaceitAPI готов
+    if (!window.FaceitAPI) {
+      throw new Error("FaceitAPI не загружена");
+    }
+
+    console.log("analyzePlayer: все зависимости готовы");
 
     const apiKey = window.Config.getApiKey();
 
@@ -2575,15 +2614,18 @@ async function analyzePlayer() {
 
     // If user pasted Steam link/SteamID/vanity, resolve Faceit player first.
     if (isSteamInput(nickname)) {
+      console.log("analyzePlayer: Steam вход обнаружен");
       trackEvent("analyze_input_steam", { input: nickname });
       const faceitPlayer = await resolveFaceitPlayerFromSteam(nickname);
       // `faceitPlayer` is the same shape as /players?nickname response
       playerData = faceitPlayer;
     } else {
       // Получаем данные игрока по никнейму/Faceit URL
+      console.log("analyzePlayer: загрузка данных игрока");
       playerData = await window.FaceitAPI.getPlayerData(nickname, apiKey);
     }
 
+    console.log("analyzePlayer: данные получены", playerData);
     window.currentPlayerData = playerData; // Сохраняем для использования в переводах
 
     // Track resolved player (input -> player id)
@@ -2828,11 +2870,24 @@ async function analyzePlayer() {
 
 /**
  * Функция для поиска игрока из маршрутизации (handleUrlChange).
+ * @param {string|null} nicknameParam - Никнейм для поиска (если null, берется из input)
  * @param {boolean} updateUrl - Нужно ли обновлять URL (true для поиска вручную, false при загрузке из URL)
  */
-async function searchPlayer(updateUrl = true) {
+async function searchPlayer(nicknameParam = null, updateUrl = true) {
+  let nickname;
   const nicknameInput = document.getElementById("nickname");
-  const nickname = nicknameInput?.value?.trim();
+
+  if (nicknameParam) {
+    // Используем переданный никнейм
+    nickname = nicknameParam.trim();
+    // ВАЖНО: устанавливаем в input поле, так как analyzePlayer() читает из input
+    if (nicknameInput) {
+      nicknameInput.value = nickname;
+    }
+  } else {
+    // Берем из input поля
+    nickname = nicknameInput?.value?.trim();
+  }
 
   if (!nickname) {
     console.warn("Никнейм пуст, игнорируем поиск");
