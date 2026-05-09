@@ -600,6 +600,15 @@ class SidebarManager {
 
           if (search) search.style.display = "none";
 
+          // Удаляем все элементы карт и истории матчей если есть (ДО рендеринга нового контента)
+          statsContainer
+            .querySelectorAll(
+              ".maps-grid, .match-history, .map-card, .loading-indicator",
+            )
+            .forEach((element) => {
+              element.remove();
+            });
+
           // Генерируем HTML для обзора с актуальными переводами
           renderOverviewStats(statsContainer);
 
@@ -613,17 +622,11 @@ class SidebarManager {
 
           statsContainer.style.display = "grid";
 
-          // Показываем все блоки статистики и удаляем карточки карт
+          // Показываем все блоки статистики
           statsContainer.querySelectorAll(".stats-box").forEach((box) => {
             box.style.display = "block";
           });
 
-          // Удаляем все элементы карт и истории матчей если есть
-          statsContainer
-            .querySelectorAll(".maps-grid, .match-history, .map-card")
-            .forEach((element) => {
-              element.remove();
-            });
           break;
 
         case "matches": {
@@ -2903,6 +2906,9 @@ function renderOverviewStats(container) {
 
   const { avgStats, mapAnalysis } = window.currentPlayerProfile;
 
+  // Полностью очищаем контейнер
+  container.innerHTML = "";
+
   const overviewHTML = `
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
@@ -2976,7 +2982,7 @@ function renderOverviewStats(container) {
     </div>
   `;
 
-  container.innerHTML = overviewHTML;
+  container.innerHTML += overviewHTML;
 }
 
 // Helper: format a "Label: value" string into left/right spans without changing text.
@@ -3360,13 +3366,13 @@ function applyMapCardBackgrounds(container) {
     const mapKey = card.getAttribute("data-map");
 
     if (mapKey && mapBackgrounds[mapKey]) {
-      const cardBody = card.querySelector(".map-card-body");
-      if (cardBody) {
-        cardBody.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('${mapBackgrounds[mapKey]}')`;
-        cardBody.style.backgroundSize = "cover";
-        cardBody.style.backgroundPosition = "center";
-        cardBody.style.backgroundRepeat = "no-repeat";
-      }
+      // Применяем фон непосредственно к карточке (не к body)
+      card.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('${mapBackgrounds[mapKey]}')`;
+      card.style.backgroundSize = "cover";
+      card.style.backgroundPosition = "center";
+      card.style.backgroundRepeat = "no-repeat";
+      // Добавляем класс для активации оверлея
+      card.classList.add("has-map-bg");
     }
   });
 
