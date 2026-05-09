@@ -2509,6 +2509,7 @@ footer {
   grid-template-columns: repeat(3, 300px);
   grid-template-rows: repeat(2, auto);
   row-gap: 24px;
+  column-gap: 24px;
   margin: 2rem 0;
   width: 100%;
   justify-content: center;
@@ -2524,16 +2525,16 @@ footer {
   border: 2px solid rgba(255, 85, 0, 0.2);
   transition: all 0.3s ease;
   position: relative;
-  min-height: 260px;
+  min-height: 280px;
   margin: 0;
   width: 300px;
   max-width: 300px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 /* --- Maps: background images from /images (optional per card) --- */
@@ -2761,27 +2762,41 @@ footer {
 }
 
 /* Responsive styles for maps */
+/* Tablet: 2 columns */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .maps-grid {
+    grid-template-columns: repeat(2, 300px);
+  }
+}
+
 @media (max-width: 768px) {
   .maps-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 
+  .map-card {
+    width: 100%;
+    max-width: 100%;
+    min-height: 280px;
+  }
+
   .map-stat-row {
-    flex-direction: column;
-    gap: 0.5rem;
+    flex-direction: row;
+    gap: 0.3rem;
   }
 
   .map-stat-item {
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    padding: 0.6rem;
+    padding: 0.4rem;
+    font-size: 0.75rem;
   }
 
   .map-stat-item i {
-    margin-bottom: 0;
-    margin-right: 0.5rem;
+    margin-bottom: 0.2rem;
+    margin-right: 0;
   }
 
   .maps-table {

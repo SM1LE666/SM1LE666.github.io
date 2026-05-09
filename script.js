@@ -43,15 +43,24 @@ async function handleUrlChange() {
   if (match && match[1]) {
     // Декодируем никнейм из URL
     const nickname = decodeURIComponent(match[1]);
+    console.log("Загрузка профиля для:", nickname);
+
     const nicknameInput = document.getElementById("nickname");
     if (nicknameInput) {
       nicknameInput.value = nickname;
     }
-    // Запускаем поиск, но указываем, что URL обновлять не нужно (мы уже на нем)
-    await searchPlayer(false);
+
+    try {
+      // Запускаем поиск, но указываем, что URL обновлять не нужно (мы уже на нем)
+      await searchPlayer(false);
+      console.log("Профиль успешно загружен:", nickname);
+    } catch (error) {
+      console.error("Ошибка при загрузке профиля:", error);
+      alert(`Ошибка: ${error.message}`);
+    }
   } else {
     // Любой другой путь, не являющийся профилем игрока, считаем главной страницей.
-    // Это исправляет проблему с работой на GitHub Pages в подпапках.
+    console.log("Переход на главную страницу");
     const nicknameInput = document.getElementById("nickname");
     if (nicknameInput && nicknameInput.value) {
       nicknameInput.value = "";
@@ -2207,7 +2216,7 @@ async function updateCountryInPlayerInfo(paragraph, originalText) {
 }
 
 // Функция для инициализации приложения
-function init() {
+async function init() {
   // Предотвращаем множественную инициализацию
   if (isInitialized) {
     console.log("Приложение уже инициализировано");
@@ -2246,18 +2255,18 @@ function init() {
   // Обработчик для кнопок "Назад" и "Вперед" в браузере
   window.addEventListener("popstate", handleUrlChange);
 
-  // Обработчик маршрутизации при загрузке страницы
-  handleUrlChange();
-
-  // Обновляем интерфейс
+  // Обновляем интерфейс ПЕРЕД обработкой маршрута
   updateLanguageButtons();
   updatePageTexts();
 
   // Диагностическая проверка загрузки FaceitAPI
   checkFaceitAPI();
 
-  // Помечаем как инициализированное
+  // Помечаем как инициализированное ДО маршрутизации
   isInitialized = true;
+
+  // Обработчик маршрутизации при загрузке страницы (с await для ожидания загрузки профиля)
+  await handleUrlChange();
 }
 
 // Отдельная функция для инициализации обработчиков событий
@@ -2903,7 +2912,6 @@ function renderOverviewStats(container) {
 
   // Полностью очищаем контейнер
   container.innerHTML = "";
-  console.log("Overview container cleared, rendering new content...");
 
   const overviewHTML = `
     <div class="stats-box slide-in-animation">
@@ -2979,7 +2987,6 @@ function renderOverviewStats(container) {
   `;
 
   container.innerHTML = overviewHTML;
-  console.log("Overview stats rendered successfully");
 }
 
 // Helper: format a "Label: value" string into left/right spans without changing text.
@@ -3344,7 +3351,6 @@ function applyMapCardBackgrounds(container) {
   if (!container) return;
 
   const mapCards = container.querySelectorAll(".map-card");
-  console.log("Found map cards:", mapCards.length);
 
   // Маппинг названий карт к фоновым изображениям
   const mapBackgrounds = {
@@ -3360,27 +3366,20 @@ function applyMapCardBackgrounds(container) {
     cache: "./images/cache.jpg",
   };
 
-  let appliedCount = 0;
   mapCards.forEach((card) => {
     const mapKey = card.getAttribute("data-map");
-    console.log("Processing map card with key:", mapKey);
 
     if (mapKey && mapBackgrounds[mapKey]) {
-      // Применяем фон непосредственно к карточке (не к body)
+      // Применяем фон непосредственно к карточке с !important для приоритета
       card.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('${mapBackgrounds[mapKey]}')`;
-      card.style.backgroundSize = "cover";
-      card.style.backgroundPosition = "center";
-      card.style.backgroundRepeat = "no-repeat";
+      card.style.backgroundSize = "cover !important";
+      card.style.backgroundPosition = "center !important";
+      card.style.backgroundRepeat = "no-repeat !important";
+      card.style.backgroundAttachment = "fixed";
       // Добавляем класс для активации оверлея
       card.classList.add("has-map-bg");
-      appliedCount++;
-      console.log(`Applied background for ${mapKey}`);
     }
   });
-
-  console.log(
-    `Map card backgrounds applied: ${appliedCount} of ${mapCards.length}`,
-  );
 }
 
 // NOTE: Featured pro players cards functionality was rolled back.
