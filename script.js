@@ -3409,31 +3409,37 @@ function applyMapCardBackgrounds(container) {
 
   const mapCards = container.querySelectorAll(".map-card");
 
+  const assetBaseUrl = (() => {
+    const basePath = window.location.pathname.replace(/\/player\/.*$/, "/");
+    const normalizedBase = basePath.endsWith("/") ? basePath : `${basePath}/`;
+    return new URL(normalizedBase, window.location.origin).toString();
+  })();
+
   // Маппинг названий карт к фоновым изображениям
   const mapBackgrounds = {
-    ancient: "./images/ancient.jpg",
-    anubis: "./images/anubis.jpg",
-    dust2: "./images/dust2.jpg",
-    inferno: "./images/inferno.jpg",
-    mirage: "./images/mirage.jpg",
-    nuke: "./images/nuke.jpg",
-    overpass: "./images/overpass.jpg",
-    train: "./images/train.jpg",
-    vertigo: "./images/vertigo.jpg",
-    cache: "./images/cache.jpg",
+    ancient: new URL("images/ancient.jpg", assetBaseUrl).toString(),
+    anubis: new URL("images/anubis.jpg", assetBaseUrl).toString(),
+    dust2: new URL("images/dust2.jpg", assetBaseUrl).toString(),
+    inferno: new URL("images/inferno.jpg", assetBaseUrl).toString(),
+    mirage: new URL("images/mirage.jpg", assetBaseUrl).toString(),
+    nuke: new URL("images/nuke.jpg", assetBaseUrl).toString(),
+    overpass: new URL("images/overpass.jpg", assetBaseUrl).toString(),
+    train: new URL("images/train.jpg", assetBaseUrl).toString(),
+    vertigo: new URL("images/vertigo.jpg", assetBaseUrl).toString(),
+    cache: new URL("images/cache.jpg", assetBaseUrl).toString(),
   };
 
   mapCards.forEach((card) => {
     const mapKey = card.getAttribute("data-map");
 
     if (mapKey && mapBackgrounds[mapKey]) {
-      // Применяем фон непосредственно к карточке с !important для приоритета
+      // Применяем фон непосредственно к карточке
       const imagePath = mapBackgrounds[mapKey];
       card.style.setProperty("--map-bg-url", `url('${imagePath}')`);
       card.style.backgroundImage = `linear-gradient(135deg, rgba(26, 26, 26, 0.25), rgba(255, 85, 0, 0.08)), url('${imagePath}')`;
-      card.style.backgroundSize = "cover !important";
-      card.style.backgroundPosition = "center !important";
-      card.style.backgroundRepeat = "no-repeat !important";
+      card.style.backgroundSize = "cover";
+      card.style.backgroundPosition = "center";
+      card.style.backgroundRepeat = "no-repeat";
       // Добавляем класс для активации оверлея
       card.classList.add("has-map-bg");
     }

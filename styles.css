@@ -1484,7 +1484,7 @@ footer {
   /* Pro-grid управление */
   .pro-grid {
     display: grid !important;
-    grid-template-areas: "grid grid" !important;
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: 1.2rem !important;
     padding: 1.5rem 1rem;
     background: none !important;
@@ -4027,7 +4027,7 @@ footer {
 }
 .pro-grid {
   display: grid;
-  grid-template-areas: "grid grid grid grid";
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   margin-bottom: 2rem;
   background: none;
   backdrop-filter: none;
@@ -4036,10 +4036,15 @@ footer {
   box-shadow: none;
   border: none;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   width: 100%;
   max-width: 1200px;
   pointer-events: auto;
   gap: 3rem;
   justify-content: center;
+  justify-items: center;
+}
+
+.pro-grid::before {
+  content: none;
 }
