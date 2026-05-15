@@ -2689,7 +2689,7 @@ async function analyzePlayer() {
         <div class="player-avatar">
           <img src="${playerData.avatar || ".png"}" alt="${
             playerData.nickname
-          }" onerror="this.src='logooo.png'">
+          }" onerror="this.src='/logooo.png'">
         </div>
         <div class="player-info">
           <h2>${playerData.nickname}</h2>
@@ -2711,7 +2711,7 @@ async function analyzePlayer() {
           )}</p>
           <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
           <img 
-            src="faceit.png" 
+            src="/faceit.png" 
             alt="${getText("faceitProfile")}"
             title="${getText("faceitProfile")}"
             onclick="window.open('https://www.faceit.com/${
@@ -2896,6 +2896,8 @@ function goBackToMain(updateUrl = true) {
   const playerStatsContainer = document.getElementById("playerStats");
   const resultsSection = document.getElementById("results");
   const proGrid = document.querySelector(".pro-grid");
+  const searchSection = document.getElementById("search");
+  const nicknameInput = document.getElementById("nickname");
 
   // Скрываем результаты поиска
   if (playerStatsContainer) {
@@ -2912,9 +2914,19 @@ function goBackToMain(updateUrl = true) {
     proGrid.style.display = "grid";
   }
 
+  // Возвращаем строку поиска
+  if (searchSection) {
+    searchSection.style.display = "block";
+  }
+
   if (output) {
     output.style.display = "none";
     output.textContent = "";
+  }
+
+  // Очищаем поле ввода
+  if (nicknameInput) {
+    nicknameInput.value = "";
   }
 
   // Убираем класс для восстановления видимости поиска
@@ -2925,16 +2937,16 @@ function goBackToMain(updateUrl = true) {
     sidebarManager.hideForPlayerProfile();
   }
 
-  // Очищаем поле ввода
-  const nicknameInput = document.getElementById("nickname");
-  if (nicknameInput) {
-    nicknameInput.value = "";
-  }
-
   // Сбрасываем текущий профиль
   currentPlayerProfile = null;
   window.currentPlayerProfile = null;
   window.currentPlayerData = null;
+
+  // Прокручиваем к началу страницы с плавной анимацией
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
 
   // Обновляем URL если нужно
   if (updateUrl) {
