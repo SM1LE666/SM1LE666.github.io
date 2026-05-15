@@ -1284,25 +1284,7 @@ class SidebarManager {
 
   // Функция возврата в главное меню
   goBackToMainMenu() {
-    // Очищаем поле поиска
-    const nicknameInput = document.getElementById("nickname");
-    if (nicknameInput) {
-      nicknameInput.value = "";
-    }
-
-    // Очищаем профиль игрока
-    clearPlayerProfile();
-
-    // Убираем класс для отображения поиска
-    document.body.classList.remove("profile-active");
-
-    // Прокручиваем к началу страницы с плавной анимацией
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-
-    console.log("Возврат в главное меню");
+    goBackToMain(true);
   }
 
   // Обновление при изменении размера окна
@@ -2517,7 +2499,6 @@ function clearPlayerProfile() {
   const proGrid = document.querySelector(".pro-grid");
   if (proGrid) {
     proGrid.style.display = "grid";
-    proGrid.style.gridTemplateColumns = "repeat(auto-fill, minmax(350px, 1fr))";
   }
 
   // Сбрасываем URL на главную страницу
@@ -2929,7 +2910,6 @@ function goBackToMain(updateUrl = true) {
   // Показываем про сетку и очищаем вывод
   if (proGrid) {
     proGrid.style.display = "grid";
-    proGrid.style.gridTemplateColumns = "repeat(auto-fill, minmax(350px, 1fr))";
   }
 
   if (output) {
@@ -2954,6 +2934,7 @@ function goBackToMain(updateUrl = true) {
   // Сбрасываем текущий профиль
   currentPlayerProfile = null;
   window.currentPlayerProfile = null;
+  window.currentPlayerData = null;
 
   // Обновляем URL если нужно
   if (updateUrl) {
