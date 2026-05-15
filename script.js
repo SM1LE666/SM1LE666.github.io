@@ -2516,7 +2516,8 @@ function clearPlayerProfile() {
   // Показываем pro-grid
   const proGrid = document.querySelector(".pro-grid");
   if (proGrid) {
-    proGrid.style.display = "flex";
+    proGrid.style.display = "grid";
+    proGrid.style.gridTemplateColumns = "repeat(auto-fill, minmax(350px, 1fr))";
   }
 
   // Сбрасываем URL на главную страницу
@@ -2927,7 +2928,8 @@ function goBackToMain(updateUrl = true) {
 
   // Показываем про сетку и очищаем вывод
   if (proGrid) {
-    proGrid.style.display = "block";
+    proGrid.style.display = "grid";
+    proGrid.style.gridTemplateColumns = "repeat(auto-fill, minmax(350px, 1fr))";
   }
 
   if (output) {
@@ -3426,11 +3428,12 @@ function applyMapCardBackgrounds(container) {
 
     if (mapKey && mapBackgrounds[mapKey]) {
       // Применяем фон непосредственно к карточке с !important для приоритета
-      card.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('${mapBackgrounds[mapKey]}')`;
+      const imagePath = mapBackgrounds[mapKey];
+      card.style.setProperty("--map-bg-url", `url('${imagePath}')`);
+      card.style.backgroundImage = `linear-gradient(135deg, rgba(26, 26, 26, 0.25), rgba(255, 85, 0, 0.08)), url('${imagePath}')`;
       card.style.backgroundSize = "cover !important";
       card.style.backgroundPosition = "center !important";
       card.style.backgroundRepeat = "no-repeat !important";
-      card.style.backgroundAttachment = "fixed";
       // Добавляем класс для активации оверлея
       card.classList.add("has-map-bg");
     }
