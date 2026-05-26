@@ -4054,7 +4054,7 @@ footer {
   content: none;
 }
 .match-item:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   box-shadow:
     0 10px 25px rgba(0, 0, 0, 0.4),
     0 0 20px rgba(255, 85, 0, 0.3);
