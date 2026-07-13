@@ -476,33 +476,44 @@ class SidebarManager {
         )}</div>`;
       }
 
-      // Получение детальной статистики для каждого матча
-      const matches = await Promise.all(
-        allHistoryItems.map(async (match, index) => {
-          try {
-            const stats = await this.fetchMatchStats(match.match_id, playerId);
-            return this.formatMatchData(
-              match,
-              stats,
-              playerId,
-              index,
-              this.totalMatches,
-            );
-          } catch (error) {
-            console.error(
-              `Error fetching stats for match ${match.match_id}:`,
-              error,
-            );
-            return this.formatMatchData(
-              match,
-              null,
-              playerId,
-              index,
-              this.totalMatches,
-            );
-          }
-        }),
-      );
+      // Получение детальной статистики для каждого матча батчами
+      // Это предотвращает перегрузку браузера при большом количестве матчей
+      const BATCH_SIZE = 5;
+      const matches = [];
+
+      for (let i = 0; i < allHistoryItems.length; i += BATCH_SIZE) {
+        const batch = allHistoryItems.slice(i, i + BATCH_SIZE);
+        const batchResults = await Promise.all(
+          batch.map(async (match, batchIndex) => {
+            try {
+              const stats = await this.fetchMatchStats(
+                match.match_id,
+                playerId,
+              );
+              return this.formatMatchData(
+                match,
+                stats,
+                playerId,
+                i + batchIndex,
+                this.totalMatches,
+              );
+            } catch (error) {
+              console.error(
+                `Error fetching stats for match ${match.match_id}:`,
+                error,
+              );
+              return this.formatMatchData(
+                match,
+                null,
+                playerId,
+                i + batchIndex,
+                this.totalMatches,
+              );
+            }
+          }),
+        );
+        matches.push(...batchResults);
+      }
 
       // Сохраняем все матчи
       this.currentMatches = matches;
