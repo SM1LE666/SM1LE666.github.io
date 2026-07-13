@@ -13,26 +13,25 @@ export default async function handler(req, res) {
       const code = (req.query.code || "").toString().trim().toUpperCase();
       if (!code) return res.status(400).json({ error: "code required" });
 
-      const apiUrl = `https://restcountries.com/v3.1/alpha/${encodeURIComponent(
-        code,
-      )}`;
+      const getRegionName = (locale) => {
+        try {
+          if (typeof Intl === "undefined" || !Intl.DisplayNames) return null;
+          const displayNames = new Intl.DisplayNames([locale], {
+            type: "region",
+          });
+          return displayNames.of(code) || null;
+        } catch (error) {
+          return null;
+        }
+      };
 
-      const r = await fetch(apiUrl);
-      if (!r.ok)
-        return res.status(502).json({ error: "failed to fetch country data" });
-      const data = await r.json();
-      if (!data || data.length === 0)
-        return res.status(404).json({ error: "not found" });
+      const englishName = getRegionName("en");
+      const russianName = getRegionName("ru") || englishName;
 
-      const countryData = data[0];
       const result = {
         code,
-        name_common: countryData.name?.common || null,
-        name_native:
-          (countryData.translations && countryData.translations.rus?.common) ||
-          countryData.name?.common ||
-          null,
-        raw: countryData,
+        name_common: englishName || code,
+        name_native: russianName || englishName || code,
       };
       return res.status(200).json(result);
     }
