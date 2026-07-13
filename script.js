@@ -586,7 +586,7 @@ class SidebarManager {
           // Try fallback: fetch match info (non-stats) which sometimes contains map details
           try {
             const infoRes = await fetch(
-              `/api/match-info?matchId=${encodeURIComponent(String(matchId))}`,
+              `/api/server?action=match-info&matchId=${encodeURIComponent(String(matchId))}`,
             );
             if (infoRes.ok) {
               const infoData = await infoRes.json();
@@ -596,6 +596,9 @@ class SidebarManager {
                 fallbackRound?.round_stats?.Map ||
                 infoData.map ||
                 infoData.game_map ||
+                infoData.voting?.map ||
+                infoData.voting?.map_name ||
+                infoData.voting?.map_selection ||
                 null;
               const fallbackScore =
                 fallbackRound?.round_stats?.Score || infoData.score || "0 - 0";
@@ -620,6 +623,13 @@ class SidebarManager {
                   playerStats,
                 };
               }
+
+              // If we still have no map, preserve the match with a neutral placeholder
+              return {
+                map: "Unknown Map",
+                score: fallbackScore,
+                playerStats: {},
+              };
             }
           } catch (e) {
             // ignore fallback errors

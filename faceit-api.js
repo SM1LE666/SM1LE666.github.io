@@ -178,21 +178,23 @@ const FaceitAPI = (function () {
       // If proxy failed, fall through to existing fallback logic below
     } catch (error) {
       console.warn("Ошибка при получении названия страны:", error);
-      // Попробуем получить название через Intl.DisplayNames как запасной вариант
-      try {
-        const locale = window.currentLanguage || "en";
-        if (typeof Intl !== "undefined" && Intl.DisplayNames) {
-          const dn = new Intl.DisplayNames([locale === "ru" ? "ru" : "en"], {
-            type: "region",
-          });
-          const dnName = dn.of(normalizedCode);
-          if (dnName) return dnName;
-        }
-      } catch (e) {
-        // ignore
-      }
-      return countryCode;
     }
+
+    // Попробуем получить название через Intl.DisplayNames как запасной вариант
+    try {
+      const locale = window.currentLanguage || "en";
+      if (typeof Intl !== "undefined" && Intl.DisplayNames) {
+        const dn = new Intl.DisplayNames([locale === "ru" ? "ru" : "en"], {
+          type: "region",
+        });
+        const dnName = dn.of(normalizedCode);
+        if (dnName) return dnName;
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    return normalizedCode;
   }
 
   // Новая функция для получения названия страны на текущем языке
