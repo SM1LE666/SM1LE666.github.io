@@ -404,10 +404,11 @@ class SidebarManager {
       let totalHistory = 0;
       let pageCount = 0;
       const seenMatchIds = new Set();
-      const MAX_HISTORY_PAGES = 20;
       const MAX_RETRIES = 2;
+      let consecutiveErrors = 0;
+      const MAX_CONSECUTIVE_ERRORS = 3;
 
-      while (pageCount < MAX_HISTORY_PAGES) {
+      while (consecutiveErrors < MAX_CONSECUTIVE_ERRORS) {
         let retries = 0;
         let success = false;
         let lastError = null;
@@ -501,6 +502,7 @@ class SidebarManager {
               `Page ${pageCount} loaded: ${addedThisPage} new matches (total: ${allHistoryItems.length})`,
             );
             success = true;
+            consecutiveErrors = 0; // Сбрасываем счетчик ошибок при успехе
           } catch (error) {
             lastError = error.message;
             if (pageCount === 0) {
@@ -514,8 +516,9 @@ class SidebarManager {
                 throw error;
               }
             } else {
+              consecutiveErrors++;
               console.warn(
-                `Stopping pagination at page ${pageCount}, keeping ${allHistoryItems.length} matches`,
+                `Stopping pagination at page ${pageCount}, keeping ${allHistoryItems.length} matches (${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS} consecutive errors)`,
               );
               break;
             }
@@ -524,6 +527,13 @@ class SidebarManager {
 
         if (!success && pageCount === 0) {
           throw new Error(`Failed to load first page of match history`);
+        }
+
+        if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+          console.log(
+            `Reached ${MAX_CONSECUTIVE_ERRORS} consecutive errors (likely API offset limit), stopping pagination`,
+          );
+          break;
         }
 
         pageCount++;
