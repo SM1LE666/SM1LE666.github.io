@@ -380,6 +380,10 @@ class SidebarManager {
         return;
       }
 
+      // Reset map filter when loading a new player's matches to avoid leaking
+      // selected map from previously viewed profile
+      this.currentMapFilter = null;
+
       // Сбрасываем состояние при новой загрузке
       this.currentMatches = [];
       this.matchesOffset = 0;
@@ -494,7 +498,7 @@ class SidebarManager {
           // Вставляем фильтр перед списком матчей (тексты прописаны вручную)
           const selectHtml = `
             <div class="map-filter-container">
-              <label class="map-filter-label">Filter by map:
+              <label class="map-filter-label">Map:
                 <select id="mapFilterSelect">
                   <option value="">All maps</option>
                   ${this.availableMapOptions
