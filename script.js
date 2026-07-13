@@ -464,6 +464,12 @@ class SidebarManager {
       // Сохраняем все матчи
       this.currentMatches = matches;
       console.log(`Обработано ${matches.length} матчей для отображения`);
+      // Уберём оставшиеся индикаторы загрузки (чтобы сообщение об обновлении не висело)
+      if (render && statsContainer) {
+        statsContainer
+          .querySelectorAll(".loading-indicator")
+          .forEach((el) => el.remove());
+      }
 
       // Построим список доступных карт и отрисуем выпадающий фильтр
       try {
@@ -485,12 +491,12 @@ class SidebarManager {
         }));
 
         if (render && statsContainer) {
-          // Вставляем фильтр перед списком матчей
+          // Вставляем фильтр перед списком матчей (тексты прописаны вручную)
           const selectHtml = `
             <div class="map-filter-container">
-              <label>${getText("filterByMap") || "Filter by map"}:
+              <label class="map-filter-label">Filter by map:
                 <select id="mapFilterSelect">
-                  <option value="">${getText("allMaps") || "All maps"}</option>
+                  <option value="">All maps</option>
                   ${this.availableMapOptions
                     .map(
                       (o) =>
