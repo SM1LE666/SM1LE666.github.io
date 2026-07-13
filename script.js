@@ -402,8 +402,11 @@ class SidebarManager {
       let offset = 0;
       let allHistoryItems = [];
       let totalHistory = 0;
+      let pageCount = 0;
+      const seenMatchIds = new Set();
+      const MAX_HISTORY_PAGES = 20;
 
-      while (true) {
+      while (pageCount < MAX_HISTORY_PAGES) {
         const historyUrl = `/api/history?playerId=${encodeURIComponent(
           String(playerId),
         )}&gameId=cs2&limit=${pageSize}&offset=${offset}`;
@@ -429,12 +432,22 @@ class SidebarManager {
           totalHistory = data.total || data.items.length;
         }
 
-        allHistoryItems.push(...data.items);
+        let addedThisPage = 0;
+        for (const item of data.items) {
+          const matchId = item?.match_id || item?.matchId || "";
+          if (matchId && seenMatchIds.has(matchId)) {
+            continue;
+          }
+          if (matchId) {
+            seenMatchIds.add(matchId);
+          }
+          allHistoryItems.push(item);
+          addedThisPage++;
+        }
 
-        if (
-          data.items.length < pageSize ||
-          allHistoryItems.length >= totalHistory
-        ) {
+        pageCount++;
+
+        if (data.items.length < pageSize || addedThisPage === 0) {
           break;
         }
 
@@ -450,9 +463,9 @@ class SidebarManager {
       }
 
       console.log(
-        `Загружено ${allHistoryItems.length} матчей из ${
-          totalHistory || allHistoryItems.length
-        } доступных`,
+        `Загружено ${allHistoryItems.length} матчей${
+          totalHistory ? ` (total: ${totalHistory})` : ""
+        }`,
       );
       this.totalMatches = totalHistory || allHistoryItems.length;
 
