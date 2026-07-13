@@ -405,53 +405,142 @@ class SidebarManager {
       let pageCount = 0;
       const seenMatchIds = new Set();
       const MAX_HISTORY_PAGES = 20;
+      const MAX_RETRIES = 2;
 
       while (pageCount < MAX_HISTORY_PAGES) {
-        const historyUrl = `/api/history?playerId=${encodeURIComponent(
-          String(playerId),
-        )}&gameId=cs2&limit=${pageSize}&offset=${offset}`;
+        let retries = 0;
+        let success = false;
+        let lastError = null;
 
-        const response = await fetch(historyUrl, {
-          headers: {
-            Accept: "application/json",
-          },
-        });
+        while (retries <= MAX_RETRIES && !success) {
+          try {
+            const historyUrl = `/api/history?playerId=${encodeURIComponent(
+              String(playerId),
+            )}&gameId=cs2&limit=${pageSize}&offset=${offset}`;
 
-        if (!response.ok) {
-          console.error(`API Error: ${response.status} ${response.statusText}`);
-          throw new Error("Failed to fetch match history from FACEIT API.");
-        }
+            console.log(
+              `Fetching history page ${pageCount + 1} (offset=${offset}, retry=${retries})`,
+            );
 
-        const data = await response.json();
+            const response = await fetch(historyUrl, {
+              headers: {
+                Accept: "application/json",
+              },
+            });
 
-        if (!data || !data.items || data.items.length === 0) {
-          break;
-        }
+            if (!response.ok) {
+              lastError = `HTTP ${response.status} ${response.statusText}`;
+              console.warn(
+                `History page ${pageCount} failed: ${lastError} (attempt ${retries + 1}/${MAX_RETRIES + 1})`,
+              );
 
-        if (!totalHistory) {
-          totalHistory = data.total || data.items.length;
-        }
+              // First page is critical, others are optional
+              if (pageCount === 0) {
+                retries++;
+                if (retries <= MAX_RETRIES) {
+                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                  continue;
+                } else {
+                  throw new Error(
+                    `Failed to fetch first page of match history: ${lastError}`,
+                  );
+                }
+              } else {
+                // For non-first pages, log warning and continue with what we have
+                console.warn(
+                  `Stopping pagination at page ${pageCount}, keeping ${allHistoryItems.length} matches`,
+                );
+                break;
+              }
+            }
 
-        let addedThisPage = 0;
-        for (const item of data.items) {
-          const matchId = item?.match_id || item?.matchId || "";
-          if (matchId && seenMatchIds.has(matchId)) {
-            continue;
+            const data = await response.json();
+
+            if (!data || !data.items) {
+              lastError = "Invalid response format: missing items";
+              if (pageCount === 0) {
+                retries++;
+                if (retries <= MAX_RETRIES) {
+                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                  continue;
+                } else {
+                  throw new Error(`Failed to parse first page: ${lastError}`);
+                }
+              } else {
+                console.warn(
+                  `Stopping pagination at page ${pageCount}, keeping ${allHistoryItems.length} matches`,
+                );
+                break;
+              }
+            }
+
+            if (data.items.length === 0) {
+              console.log(`End of history reached at page ${pageCount}`);
+              break;
+            }
+
+            if (!totalHistory) {
+              totalHistory = data.total || data.items.length;
+              console.log(`Total matches reported by API: ${totalHistory}`);
+            }
+
+            let addedThisPage = 0;
+            for (const item of data.items) {
+              const matchId = item?.match_id || item?.matchId || "";
+              if (matchId && seenMatchIds.has(matchId)) {
+                continue;
+              }
+              if (matchId) {
+                seenMatchIds.add(matchId);
+              }
+              allHistoryItems.push(item);
+              addedThisPage++;
+            }
+
+            console.log(
+              `Page ${pageCount} loaded: ${addedThisPage} new matches (total: ${allHistoryItems.length})`,
+            );
+            success = true;
+          } catch (error) {
+            lastError = error.message;
+            if (pageCount === 0) {
+              retries++;
+              if (retries <= MAX_RETRIES) {
+                console.warn(
+                  `First page attempt ${retries} failed, retrying...`,
+                );
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+              } else {
+                throw error;
+              }
+            } else {
+              console.warn(
+                `Stopping pagination at page ${pageCount}, keeping ${allHistoryItems.length} matches`,
+              );
+              break;
+            }
           }
-          if (matchId) {
-            seenMatchIds.add(matchId);
-          }
-          allHistoryItems.push(item);
-          addedThisPage++;
+        }
+
+        if (!success && pageCount === 0) {
+          throw new Error(`Failed to load first page of match history`);
         }
 
         pageCount++;
 
-        if (data.items.length < pageSize || addedThisPage === 0) {
+        if (success) {
+          // Check if we should continue paginating
+          const lastPageItems = allHistoryItems.slice(-pageSize);
+          if (lastPageItems.length < pageSize) {
+            console.log(
+              `Last page had fewer than ${pageSize} items, stopping pagination`,
+            );
+            break;
+          }
+          offset += pageSize;
+        } else {
           break;
         }
-
-        offset += pageSize;
       }
 
       if (!allHistoryItems || allHistoryItems.length === 0) {
