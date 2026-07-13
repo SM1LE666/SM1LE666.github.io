@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     const playerId = req.query?.playerId;
     const gameId = req.query?.gameId;
     const limit = req.query?.limit ?? "20";
+    const offset = req.query?.offset ?? "0";
 
     if (!playerId || !gameId) {
       res.status(400).json({ error: "playerId and gameId are required" });
@@ -16,10 +17,10 @@ export default async function handler(req, res) {
     }
 
     const url = `https://open.faceit.com/data/v4/players/${encodeURIComponent(
-      String(playerId)
+      String(playerId),
     )}/history?game=${encodeURIComponent(
-      String(gameId)
-    )}&limit=${encodeURIComponent(String(limit))}`;
+      String(gameId),
+    )}&limit=${encodeURIComponent(String(limit))}&offset=${encodeURIComponent(String(offset))}`;
 
     const r = await fetch(url, {
       headers: {
