@@ -3232,17 +3232,19 @@ footer {
 }
 
 .match-date {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.8);
+  font-family: "Orbitron", sans-serif;
 }
 
 .match-map {
   font-weight: bold;
   color: var(--primary-color);
-  font-size: 1.1rem;
+  font-size: 1rem;
   text-align: center;
   width: 100%;
   margin: 0;
+  font-family: "Orbitron", sans-serif;
 }
 
 .match-score {
@@ -3292,6 +3294,7 @@ footer {
   font-weight: bold;
   color: var(--primary-color);
   margin-bottom: 0.2rem;
+  font-family: "Orbitron", sans-serif;
 }
 
 .match-map.warning {
@@ -3575,27 +3578,30 @@ footer {
   display: flex;
   justify-content: flex-end;
   width: 100%;
-  margin-top: 0.8rem;
+  margin-top: 0.6rem;
   margin-bottom: 0.6rem;
 }
 
 .map-filter-label {
   color: var(--primary-color);
-  font-weight: 600;
+  font-weight: 500;
   margin-right: 0.6rem;
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  font-family: "Orbitron", sans-serif;
+  border-radius: 10px;
 }
 
 #mapFilterSelect {
-  background: rgba(51, 51, 51, 0.9);
+  background: rgb(51, 51, 51, 0.9);
   color: var(--text-color);
   border: 1px solid rgba(255, 85, 0, 0.25);
   padding: 0.5rem 0.8rem;
   border-radius: 10px;
   min-width: 180px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  font-family: "Orbitron", sans-serif;
 }
 
 #mapFilterSelect option {
@@ -4104,4 +4110,5 @@ footer {
   border-color: var(--primary-color);
   color: #fff;
   box-shadow: 0 0 12px rgba(255, 85, 0, 0.35);
+  padding-left: 0.46rem;
 }

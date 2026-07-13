@@ -1126,7 +1126,7 @@ class SidebarManager {
       const remainingMatches = totalFiltered - matches.length;
       matchHistoryContainer += `
         <div class="show-more-container">
-          <button class="show-more-btn" onclick="sidebarManager.loadMoreMatches()">
+          <button class="show-more-btn" style="font-family: "Orbitron", sans-serif;" onclick="sidebarManager.loadMoreMatches()">
             <i class="fas fa-chevron-down"></i>
             ${getText("showMoreMatches")} (${remainingMatches})
           </button>

@@ -184,6 +184,19 @@ const FaceitAPI = (function () {
       return getCurrentLanguageCountryName(countryData);
     } catch (error) {
       console.warn("Ошибка при получении названия страны:", error);
+      // Попробуем получить название через Intl.DisplayNames как запасной вариант
+      try {
+        const locale = window.currentLanguage || "en";
+        if (typeof Intl !== "undefined" && Intl.DisplayNames) {
+          const dn = new Intl.DisplayNames([locale === "ru" ? "ru" : "en"], {
+            type: "region",
+          });
+          const dnName = dn.of(normalizedCode);
+          if (dnName) return dnName;
+        }
+      } catch (e) {
+        // ignore
+      }
       return countryCode;
     }
   }
