@@ -2581,17 +2581,17 @@ footer {
 }
 
 .map-card.average-performance {
-  border-color: rgba(255, 152, 0, 0.8);
+  border-color: rgba(255, 152, 0, 0.4);
   margin-bottom: 1rem;
 }
 
 .map-card.good-performance {
-  border-color: rgba(76, 175, 80, 0.8);
+  border-color: rgba(76, 175, 80, 0.4);
   margin-bottom: 1rem;
 }
 
 .map-card.poor-performance {
-  border-color: rgba(244, 67, 54, 0.8);
+  border-color: rgba(244, 67, 54, 0.4);
   margin-bottom: 1rem;
 }
 
@@ -3751,8 +3751,8 @@ footer {
 /* --- Desktop Overview: stats rows left/right (uses formatStatRow spans) --- */
 @media (min-width: 1025px) {
   .stats-box {
-    height: 270px;
-    min-height: 270px;
+    height: 280px;
+    min-height: 280px;
     font-variant-numeric: tabular-nums;
   }
 
@@ -4053,10 +4053,9 @@ footer {
 .pro-grid::before {
   content: none;
 }
-.match-item:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(255, 85, 0, 0.3);
+.map-filter-label {
+  background: rgba(255, 85, 0, 0.25);
   border-color: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 85, 0, 0.35);
 }
