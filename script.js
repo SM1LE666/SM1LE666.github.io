@@ -398,24 +398,50 @@ class SidebarManager {
       }
 
       // Загружаем все матчи игрока (через прокси)
-      const historyUrl = `/api/history?playerId=${encodeURIComponent(
-        String(playerId),
-      )}&gameId=cs2&limit=2000`;
+      const pageSize = 100;
+      let offset = 0;
+      let allHistoryItems = [];
+      let totalHistory = 0;
 
-      const response = await fetch(historyUrl, {
-        headers: {
-          Accept: "application/json",
-        },
-      });
+      while (true) {
+        const historyUrl = `/api/history?playerId=${encodeURIComponent(
+          String(playerId),
+        )}&gameId=cs2&limit=${pageSize}&offset=${offset}`;
 
-      if (!response.ok) {
-        console.error(`API Error: ${response.status} ${response.statusText}`);
-        throw new Error("Failed to fetch match history from FACEIT API.");
+        const response = await fetch(historyUrl, {
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          console.error(`API Error: ${response.status} ${response.statusText}`);
+          throw new Error("Failed to fetch match history from FACEIT API.");
+        }
+
+        const data = await response.json();
+
+        if (!data || !data.items || data.items.length === 0) {
+          break;
+        }
+
+        if (!totalHistory) {
+          totalHistory = data.total || data.items.length;
+        }
+
+        allHistoryItems.push(...data.items);
+
+        if (
+          data.items.length < pageSize ||
+          allHistoryItems.length >= totalHistory
+        ) {
+          break;
+        }
+
+        offset += pageSize;
       }
 
-      const data = await response.json();
-
-      if (!data || !data.items || data.items.length === 0) {
+      if (!allHistoryItems || allHistoryItems.length === 0) {
         console.warn("No match history found for the player.");
         if (render && statsContainer) {
           statsContainer.innerHTML = `<p class=\"api-error-text\">No match history available for this player.</p>`;
@@ -424,11 +450,11 @@ class SidebarManager {
       }
 
       console.log(
-        `Загружено ${data.items.length} матчей из ${
-          data.total || data.items.length
+        `Загружено ${allHistoryItems.length} матчей из ${
+          totalHistory || allHistoryItems.length
         } доступных`,
       );
-      this.totalMatches = data.total || data.items.length;
+      this.totalMatches = totalHistory || allHistoryItems.length;
 
       // Показываем индикатор обработки с переводом
       if (render && statsContainer) {
@@ -439,7 +465,7 @@ class SidebarManager {
 
       // Получение детальной статистики для каждого матча
       const matches = await Promise.all(
-        data.items.map(async (match, index) => {
+        allHistoryItems.map(async (match, index) => {
           try {
             const stats = await this.fetchMatchStats(match.match_id, playerId);
             return this.formatMatchData(
