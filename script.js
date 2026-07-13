@@ -610,11 +610,64 @@ class SidebarManager {
         });
 
         if (!response.ok) {
-          if (response.status === 500 && retries < MAX_RETRIES - 1) {
+          if (
+            (response.status === 500 || response.status === 404) &&
+            retries < MAX_RETRIES - 1
+          ) {
             retries++;
             await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
             continue;
           }
+          if (response.status === 404) {
+            try {
+              const infoRes = await fetch(
+                `/api/server?action=match-info&matchId=${encodeURIComponent(String(matchId))}`,
+              );
+              if (infoRes.ok) {
+                const infoData = await infoRes.json();
+                const fallbackRound = infoData.rounds && infoData.rounds[0];
+                const fallbackMap =
+                  fallbackRound?.round_stats?.Map ||
+                  infoData.map ||
+                  infoData.game_map ||
+                  infoData.voting?.map ||
+                  infoData.voting?.map_name ||
+                  infoData.voting?.map_selection ||
+                  "Unknown Map";
+                const fallbackScore =
+                  fallbackRound?.round_stats?.Score ||
+                  infoData.score ||
+                  "0 - 0";
+                let playerStats = {};
+                for (const team of fallbackRound?.teams ||
+                  infoData.teams ||
+                  []) {
+                  const player = (team.players || []).find(
+                    (p) => p.player_id === playerId,
+                  );
+                  if (player) {
+                    playerStats = player.player_stats || {};
+                    break;
+                  }
+                }
+
+                return {
+                  map: fallbackMap,
+                  score: fallbackScore,
+                  playerStats,
+                };
+              }
+            } catch (e) {
+              // ignore fallback errors for missing match stats
+            }
+
+            return {
+              map: "Unknown Map",
+              score: "0 - 0",
+              playerStats: {},
+            };
+          }
+
           throw new Error(`Failed to fetch match stats: ${response.status}`);
         }
 
@@ -715,6 +768,8 @@ class SidebarManager {
   // Обновленная функция formatMatchData
   formatMatchData(match, statsData, playerId, index, totalMatches) {
     try {
+      const safeStats = statsData || {};
+      const safePlayerStats = safeStats.playerStats || {};
       const totalMatchNumber = totalMatches - index;
       const timestamp = Number(match.finished_at) * 1000;
       const date = !isNaN(timestamp)
@@ -722,17 +777,17 @@ class SidebarManager {
         : "Unknown Date";
 
       // Используем данные из statsData вместо match
-      const map = statsData.map || "Map data not available";
-      const score = statsData.score || "0 - 0";
+      const map = safeStats.map || "Map data not available";
+      const score = safeStats.score || "0 - 0";
 
       // Определение результата (победа/поражение)
       let result = "LOSS";
-      if (statsData.playerStats.Result === "1") {
+      if (safePlayerStats.Result === "1") {
         result = "WIN";
       }
 
-      const kills = Number(statsData.playerStats.Kills) || 0;
-      const headshots = Number(statsData.playerStats.Headshots) || 0;
+      const kills = Number(safePlayerStats.Kills) || 0;
+      const headshots = Number(safePlayerStats.Headshots) || 0;
       const headshotPercentage =
         kills > 0 ? Math.round((headshots / kills) * 100) : 0;
 
@@ -742,13 +797,13 @@ class SidebarManager {
         date,
         map,
         score,
-        playerStats: statsData.playerStats || {},
+        playerStats: safePlayerStats,
         kills: kills,
-        deaths: statsData.playerStats.Deaths || 0,
-        assists: statsData.playerStats.Assists || 0,
+        deaths: safePlayerStats.Deaths || 0,
+        assists: safePlayerStats.Assists || 0,
         headshots: headshotPercentage,
-        kdRatio: statsData.playerStats["K/D Ratio"] || 0,
-        mvps: statsData.playerStats.MVPs || 0,
+        kdRatio: safePlayerStats["K/D Ratio"] || 0,
+        mvps: safePlayerStats.MVPs || 0,
         result,
       };
     } catch (error) {
