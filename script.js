@@ -583,6 +583,48 @@ class SidebarManager {
 
         // V4 match stats response contains rounds
         if (!statsData.rounds || statsData.rounds.length === 0) {
+          // Try fallback: fetch match info (non-stats) which sometimes contains map details
+          try {
+            const infoRes = await fetch(
+              `/api/match-info?matchId=${encodeURIComponent(String(matchId))}`,
+            );
+            if (infoRes.ok) {
+              const infoData = await infoRes.json();
+              // Try to extract rounds map similar to stats endpoint
+              const fallbackRound = infoData.rounds && infoData.rounds[0];
+              const fallbackMap =
+                fallbackRound?.round_stats?.Map ||
+                infoData.map ||
+                infoData.game_map ||
+                null;
+              const fallbackScore =
+                fallbackRound?.round_stats?.Score || infoData.score || "0 - 0";
+              if (fallbackMap) {
+                // Attempt to find player stats in infoData if structure contains teams
+                let playerStats = {};
+                for (const team of fallbackRound?.teams ||
+                  infoData.teams ||
+                  []) {
+                  const player = (team.players || []).find(
+                    (p) => p.player_id === playerId,
+                  );
+                  if (player) {
+                    playerStats = player.player_stats || {};
+                    break;
+                  }
+                }
+
+                return {
+                  map: fallbackMap,
+                  score: fallbackScore,
+                  playerStats,
+                };
+              }
+            }
+          } catch (e) {
+            // ignore fallback errors
+          }
+
           return {
             map: "Map data not available",
             score: "Score not available",
