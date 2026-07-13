@@ -90,6 +90,7 @@ class SidebarManager {
     this.updateViewTimeout = null;
     this.originalPlayerHeaderDisplay = "flex";
     this.currentMatches = []; // Все загруженные матчи
+    this.currentMapFilter = null; // Выбранная карта для фильтрации (ключ)
     this.matchesOffset = 0; // Смещение для пагинации
     this.matchesLimit = 10; // Количество загружаемых матчей за раз
     this.isLoadingMore = false; // Флаг загрузки
@@ -97,6 +98,25 @@ class SidebarManager {
     this.showMoreButton = null; // Кнопка "Показать еще"
 
     this.initializeEventListeners();
+  }
+
+  // Нормализует имя карты в ключ (как в карточках карт)
+  static normalizeMapKey(mapName) {
+    if (!mapName) return "";
+    return String(mapName)
+      .trim()
+      .toLowerCase()
+      .replace(/^de_/, "")
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, "");
+  }
+
+  // Возвращает массив матчей с учётом выбранного фильтра карты
+  getFilteredMatches() {
+    if (!this.currentMapFilter) return this.currentMatches || [];
+    return (this.currentMatches || []).filter(
+      (m) => SidebarManager.normalizeMapKey(m.map) === this.currentMapFilter,
+    );
   }
 
   initializeEventListeners() {
@@ -445,9 +465,73 @@ class SidebarManager {
       this.currentMatches = matches;
       console.log(`Обработано ${matches.length} матчей для отображения`);
 
-      // Отображаем историю матчей
-      if (render) {
-        this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
+      // Построим список доступных карт и отрисуем выпадающий фильтр
+      try {
+        const statsContainer = document.querySelector(".stats-container");
+
+        const mapCounts = {};
+        (this.currentMatches || []).forEach((m) => {
+          const raw = m.map || "";
+          const key = SidebarManager.normalizeMapKey(raw) || "";
+          if (!mapCounts[key]) mapCounts[key] = { name: raw || key, count: 0 };
+          mapCounts[key].count++;
+        });
+
+        // Сохраняем опции
+        this.availableMapOptions = Object.keys(mapCounts).map((k) => ({
+          key: k,
+          name: mapCounts[k].name,
+          count: mapCounts[k].count,
+        }));
+
+        if (render && statsContainer) {
+          // Вставляем фильтр перед списком матчей
+          const selectHtml = `
+            <div class="map-filter-container">
+              <label>${getText("filterByMap") || "Filter by map"}:
+                <select id="mapFilterSelect">
+                  <option value="">${getText("allMaps") || "All maps"}</option>
+                  ${this.availableMapOptions
+                    .map(
+                      (o) =>
+                        `<option value="${o.key}">${o.name} (${o.count})</option>`,
+                    )
+                    .join("")}
+                </select>
+              </label>
+            </div>
+          `;
+
+          // Удаляем возможные старые фильтры
+          const old = statsContainer.querySelector(".map-filter-container");
+          if (old) old.remove();
+
+          statsContainer.insertAdjacentHTML("beforeend", selectHtml);
+
+          const select = document.getElementById("mapFilterSelect");
+          if (select) {
+            select.addEventListener("change", (e) => {
+              this.currentMapFilter = e.target.value || null;
+              // Показать первые 20 отфильтрованных матчей
+              this.displayMatchHistory(
+                this.getFilteredMatches().slice(0, 20),
+                true,
+              );
+            });
+          }
+        }
+
+        // Отображаем историю матчей (первые 20 с учётом фильтра)
+        if (render) {
+          this.displayMatchHistory(
+            this.getFilteredMatches().slice(0, 20),
+            true,
+          );
+        }
+      } catch (err) {
+        console.error("Error rendering map filter:", err);
+        if (render)
+          this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
       }
     } catch (error) {
       console.error("Error fetching match history:", error);
@@ -937,8 +1021,16 @@ class SidebarManager {
     const statsContainer = document.querySelector(".stats-container");
     if (!statsContainer) return;
 
+    // Ensure we render matches inside a dedicated wrapper so we don't wipe filters
+    let wrapper = statsContainer.querySelector(".matches-content-wrapper");
+    if (!wrapper) {
+      wrapper = document.createElement("div");
+      wrapper.className = "matches-content-wrapper";
+      statsContainer.appendChild(wrapper);
+    }
+
     if (!matches || matches.length === 0) {
-      statsContainer.innerHTML = `<p>${getText("noMatchHistory")}</p>`;
+      wrapper.innerHTML = `<p>${getText("noMatchHistory")}</p>`;
       return;
     }
 
@@ -1022,9 +1114,10 @@ class SidebarManager {
     let matchHistoryContainer = `<div class="match-history">${matchHistoryHTML}</div>`;
 
     // Если есть еще матчи для загрузки, добавляем кнопку "Показать еще"
-    const hasMoreMatches = matches.length < this.currentMatches.length;
+    const totalFiltered = this.getFilteredMatches().length;
+    const hasMoreMatches = matches.length < totalFiltered;
     if (hasMoreMatches) {
-      const remainingMatches = this.currentMatches.length - matches.length;
+      const remainingMatches = totalFiltered - matches.length;
       matchHistoryContainer += `
         <div class="show-more-container">
           <button class="show-more-btn" onclick="sidebarManager.loadMoreMatches()">
@@ -1035,7 +1128,7 @@ class SidebarManager {
       `;
     }
 
-    statsContainer.innerHTML = matchHistoryContainer;
+    wrapper.innerHTML = matchHistoryContainer;
 
     // Добавляем анимацию появления для новых матчей
     if (!isInitialLoad) {
@@ -1075,7 +1168,8 @@ class SidebarManager {
         document.querySelectorAll(".match-item").length;
       const matchesToLoad = 20;
       const newTotalDisplayed = currentlyDisplayedCount + matchesToLoad;
-      const matchesToDisplay = this.currentMatches.slice(0, newTotalDisplayed);
+      const source = this.getFilteredMatches();
+      const matchesToDisplay = source.slice(0, newTotalDisplayed);
 
       this.displayMatchHistory(matchesToDisplay, false);
 
