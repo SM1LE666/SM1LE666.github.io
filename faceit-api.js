@@ -161,27 +161,21 @@ const FaceitAPI = (function () {
     }
 
     try {
+      // Use local unified serverless proxy to avoid CORS problems in browsers
       const response = await fetch(
-        `https://restcountries.com/v3.1/alpha/${normalizedCode}`,
+        `/api/server?action=country&code=${encodeURIComponent(normalizedCode)}`,
       );
-      if (!response.ok) {
-        throw new Error("Не удалось получить данные о стране");
+      if (response.ok) {
+        const proxyData = await response.json();
+        if (proxyData && (proxyData.name_common || proxyData.name)) {
+          // Support both shapes: { name_common, name_native } or { name: 'Country' }
+          const engName = proxyData.name_common || proxyData.name;
+          const rusName = proxyData.name_native || engName;
+          _countryCache[normalizedCode] = { rus: rusName, eng: engName };
+          return getCurrentLanguageCountryName(_countryCache[normalizedCode]);
+        }
       }
-
-      const data = await response.json();
-      if (!data || data.length === 0) {
-        throw new Error("Нет данных о стране");
-      }
-
-      // Сохраняем полные данные о стране в кэш для обоих языков
-      const countryData = {
-        rus: data[0].translations.rus?.common || data[0].name.common,
-        eng: data[0].name.common,
-      };
-      _countryCache[normalizedCode] = countryData;
-
-      // Возвращаем название в зависимости от текущего языка
-      return getCurrentLanguageCountryName(countryData);
+      // If proxy failed, fall through to existing fallback logic below
     } catch (error) {
       console.warn("Ошибка при получении названия страны:", error);
       // Попробуем получить название через Intl.DisplayNames как запасной вариант
@@ -336,9 +330,6 @@ const FaceitAPI = (function () {
 
   function analyzeMaps(segments, gameId, ignoreMinMatches = false) {
     try {
-      if (!segments || !Array.isArray(segments) || segments.length === 0) {
-        return { bestMap: null, worstMap: null, allMaps: [] };
-      }
       // Для Maps игнорируем ограничение по количеству матчей
       let validMaps;
       if (ignoreMinMatches) {
