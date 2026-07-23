@@ -92,10 +92,15 @@ class SidebarManager {
     this.currentMatches = []; // Все загруженные матчи
     this.currentMapFilter = null; // Выбранная карта для фильтрации (ключ)
     this.matchesOffset = 0; // Смещение для пагинации
-    this.matchesLimit = 10; // Количество загружаемых матчей за раз
+    this.matchesLimit = 50; // Количество загружаемых матчей за раз
     this.isLoadingMore = false; // Флаг загрузки
     this.totalMatches = 0; // Общее количество матчей
     this.showMoreButton = null; // Кнопка "Показать еще"
+    this.allHistoryItems = []; // Все элементы истории матчей (без деталей)
+    this.orderedMatches = []; // Детали матчей в исходном порядке истории
+    this.displayedMatchesCount = 0; // Сколько матчей сейчас отображаем
+    this.unfilteredDisplayedCount = 0; // Сколько матчей показано без фильтра карты
+    this.availableMapOptions = []; // Опции фильтра карт с полным количеством
 
     this.initializeEventListeners();
   }
@@ -386,6 +391,11 @@ class SidebarManager {
 
       // Сбрасываем состояние при новой загрузке
       this.currentMatches = [];
+      this.allHistoryItems = [];
+      this.orderedMatches = [];
+      this.availableMapOptions = [];
+      this.displayedMatchesCount = 0;
+      this.unfilteredDisplayedCount = 0;
       this.matchesOffset = 0;
       this.isLoadingMore = false;
 
@@ -575,48 +585,49 @@ class SidebarManager {
         )}</div>`;
       }
 
-      // Получение детальной статистики для каждого матча батчами
-      // Это предотвращает перегрузку браузера при большом количестве матчей
-      const BATCH_SIZE = 5;
-      const matches = [];
+      // Сохраняем историю и подготавливаем ленивую загрузку деталей матчей
+      this.allHistoryItems = allHistoryItems;
+      this.orderedMatches = new Array(allHistoryItems.length).fill(null);
+      this.currentMatches = [];
+      this.displayedMatchesCount = 0;
 
-      for (let i = 0; i < allHistoryItems.length; i += BATCH_SIZE) {
-        const batch = allHistoryItems.slice(i, i + BATCH_SIZE);
-        const batchResults = await Promise.all(
-          batch.map(async (match, batchIndex) => {
-            try {
-              const stats = await this.fetchMatchStats(
-                match.match_id,
-                playerId,
-              );
-              return this.formatMatchData(
-                match,
-                stats,
-                playerId,
-                i + batchIndex,
-                this.totalMatches,
-              );
-            } catch (error) {
-              console.error(
-                `Error fetching stats for match ${match.match_id}:`,
-                error,
-              );
-              return this.formatMatchData(
-                match,
-                null,
-                playerId,
-                i + batchIndex,
-                this.totalMatches,
-              );
-            }
-          }),
-        );
-        matches.push(...batchResults);
+      // Считаем фильтры по полному количеству матчей из сегментов профиля
+      // (без необходимости загружать детали каждого матча заранее)
+      const mapCounts = {};
+      const segments = window.currentPlayerProfile?.statsData?.segments || [];
+      if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
+        const allMapsStats = window.FaceitAPI.getAllMapsStats(segments) || [];
+        allMapsStats.forEach((map) => {
+          const key = SidebarManager.normalizeMapKey(map.name);
+          const count = Number(map.matches) || 0;
+          if (!key || count <= 0) return;
+          mapCounts[key] = {
+            name: map.name,
+            count,
+          };
+        });
       }
 
-      // Сохраняем все матчи
-      this.currentMatches = matches;
-      console.log(`Обработано ${matches.length} матчей для отображения`);
+      this.availableMapOptions = Object.keys(mapCounts)
+        .map((k) => ({
+          key: k,
+          name: mapCounts[k].name,
+          count: mapCounts[k].count,
+        }))
+        .sort((a, b) => b.count - a.count);
+
+      // Загружаем только первую порцию матчей (50)
+      const initialLimit = Math.min(
+        this.matchesLimit,
+        this.allHistoryItems.length,
+      );
+      await this.ensureMatchesLoadedRange(0, initialLimit);
+      this.displayedMatchesCount = this.currentMatches.length;
+      this.unfilteredDisplayedCount = this.displayedMatchesCount;
+      console.log(
+        `Обработано ${this.currentMatches.length} матчей для первичного отображения`,
+      );
+
       // Уберём оставшиеся индикаторы загрузки (чтобы сообщение об обновлении не висело)
       if (render && statsContainer) {
         statsContainer
@@ -628,20 +639,24 @@ class SidebarManager {
       try {
         const statsContainer = document.querySelector(".stats-container");
 
-        const mapCounts = {};
-        (this.currentMatches || []).forEach((m) => {
-          const raw = m.map || "";
-          const key = SidebarManager.normalizeMapKey(raw) || "";
-          if (!mapCounts[key]) mapCounts[key] = { name: raw || key, count: 0 };
-          mapCounts[key].count++;
-        });
-
-        // Сохраняем опции
-        this.availableMapOptions = Object.keys(mapCounts).map((k) => ({
-          key: k,
-          name: mapCounts[k].name,
-          count: mapCounts[k].count,
-        }));
+        // Фолбэк: если не удалось взять карты из сегментов, считаем по уже загруженным матчам
+        if (!this.availableMapOptions.length) {
+          const loadedMapCounts = {};
+          (this.currentMatches || []).forEach((m) => {
+            const raw = m.map || "";
+            const key = SidebarManager.normalizeMapKey(raw) || "";
+            if (!key) return;
+            if (!loadedMapCounts[key]) {
+              loadedMapCounts[key] = { name: raw || key, count: 0 };
+            }
+            loadedMapCounts[key].count++;
+          });
+          this.availableMapOptions = Object.keys(loadedMapCounts).map((k) => ({
+            key: k,
+            name: loadedMapCounts[k].name,
+            count: loadedMapCounts[k].count,
+          }));
+        }
 
         if (render && statsContainer) {
           // Вставляем фильтр перед списком матчей (тексты прописаны вручную)
@@ -669,28 +684,58 @@ class SidebarManager {
 
           const select = document.getElementById("mapFilterSelect");
           if (select) {
-            select.addEventListener("change", (e) => {
+            select.addEventListener("change", async (e) => {
               this.currentMapFilter = e.target.value || null;
-              // Показать первые 20 отфильтрованных матчей
-              this.displayMatchHistory(
-                this.getFilteredMatches().slice(0, 20),
-                true,
-              );
+
+              if (this.currentMapFilter) {
+                const selectedMapOption = this.availableMapOptions.find(
+                  (opt) => opt.key === this.currentMapFilter,
+                );
+                const expectedCount = selectedMapOption?.count || 0;
+
+                this.renderMatchesLoadingIndicator();
+                await this.ensureMatchesLoadedForMap(
+                  this.currentMapFilter,
+                  expectedCount,
+                );
+                const filteredMatches = this.getFilteredMatches();
+                this.displayedMatchesCount = filteredMatches.length;
+                this.displayMatchHistory(filteredMatches, true);
+              } else {
+                const visibleCount =
+                  this.unfilteredDisplayedCount > 0
+                    ? this.unfilteredDisplayedCount
+                    : this.matchesLimit;
+                await this.ensureMatchesLoadedRange(0, visibleCount);
+                this.displayedMatchesCount = Math.min(
+                  visibleCount,
+                  this.currentMatches.length,
+                );
+                this.unfilteredDisplayedCount = this.displayedMatchesCount;
+                this.displayMatchHistory(
+                  this.currentMatches.slice(0, this.displayedMatchesCount),
+                  true,
+                );
+              }
             });
           }
         }
 
-        // Отображаем историю матчей (первые 20 с учётом фильтра)
+        // Отображаем историю матчей (первая порция 50)
         if (render) {
           this.displayMatchHistory(
-            this.getFilteredMatches().slice(0, 20),
+            this.currentMatches.slice(0, this.matchesLimit),
             true,
           );
         }
       } catch (err) {
         console.error("Error rendering map filter:", err);
-        if (render)
-          this.displayMatchHistory(this.currentMatches.slice(0, 20), true);
+        if (render) {
+          this.displayMatchHistory(
+            this.currentMatches.slice(0, this.matchesLimit),
+            true,
+          );
+        }
       }
     } catch (error) {
       console.error("Error fetching match history:", error);
@@ -933,6 +978,111 @@ class SidebarManager {
         mvps: 0,
         result: "Error",
       };
+    }
+  }
+
+  renderMatchesLoadingIndicator() {
+    const statsContainer = document.querySelector(".stats-container");
+    if (!statsContainer) return;
+
+    let wrapper = statsContainer.querySelector(".matches-content-wrapper");
+    if (!wrapper) {
+      wrapper = document.createElement("div");
+      wrapper.className = "matches-content-wrapper";
+      statsContainer.appendChild(wrapper);
+    }
+
+    wrapper.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+      "processingMatches",
+    )}</div>`;
+  }
+
+  async ensureMatchesLoadedRange(startIndex, endIndexExclusive) {
+    const playerId = window.currentPlayerData?.player_id;
+    if (!playerId || !this.allHistoryItems.length) return;
+
+    const cappedStart = Math.max(0, startIndex);
+    const cappedEnd = Math.min(endIndexExclusive, this.allHistoryItems.length);
+    if (cappedStart >= cappedEnd) return;
+
+    const indexesToLoad = [];
+    for (let i = cappedStart; i < cappedEnd; i++) {
+      if (!this.orderedMatches[i]) {
+        indexesToLoad.push(i);
+      }
+    }
+
+    if (!indexesToLoad.length) {
+      this.currentMatches = this.orderedMatches.filter(Boolean);
+      return;
+    }
+
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < indexesToLoad.length; i += BATCH_SIZE) {
+      const batchIndexes = indexesToLoad.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.all(
+        batchIndexes.map(async (historyIndex) => {
+          const historyMatch = this.allHistoryItems[historyIndex];
+          try {
+            const stats = await this.fetchMatchStats(
+              historyMatch.match_id,
+              playerId,
+            );
+            return this.formatMatchData(
+              historyMatch,
+              stats,
+              playerId,
+              historyIndex,
+              this.totalMatches,
+            );
+          } catch (error) {
+            console.error(
+              `Error fetching stats for match ${historyMatch.match_id}:`,
+              error,
+            );
+            return this.formatMatchData(
+              historyMatch,
+              null,
+              playerId,
+              historyIndex,
+              this.totalMatches,
+            );
+          }
+        }),
+      );
+
+      batchIndexes.forEach((historyIndex, idx) => {
+        this.orderedMatches[historyIndex] = batchResults[idx];
+      });
+    }
+
+    this.currentMatches = this.orderedMatches.filter(Boolean);
+  }
+
+  async ensureMatchesLoadedForMap(mapKey, expectedCount) {
+    if (!mapKey) return;
+
+    let loadedForMap = this.getFilteredMatches().length;
+    if (expectedCount > 0 && loadedForMap >= expectedCount) {
+      return;
+    }
+
+    const chunkSize = this.matchesLimit;
+    let chunkStart = 0;
+
+    while (chunkStart < this.allHistoryItems.length) {
+      const chunkEnd = Math.min(
+        chunkStart + chunkSize,
+        this.allHistoryItems.length,
+      );
+      await this.ensureMatchesLoadedRange(chunkStart, chunkEnd);
+
+      loadedForMap = this.getFilteredMatches().length;
+      if (expectedCount > 0 && loadedForMap >= expectedCount) {
+        break;
+      }
+
+      chunkStart = chunkEnd;
     }
   }
 
@@ -1380,13 +1530,24 @@ class SidebarManager {
     let matchHistoryContainer = `<div class="match-history">${matchHistoryHTML}</div>`;
 
     // Если есть еще матчи для загрузки, добавляем кнопку "Показать еще"
-    const totalFiltered = this.getFilteredMatches().length;
+    const selectedMapOption = this.currentMapFilter
+      ? this.availableMapOptions.find(
+          (opt) => opt.key === this.currentMapFilter,
+        )
+      : null;
+    const allHistoryScanned =
+      this.currentMatches.length >= (this.allHistoryItems || []).length;
+    const totalFiltered = this.currentMapFilter
+      ? allHistoryScanned
+        ? this.getFilteredMatches().length
+        : selectedMapOption?.count || this.getFilteredMatches().length
+      : this.totalMatches || this.allHistoryItems.length;
     const hasMoreMatches = matches.length < totalFiltered;
     if (hasMoreMatches) {
       const remainingMatches = totalFiltered - matches.length;
       matchHistoryContainer += `
         <div class="show-more-container">
-          <button class="show-more-btn" style="font-family: "Orbitron", sans-serif;" onclick="sidebarManager.loadMoreMatches()">
+          <button class="show-more-btn" style="font-family: 'Orbitron', sans-serif;" onclick="sidebarManager.loadMoreMatches()">
             <i class="fas fa-chevron-down"></i>
             ${getText("showMoreMatches")} (${remainingMatches})
           </button>
@@ -1400,7 +1561,7 @@ class SidebarManager {
     if (!isInitialLoad) {
       const newMatches = statsContainer.querySelectorAll(".match-item");
       newMatches.forEach((item, index) => {
-        if (index >= matches.length - 20) {
+        if (index >= matches.length - this.matchesLimit) {
           // Анимируем только новые матчи
           item.style.opacity = "0";
           item.style.transform = "translateY(20px)";
@@ -1415,7 +1576,7 @@ class SidebarManager {
   }
 
   // Загрузка дополнительных матчей
-  loadMoreMatches() {
+  async loadMoreMatches() {
     if (this.isLoadingMore) {
       return;
     }
@@ -1428,19 +1589,40 @@ class SidebarManager {
       )}</div>`;
     }
 
-    // Небольшая задержка для отображения индикатора загрузки
-    setTimeout(() => {
+    try {
       const currentlyDisplayedCount =
         document.querySelectorAll(".match-item").length;
-      const matchesToLoad = 20;
-      const newTotalDisplayed = currentlyDisplayedCount + matchesToLoad;
-      const source = this.getFilteredMatches();
-      const matchesToDisplay = source.slice(0, newTotalDisplayed);
+      const newTotalDisplayed = currentlyDisplayedCount + this.matchesLimit;
 
-      this.displayMatchHistory(matchesToDisplay, false);
+      if (this.currentMapFilter) {
+        const selectedMapOption = this.availableMapOptions.find(
+          (opt) => opt.key === this.currentMapFilter,
+        );
+        const expectedCount = selectedMapOption?.count || 0;
+        await this.ensureMatchesLoadedForMap(
+          this.currentMapFilter,
+          expectedCount,
+        );
 
+        const source = this.getFilteredMatches();
+        const matchesToDisplay = source.slice(0, newTotalDisplayed);
+        this.displayedMatchesCount = matchesToDisplay.length;
+        this.displayMatchHistory(matchesToDisplay, false);
+      } else {
+        const targetCount = Math.min(
+          newTotalDisplayed,
+          this.allHistoryItems.length,
+        );
+        await this.ensureMatchesLoadedRange(0, targetCount);
+
+        const matchesToDisplay = this.currentMatches.slice(0, targetCount);
+        this.displayedMatchesCount = matchesToDisplay.length;
+        this.unfilteredDisplayedCount = this.displayedMatchesCount;
+        this.displayMatchHistory(matchesToDisplay, false);
+      }
+    } finally {
       this.isLoadingMore = false;
-    }, 300);
+    }
   }
 
   async showRecord(recordType) {
