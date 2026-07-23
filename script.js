@@ -92,7 +92,7 @@ class SidebarManager {
     this.currentMatches = []; // Все загруженные матчи
     this.currentMapFilter = null; // Выбранная карта для фильтрации (ключ)
     this.matchesOffset = 0; // Смещение для пагинации
-    this.matchesLimit = 50; // Количество загружаемых матчей за раз
+    this.matchesLimit = 40; // Количество загружаемых матчей за раз
     this.isLoadingMore = false; // Флаг загрузки
     this.totalMatches = 0; // Общее количество матчей
     this.showMoreButton = null; // Кнопка "Показать еще"
@@ -101,6 +101,7 @@ class SidebarManager {
     this.displayedMatchesCount = 0; // Сколько матчей сейчас отображаем
     this.unfilteredDisplayedCount = 0; // Сколько матчей показано без фильтра карты
     this.availableMapOptions = []; // Опции фильтра карт с полным количеством
+    this.mapScanOffsets = {}; // До какого индекса истории уже сканировали карту
 
     this.initializeEventListeners();
   }
@@ -394,6 +395,7 @@ class SidebarManager {
       this.allHistoryItems = [];
       this.orderedMatches = [];
       this.availableMapOptions = [];
+      this.mapScanOffsets = {};
       this.displayedMatchesCount = 0;
       this.unfilteredDisplayedCount = 0;
       this.matchesOffset = 0;
@@ -616,7 +618,7 @@ class SidebarManager {
         }))
         .sort((a, b) => b.count - a.count);
 
-      // Загружаем только первую порцию матчей (50)
+      // Загружаем только первую порцию матчей
       const initialLimit = Math.min(
         this.matchesLimit,
         this.allHistoryItems.length,
@@ -696,11 +698,16 @@ class SidebarManager {
                 this.renderMatchesLoadingIndicator();
                 await this.ensureMatchesLoadedForMap(
                   this.currentMapFilter,
+                  this.matchesLimit,
                   expectedCount,
                 );
                 const filteredMatches = this.getFilteredMatches();
-                this.displayedMatchesCount = filteredMatches.length;
-                this.displayMatchHistory(filteredMatches, true);
+                const matchesToDisplay = filteredMatches.slice(
+                  0,
+                  this.matchesLimit,
+                );
+                this.displayedMatchesCount = matchesToDisplay.length;
+                this.displayMatchHistory(matchesToDisplay, true);
               } else {
                 const visibleCount =
                   this.unfilteredDisplayedCount > 0
@@ -721,7 +728,7 @@ class SidebarManager {
           }
         }
 
-        // Отображаем историю матчей (первая порция 50)
+        // Отображаем историю матчей (первая порция)
         if (render) {
           this.displayMatchHistory(
             this.currentMatches.slice(0, this.matchesLimit),
@@ -1059,29 +1066,32 @@ class SidebarManager {
     this.currentMatches = this.orderedMatches.filter(Boolean);
   }
 
-  async ensureMatchesLoadedForMap(mapKey, expectedCount) {
+  async ensureMatchesLoadedForMap(mapKey, targetCount, expectedCount = 0) {
     if (!mapKey) return;
 
+    const requiredCount =
+      expectedCount > 0 ? Math.min(targetCount, expectedCount) : targetCount;
+
     let loadedForMap = this.getFilteredMatches().length;
-    if (expectedCount > 0 && loadedForMap >= expectedCount) {
+    if (loadedForMap >= requiredCount) {
       return;
     }
 
     const chunkSize = this.matchesLimit;
-    let chunkStart = 0;
+    let chunkStart = this.mapScanOffsets[mapKey] || 0;
 
-    while (chunkStart < this.allHistoryItems.length) {
+    while (
+      chunkStart < this.allHistoryItems.length &&
+      loadedForMap < requiredCount
+    ) {
       const chunkEnd = Math.min(
         chunkStart + chunkSize,
         this.allHistoryItems.length,
       );
       await this.ensureMatchesLoadedRange(chunkStart, chunkEnd);
+      this.mapScanOffsets[mapKey] = chunkEnd;
 
       loadedForMap = this.getFilteredMatches().length;
-      if (expectedCount > 0 && loadedForMap >= expectedCount) {
-        break;
-      }
-
       chunkStart = chunkEnd;
     }
   }
@@ -1601,6 +1611,7 @@ class SidebarManager {
         const expectedCount = selectedMapOption?.count || 0;
         await this.ensureMatchesLoadedForMap(
           this.currentMapFilter,
+          newTotalDisplayed,
           expectedCount,
         );
 
