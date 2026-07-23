@@ -2586,12 +2586,12 @@ footer {
 }
 
 .map-card.good-performance {
-  border-color: rgba(76, 175, 80, 0.4);
+  border-color: rgb(0 255 10 / 40%);
   margin-bottom: 1rem;
 }
 
 .map-card.poor-performance {
-  border-color: rgba(244, 67, 54, 0.4);
+  border-color: rgb(255 17 0 / 40%);
   margin-bottom: 1rem;
 }
 
@@ -2761,8 +2761,6 @@ footer {
   background: rgba(255, 85, 0, 0.05);
 }
 
-/* Responsive styles for maps */
-/* Tablet: 2 columns */
 @media (min-width: 769px) and (max-width: 1024px) {
   .maps-grid {
     grid-template-columns: repeat(2, 300px);
@@ -2771,16 +2769,19 @@ footer {
 
 @media (max-width: 768px) {
   .maps-grid {
+    margin: 0;
+    padding: 0;
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 
   .map-card {
-    width: 107%; /* user requested wider than container */
-    max-width: 107%;
+    width: 100%;
+    max-width: 100%;
     min-height: 280px;
-    margin: 0 auto; /* center horizontally */
+    margin: 0 auto;
     transform: translateX(0);
+    border: 3px solid rgb(255 255 255 / 20%);
   }
 
   .map-stat-row {
@@ -3079,13 +3080,6 @@ footer {
     width: 100%;
     max-width: 320px;
     margin: 0 auto;
-  }
-
-  .player-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-    align-items: center;
   }
 
   .player-info {
@@ -4111,4 +4105,35 @@ footer {
   color: #fff;
   box-shadow: 0 0 12px rgba(255, 85, 0, 0.35);
   padding-left: 0.46rem;
+}
+
+/* Final mobile override for pro-player card photos.
+   Keeps portrait positioning stable across different source image ratios. */
+@media (max-width: 768px) {
+  .featured-player-card,
+  .pro-card {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .featured-player-card-body,
+  .pro-card-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+  }
+
+  .featured-player-photo,
+  .pro-card-photo,
+  .pro-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    transform: translateY(1px);
+  }
 }
