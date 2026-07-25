@@ -870,6 +870,8 @@ footer {
 .footer-content p {
   color: var(--primary-color);
   margin: 0;
+  position: relative;
+  top: 15px;
 }
 
 .footer-btn i {
@@ -3952,8 +3954,6 @@ footer {
   border: 2px solid rgba(255, 85, 0, 0.2);
   transition: all 0.3s ease;
   position: relative;
-  width: 200px !important;
-  max-width: none !important;
   height: 260px !important;
 }
 
@@ -4073,8 +4073,7 @@ footer {
   box-shadow: 0 0 12px rgba(255, 85, 0, 0.35);
 }
 .pro-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
   margin-bottom: 2rem;
   background: none;
   backdrop-filter: none;
@@ -4087,13 +4086,14 @@ footer {
   width: 100%;
   max-width: 1200px;
   pointer-events: auto;
-  gap: 3rem;
   justify-content: center;
   justify-items: center;
+  bottom: 15px;
+  gap: 1.7rem;
 }
 
 .pro-grid .pro-card {
-  width: 100% !important;
+  width: 225px !important;
   max-width: none !important;
 }
 
@@ -4150,4 +4150,10 @@ footer {
   transition: all 0.3s ease;
   transform: translateY(-2px);
   box-shadow: 0 6px 10px rgba(255, 85, 0, 0.4);
+}
+@media (max-width: 768px) {
+  .fps-guide-btn {
+    position: static; /* Возвращаем в центр к остальным элементам */
+    margin-bottom: 20px; /* Отступ вниз до старых кнопок */
+  }
 }
