@@ -4142,10 +4142,9 @@ footer {
 }
 .fps-guide-btn:hover,
 .guide-btn:hover {
-  box-shadow: 0 0 10px rgba(255, 152, 0, 0.5); /* Оранжевое свечение, в тон твоих графиков */
   border-color: #ff9800;
   color: #ff9800;
   transition: all 0.3s ease;
   transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 6px 10px rgba(255, 85, 0, 0.4);
 }
