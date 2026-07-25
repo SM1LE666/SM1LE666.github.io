@@ -807,12 +807,13 @@ footer {
 }
 
 .footer-content {
-  max-width: 1000px;
-  margin: 0 auto;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .footer-buttons {
@@ -4138,7 +4139,9 @@ footer {
   }
 }
 .fps-guide-btn {
-  justify-self: start;
+  position: absolute;
+  left: 30px;
+  top: 20px;
 }
 .fps-guide-btn:hover,
 .guide-btn:hover {
