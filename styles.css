@@ -1486,7 +1486,7 @@ footer {
 
   /* Pro-grid управление */
   .pro-grid {
-    display: grid !important;
+    display: flex !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 1.2rem !important;
     padding: 1.5rem 1rem;
