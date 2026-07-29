@@ -2428,11 +2428,6 @@ function updatePageTexts() {
     )}`;
   }
 
-  const footerText = document.querySelector("footer p");
-  if (footerText) {
-    footerText.textContent = `© 2025 FACEIT Analyze | ${getText("footerText")}`;
-  }
-
   // Модальные окна
   updateModalTexts();
 }

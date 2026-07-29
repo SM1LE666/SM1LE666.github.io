@@ -4149,7 +4149,6 @@ footer {
   color: #ff9800;
   transition: all 0.3s ease;
   transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(255, 85, 0, 0.4);
 }
 @media (max-width: 768px) {
   .fps-guide-btn {
