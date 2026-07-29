@@ -3464,7 +3464,7 @@ function goBackToMain(updateUrl = true) {
 
   // Показываем про сетку и очищаем вывод
   if (proGrid) {
-    proGrid.style.display = "grid";
+    proGrid.style.display = "flex";
   }
 
   // Возвращаем строку поиска
