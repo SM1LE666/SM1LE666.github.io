@@ -4138,18 +4138,25 @@ footer {
     transform: translateY(1px);
   }
 }
-.fps-guide-btn {
-  position: absolute;
-  left: 30px;
-  top: 20px;
-}
-.fps-guide-btn:hover,
-.guide-btn:hover {
-  border-color: #ff9800;
-  color: #ff9800;
+
+.guide-btn {
   transition: all 0.3s ease;
-  transform: translateY(-2px);
 }
+
+.guide-btn:hover {
+  background: rgba(255, 85, 0, 0.22);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  color: #fff;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(255, 85, 0, 0.35);
+}
+
+.guide-btn:active {
+  transform: translateY(0);
+}
+
 @media (max-width: 768px) {
   .fps-guide-btn {
     position: static; /* Возвращаем в центр к остальным элементам */
