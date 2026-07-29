@@ -4138,13 +4138,17 @@ footer {
     transform: translateY(1px);
   }
 }
+.fps-guide-btn {
+  position: absolute;
+  left: 30px;
+  top: 20px;
+}
 
 .guide-btn {
   transition: all 0.3s ease;
 }
 
 .guide-btn:hover {
-  background: rgba(255, 85, 0, 0.22);
   border-color: var(--primary-color);
   transform: translateY(-2px);
   color: #fff;
@@ -4156,7 +4160,6 @@ footer {
 .guide-btn:active {
   transform: translateY(0);
 }
-
 @media (max-width: 768px) {
   .fps-guide-btn {
     position: static; /* Возвращаем в центр к остальным элементам */
