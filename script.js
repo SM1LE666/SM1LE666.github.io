@@ -3051,7 +3051,7 @@ function clearPlayerProfile() {
   // Показываем pro-grid
   const proGrid = document.querySelector(".pro-grid");
   if (proGrid) {
-    proGrid.style.display = "grid";
+    proGrid.style.display = "flex";
   }
 
   // Сбрасываем URL на главную страницу
