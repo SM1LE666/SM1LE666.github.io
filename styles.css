@@ -474,7 +474,7 @@ input[type="text"] {
   padding: 0.75rem 1.5rem;
   font-size: 1.1rem;
   border-radius: var(--border-radius);
-  background: rgba(255, 255, 255, 0.95);
+  background: rgb(177 177 177 / 90%);
   color: #333;
   border: 2px solid rgba(255, 85, 0, 0.3);
   box-shadow: 0 4px 15px rgba(255, 85, 0, 0.1);
@@ -2135,19 +2135,20 @@ footer {
   justify-content: space-between;
   flex-wrap: nowrap;
   padding: 10px 20px;
-  margin-bottom: 8px;
-  background: rgba(73, 72, 72, 0.5);
   border-radius: 30px;
   box-shadow: rgba(255, 85, 0, 0.1) 0px 4px 15px;
   border: 2px solid rgba(255, 85, 0, 0.3);
-  border-left: 3px solid var(--primary-color);
   position: relative;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-/* Стили для экранов от 769px и шире */
+.match-item:hover {
+  transform: translateY(-2px);
+  color: rgba(255, 85, 0, 0.1);
+}
+
 @media (min-width: 769px) {
   .match-item {
     height: 70px !important;
@@ -3740,7 +3741,7 @@ footer {
   }
 
   .player-info p {
-    font-size: 1rem;
+    font-size: 1.1rem;
     margin: 0.35rem 0;
     line-height: 1.35;
   }
@@ -4078,7 +4079,7 @@ footer {
   border-color: var(--primary-color);
   color: #fff;
   box-shadow: 0 0 12px rgba(255, 85, 0, 0.35);
-  padding-left: 0.46rem;
+  padding-left: 0.65rem;
 }
 
 /* Final mobile override for pro-player card photos.
