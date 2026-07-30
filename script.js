@@ -3394,51 +3394,70 @@ async function analyzePlayer() {
     try {
       const parsedError = JSON.parse(error.message);
       if (parsedError.errors && parsedError.errors[0]?.code === "err_nf0") {
-        errorText =
-          "Player not found on FACEIT. Please check the nickname or try again later.";
+        errorText = "Игрок не найден на FACEIT. Проверьте никнейм.";
       }
     } catch (e) {
       if (error.message) errorText = error.message;
     }
 
-    // РЕШЕНИЕ: Создаем кастомный блок ошибки прямо в DOM, чтобы он точно отобразился
+    // Создаем или находим кастомный блок ошибки
     let errorBanner = document.getElementById("custom-error-banner");
 
     if (!errorBanner) {
       errorBanner = document.createElement("div");
       errorBanner.id = "custom-error-banner";
-      // Стили в цветах киберспортивных сайтов (темный фон, красная рамка)
       errorBanner.style.position = "fixed";
       errorBanner.style.top = "20px";
       errorBanner.style.left = "50%";
       errorBanner.style.transform = "translateX(-50%)";
       errorBanner.style.zIndex = "99999";
-      errorBanner.style.backgroundColor = "#1a1a1a";
+      errorBanner.style.background = "rgba(51, 51, 51, 0.9)";
       errorBanner.style.color = "#ff5500";
       errorBanner.style.padding = "14px 24px";
       errorBanner.style.borderRadius = "8px";
       errorBanner.style.border = "1px solid #ff5500";
       errorBanner.style.boxShadow = "0 4px 20px rgba(0, 0, 0, 0.5)";
-      errorBanner.style.fontFamily = "inherit";
-      errorBanner.style.fontSize = "14px";
+      errorBanner.style.fontFamily = "Orbitron, sans-serif";
+      errorBanner.style.fontSize = "13px";
       errorBanner.style.textAlign = "center";
-      errorBanner.style.cursor = "pointer";
-
-      // По клику можно закрыть ошибку
-      errorBanner.onclick = function () {
-        errorBanner.remove();
-      };
+      errorBanner.style.transition = "opacity 0.3s ease";
 
       document.body.appendChild(errorBanner);
     }
 
     errorBanner.textContent = errorText;
+    errorBanner.style.opacity = "1";
 
-    // Если у тебя всё же есть нормальный элемент output и ты хочешь дублировать туда:
+    // Сбрасываем прошлый таймер, если ошибка вылезла повторно
+    if (window.errorTimeout) {
+      clearTimeout(window.errorTimeout);
+    }
+
+    // Убираем плашку через 2000 миллисекунд (2 секунды)
+    window.errorTimeout = setTimeout(() => {
+      errorBanner.style.opacity = "0";
+      setTimeout(() => {
+        errorBanner.remove();
+      }, 300); // Удаляем из DOM после завершения анимации затухания
+    }, 2000);
+
+    // Дублирование в output, если он есть
     if (output) {
       output.style.display = "block";
       output.textContent = errorText;
+
+      setTimeout(() => {
+        output.style.display = "none";
+      }, 2000);
     }
+  }
+
+  errorBanner.textContent = errorText;
+
+  // Если у тебя всё же есть нормальный элемент output и ты хочешь дублировать туда:
+  if (output) {
+    output.style.display = "block";
+    output.textContent = errorText;
   }
 }
 
