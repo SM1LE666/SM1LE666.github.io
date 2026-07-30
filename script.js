@@ -3390,29 +3390,53 @@ async function analyzePlayer() {
     });
 
     // Определяем текст ошибки
-    let errorText = "An error occurred while loading data.";
-
+    let errorText = "Игрок не найден или произошла ошибка запроса.";
     try {
       const parsedError = JSON.parse(error.message);
       if (parsedError.errors && parsedError.errors[0]?.code === "err_nf0") {
         errorText =
-          "Player not found on FACEIT. Please check the nickname or try a different one.";
-      } else if (error.message) {
-        errorText = error.message;
+          "Player not found on FACEIT. Please check the nickname or try again later.";
       }
     } catch (e) {
-      errorText = error.message || errorText;
+      if (error.message) errorText = error.message;
     }
 
-    // Выводим ошибку в блок на странице вместо alert()
-    if (output) {
-      output.style.display = "block"; // Убедись, что блок видимый
-      output.style.color = "#ff5500"; // Твой цвет для ошибок (например, красный)
-      output.style.backgroundColor = "rgba(255, 77, 77, 0.1)"; // Полупрозрачный фон в тон
-      output.style.padding = "12px 16px";
-      output.style.borderRadius = "8px";
-      output.style.border = "1px solid #ff4d4d";
+    // РЕШЕНИЕ: Создаем кастомный блок ошибки прямо в DOM, чтобы он точно отобразился
+    let errorBanner = document.getElementById("custom-error-banner");
 
+    if (!errorBanner) {
+      errorBanner = document.createElement("div");
+      errorBanner.id = "custom-error-banner";
+      // Стили в цветах киберспортивных сайтов (темный фон, красная рамка)
+      errorBanner.style.position = "fixed";
+      errorBanner.style.top = "20px";
+      errorBanner.style.left = "50%";
+      errorBanner.style.transform = "translateX(-50%)";
+      errorBanner.style.zIndex = "99999";
+      errorBanner.style.backgroundColor = "#1a1a1a";
+      errorBanner.style.color = "#ff5500";
+      errorBanner.style.padding = "14px 24px";
+      errorBanner.style.borderRadius = "8px";
+      errorBanner.style.border = "1px solid #ff5500";
+      errorBanner.style.boxShadow = "0 4px 20px rgba(0, 0, 0, 0.5)";
+      errorBanner.style.fontFamily = "inherit";
+      errorBanner.style.fontSize = "14px";
+      errorBanner.style.textAlign = "center";
+      errorBanner.style.cursor = "pointer";
+
+      // По клику можно закрыть ошибку
+      errorBanner.onclick = function () {
+        errorBanner.remove();
+      };
+
+      document.body.appendChild(errorBanner);
+    }
+
+    errorBanner.textContent = errorText;
+
+    // Если у тебя всё же есть нормальный элемент output и ты хочешь дублировать туда:
+    if (output) {
+      output.style.display = "block";
       output.textContent = errorText;
     }
   }
