@@ -3389,12 +3389,26 @@ async function analyzePlayer() {
       message: String(error?.message || error),
     });
 
-    if (output) {
-      output.textContent = `${getText("error")}: ${error.message}`;
+    // Проверяем, прилетел ли JSON с ошибкой 404 от FACEIT API
+    let errorText = `${getText("error")}: ${error.message}`;
+
+    try {
+      // Пытаемся распарсить error.message, если это строка с JSON
+      const parsedError = JSON.parse(error.message);
+      if (parsedError.errors && parsedError.errors[0]?.code === "err_nf0") {
+        errorText =
+          "Player not found on FACEIT. Please check the nickname or try a Steam profile link.";
+      }
+    } catch (e) {
+      // Если это был не JSON, оставляем стандартный вывод
     }
 
-    // Показываем сообщение об ошибке
-    alert(`${getText("error")}: ${error.message}`);
+    if (output) {
+      output.textContent = errorText;
+    }
+
+    // Показываем нормальное сообщение об ошибке
+    alert(errorText);
   }
 }
 
@@ -3821,7 +3835,7 @@ function sendMessage(event) {
     )}: ${email}\n\n${getText("message")}:\n${message}`,
   );
 
-  const mailtoLink = `mailto:contact@faceit-analyze.com?subject=${encodeURIComponent(
+  const mailtoLink = `mailto:faceit.analyze@gmail.com?subject=${encodeURIComponent(
     finalSubject,
   )}&body=${emailBody}`;
 
@@ -3836,7 +3850,7 @@ function sendMessage(event) {
     a.remove();
 
     alert(
-      "Your email app should open now. If nothing happens, configure a default mail app for mailto: links in Windows (Default apps → Email) or use the address contact@faceit-analyze.com.",
+      "Your email app should open now. If nothing happens, configure a default mail app for mailto: links in Windows (Default apps → Email) or use the address faceit.analyze@gmail.com.",
     );
 
     // Не закрываем окно моментально — пусть пользователь увидит подсказку/сможет повторить
@@ -3845,7 +3859,7 @@ function sendMessage(event) {
   } catch (e) {
     console.error("Failed to open mail client:", e);
     alert(
-      "Could not open your email app. Please email us at contact@faceit-analyze.com.",
+      "Could not open your email app. Please email us at faceit.analyze@gmail.com.",
     );
   }
 }
