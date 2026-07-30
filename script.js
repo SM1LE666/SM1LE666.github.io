@@ -3389,26 +3389,32 @@ async function analyzePlayer() {
       message: String(error?.message || error),
     });
 
-    // Проверяем, прилетел ли JSON с ошибкой 404 от FACEIT API
-    let errorText = `${getText("error")}: ${error.message}`;
+    // Определяем текст ошибки
+    let errorText = "An error occurred while loading data.";
 
     try {
-      // Пытаемся распарсить error.message, если это строка с JSON
       const parsedError = JSON.parse(error.message);
       if (parsedError.errors && parsedError.errors[0]?.code === "err_nf0") {
         errorText =
-          "Player not found on FACEIT. Please check the nickname or try a Steam profile link.";
+          "Player not found on FACEIT. Please check the nickname or try a different one.";
+      } else if (error.message) {
+        errorText = error.message;
       }
     } catch (e) {
-      // Если это был не JSON, оставляем стандартный вывод
+      errorText = error.message || errorText;
     }
 
+    // Выводим ошибку в блок на странице вместо alert()
     if (output) {
+      output.style.display = "block"; // Убедись, что блок видимый
+      output.style.color = "#ff5500"; // Твой цвет для ошибок (например, красный)
+      output.style.backgroundColor = "rgba(255, 77, 77, 0.1)"; // Полупрозрачный фон в тон
+      output.style.padding = "12px 16px";
+      output.style.borderRadius = "8px";
+      output.style.border = "1px solid #ff4d4d";
+
       output.textContent = errorText;
     }
-
-    // Показываем нормальное сообщение об ошибке
-    alert(errorText);
   }
 }
 
