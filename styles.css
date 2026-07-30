@@ -4145,11 +4145,16 @@ footer {
 }
 
 .guide-btn {
-  transition: all 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .guide-btn:hover {
-  border-color: var(--primary-color);
+  border-color: #ff5500;
   transform: translateY(-2px);
   color: #fff;
   box-shadow:
