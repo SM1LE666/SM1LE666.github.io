@@ -1482,7 +1482,7 @@ footer {
 
   /* Pro-grid управление */
   .pro-grid {
-    display: flex !important;
+    display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 1.2rem !important;
     padding: 1.5rem 1rem;
@@ -4000,7 +4000,7 @@ footer {
 @media (max-width: 768px) {
   .pro-card {
     height: 200px !important;
-    width: 150px !important;
+    width: 145px !important;
     max-width: 100% !important;
   }
   .pro-card img {
@@ -4058,7 +4058,7 @@ footer {
 }
 
 .pro-grid .pro-card {
-  width: 225px !important;
+  width: 225px;
   max-width: none !important;
 }
 
@@ -4148,5 +4148,10 @@ footer {
   .fps-guide-btn {
     position: static; /* Возвращаем в центр к остальным элементам */
     margin-bottom: 20px; /* Отступ вниз до старых кнопок */
+  }
+}
+@media (max-width: 480px) {
+  .fps-guide-btn {
+    height: 40px;
   }
 }
