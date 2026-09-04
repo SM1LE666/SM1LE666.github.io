@@ -4111,26 +4111,27 @@ footer {
   top: 20px;
 }
 
-.guide-btn {
-  transition:
-    background 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease,
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.guide-btn:hover {
-  border-color: #ff5500;
-  transform: translateY(-2px);
+.guide-btn.primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
   color: #fff;
-  box-shadow:
-    0 14px 30px rgba(0, 0, 0, 0.55),
-    0 0 22px rgba(255, 85, 0, 0.35);
+  border-color: rgba(255, 85, 0, 0.35);
 }
 
-.guide-btn:active {
-  transform: translateY(0);
+.guide-btn.primary:hover {
+  background: linear-gradient(135deg, var(--primary-hover), #cc4400);
+  box-shadow: 0 6px 15px rgba(255, 85, 0, 0.35);
+}
+
+.guide-btn.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.guide-btn.secondary:hover {
+  background: rgba(255, 85, 0, 0.08);
+  border-color: rgba(255, 85, 0, 0.35);
+  color: #fff;
 }
 @media (max-width: 768px) {
   .fps-guide-btn {
