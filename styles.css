@@ -2923,13 +2923,12 @@ footer {
   }
 }
 
-/* Floating cookie settings button */
 .cookie-fab {
-  position: fixed;
-  right: 22px;
-  bottom: 22px;
-  width: 56px;
-  height: 56px;
+  position: absolute;
+  right: 30px;
+  bottom: 50px;
+  width: 55px;
+  height: 55px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -4115,9 +4114,8 @@ footer {
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  padding: 0.8rem 1.2rem;
-  min-height: 56px;
-  border-radius: 999px;
+  height: 50px;
+  border-radius: 15px;
   text-decoration: none;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -4146,28 +4144,6 @@ footer {
   transform: translateY(0);
 }
 
-.fps-guide-btn.primary {
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
-  color: #fff;
-  border-color: rgba(255, 85, 0, 0.35);
-}
-
-.fps-guide-btn.primary:hover {
-  background: linear-gradient(135deg, var(--primary-hover), #cc4400);
-  box-shadow: 0 6px 15px rgba(255, 85, 0, 0.35);
-}
-
-.fps-guide-btn.secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.fps-guide-btn.secondary:hover {
-  background: rgba(255, 85, 0, 0.08);
-  border-color: rgba(255, 85, 0, 0.35);
-  color: #fff;
-}
 @media (max-width: 768px) {
   .fps-guide-btn {
     position: static; /* Возвращаем в центр к остальным элементам */
