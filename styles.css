@@ -4111,24 +4111,24 @@ footer {
   top: 20px;
 }
 
-.guide-btn.primary {
+.fps-guide-btn.primary {
   background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
   color: #fff;
   border-color: rgba(255, 85, 0, 0.35);
 }
 
-.guide-btn.primary:hover {
+.fps-guide-btn.primary:hover {
   background: linear-gradient(135deg, var(--primary-hover), #cc4400);
   box-shadow: 0 6px 15px rgba(255, 85, 0, 0.35);
 }
 
-.guide-btn.secondary {
+.fps-guide-btn.secondary {
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.9);
   border-color: rgba(255, 255, 255, 0.18);
 }
 
-.guide-btn.secondary:hover {
+.fps-guide-btn.secondary:hover {
   background: rgba(255, 85, 0, 0.08);
   border-color: rgba(255, 85, 0, 0.35);
   color: #fff;
