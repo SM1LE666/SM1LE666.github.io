@@ -1,3 +1,6 @@
+// Deprecated: generic proxy endpoint is not referenced by the current UI or app flow.
+// Keep only temporarily for external compatibility checks; remove once no legacy callers remain.
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://sm1le666.github.io');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');

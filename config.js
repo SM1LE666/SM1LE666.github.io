@@ -1,8 +1,15 @@
 /**
+ * Legacy browser-side configuration loader.
+ *
+ * WARNING: this pattern is temporary and unsafe for real API key handling.
+ * The config must eventually move to server-side environment management.
+ * TODO: remove browser key loading and centralize in serverless API config.
+ */
+
+/**
  * Configuration loader - simplified version without encryption
  * Загружает конфигурацию без шифрования
  */
-
 class Config {
   constructor() {
     this.apiKey = null;
@@ -16,7 +23,6 @@ class Config {
       if (savedApiKey && savedApiKey !== "server-side-key") {
         this.apiKey = savedApiKey;
         this.loaded = true;
-        console.log("API ключ загружен из localStorage");
         return true;
       }
 
@@ -44,27 +50,23 @@ class Config {
 
           if (this.apiKey) {
             this.loaded = true;
-            console.log("Конфигурация успешно загружена из config.env");
             return true;
           }
         }
       } catch (error) {
         console.log(
-          "Файл config.env недоступен, используем серверную конфигурацию"
+          "Файл config.env недоступен, используем серверную конфигурацию",
         );
       }
 
       // Используем серверную конфигурацию по умолчанию
       this.apiKey = "server-side-key"; // Заглушка, реальный ключ на сервере
       this.loaded = true;
-      console.log("Используется серверная конфигурация API ключа");
       return true;
     } catch (error) {
-      console.error("Ошибка загрузки конфигурации:", error);
       // Используем серверную конфигурацию как fallback
       this.apiKey = "server-side-key";
       this.loaded = true;
-      console.log("Fallback: используется серверная конфигурация API ключа");
       return true;
     }
   }
@@ -72,7 +74,7 @@ class Config {
   getApiKey() {
     if (!this.loaded) {
       throw new Error(
-        "Конфигурация не загружена. Вызовите loadConfig() сначала."
+        "Конфигурация не загружена. Вызовите loadConfig() сначала.",
       );
     }
     return this.apiKey;

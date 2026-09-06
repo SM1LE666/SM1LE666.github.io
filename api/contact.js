@@ -1,3 +1,7 @@
+// Deprecated: this endpoint is not used by the current frontend flow.
+// The app uses a mailto-based contact form (`sendMessage()` in `script.js`), not `/api/contact`.
+// Safe to remove after the final contact-flow migration or deactivation.
+
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Origin", "*");

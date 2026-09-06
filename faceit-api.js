@@ -30,7 +30,6 @@ const FaceitAPI = (function () {
       }
       return input;
     } catch (error) {
-      console.error("Ошибка при извлечении никнейма из URL:", error);
       return input;
     }
   }
@@ -67,7 +66,6 @@ const FaceitAPI = (function () {
       _playerCache[playerNickname] = data;
       return data;
     } catch (error) {
-      console.error("Ошибка при получении данных игрока:", error);
       throw error;
     }
   }
@@ -102,7 +100,6 @@ const FaceitAPI = (function () {
       _statsCache[cacheKey] = data;
       return data;
     } catch (error) {
-      console.error("Ошибка при получении статистики игрока:", error);
       throw error;
     }
   }
@@ -134,7 +131,6 @@ const FaceitAPI = (function () {
       const latestMatch = items[0];
       return latestMatch.elo?.current || fallbackElo;
     } catch (error) {
-      console.error("Ошибка при получении актуального ELO:", error);
       return fallbackElo;
     }
   }
@@ -149,7 +145,6 @@ const FaceitAPI = (function () {
       // Возвращаем "Неизвестно" в зависимости от текущего языка
       const currentLang = window.currentLanguage || "ru";
       const result = currentLang === "ru" ? "Неизвестно" : "Unknown";
-      console.log("Возвращаем для неизвестной страны:", result);
       return result;
     }
 
@@ -177,7 +172,7 @@ const FaceitAPI = (function () {
       }
       // If proxy failed, fall through to existing fallback logic below
     } catch (error) {
-      console.warn("Ошибка при получении названия страны:", error);
+      // ignore
     }
 
     // Попробуем получить название через Intl.DisplayNames как запасной вариант
@@ -236,7 +231,6 @@ const FaceitAPI = (function () {
             const countryLabel = currentLang === "ru" ? "Страна" : "Country";
             p.textContent = `${countryLabel}: ${newCountryName}`;
           } catch (error) {
-            console.error("Ошибка при обновлении названия страны:", error);
             // Fallback: обновляем только подпись
             const countryValue = text.split(":")[1]?.trim();
             if (countryValue) {
