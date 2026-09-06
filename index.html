@@ -36,16 +36,30 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://fanalyze.com" />
     <title>FACEIT Analyze</title>
-    <link rel="stylesheet" href="/styles.css?v=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@400;700&display=swap"
     />
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/app/styles.css?v=1.2" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/assets/favicon-96x96.png"
+      sizes="96x96"
+    />
     <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/assets/apple-touch-icon.png"
+    />
+    <link rel="manifest" href="/assets/site.webmanifest" />
   </head>
   <body translate="no">
     <!-- Мобильная шторка - ТОЛЬКО для навигации по статистике игрока -->
@@ -172,7 +186,7 @@
         </div>
       </section>
 
-      <section id="results" translate="no" style="display: none" ;>
+      <section id="results" translate="no" style="display: none">
         <h2><i class="fas fa-search"></i> Player Statistics</h2>
         <div id="output">Enter a nickname to see results.</div>
         <div class="player-stats" id="playerStats">
@@ -391,19 +405,17 @@
       </div>
     </div>
 
-    <script src="/config.js?v=1.0"></script>
-    <script src="/app/state.js?v=1.0"></script>
-    <script src="/app/router.js?v=1.0"></script>
-    <script src="/app/services/faceit.js?v=1.0"></script>
-    <script src="/app/features/sidebar.js?v=1.0"></script>
-    <script src="/app/features/analytics.js?v=1.0"></script>
-    <script src="/app/features/modals.js?v=1.0"></script>
-    <script src="/app/features/rendering.js?v=1.0"></script>
-    <script src="/app/features/i18n-catalog.js?v=1.0"></script>
-    <script src="/app/features/player-resolve.js?v=1.0"></script>
-    <script src="/app/features/ui-events.js?v=1.0"></script>
-    <script src="/app/features/legacy-sidebar-manager.js?v=1.0"></script>
-    <script src="/faceit-api.js?v=1.0"></script>
-    <script src="/script.js?v=1.0"></script>
+    <script src="/app/config.js?v=1.2"></script>
+    <script src="/app/state.js?v=1.2"></script>
+    <script src="/app/router.js?v=1.2"></script>
+    <script src="/app/services/faceit.js?v=1.2"></script>
+    <script src="/app/features/analytics.js?v=1.2"></script>
+    <script src="/app/features/modals.js?v=1.2"></script>
+    <script src="/app/features/rendering.js?v=1.2"></script>
+    <script src="/app/features/i18n-catalog.js?v=1.2"></script>
+    <script src="/app/features/player-resolve.js?v=1.2"></script>
+    <script src="/app/features/ui-events.js?v=1.2"></script>
+    <script src="/app/features/sidebar-manager.js?v=1.2"></script>
+    <script src="/app/script.js?v=1.2"></script>
   </body>
 </html>

@@ -205,4 +205,10 @@
     resetReactionTest,
     sendMessage,
   };
+
+  window.closeAllModals = closeAllModals;
+  window.openSupportModal = openSupportModal;
+  window.openContactModal = openContactModal;
+  window.openReactionTestModal = openReactionTestModal;
+  window.sendMessage = sendMessage;
 })();

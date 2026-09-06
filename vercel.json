@@ -5,6 +5,38 @@
       "destination": "/api/:path*"
     },
     {
+      "source": "/favicon.ico",
+      "destination": "/assets/favicon.ico"
+    },
+    {
+      "source": "/favicon-96x96.png",
+      "destination": "/assets/favicon-96x96.png"
+    },
+    {
+      "source": "/apple-touch-icon.png",
+      "destination": "/assets/apple-touch-icon.png"
+    },
+    {
+      "source": "/site.webmanifest",
+      "destination": "/assets/site.webmanifest"
+    },
+    {
+      "source": "/web-app-manifest-192x192.png",
+      "destination": "/assets/web-app-manifest-192x192.png"
+    },
+    {
+      "source": "/web-app-manifest-512x512.png",
+      "destination": "/assets/web-app-manifest-512x512.png"
+    },
+    {
+      "source": "/faceit.png",
+      "destination": "/assets/faceit.png"
+    },
+    {
+      "source": "/logooo.png",
+      "destination": "/assets/logooo.png"
+    },
+    {
       "source": "/(.*)",
       "destination": "/"
     }

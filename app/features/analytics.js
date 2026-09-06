@@ -191,5 +191,15 @@
   };
 
   window.AppAnalytics = AppAnalytics;
+  window.getAnonymousId = getAnonymousId;
+  window.getSessionId = getSessionId;
+  window.getLastAnalyzedPlayer = getLastAnalyzedPlayer;
+  window.getCookieConsent = getCookieConsent;
+  window.setCookieConsent = setCookieConsent;
+  window.isAnalyticsAllowed = isAnalyticsAllowed;
+  window.openCookieModal = openCookieModal;
+  window.closeCookieModal = closeCookieModal;
+  window.updateCookieFabVisibility = updateCookieFabVisibility;
+  window.trackEvent = trackEvent;
   AppAnalytics.init();
 })();
