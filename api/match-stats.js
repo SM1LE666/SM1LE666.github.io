@@ -1,32 +1,19 @@
+import { proxyFaceitJson } from "../lib/faceit-proxy.js";
+
 export default async function handler(req, res) {
   try {
-    const apiKey = process.env.FACEIT_API_KEY;
-    if (!apiKey) {
-      res.status(500).json({ error: "FACEIT_API_KEY is not set" });
-      return;
-    }
-
     const matchId = req.query?.matchId;
     if (!matchId) {
       res.status(400).json({ error: "matchId is required" });
       return;
     }
 
-    const url = `https://open.faceit.com/data/v4/matches/${encodeURIComponent(
-      String(matchId)
-    )}/stats`;
-
-    const r = await fetch(url, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-    });
-
-    const text = await r.text();
-    res.status(r.status);
-    res.setHeader("Content-Type", "application/json");
-    res.send(text);
+    await proxyFaceitJson(
+      res,
+      `https://open.faceit.com/data/v4/matches/${encodeURIComponent(
+        String(matchId),
+      )}/stats`,
+    );
   } catch (e) {
     res.status(500).json({ error: String(e) });
   }

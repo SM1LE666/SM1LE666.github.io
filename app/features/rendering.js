@@ -1,4 +1,13 @@
 (function () {
+  function getTranslator() {
+    return window.getText || ((key) => key);
+  }
+
+  function formatNumber(value) {
+    const formatter = window.FaceitAPI?.formatNumber?.bind(window.FaceitAPI);
+    return formatter ? formatter(value) : String(value);
+  }
+
   function formatStatRow(text) {
     const idx = text.indexOf(":");
     if (idx === -1) {
@@ -9,19 +18,26 @@
     return `<span class="stat-row-label">${label}</span><span class="stat-row-value">${value}</span>`;
   }
 
+  function renderMapBox(map) {
+    const getText = getTranslator();
+    if (!map) return `<p>${getText("notEnoughData")}</p>`;
+
+    return `
+      <p class="stat-row">${formatStatRow(`${getText("mapName")}: ${map.name}`)}</p>
+      <p class="stat-row">${formatStatRow(`${getText("mapMatches")}: ${map.matches}`)}</p>
+      <p class="stat-row">${formatStatRow(`${getText("mapWinRate")}: ${map.winRate.toFixed(1)}%`)}</p>
+      <p class="stat-row">${formatStatRow(`K/D: ${map.kd.toFixed(2)}`)}</p>
+      <p class="stat-row">${formatStatRow(`${getText("Headshots")}: ${map.hs.toFixed(1)}%`)}</p>
+    `;
+  }
+
   function renderOverviewStats(container) {
     if (!container || !window.currentPlayerProfile) return;
 
-    const getText = window.getText || ((key) => key);
-    const formatNumber =
-      window.FaceitService?.formatNumber?.bind(window.FaceitService) ||
-      window.FaceitAPI?.formatNumber?.bind(window.FaceitAPI) ||
-      ((value) => String(value));
-
+    const getText = getTranslator();
     const { avgStats, mapAnalysis } = window.currentPlayerProfile;
-    container.innerHTML = "";
 
-    const overviewHTML = `
+    container.innerHTML = `
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
       <p class="stat-row">${formatStatRow(`${getText("Matches")}: ${formatNumber(avgStats.totalMatches)}`)}</p>
@@ -33,87 +49,53 @@
 
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
-      ${
-        mapAnalysis.bestMap
-          ? `
-        <p class="stat-row">${formatStatRow(`${getText("mapName")}: ${mapAnalysis.bestMap.name}`)}</p>
-        <p class="stat-row">${formatStatRow(`${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`)}</p>
-        <p class="stat-row">${formatStatRow(`${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`)}</p>
-        <p class="stat-row">${formatStatRow(`K/D: ${mapAnalysis.bestMap.kd.toFixed(2)}`)}</p>
-        <p class="stat-row">${formatStatRow(`${getText("Headshots")}: ${mapAnalysis.bestMap.hs.toFixed(1)}%`)}</p>
-      `
-          : `<p>${getText("notEnoughData")}</p>`
-      }
+      ${renderMapBox(mapAnalysis.bestMap)}
     </div>
 
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-map-marked-alt"></i> ${getText("worstMapTitle")}</h3>
-      ${
-        mapAnalysis.worstMap
-          ? `
-        <p class="stat-row">${formatStatRow(`${getText("mapName")}: ${mapAnalysis.worstMap.name}`)}</p>
-        <p class="stat-row">${formatStatRow(`${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`)}</p>
-        <p class="stat-row">${formatStatRow(`${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(1)}%`)}</p>
-        <p class="stat-row">${formatStatRow(`K/D: ${mapAnalysis.worstMap.kd.toFixed(2)}`)}</p>
-        <p class="stat-row">${formatStatRow(`${getText("Headshots")}: ${mapAnalysis.worstMap.hs.toFixed(1)}%`)}</p>
-      `
-          : `<p>${getText("notEnoughData")}</p>`
-      }
+      ${renderMapBox(mapAnalysis.worstMap)}
     </div>
   `;
-
-    container.innerHTML = overviewHTML;
   }
 
-  function updateMapsTexts() {
-    const getText = window.getText || ((key) => key);
-    const mapCards = document.querySelectorAll(".map-card");
-    if (mapCards.length > 0) {
-      mapCards.forEach((card) => {
-        const statLabels = card.querySelectorAll(".stat-label");
-        statLabels.forEach((label) => {
-          const text = label.textContent.toLowerCase();
-          if (text.includes("matches") || text.includes("матчей")) {
-            label.textContent = getText("mapMatches");
-          } else if (text.includes("kills") || text.includes("убийств")) {
-            label.textContent = getText("killsPerMatch");
-          } else if (text.includes("win rate") || text.includes("винрейт")) {
-            label.textContent = getText("mapWinRate");
-          } else if (text.includes("adr") || text.includes("увр")) {
-            label.textContent = getText("adr");
-          } else if (text.includes("clutches") || text.includes("клатчи")) {
-            label.textContent = getText("clutches");
-          }
-        });
+  function renderPlayerCard(playerData, countryName, currentElo, avgStats, lifetime) {
+    const getText = getTranslator();
+    const faceitLevel = playerData.games?.cs2?.skill_level;
+    const levelValue = faceitLevel
+      ? `<span style="color: #FF4500; font-family: 'Roboto', sans-serif;">${"⭐".repeat(faceitLevel)}</span>`
+      : "N/A";
+    const profileLang = window.currentLanguage === "ru" ? "ru" : "en";
 
-        const perfIndicator = card.querySelector(".performance-indicator");
-        if (perfIndicator) {
-          const iconElement = perfIndicator.querySelector("i");
-          const icon = iconElement ? iconElement.outerHTML : "";
-          const text = perfIndicator.textContent.toLowerCase();
-
-          if (text.includes("excellent") || text.includes("отличная")) {
-            perfIndicator.innerHTML = `${icon} ${getText("excellentMap")}`;
-          } else if (text.includes("average") || text.includes("средняя")) {
-            perfIndicator.innerHTML = `${icon} ${getText("averageMap")}`;
-          } else if (text.includes("poor") || text.includes("слабая")) {
-            perfIndicator.innerHTML = `${icon} ${getText("poorMap")}`;
-          }
-        }
-      });
-    }
-
-    const mapsTable = document.querySelector(".maps-table");
-    if (mapsTable) {
-      const headers = mapsTable.querySelectorAll("th");
-      if (headers.length >= 5) {
-        headers[0].textContent = getText("mapName");
-        headers[1].textContent = getText("mapMatches");
-        headers[2].textContent = getText("mapWinRate");
-        headers[3].textContent = "K/D";
-        headers[4].textContent = getText("killsPerMatch");
-      }
-    }
+    return `
+    <div class="player-card fade-in-animation">
+      <div class="player-header">
+        <div class="player-avatar">
+          <img src="${playerData.avatar || ".png"}" alt="${
+            playerData.nickname
+          }" onerror="this.src='/assets/logooo.png'">
+        </div>
+        <div class="player-info">
+          <h2>${playerData.nickname}</h2>
+          <p>${getText("country")}: ${countryName}</p>
+          <p>${getText("elo")}: ${formatNumber(currentElo)}</p>
+          <p>${getText("level")}: ${levelValue}</p>
+          <p>${getText("matches")}: ${formatNumber(avgStats.totalMatches)}</p>
+          <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
+          <img
+            src="/assets/faceit.png"
+            alt="${getText("faceitProfile")}"
+            title="${getText("faceitProfile")}"
+            onclick="window.open('https://www.faceit.com/${profileLang}/players/${playerData.nickname}', '_blank')"
+            style="cursor: pointer; width: 45px; height: 45px; border-radius: 8px; border: 2px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s; margin-right: 10px; object-fit: contain;"
+            onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 10px var(--primary-color)';"
+            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"
+          />
+        </div>
+      </div>
+      <div class="stats-container"></div>
+    </div>
+  `;
   }
 
   function applyMapCardBackgrounds(container) {
@@ -156,7 +138,11 @@
   window.AppRendering = {
     formatStatRow,
     renderOverviewStats,
-    updateMapsTexts,
+    renderPlayerCard,
     applyMapCardBackgrounds,
   };
+
+  window.formatStatRow = formatStatRow;
+  window.renderOverviewStats = renderOverviewStats;
+  window.applyMapCardBackgrounds = applyMapCardBackgrounds;
 })();

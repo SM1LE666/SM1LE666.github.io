@@ -1,20 +1,5 @@
 (function () {
   function initializeEventListeners() {
-    const langButtons = document.querySelectorAll(".lang-btn");
-    langButtons.forEach((btn) => {
-      btn.removeAttribute("onclick");
-      const newBtn = btn.cloneNode(true);
-      btn.parentNode.replaceChild(newBtn, btn);
-    });
-
-    document.querySelectorAll(".lang-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        const selectedLang = btn.dataset.lang;
-        window.switchLanguage(selectedLang);
-      });
-    });
-
     const supportBtn = document.querySelector(".support-btn");
     if (supportBtn) {
       supportBtn.removeAttribute("onclick");

@@ -9,9 +9,8 @@ server.py
 # Development files
 encrypt-tool.html
 
-# Node modules (если будете использовать)
+# Node modules
 node_modules/
-package-lock.json
 
 # Временные файлы
 *.tmp
