@@ -1,7 +1,7 @@
 (function () {
   function ensureFaceitApi() {
-    if (typeof window === 'undefined' || !window.FaceitAPI) {
-      throw new Error('FaceitAPI is not loaded');
+    if (typeof window === "undefined" || !window.FaceitAPI) {
+      throw new Error("FaceitAPI is not loaded");
     }
     return window.FaceitAPI;
   }
@@ -37,22 +37,22 @@
 
     normalizeMapKey(mapName) {
       const api = ensureFaceitApi();
-      if (typeof api.normalizeMapKey === 'function') {
+      if (typeof api.normalizeMapKey === "function") {
         return api.normalizeMapKey(mapName);
       }
-      if (typeof window.SidebarManager?.normalizeMapKey === 'function') {
+      if (typeof window.SidebarManager?.normalizeMapKey === "function") {
         return window.SidebarManager.normalizeMapKey(mapName);
       }
-      return String(mapName || '')
+      return String(mapName || "")
         .trim()
         .toLowerCase()
-        .replace(/^de_/, '')
-        .replace(/\s+/g, '_')
-        .replace(/[^a-z0-9_]/g, '');
+        .replace(/^de_/, "")
+        .replace(/\s+/g, "_")
+        .replace(/[^a-z0-9_]/g, "");
     },
   };
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     window.FaceitService = FaceitService;
   }
 })();

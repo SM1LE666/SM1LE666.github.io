@@ -5,7 +5,7 @@
     currentPlayerProfile: null,
     sidebarManager: null,
     lastHandledPath: null,
-    currentLanguage: 'en',
+    currentLanguage: "en",
     REQUEST_DELAY: 30,
   };
 
@@ -15,7 +15,7 @@
     return state;
   };
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     window.AppState = AppState;
   }
 })();

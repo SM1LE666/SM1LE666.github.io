@@ -68,7 +68,7 @@ export default async function handler(req, res) {
     const now = Date.now();
     const key = String(ip);
     const arr = (globalThis.__contactRate.get(key) || []).filter(
-      (t) => now - t < windowSec * 1000
+      (t) => now - t < windowSec * 1000,
     );
     if (arr.length >= maxReq) {
       res.status(429).json({ ok: false, error: "Too many requests" });

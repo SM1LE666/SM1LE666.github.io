@@ -4,7 +4,7 @@ const appState = window.AppState || {
   currentPlayerProfile: null,
   sidebarManager: null,
   lastHandledPath: null,
-  currentLanguage: 'en',
+  currentLanguage: "en",
   REQUEST_DELAY: 30,
 };
 
@@ -21,9 +21,9 @@ function syncStateFromApp() {
   appState.sidebarManager = sidebarManager;
   appState.lastHandledPath = lastHandledPath;
   appState.currentLanguage =
-    typeof currentLanguage !== 'undefined'
+    typeof currentLanguage !== "undefined"
       ? currentLanguage
-      : appState.currentLanguage ?? 'en';
+      : (appState.currentLanguage ?? "en");
 }
 
 /**
@@ -35,8 +35,8 @@ function updateUrlForPlayer(nickname) {
     ? window.AppRouter.buildPlayerUrl(nickname)
     : nickname
       ? `/player/${encodeURIComponent(nickname)}`
-      : '/';
-  const title = nickname ? `FACEIT Analyze - ${nickname}` : 'FACEIT Analyze';
+      : "/";
+  const title = nickname ? `FACEIT Analyze - ${nickname}` : "FACEIT Analyze";
   if (window.location.pathname !== path) {
     history.pushState({ nickname: nickname }, title, path);
     lastHandledPath = path;
@@ -54,24 +54,24 @@ async function handleUrlChange() {
   const path = window.location.pathname;
 
   if (lastHandledPath === path) {
-    console.log('Path уже обработан, игнорируем:', path);
+    console.log("Path уже обработан, игнорируем:", path);
     return;
   }
 
   lastHandledPath = path;
   syncStateFromApp();
-  console.log('Обработка нового пути:', path);
+  console.log("Обработка нового пути:", path);
 
   const route = window.AppRouter ? window.AppRouter.resolvePath(path) : null;
-  const nickname = route?.type === 'player' ? route.nickname : null;
+  const nickname = route?.type === "player" ? route.nickname : null;
 
   if (nickname) {
-    console.log('Загрузка профиля для:', nickname);
+    console.log("Загрузка профиля для:", nickname);
 
-    const nicknameInput = document.getElementById('nickname');
+    const nicknameInput = document.getElementById("nickname");
     if (nicknameInput) {
       nicknameInput.value = nickname;
-      console.log('Установлено значение в input:', nickname);
+      console.log("Установлено значение в input:", nickname);
     } else {
       console.warn("Input поле 'nickname' не найдено в DOM");
     }
@@ -79,16 +79,16 @@ async function handleUrlChange() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 50));
       await searchPlayer(nickname, false);
-      console.log('Профиль успешно загружен:', nickname);
+      console.log("Профиль успешно загружен:", nickname);
     } catch (error) {
-      console.error('Ошибка при загрузке профиля:', error);
+      console.error("Ошибка при загрузке профиля:", error);
       alert(`Ошибка: ${error.message}`);
     }
   } else {
-    console.log('Переход на главную страницу');
-    const nicknameInput = document.getElementById('nickname');
+    console.log("Переход на главную страницу");
+    const nicknameInput = document.getElementById("nickname");
     if (nicknameInput && nicknameInput.value) {
-      nicknameInput.value = '';
+      nicknameInput.value = "";
     }
     goBackToMain(false);
   }
@@ -894,9 +894,7 @@ async function analyzePlayer() {
     );
 
     // Получаем название страны
-    const countryName = await faceitService.getCountryName(
-      playerData.country,
-    );
+    const countryName = await faceitService.getCountryName(playerData.country);
 
     // Обрабатываем статистику
     const lifetime = statsData.lifetime || {};
@@ -1007,9 +1005,7 @@ async function analyzePlayer() {
                 `${getText("mapName")}: ${mapAnalysis.bestMap.name}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `${getText(
-                  "mapMatches",
-                )}: ${mapAnalysis.bestMap.matches}`,
+                `${getText("mapMatches")}: ${mapAnalysis.bestMap.matches}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
                 `${getText("mapWinRate")}: ${mapAnalysis.bestMap.winRate.toFixed(1)}%`,
@@ -1036,9 +1032,7 @@ async function analyzePlayer() {
                 `${getText("mapName")}: ${mapAnalysis.worstMap.name}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
-                `${getText(
-                  "mapMatches",
-                )}: ${mapAnalysis.worstMap.matches}`,
+                `${getText("mapMatches")}: ${mapAnalysis.worstMap.matches}`,
               )}</p>
               <p class="stat-row">${formatStatRow(
                 `${getText("mapWinRate")}: ${mapAnalysis.worstMap.winRate.toFixed(
@@ -1351,6 +1345,3 @@ if (document.readyState === "loading") {
   // If script is loaded after DOM (or cached), init immediately
   init();
 }
-
-
-

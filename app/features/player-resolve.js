@@ -12,43 +12,43 @@
     const url = `/api/faceit-by-steam?steam=${encodeURIComponent(
       String(steamInput).trim(),
     )}`;
-    const r = await fetch(url, { headers: { Accept: 'application/json' } });
+    const r = await fetch(url, { headers: { Accept: "application/json" } });
     const data = await r.json().catch(() => null);
     if (!r.ok) {
       throw new Error(data?.error || `Steam resolve failed (${r.status})`);
     }
     if (!data?.player) {
-      throw new Error('Faceit player not found for this Steam account');
+      throw new Error("Faceit player not found for this Steam account");
     }
     return data.player;
   }
 
   function checkFaceitAPI() {
-    if (typeof window.FaceitAPI === 'undefined') {
-      console.error('FaceitAPI не загружен!');
+    if (typeof window.FaceitAPI === "undefined") {
+      console.error("FaceitAPI не загружен!");
       return false;
     }
 
     const requiredMethods = [
-      'getPlayerData',
-      'getStatsData',
-      'getCurrentElo',
-      'getCountryName',
-      'calculateAvgStats',
-      'analyzeMaps',
-      'formatNumber',
+      "getPlayerData",
+      "getStatsData",
+      "getCurrentElo",
+      "getCountryName",
+      "calculateAvgStats",
+      "analyzeMaps",
+      "formatNumber",
     ];
 
     const missingMethods = requiredMethods.filter(
-      (method) => typeof window.FaceitAPI[method] !== 'function',
+      (method) => typeof window.FaceitAPI[method] !== "function",
     );
 
     if (missingMethods.length > 0) {
-      console.error('Отсутствуют методы FaceitAPI:', missingMethods);
+      console.error("Отсутствуют методы FaceitAPI:", missingMethods);
       return false;
     }
 
-    console.log('FaceitAPI успешно загружен и готов к работе');
+    console.log("FaceitAPI успешно загружен и готов к работе");
     return true;
   }
 
