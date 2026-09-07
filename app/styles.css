@@ -354,7 +354,11 @@ h1::after {
   header .header-content h1::after {
     bottom: -5px;
   }
+  .footer-content {
+    padding: 0 15px 15px 15px;
+  }
 }
+
 /* Main Content Styles */
 main {
   flex: 1;
@@ -433,6 +437,7 @@ h2 {
   transform: scale(1);
   transform-origin: center top;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 /* Контейнер для поисковых элементов */
@@ -1384,7 +1389,7 @@ footer {
   .player-header {
     flex-direction: column;
     text-align: center;
-    gap: 1.5rem;
+    gap: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.2rem;
   }
@@ -1494,14 +1499,6 @@ footer {
     grid-template-columns: 1fr;
     gap: 1rem !important;
     padding: 0 0.5rem;
-  }
-
-  .featured-player-card,
-  .pro-card {
-    height: 320px !important;
-    max-width: 100%;
-    width: 100% !important;
-    margin: 0 auto;
   }
 
   .pro-card-header,
@@ -1753,10 +1750,8 @@ footer {
     flex-direction: column;
     padding: 1rem;
     border: 1px solid var(--border-color);
-    background: rgba(40, 42, 54, 0.8);
     position: relative;
     gap: 1rem;
-    /* Убираем фиксированную высоту - пусть подстраивается под контент */
     min-height: auto;
     height: auto;
   }
@@ -2101,7 +2096,6 @@ footer {
     padding: 0.8rem 1rem;
     gap: 1.5rem;
     border-radius: 15px;
-    background: rgb(51 51 51 / 70%) !important;
     border-left: 4px solid #4caf50;
     margin-bottom: 0.5rem;
   }
@@ -2441,8 +2435,8 @@ footer {
   display: grid;
   grid-template-columns: repeat(3, 300px);
   grid-template-rows: repeat(2, auto);
-  row-gap: 24px;
-  column-gap: 24px;
+  row-gap: 30px;
+  column-gap: 30px;
   margin: 2rem 0;
   width: 100%;
   justify-content: center;
@@ -2472,15 +2466,10 @@ footer {
 
 /* --- Maps: background images from /images (optional per card) --- */
 .map-card.has-map-bg {
-  /* keep existing gradient as fallback layer, image on top */
-
   background-image:
     linear-gradient(135deg, rgba(26, 26, 26, 0.25), rgba(255, 85, 0, 0.08)),
     var(--map-bg-url);
 }
-
-/* Remove hardcoded per-map background selectors; handled by JS mapping now */
-/* .map-card[data-map="mirage"] { background-image: url("1771451925a9b2.png"); } */
 
 /* darken image for readability */
 .map-card::after {
@@ -2853,7 +2842,7 @@ footer {
 .cookie-fab {
   position: fixed;
   right: 30px;
-  bottom: 50px;
+  bottom: 30px;
   width: 55px;
   height: 55px;
   border-radius: 999px;
@@ -3855,13 +3844,12 @@ footer {
 
 .featured-player-photo,
 .pro-card-photo {
-  width: 100% !important;
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
   display: block !important;
   object-fit: cover !important;
-  object-position: center center !important;
+  object-position: center bottom !important;
   border-radius: 0 !important;
   border: none !important;
 }
@@ -3917,7 +3905,6 @@ footer {
   margin-bottom: 2rem;
   background: none;
   backdrop-filter: none;
-  padding: 2rem;
   border-radius: 20px;
   box-shadow: none;
   border: none;
@@ -3929,11 +3916,11 @@ footer {
   justify-content: center;
   justify-items: center;
   bottom: 15px;
-  gap: 1.7rem;
+  gap: 3rem;
 }
 
 .pro-grid .pro-card {
-  width: 225px;
+  width: 200px;
   max-width: none !important;
 }
 

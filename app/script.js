@@ -72,8 +72,14 @@ function updateReactionTestTexts() {
     );
   }
 
-  setElementText("#reactionWaiting .reaction-screen p", getText("reactionWait"));
-  setElementText("#reactionReady .reaction-screen p", getText("reactionClickNow"));
+  setElementText(
+    "#reactionWaiting .reaction-screen p",
+    getText("reactionWait"),
+  );
+  setElementText(
+    "#reactionReady .reaction-screen p",
+    getText("reactionClickNow"),
+  );
   setElementText("#reactionResults h3", getText("reactionYourResult"));
 
   const timeValue = document.getElementById("reactionTimeValue");
@@ -143,7 +149,10 @@ function updateModalTexts() {
     "#contactModal h2",
     `<i class="fas fa-envelope"></i> ${getText("contactTitle")}`,
   );
-  setElementText("#contactModal .modal-content > p", getText("contactDescription"));
+  setElementText(
+    "#contactModal .modal-content > p",
+    getText("contactDescription"),
+  );
   setElementText('label[for="contactName"]', getText("yourName"));
   setElementText('label[for="contactEmail"]', getText("email"));
   setElementText('label[for="contactSubject"]', getText("messageSubject"));
@@ -153,7 +162,8 @@ function updateModalTexts() {
   if (nameInput) nameInput.placeholder = getText("enterName");
 
   const messageTextarea = document.getElementById("contactMessage");
-  if (messageTextarea) messageTextarea.placeholder = getText("messagePlaceholder");
+  if (messageTextarea)
+    messageTextarea.placeholder = getText("messagePlaceholder");
 
   const subjectSelect = document.getElementById("contactSubject");
   if (subjectSelect) {
@@ -179,7 +189,10 @@ function updateModalTexts() {
 }
 
 function updatePageTexts() {
-  setElementHtml("#search h2", `<i class="fas fa-search"></i> ${getText("searchTitle")}`);
+  setElementHtml(
+    "#search h2",
+    `<i class="fas fa-search"></i> ${getText("searchTitle")}`,
+  );
   setElementHtml(
     "#results h2",
     `<i class="fas fa-trophy"></i> ${getText("resultsTitle")}`,
@@ -204,7 +217,10 @@ function updatePageTexts() {
     }
   }
 
-  setElementHtml(".support-btn", `<i class="fas fa-heart"></i> ${getText("supportUs")}`);
+  setElementHtml(
+    ".support-btn",
+    `<i class="fas fa-heart"></i> ${getText("supportUs")}`,
+  );
   setElementHtml(
     ".contact-btn",
     `<i class="fas fa-envelope"></i> ${getText("contactUs")}`,
@@ -380,7 +396,10 @@ async function analyzePlayer() {
     }
 
     const gameId = "cs2";
-    const statsData = await faceitService.getStatsData(playerData.player_id, gameId);
+    const statsData = await faceitService.getStatsData(
+      playerData.player_id,
+      gameId,
+    );
     const currentElo = await faceitService.getCurrentElo(
       playerData.player_id,
       gameId,
@@ -389,7 +408,11 @@ async function analyzePlayer() {
     const countryName = await faceitService.getCountryName(playerData.country);
     const lifetime = statsData.lifetime || {};
     const segments = statsData.segments || [];
-    const avgStats = faceitService.calculateAvgStats(lifetime, segments, gameId);
+    const avgStats = faceitService.calculateAvgStats(
+      lifetime,
+      segments,
+      gameId,
+    );
     const mapAnalysis = faceitService.analyzeMaps(segments, gameId);
 
     currentPlayerProfile = {
@@ -473,7 +496,6 @@ function goBackToMain(updateUrl = true) {
     playerStatsContainer.style.display = "none";
   }
   if (resultsSection) resultsSection.style.display = "none";
-  if (proGrid) proGrid.style.display = "flex";
   if (searchSection) searchSection.style.display = "block";
   if (output) {
     output.style.display = "none";
