@@ -536,6 +536,7 @@ input[type="text"]:focus {
   width: 235px;
   min-width: 235px;
   max-width: 235px;
+  text-wrap: nowrap;
 }
 
 @media (max-width: 768px) {
@@ -1257,7 +1258,6 @@ footer {
     flex: none !important;
     min-height: auto !important;
     height: auto !important;
-    padding: 1rem 0.5rem !important;
     max-width: 100% !important;
   }
 
@@ -1268,6 +1268,7 @@ footer {
 
   .footer-content p {
     font-size: 12px;
+    padding-bottom: 7px;
   }
 
   /* Results section - ОКОНЧАТЕЛЬНОЕ ИСПРАВЛЕНИЕ */
@@ -1365,12 +1366,6 @@ footer {
   body.sidebar-open main,
   body.sidebar-open footer {
     margin-left: 0;
-  }
-
-  /* Адаптивные стили для Player Statistics на мобильных */
-  main {
-    padding: 1.5rem 0.5rem;
-    max-width: 100%;
   }
 
   section {
@@ -1535,12 +1530,6 @@ footer {
 
   body.profile-active footer {
     display: none !important;
-  }
-
-  /* Улучшение отступов main на мобильных */
-  main {
-    padding: 1rem 0.5rem;
-    width: 100%;
   }
 
   /* Секции на мобильных */
@@ -2942,7 +2931,7 @@ footer {
   }
 
   main {
-    padding: 2.5rem 1rem 1rem 1rem;
+    padding: 2rem 1rem 0 1rem;
     width: 100%;
     max-width: none;
     display: flex;
@@ -3367,14 +3356,12 @@ footer {
   h1::after {
     bottom: -6px;
   }
-
 }
 
 @media (max-width: 480px) {
   header {
     padding: 0.75rem 0 !important;
   }
-
 }
 
 /* --- Header CSS hotfixes (typos + conflicting overrides) --- */
@@ -3898,13 +3885,6 @@ footer {
     width: 145px !important;
     max-width: 100% !important;
   }
-  .pro-card img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    object-position: center bottom !important;
-    transform: translateY(1px);
-  }
 }
 .record-filters {
   display: flex;
@@ -4009,7 +3989,6 @@ footer {
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  height: 50px;
   border-radius: 15px;
   text-decoration: none;
   font-weight: 700;
@@ -4023,6 +4002,7 @@ footer {
     0 0 14px rgba(255, 85, 0, 0.18);
   backdrop-filter: blur(8px);
   transition: all 0.2s ease;
+  font-family: "Orbitron", sans-serif;
 }
 
 .fps-guide-btn .guide-btn:hover {
