@@ -81,28 +81,42 @@
     );
     const rawAvgKills = parseFloat(avgStats?.avgKills || 0);
 
-    // 2. Агрегируем данные по картам (ADR, клатчи)
-    let totalAdr = 0;
+    // 2. Безопасный расчет клатчей
+    // Проверяем общие данные lifetime или вычисляем на основе эффективности игрока (WinRate и K/D)
     let totalClutches = 0;
-    if (Array.isArray(allMaps) && allMaps.length > 0) {
-      totalAdr =
-        allMaps.reduce((sum, m) => sum + (parseFloat(m.adr) || 0), 0) /
-        allMaps.length;
-      totalClutches = allMaps.reduce(
-        (sum, m) => sum + (parseInt(m.clutches, 10) || 0),
-        0,
-      );
-    }
-    const adrVal = totalAdr > 0 ? totalAdr : 75;
 
-    // Безопасный расчет клатчей (без повторного объявления через let/const с тем же именем)
-    let effectiveClutches = totalClutches;
-    if (effectiveClutches === 0) {
-      const matches = avgStats?.totalMatches || 100;
-      effectiveClutches = Math.round(matches * (rawWinRate / 100) * 0.18);
+    // Если в lifetime есть прямые данные о клатчах (зависит от версии API)
+    if (lifetime["Total 1v1 Wins"] || lifetime["Total 1v2 Wins"]) {
+      totalClutches = [
+        "Total 1v1 Wins",
+        "Total 1v2 Wins",
+        "Total 1v3 Wins",
+        "Total 1v4 Wins",
+        "Total 1v5 Wins",
+      ].reduce((sum, key) => sum + (parseInt(lifetime[key], 10) || 0), 0);
     }
 
-    const clutchingScore = Math.min(Math.max(effectiveClutches * 3, 20), 100);
+    // Если данных в API нет, формируем стабильную оценку на основе матчей, винрейта и K/D
+    const matches = avgStats?.totalMatches || 50;
+    const effectiveClutches =
+      totalClutches > 0
+        ? totalClutches
+        : Math.round(
+            matches * (rawWinRate / 100) * 0.15 * Math.max(rawKd, 0.5),
+          );
+
+    // Оценка для шкалы (0 - 100)
+    const clutchingScore = Math.min(
+      Math.max(
+        Math.round(
+          rawWinRate * 0.6 +
+            rawKd * 20 +
+            (totalClutches > 0 ? Math.min(totalClutches * 3, 40) : 10),
+        ),
+        20,
+      ),
+      100,
+    );
 
     // 3. Формулы HLTV-метрик (0 - 100)
     // Firepower: урон + K/D + хедшоты
