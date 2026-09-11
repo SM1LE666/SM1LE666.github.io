@@ -95,31 +95,37 @@
     }
     const adrVal = totalAdr > 0 ? totalAdr : 75;
 
-    // Используем реальные суммарные клатчи из всех карт
-    const effectiveClutches = totalClutches;
+    // 2. Сбор клатчей из глобального объекта lifetime или расчет на основе матчей
+    const clutchKeys = [
+      "Total 1v1 Wins",
+      "Total 1v2 Wins",
+      "Total 1v3 Wins",
+      "Total 1v4 Wins",
+      "Total 1v5 Wins",
+    ];
 
-    // Расчет шкалы для прогресс-бара (0-100)
-    // Если клатчей мало, шкала не будет падать в абсолютный ноль, а получит базовый вес от побед
+    if (lifetime && typeof lifetime === "object") {
+      totalClutches = clutchKeys.reduce((sum, key) => {
+        const val = parseInt(lifetime[key], 10);
+        return sum + (!isNaN(val) && val >= 0 ? val : 0);
+      }, 0);
+    }
+
+    // Если API FACEIT не отдает эти поля в lifetime, вычисляем адеквատное значение по матчам и винрейту
+    const matches = avgStats?.totalMatches || 100;
+    const effectiveClutches =
+      totalClutches > 0
+        ? totalClutches
+        : Math.round(matches * (rawWinRate / 100) * 0.15);
+
+    // Оценка для шкалы прогресс-бара (0 - 100)
     const clutchingScore = Math.min(
       Math.max(
-        effectiveClutches > 0
-          ? effectiveClutches * 6
-          : Math.round(rawWinRate * 0.8),
+        Math.round(rawWinRate * 0.5 + rawKd * 25 + effectiveClutches * 1.5),
         20,
       ),
       100,
     );
-
-    // Если в lifetime есть прямые данные о клатчах (зависит от версии API)
-    if (lifetime["Total 1v1 Wins"] || lifetime["Total 1v2 Wins"]) {
-      totalClutches = [
-        "Total 1v1 Wins",
-        "Total 1v2 Wins",
-        "Total 1v3 Wins",
-        "Total 1v4 Wins",
-        "Total 1v5 Wins",
-      ].reduce((sum, key) => sum + (parseInt(lifetime[key], 10) || 0), 0);
-    }
 
     // 3. Формулы HLTV-метрик (0 - 100)
     // Firepower: урон + K/D + хедшоты
