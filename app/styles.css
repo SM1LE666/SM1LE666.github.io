@@ -3873,6 +3873,7 @@ footer {
   gap: 0.5rem;
   justify-content: center;
   margin-bottom: 1rem;
+  font-family: "Orbitron", sans-serif;
 }
 
 .record-filter-btn {
@@ -3928,8 +3929,6 @@ footer {
   padding-left: 0.65rem;
 }
 
-/* Final mobile override for pro-player card photos.
-   Keeps portrait positioning stable across different source image ratios. */
 @media (max-width: 768px) {
   .featured-player-card,
   .pro-card {
@@ -4001,8 +4000,8 @@ footer {
 
 @media (max-width: 768px) {
   .fps-guide-btn {
-    position: static; /* Возвращаем в центр к остальным элементам */
-    margin-bottom: 20px; /* Отступ вниз до старых кнопок */
+    position: static;
+    margin-bottom: 20px;
   }
 }
 @media (max-width: 480px) {
