@@ -187,8 +187,8 @@
     const metricsCardHtml = `
       <div class="metrics-card slide-in-animation">
         <div class="metrics-card-header">
-          <i class="fas fa-crosshair icon-accent"></i>
-          <span><i class="fas fa-chart-bar"></i>HLTV Performance Profile</span>
+          <i class="fas fa-chart-bar"></i>
+          <span>HLTV Performance Profile</span>
         </div>
         <div class="metrics-grid">
           ${metrics
@@ -235,8 +235,6 @@
         <h3><i class="fas fa-map-marked-alt"></i> ${getText("worstMapTitle")}</h3>
         ${renderMapBox(mapAnalysis.worstMap)}
       </div>
-
-      ${metricsCardHtml}
     `;
   }
 

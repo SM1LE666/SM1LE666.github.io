@@ -730,7 +730,7 @@ input[type="text"]:focus {
 }
 
 .stats-box {
-  background: linear-gradient(135deg, var(--bg-card), rgba(255, 85, 0, 0.05));
+  background: rgba(26, 26, 26, 0.7);
   font-family: "Orbitron", sans-serif;
   padding: 2rem;
   border-radius: 15px;
