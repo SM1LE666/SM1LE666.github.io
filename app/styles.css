@@ -2017,15 +2017,6 @@ footer {
     gap: 0.25rem;
   }
 
-  .stat-item {
-    width: 34px;
-    height: 34px;
-    min-height: 34px;
-    min-width: 34px;
-    max-width: 34px;
-    padding: 0.15rem 0.1rem;
-  }
-
   .stat-item i {
     font-size: 0.78rem !important;
   }
