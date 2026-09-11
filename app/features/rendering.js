@@ -215,6 +215,8 @@
     `;
 
     container.innerHTML = `
+    ${metricsCardHtml}
+    
       <div class="stats-box slide-in-animation">
         <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
         <p class="stat-row">${formatStatRow(`${getText("Matches")}: ${formatNumber(avgStats.totalMatches)}`)}</p>
