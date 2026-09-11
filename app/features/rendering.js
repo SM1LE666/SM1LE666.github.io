@@ -81,9 +81,22 @@
     );
     const rawAvgKills = parseFloat(avgStats?.avgKills || 0);
 
-    // 2. Безопасный расчет клатчей
-    // Проверяем общие данные lifetime или вычисляем на основе эффективности игрока (WinRate и K/D)
+    // 2. Агрегируем данные по картам (ADR, клатчи)
+    let totalAdr = 0;
     let totalClutches = 0;
+    if (Array.isArray(allMaps) && allMaps.length > 0) {
+      totalAdr =
+        allMaps.reduce((sum, m) => sum + (parseFloat(m.adr) || 0), 0) /
+        allMaps.length;
+      totalClutches = allMaps.reduce(
+        (sum, m) => sum + (parseInt(m.clutches, 10) || 0),
+        0,
+      );
+    }
+    const adrVal = totalAdr > 0 ? totalAdr : 75;
+
+    // Безопасный расчет клатчей
+    // Проверяем общие данные lifetime или вычисляем на основе эффективности игрока (WinRate и K/D)
 
     // Если в lifetime есть прямые данные о клатчах (зависит от версии API)
     if (lifetime["Total 1v1 Wins"] || lifetime["Total 1v2 Wins"]) {
