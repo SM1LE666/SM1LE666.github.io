@@ -188,7 +188,7 @@
       <div class="metrics-card slide-in-animation">
         <div class="metrics-card-header">
           <i class="fas fa-crosshair icon-accent"></i>
-          <span>HLTV Performance Profile</span>
+          <span><i class="fas fa-chart-bar"></i>HLTV Performance Profile</span>
         </div>
         <div class="metrics-grid">
           ${metrics
@@ -216,7 +216,7 @@
 
     container.innerHTML = `
     ${metricsCardHtml}
-    
+
       <div class="stats-box slide-in-animation">
         <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
         <p class="stat-row">${formatStatRow(`${getText("Matches")}: ${formatNumber(avgStats.totalMatches)}`)}</p>
