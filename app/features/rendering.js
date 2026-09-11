@@ -173,18 +173,26 @@
 
     const metricsCardHtml = `
       <div class="metrics-card slide-in-animation">
-        <h3><i class="fas fa-crosshair"></i> HLTV Performance Profile</h3>
+        <div class="metrics-card-header">
+          <i class="fas fa-crosshair icon-accent"></i>
+          <span>HLTV Performance Profile</span>
+        </div>
         <div class="metrics-grid">
           ${metrics
             .map((m) => {
               const rating = getScoreRating(m.score);
               return `
-              <div class="metric-item">
-                <div class="metric-info">
+              <div class="metric-item metric-item-${rating.class}">
+                <div class="metric-item-top">
                   <span class="metric-label">${m.label}</span>
+                  <span class="metric-badge badge-${rating.class}">${rating.text}</span>
+                </div>
+                <div class="metric-item-bottom">
                   <span class="metric-value">${m.displayValue}</span>
                 </div>
-                <span class="metric-badge ${rating.class}">${rating.text}</span>
+                <div class="metric-progress-track">
+                  <div class="metric-progress-fill fill-${rating.class}" style="width: ${m.score}%;"></div>
+                </div>
               </div>
             `;
             })

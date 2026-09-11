@@ -4001,41 +4001,158 @@ footer {
   }
 }
 
+/* Основной контейнер HLTV профиля */
 .metrics-card {
   grid-column: 1 / -1;
-  background: rgba(21, 24, 28, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(
+      100% 100% at 50% 0%,
+      rgba(255, 85, 0, 0.05) 0%,
+      rgba(18, 18, 18, 0.6) 100%
+    ),
+    #141414;
+  border: 1px solid rgba(255, 85, 0, 0.25);
   border-radius: 12px;
-  padding: 1.25rem;
-  margin-top: 1rem;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.2rem;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-.metrics-card h3 {
-  font-family: "Orbitron", sans-serif;
-  font-size: 1.1rem;
-  color: #fff;
-  margin-bottom: 1rem;
+.metrics-card-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.metrics-card h3 i {
+  gap: 0.6rem;
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: #ff5500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(255, 85, 0, 0.15);
+  padding-bottom: 0.6rem;
 }
 
+.metrics-card-header .icon-accent {
+  color: #ff5500;
+  filter: drop-shadow(0 0 6px rgba(255, 85, 0, 0.6));
+}
+
+/* Сетка карточек */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 0.85rem;
 }
 
+/* Элемент метрики */
 .metric-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(26, 26, 26, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  padding: 0.75rem;
+  padding: 0.8rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.metric-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 85, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.15);
+}
+
+.metric-item-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a0a0a0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-item-bottom {
+  display: flex;
+  align-items: baseline;
+}
+
+.metric-value {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+/* Бейджи рейтингов */
+.metric-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-poor {
+  background: rgba(255, 68, 68, 0.15);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+.badge-okay {
+  background: rgba(255, 170, 0, 0.15);
+  color: #ffaa00;
+  border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.badge-good {
+  background: rgba(0, 230, 118, 0.15);
+  color: #00e676;
+  border: 1px solid rgba(0, 230, 118, 0.3);
+}
+
+/* Градиентный Прогресс-бар */
+.metric-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 0.2rem;
+}
+
+.metric-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fill-poor {
+  background: linear-gradient(90deg, #ff4444, #ff6b6b);
+  box-shadow: 0 0 6px rgba(255, 68, 68, 0.5);
+}
+
+.fill-okay {
+  background: linear-gradient(90deg, #ff8800, #ffaa00);
+  box-shadow: 0 0 6px rgba(255, 170, 0, 0.5);
+}
+
+.fill-good {
+  background: linear-gradient(90deg, #00c853, #00e676);
+  box-shadow: 0 0 6px rgba(0, 230, 118, 0.5);
 }
