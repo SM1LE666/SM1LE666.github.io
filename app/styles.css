@@ -303,9 +303,9 @@ header {
   width: 100%;
   margin: 0 auto;
   display: flex;
-  justify-content: flex-start; /* Выравнивание по левому краю вместо центра */
+  justify-content: flex-start;
   align-items: center;
-  padding: 0 2rem; /* Добавляем отступы по бокам */
+  padding: 0 2rem;
   position: relative;
 }
 
@@ -323,7 +323,6 @@ h1 {
   display: inline-block;
 }
 
-/* --- Header underline (talisman) - normalized --- */
 h1 {
   position: relative;
 }
@@ -725,14 +724,15 @@ input[type="text"]:focus {
 
 .stats-container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; /* Три колонки одинакового размера */
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 2rem;
   margin-top: 2rem;
 }
 
 .stats-box {
   background: linear-gradient(135deg, var(--bg-card), rgba(255, 85, 0, 0.05));
-  padding: 2rem; /* Увеличиваем внутренние отступы */
+  font-family: "Orbitron", sans-serif;
+  padding: 2rem;
   border-radius: 15px;
   border: 2px solid rgba(255, 85, 0, 0.2);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
@@ -740,7 +740,7 @@ input[type="text"]:focus {
     transform 0.3s ease,
     box-shadow 0.3s ease;
   height: 400px;
-  min-height: 150px; /* Минимальная высота */
+  min-height: 150px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
