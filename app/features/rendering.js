@@ -67,53 +67,20 @@
     if (!container || !window.currentPlayerProfile) return;
 
     const getText = getTranslator();
-    const { avgStats, mapAnalysis } = window.currentPlayerProfile;
+    // Извлекаем все необходимые данные из профиля текущего игрока
+    const {
+      avgStats,
+      mapAnalysis,
+      lifetime = {},
+    } = window.currentPlayerProfile;
 
-    container.innerHTML = `
-    <div class="stats-box slide-in-animation">
-      <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
-      <p class="stat-row">${formatStatRow(`${getText("Matches")}: ${formatNumber(avgStats.totalMatches)}`)}</p>
-      <p class="stat-row">${formatStatRow(`${getText("killsPerMatch")}: ${avgStats.avgKills}`)}</p>
-      <p class="stat-row">${formatStatRow(`${getText("deathsPerMatch")}: ${avgStats.avgDeaths}`)}</p>
-      <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
-      <p class="stat-row">${formatStatRow(`${getText("Headshots")}: ${avgStats.avgHs}%`)}</p>
-    </div>
-
-    <div class="stats-box slide-in-animation">
-      <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
-      ${renderMapBox(mapAnalysis.bestMap)}
-    </div>
-
-    <div class="stats-box slide-in-animation">
-      <h3><i class="fas fa-map-marked-alt"></i> ${getText("worstMapTitle")}</h3>
-      ${renderMapBox(mapAnalysis.worstMap)}
-    </div>
-  `;
-    const overviewContainer =
-      document.getElementById("overview-tab") ||
-      document.querySelector(".overview-container");
-    if (!overviewContainer) return;
-
-    // Извлекаем объект lifetime-статистики
-    const lifetime = data?.lifetime || data?.stats?.lifetime || {};
-
-    // Расчет K/D и средних киллов с помощью функций FaceitAPI (из вашего faceit.js)
-    const calculatedAvg = window.FaceitAPI
-      ? window.FaceitAPI.calculateAvgStats(lifetime, data?.segments, "cs2")
-      : {};
-
-    // Извлечение реальных значений из ответа API
+    // Получаем фактические значения показателей
     const rawWinRate = lifetime["Win Rate %"] || 0;
-    const rawHs = lifetime["Average Headshots %"] || calculatedAvg.avgHs || 0;
-    const rawKd = lifetime["Average K/D Ratio"] || calculatedAvg.kd || 0;
-    const rawAvgKills =
-      calculatedAvg.avgKills ||
-      (lifetime["Total Matches"] > 0
-        ? lifetime["Total Kills with extended stats"] /
-          lifetime["Total Matches"]
-        : 0);
+    const rawHs = lifetime["Average Headshots %"] || avgStats?.avgHs || 0;
+    const rawKd = lifetime["Average K/D Ratio"] || avgStats?.kd || 0;
+    const rawAvgKills = avgStats?.avgKills || 0;
 
-    // Формирование списка метрик
+    // Рассчитываем метрики и их баллы
     const metrics = [
       {
         label: "Win Rate",
@@ -137,80 +104,51 @@
       },
     ];
 
-    // Создаем или обновляем карточку
-    let metricsCard = overviewContainer.querySelector(".metrics-card");
-    if (!metricsCard) {
-      metricsCard = document.createElement("div");
-      metricsCard.className = "metrics-card";
-      overviewContainer.appendChild(metricsCard);
-    }
-
-    metricsCard.innerHTML = `
-    <div class="metrics-grid">
-      ${metrics
-        .map((m) => {
-          const rating = getScoreRating(m.score);
-          return `
-          <div class="metric-item">
-            <div class="metric-info">
-              <span class="metric-label">${m.label}</span>
-              <span class="metric-value">${m.displayValue}</span>
-            </div>
-            <span class="metric-badge ${rating.class}">${rating.text}</span>
-          </div>
-        `;
-        })
-        .join("")}
-    </div>
-  `;
-  }
-
-  function renderPlayerCard(
-    playerData,
-    countryName,
-    currentElo,
-    avgStats,
-    lifetime,
-  ) {
-    const getText = getTranslator();
-    const faceitLevel = playerData.games?.cs2?.skill_level;
-
-    const levelValue = faceitLevel
-      ? `<img src="/images/levels/lvl${faceitLevel}.svg" alt="Level ${faceitLevel}" style="width: 35px; height: 35px; object-fit: contain; vertical-align: middle;" />`
-      : "N/A";
-
-    const profileLang = window.currentLanguage === "ru" ? "ru" : "en";
-
-    return `
-    <div class="player-card fade-in-animation">
-      <div class="player-header">
-        <div class="player-avatar">
-          <img src="${playerData.avatar || ".png"}" alt="${
-            playerData.nickname
-          }" onerror="this.src='/assets/logooo.png'">
-        </div>
-        <div class="player-info">
-          <h2>${playerData.nickname}</h2>
-          <p style="
-    font-size: 20px;
-    font-weight: bold;">${levelValue} ${formatNumber(currentElo)} ELO</p>
-          <p>${getText("country")}: ${countryName}</p>
-          <p>${getText("matches")}: ${formatNumber(avgStats.totalMatches)}</p>
-          <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
-          <img
-            src="/assets/faceit.png"
-            alt="${getText("faceitProfile")}"
-            title="${getText("faceitProfile")}"
-            onclick="window.open('https://www.faceit.com/${profileLang}/players/${playerData.nickname}', '_blank')"
-            style="cursor: pointer; width: 45px; height: 45px; border-radius: 8px; border: 2px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s; margin-right: 10px; object-fit: contain;"
-            onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 10px var(--primary-color)';"
-            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"
-          />
+    // Генерируем HTML-разметку карточки метрик
+    const metricsCardHtml = `
+      <div class="metrics-card slide-in-animation">
+        <div class="metrics-grid">
+          ${metrics
+            .map((m) => {
+              const rating = getScoreRating(m.score);
+              return `
+              <div class="metric-item">
+                <div class="metric-info">
+                  <span class="metric-label">${m.label}</span>
+                  <span class="metric-value">${m.displayValue}</span>
+                </div>
+                <span class="metric-badge ${rating.class}">${rating.text}</span>
+              </div>
+            `;
+            })
+            .join("")}
         </div>
       </div>
-      <div class="stats-container"></div>
-    </div>
-  `;
+    `;
+
+    // Выводим блоки статистики вместе с карточкой метрик
+    container.innerHTML = `
+      <div class="stats-box slide-in-animation">
+        <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
+        <p class="stat-row">${formatStatRow(`${getText("Matches")}: ${formatNumber(avgStats.totalMatches)}`)}</p>
+        <p class="stat-row">${formatStatRow(`${getText("killsPerMatch")}: ${avgStats.avgKills}`)}</p>
+        <p class="stat-row">${formatStatRow(`${getText("deathsPerMatch")}: ${avgStats.avgDeaths}`)}</p>
+        <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
+        <p class="stat-row">${formatStatRow(`${getText("Headshots")}: ${avgStats.avgHs}%`)}</p>
+      </div>
+
+      <div class="stats-box slide-in-animation">
+        <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
+        ${renderMapBox(mapAnalysis.bestMap)}
+      </div>
+
+      <div class="stats-box slide-in-animation">
+        <h3><i class="fas fa-map-marked-alt"></i> ${getText("worstMapTitle")}</h3>
+        ${renderMapBox(mapAnalysis.worstMap)}
+      </div>
+
+      ${metricsCardHtml}
+    `;
   }
 
   function applyMapCardBackgrounds(container) {
