@@ -68,38 +68,112 @@
       avgStats,
       mapAnalysis,
       lifetime = {},
+      allMaps = [],
     } = window.currentPlayerProfile;
 
-    const rawWinRate = lifetime["Win Rate %"] || 0;
-    const rawHs = lifetime["Average Headshots %"] || avgStats?.avgHs || 0;
-    const rawKd = lifetime["Average K/D Ratio"] || avgStats?.kd || 0;
-    const rawAvgKills = avgStats?.avgKills || 0;
+    // 1. Извлекаем базовые показатели
+    const rawWinRate = parseFloat(lifetime["Win Rate %"] || 0);
+    const rawHs = parseFloat(
+      lifetime["Average Headshots %"] || avgStats?.avgHs || 0,
+    );
+    const rawKd = parseFloat(
+      lifetime["Average K/D Ratio"] || avgStats?.kd || 0,
+    );
+    const rawAvgKills = parseFloat(avgStats?.avgKills || 0);
 
+    // 2. Агрегируем данные по картам (ADR, клатчи)
+    let totalAdr = 0;
+    let totalClutches = 0;
+    if (Array.isArray(allMaps) && allMaps.length > 0) {
+      totalAdr =
+        allMaps.reduce((sum, m) => sum + (parseFloat(m.adr) || 0), 0) /
+        allMaps.length;
+      totalClutches = allMaps.reduce(
+        (sum, m) => sum + (parseInt(m.clutches, 10) || 0),
+        0,
+      );
+    }
+    const adrVal = totalAdr > 0 ? totalAdr : 75; // fallback если нет данных ADR
+
+    // 3. Формулы HLTV-метрик (0 - 100)
+    // Firepower: урон + K/D + хедшоты
+    const firepower = Math.min(
+      Math.max(
+        Math.round(
+          (adrVal / 100) * 40 + (rawKd / 2.0) * 40 + (rawHs / 100) * 20,
+        ),
+        0,
+      ),
+      100,
+    );
+
+    // Entrying / Opening: агрессивные фраги (KPR) и процент побед
+    const entrying = Math.min(
+      Math.max(
+        Math.round((rawAvgKills / 25) * 60 + (rawWinRate / 100) * 40),
+        0,
+      ),
+      100,
+    );
+
+    // Trading: стабильность размёна на основе K/D и сбалансированности смертей
+    const trading = Math.min(
+      Math.max(Math.round((rawKd / 1.5) * 70 + (rawWinRate / 100) * 30), 0),
+      100,
+    );
+
+    // Opening: первоначальные дуэли на картах
+    const opening = Math.min(
+      Math.max(
+        Math.round((rawWinRate / 100) * 50 + (rawAvgKills / 25) * 50),
+        0,
+      ),
+      100,
+    );
+
+    // Clutching: выигрыши ситуаций 1vX
+    const clutching = Math.min(
+      Math.max(
+        Math.round(
+          totalClutches > 0
+            ? Math.min(totalClutches * 8, 100)
+            : rawWinRate * 0.8,
+        ),
+        0,
+      ),
+      100,
+    );
+
+    // Sniping: оцениваем по выживаемости и K/D (при высоком K/D / низком HS%)
+    const snipingBonus = rawHs < 40 ? 15 : 0;
+    const sniping = Math.min(
+      Math.max(
+        Math.round((rawKd / 1.8) * 65 + snipingBonus + (rawWinRate / 100) * 20),
+        0,
+      ),
+      100,
+    );
+
+    // Utility: влияние гранат на основе общего ADR и кастомной нормы
+    const utility = Math.min(
+      Math.max(Math.round((adrVal / 90) * 70 + (rawWinRate / 100) * 30), 0),
+      100,
+    );
+
+    // 4. Массив из 7 специфицированных метрик
     const metrics = [
-      {
-        label: "Win Rate",
-        displayValue: `${Math.round(parseFloat(rawWinRate))}%`,
-        score: normalizeMetric("winrate", rawWinRate),
-      },
-      {
-        label: "K/D Ratio",
-        displayValue: parseFloat(rawKd).toFixed(2),
-        score: normalizeMetric("kd", rawKd),
-      },
-      {
-        label: "Headshots",
-        displayValue: `${Math.round(parseFloat(rawHs))}%`,
-        score: normalizeMetric("hs", rawHs),
-      },
-      {
-        label: "Avg Kills",
-        displayValue: parseFloat(rawAvgKills).toFixed(1),
-        score: normalizeMetric("avgKills", rawAvgKills),
-      },
+      { label: "Firepower", displayValue: `${firepower}`, score: firepower },
+      { label: "Entrying", displayValue: `${entrying}`, score: entrying },
+      { label: "Trading", displayValue: `${trading}`, score: trading },
+      { label: "Opening", displayValue: `${opening}`, score: opening },
+      { label: "Clutching", displayValue: `${clutching}`, score: clutching },
+      { label: "Sniping", displayValue: `${sniping}`, score: sniping },
+      { label: "Utility", displayValue: `${utility}`, score: utility },
     ];
 
     const metricsCardHtml = `
       <div class="metrics-card slide-in-animation">
+        <h3><i class="fas fa-crosshair"></i> HLTV Performance Profile</h3>
         <div class="metrics-grid">
           ${metrics
             .map((m) => {

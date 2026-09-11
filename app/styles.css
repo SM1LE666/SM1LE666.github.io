@@ -4002,73 +4002,40 @@ footer {
 }
 
 .metrics-card {
-  background: var(--bg-darker, #15181c);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  grid-column: 1 / -1;
+  background: rgba(21, 24, 28, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 1.25rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
+}
+
+.metrics-card h3 {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.1rem;
+  color: #fff;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metrics-card h3 i {
+  color: #ff5500;
 }
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
 }
 
 .metric-item {
   background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  padding: 0.85rem 1rem;
+  padding: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.metric-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.metric-label {
-  font-size: 0.75rem;
-  color: #8a8f98;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.metric-value {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.metric-badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Оценка Poor (0 - 33) */
-.metric-badge.poor {
-  background: rgba(255, 77, 77, 0.15);
-  color: #ff4d4d;
-  border: 1px solid rgba(255, 77, 77, 0.3);
-}
-
-/* Оценка Okay (34 - 67) */
-.metric-badge.okay {
-  background: rgba(255, 184, 77, 0.15);
-  color: #ffb84d;
-  border: 1px solid rgba(255, 184, 77, 0.3);
-}
-
-/* Оценка Good (68 - 100) */
-.metric-badge.good {
-  background: rgba(0, 230, 118, 0.15);
-  color: #00e676;
-  border: 1px solid rgba(0, 230, 118, 0.3);
 }
