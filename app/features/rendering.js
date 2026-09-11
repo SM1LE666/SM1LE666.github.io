@@ -31,6 +31,38 @@
     `;
   }
 
+  // Функция оценки диапазона 0 - 100
+  function getScoreRating(value) {
+    if (value <= 33) return { text: "Poor", class: "poor" };
+    if (value <= 67) return { text: "Okay", class: "okay" };
+    return { text: "Good", class: "good" };
+  }
+
+  // Нормализатор метрик под шкалу 0-100%
+  function normalizeMetric(type, rawValue) {
+    const val = parseFloat(rawValue) || 0;
+
+    switch (type) {
+      case "winrate":
+      case "hs":
+        // Проценты уже находятся в диапазоне 0-100
+        return Math.min(Math.max(Math.round(val), 0), 100);
+
+      case "kd":
+        // Нормализация K/D: 0.6 K/D ≈ 0%, 1.0 K/D ≈ 50% (Okay), 1.5+ K/D ≈ 100% (Good)
+        const kdNormalized = ((val - 0.6) / 0.9) * 100;
+        return Math.min(Math.max(Math.round(kdNormalized), 0), 100);
+
+      case "avgKills":
+        // Нормализация средних киллов за матч (10 киллов ≈ 0%, 16 киллов ≈ 50%, 22+ килла ≈ 100%)
+        const killsNormalized = ((val - 10) / 12) * 100;
+        return Math.min(Math.max(Math.round(killsNormalized), 0), 100);
+
+      default:
+        return Math.min(Math.max(Math.round(val), 0), 100);
+    }
+  }
+
   function renderOverviewStats(container) {
     if (!container || !window.currentPlayerProfile) return;
 
@@ -55,6 +87,80 @@
     <div class="stats-box slide-in-animation">
       <h3><i class="fas fa-map-marked-alt"></i> ${getText("worstMapTitle")}</h3>
       ${renderMapBox(mapAnalysis.worstMap)}
+    </div>
+  `;
+    const overviewContainer =
+      document.getElementById("overview-tab") ||
+      document.querySelector(".overview-container");
+    if (!overviewContainer) return;
+
+    // Извлекаем объект lifetime-статистики
+    const lifetime = data?.lifetime || data?.stats?.lifetime || {};
+
+    // Расчет K/D и средних киллов с помощью функций FaceitAPI (из вашего faceit.js)
+    const calculatedAvg = window.FaceitAPI
+      ? window.FaceitAPI.calculateAvgStats(lifetime, data?.segments, "cs2")
+      : {};
+
+    // Извлечение реальных значений из ответа API
+    const rawWinRate = lifetime["Win Rate %"] || 0;
+    const rawHs = lifetime["Average Headshots %"] || calculatedAvg.avgHs || 0;
+    const rawKd = lifetime["Average K/D Ratio"] || calculatedAvg.kd || 0;
+    const rawAvgKills =
+      calculatedAvg.avgKills ||
+      (lifetime["Total Matches"] > 0
+        ? lifetime["Total Kills with extended stats"] /
+          lifetime["Total Matches"]
+        : 0);
+
+    // Формирование списка метрик
+    const metrics = [
+      {
+        label: "Win Rate",
+        displayValue: `${Math.round(parseFloat(rawWinRate))}%`,
+        score: normalizeMetric("winrate", rawWinRate),
+      },
+      {
+        label: "K/D Ratio",
+        displayValue: parseFloat(rawKd).toFixed(2),
+        score: normalizeMetric("kd", rawKd),
+      },
+      {
+        label: "Headshots",
+        displayValue: `${Math.round(parseFloat(rawHs))}%`,
+        score: normalizeMetric("hs", rawHs),
+      },
+      {
+        label: "Avg Kills",
+        displayValue: parseFloat(rawAvgKills).toFixed(1),
+        score: normalizeMetric("avgKills", rawAvgKills),
+      },
+    ];
+
+    // Создаем или обновляем карточку
+    let metricsCard = overviewContainer.querySelector(".metrics-card");
+    if (!metricsCard) {
+      metricsCard = document.createElement("div");
+      metricsCard.className = "metrics-card";
+      overviewContainer.appendChild(metricsCard);
+    }
+
+    metricsCard.innerHTML = `
+    <div class="metrics-grid">
+      ${metrics
+        .map((m) => {
+          const rating = getScoreRating(m.score);
+          return `
+          <div class="metric-item">
+            <div class="metric-info">
+              <span class="metric-label">${m.label}</span>
+              <span class="metric-value">${m.displayValue}</span>
+            </div>
+            <span class="metric-badge ${rating.class}">${rating.text}</span>
+          </div>
+        `;
+        })
+        .join("")}
     </div>
   `;
   }
