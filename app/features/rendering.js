@@ -70,7 +70,7 @@
     const faceitLevel = playerData.games?.cs2?.skill_level;
 
     const levelValue = faceitLevel
-      ? `<img src="./images/levels/level${faceitLevel}.svg" alt="Level ${faceitLevel}" style="width: 35px; height: 35px; object-fit: contain; vertical-align: middle;" />`
+      ? `<img src="./images/levels/lvl${faceitLevel}.svg" alt="Level ${faceitLevel}" style="width: 35px; height: 35px; object-fit: contain; vertical-align: middle;" />`
       : "N/A";
 
     const profileLang = window.currentLanguage === "ru" ? "ru" : "en";
