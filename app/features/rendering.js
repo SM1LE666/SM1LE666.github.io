@@ -93,7 +93,16 @@
         0,
       );
     }
-    const adrVal = totalAdr > 0 ? totalAdr : 75; // fallback если нет данных ADR
+    const adrVal = totalAdr > 0 ? totalAdr : 75;
+
+    // Безопасный расчет клатчей (без повторного объявления через let/const с тем же именем)
+    let effectiveClutches = totalClutches;
+    if (effectiveClutches === 0) {
+      const matches = avgStats?.totalMatches || 100;
+      effectiveClutches = Math.round(matches * (rawWinRate / 100) * 0.18);
+    }
+
+    const clutchingScore = Math.min(Math.max(effectiveClutches * 3, 20), 100);
 
     // 3. Формулы HLTV-метрик (0 - 100)
     // Firepower: урон + K/D + хедшоты
@@ -132,22 +141,17 @@
     );
 
     // Clutching: выигрыши ситуаций 1vX
-    if (Array.isArray(allMaps) && allMaps.length > 0) {
-      totalClutches = allMaps.reduce(
-        (sum, m) => sum + (parseInt(m.clutches, 10) || 0),
+    const clutching = Math.min(
+      Math.max(
+        Math.round(
+          totalClutches > 0
+            ? Math.min(totalClutches * 8, 100)
+            : rawWinRate * 0.8,
+        ),
         0,
-      );
-    }
-
-    // Если API не вернул клатчи, оцениваем их косвенно по винрейте и опыту (матчам)
-    let effectiveClutches = totalClutches;
-    if (effectiveClutches === 0) {
-      const matches = avgStats?.totalMatches || 100;
-      // Примерная формула: примерно 0.15-0.2 выигранных клатча за матч при хорошем винрейте
-      effectiveClutches = Math.round(matches * (rawWinRate / 100) * 0.18);
-    }
-
-    const clutchingScore = Math.min(Math.max(effectiveClutches * 3, 20), 100);
+      ),
+      100,
+    );
 
     // Sniping: оцениваем по выживаемости и K/D (при высоком K/D / низком HS%)
     const snipingBonus = rawHs < 40 ? 15 : 0;
