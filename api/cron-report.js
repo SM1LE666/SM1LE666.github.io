@@ -51,7 +51,7 @@ export default async function handler(req, res) {
       "0";
     const includeUserAgent =
       String(
-        process.env.ANALYTICS_REPORT_INCLUDE_USER_AGENT || "1"
+        process.env.ANALYTICS_REPORT_INCLUDE_USER_AGENT || "1",
       ).toLowerCase() !== "0";
 
     // window: "1d" | "7d" etc
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
         ip: includeIp ? r.ip : undefined,
         user_agent: includeUserAgent ? r.user_agent : undefined,
         props: r.props ? JSON.stringify(r.props) : "",
-      }))
+      })),
     );
 
     const date = new Date().toISOString().slice(0, 10);
