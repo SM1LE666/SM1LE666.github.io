@@ -70,7 +70,7 @@
     const faceitLevel = playerData.games?.cs2?.skill_level;
 
     const levelValue = faceitLevel
-      ? `<img src="./images/levels/lvl${faceitLevel}.svg" alt="Level ${faceitLevel}" style="width: 35px; height: 35px; object-fit: contain; vertical-align: middle;" />`
+      ? `<img src="/images/levels/lvl${faceitLevel}.svg" alt="Level ${faceitLevel}" style="width: 35px; height: 35px; object-fit: contain; vertical-align: middle;" />`
       : "N/A";
 
     const profileLang = window.currentLanguage === "ru" ? "ru" : "en";
@@ -85,7 +85,9 @@
         </div>
         <div class="player-info">
           <h2>${playerData.nickname}</h2>
-          <p>${getText("elo")}: ${formatNumber(currentElo)} ${levelValue}</p>
+          <p style="
+    font-size: 20px;
+    font-weight: bold;">${levelValue} ${formatNumber(currentElo)}</p>
           <p>${getText("country")}: ${countryName}</p>
           <p>${getText("matches")}: ${formatNumber(avgStats.totalMatches)}</p>
           <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
