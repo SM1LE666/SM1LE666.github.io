@@ -4001,7 +4001,6 @@ footer {
   }
 }
 
-/* Основной контейнер HLTV профиля */
 .metrics-card {
   grid-column: 1 / -1;
   background:
@@ -4013,7 +4012,7 @@ footer {
     #141414;
   border: 1px solid rgba(255, 85, 0, 0.25);
   border-radius: 12px;
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem 1.4rem;
   margin-top: 1.2rem;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.4),
@@ -4047,12 +4046,10 @@ footer {
   gap: 0.85rem;
 }
 
-/* Элемент метрики */
 .metric-item {
   background: rgba(26, 26, 26, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  padding: 0.8rem 0.9rem;
+  padding: 0.8rem 0.7rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -4063,6 +4060,7 @@ footer {
     transform 0.2s ease,
     border-color 0.2s ease,
     box-shadow 0.2s ease;
+  border: 1px solid rgba(255, 85, 0, 0.32);
 }
 
 .metric-item:hover {
@@ -4078,11 +4076,12 @@ footer {
 }
 
 .metric-label {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 600;
   color: #a0a0a0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  font-family: "Orbitron", sans-serif;
 }
 
 .metric-item-bottom {
@@ -4098,14 +4097,13 @@ footer {
   letter-spacing: 0.5px;
 }
 
-/* Бейджи рейтингов */
 .metric-badge {
-  font-size: 0.65rem;
-  font-weight: 800;
-  padding: 0.15rem 0.45rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.15rem 0.35rem;
   border-radius: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .badge-poor {
