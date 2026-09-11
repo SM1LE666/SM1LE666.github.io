@@ -31,7 +31,7 @@
     `;
   }
 
-  // Функция оценки диапазона 0 - 100
+  // Оценка диапазона 0 - 100
   function getScoreRating(value) {
     if (value <= 33) return { text: "Poor", class: "poor" };
     if (value <= 67) return { text: "Okay", class: "okay" };
@@ -45,16 +45,13 @@
     switch (type) {
       case "winrate":
       case "hs":
-        // Проценты уже находятся в диапазоне 0-100
         return Math.min(Math.max(Math.round(val), 0), 100);
 
       case "kd":
-        // Нормализация K/D: 0.6 K/D ≈ 0%, 1.0 K/D ≈ 50% (Okay), 1.5+ K/D ≈ 100% (Good)
         const kdNormalized = ((val - 0.6) / 0.9) * 100;
         return Math.min(Math.max(Math.round(kdNormalized), 0), 100);
 
       case "avgKills":
-        // Нормализация средних киллов за матч (10 киллов ≈ 0%, 16 киллов ≈ 50%, 22+ килла ≈ 100%)
         const killsNormalized = ((val - 10) / 12) * 100;
         return Math.min(Math.max(Math.round(killsNormalized), 0), 100);
 
@@ -67,20 +64,17 @@
     if (!container || !window.currentPlayerProfile) return;
 
     const getText = getTranslator();
-    // Извлекаем все необходимые данные из профиля текущего игрока
     const {
       avgStats,
       mapAnalysis,
       lifetime = {},
     } = window.currentPlayerProfile;
 
-    // Получаем фактические значения показателей
     const rawWinRate = lifetime["Win Rate %"] || 0;
     const rawHs = lifetime["Average Headshots %"] || avgStats?.avgHs || 0;
     const rawKd = lifetime["Average K/D Ratio"] || avgStats?.kd || 0;
     const rawAvgKills = avgStats?.avgKills || 0;
 
-    // Рассчитываем метрики и их баллы
     const metrics = [
       {
         label: "Win Rate",
@@ -104,7 +98,6 @@
       },
     ];
 
-    // Генерируем HTML-разметку карточки метрик
     const metricsCardHtml = `
       <div class="metrics-card slide-in-animation">
         <div class="metrics-grid">
@@ -126,7 +119,6 @@
       </div>
     `;
 
-    // Выводим блоки статистики вместе с карточкой метрик
     container.innerHTML = `
       <div class="stats-box slide-in-animation">
         <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
@@ -149,6 +141,54 @@
 
       ${metricsCardHtml}
     `;
+  }
+
+  function renderPlayerCard(
+    playerData,
+    countryName,
+    currentElo,
+    avgStats,
+    lifetime,
+  ) {
+    const getText = getTranslator();
+    const faceitLevel = playerData.games?.cs2?.skill_level;
+
+    const levelValue = faceitLevel
+      ? `<img src="/images/levels/lvl${faceitLevel}.svg" alt="Level ${faceitLevel}" style="width: 35px; height: 35px; object-fit: contain; vertical-align: middle;" />`
+      : "N/A";
+
+    const profileLang = window.currentLanguage === "ru" ? "ru" : "en";
+
+    return `
+    <div class="player-card fade-in-animation">
+      <div class="player-header">
+        <div class="player-avatar">
+          <img src="${playerData.avatar || ".png"}" alt="${
+            playerData.nickname
+          }" onerror="this.src='/assets/logooo.png'">
+        </div>
+        <div class="player-info">
+          <h2>${playerData.nickname}</h2>
+          <p style="
+    font-size: 20px;
+    font-weight: bold;">${levelValue} ${formatNumber(currentElo)} ELO</p>
+          <p>${getText("country")}: ${countryName}</p>
+          <p>${getText("matches")}: ${formatNumber(avgStats.totalMatches)}</p>
+          <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
+          <img
+            src="/assets/faceit.png"
+            alt="${getText("faceitProfile")}"
+            title="${getText("faceitProfile")}"
+            onclick="window.open('https://www.faceit.com/${profileLang}/players/${playerData.nickname}', '_blank')"
+            style="cursor: pointer; width: 45px; height: 45px; border-radius: 8px; border: 2px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s; margin-right: 10px; object-fit: contain;"
+            onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 10px var(--primary-color)';"
+            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"
+          />
+        </div>
+      </div>
+      <div class="stats-container"></div>
+    </div>
+  `;
   }
 
   function applyMapCardBackgrounds(container) {
@@ -188,7 +228,7 @@
     });
   }
 
-  // Создаем объект со всеми методами рендеринга
+  // Экспорт объекта и глобальных функций
   const AppRendering = {
     formatStatRow,
     renderOverviewStats,
@@ -197,13 +237,7 @@
   };
 
   if (typeof window !== "undefined") {
-    // 1. Экспортируем все возможные варианты названий объекта
     window.AppRendering = AppRendering;
-    window.Rendering = AppRendering;
-    window.RenderingService = AppRendering;
-    window.rendering = AppRendering;
-
-    // 2. Экспортируем функции напрямую в window
     window.formatStatRow = formatStatRow;
     window.renderOverviewStats = renderOverviewStats;
     window.renderPlayerCard = renderPlayerCard;
