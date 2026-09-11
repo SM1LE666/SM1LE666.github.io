@@ -95,8 +95,20 @@
     }
     const adrVal = totalAdr > 0 ? totalAdr : 75;
 
-    // Безопасный расчет клатчей
-    // Проверяем общие данные lifetime или вычисляем на основе эффективности игрока (WinRate и K/D)
+    // Используем реальные суммарные клатчи из всех карт
+    const effectiveClutches = totalClutches;
+
+    // Расчет шкалы для прогресс-бара (0-100)
+    // Если клатчей мало, шкала не будет падать в абсолютный ноль, а получит базовый вес от побед
+    const clutchingScore = Math.min(
+      Math.max(
+        effectiveClutches > 0
+          ? effectiveClutches * 6
+          : Math.round(rawWinRate * 0.8),
+        20,
+      ),
+      100,
+    );
 
     // Если в lifetime есть прямые данные о клатчах (зависит от версии API)
     if (lifetime["Total 1v1 Wins"] || lifetime["Total 1v2 Wins"]) {
@@ -108,28 +120,6 @@
         "Total 1v5 Wins",
       ].reduce((sum, key) => sum + (parseInt(lifetime[key], 10) || 0), 0);
     }
-
-    // Если данных в API нет, формируем стабильную оценку на основе матчей, винрейта и K/D
-    const matches = avgStats?.totalMatches || 50;
-    const effectiveClutches =
-      totalClutches > 0
-        ? totalClutches
-        : Math.round(
-            matches * (rawWinRate / 100) * 0.15 * Math.max(rawKd, 0.5),
-          );
-
-    // Оценка для шкалы (0 - 100)
-    const clutchingScore = Math.min(
-      Math.max(
-        Math.round(
-          rawWinRate * 0.6 +
-            rawKd * 20 +
-            (totalClutches > 0 ? Math.min(totalClutches * 3, 40) : 10),
-        ),
-        20,
-      ),
-      100,
-    );
 
     // 3. Формулы HLTV-метрик (0 - 100)
     // Firepower: урон + K/D + хедшоты
@@ -196,7 +186,6 @@
       100,
     );
 
-    // 4. Массив из 7 специфицированных метрик
     const metrics = [
       { label: "Firepower", displayValue: `${firepower}`, score: firepower },
       { label: "Entrying", displayValue: `${entrying}`, score: entrying },
@@ -204,8 +193,8 @@
       { label: "Opening", displayValue: `${opening}`, score: opening },
       {
         label: "Clutching",
-        displayValue: `${effectiveClutches}`,
-        score: clutchingScore,
+        displayValue: `${effectiveClutches}`, // <--- Здесь отобразится реальная сумма из allMaps
+        score: clutchingScore, // <--- Здесь заполненность прогресс-бара
       },
       { label: "Sniping", displayValue: `${sniping}`, score: sniping },
       { label: "Utility", displayValue: `${utility}`, score: utility },
