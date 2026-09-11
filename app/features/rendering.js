@@ -132,17 +132,22 @@
     );
 
     // Clutching: выигрыши ситуаций 1vX
-    const clutching = Math.min(
-      Math.max(
-        Math.round(
-          totalClutches > 0
-            ? Math.min(totalClutches * 8, 100)
-            : rawWinRate * 0.8,
-        ),
+    if (Array.isArray(allMaps) && allMaps.length > 0) {
+      totalClutches = allMaps.reduce(
+        (sum, m) => sum + (parseInt(m.clutches, 10) || 0),
         0,
-      ),
-      100,
-    );
+      );
+    }
+
+    // Если API не вернул клатчи, оцениваем их косвенно по винрейте и опыту (матчам)
+    let effectiveClutches = totalClutches;
+    if (effectiveClutches === 0) {
+      const matches = avgStats?.totalMatches || 100;
+      // Примерная формула: примерно 0.15-0.2 выигранных клатча за матч при хорошем винрейте
+      effectiveClutches = Math.round(matches * (rawWinRate / 100) * 0.18);
+    }
+
+    const clutchingScore = Math.min(Math.max(effectiveClutches * 3, 20), 100);
 
     // Sniping: оцениваем по выживаемости и K/D (при высоком K/D / низком HS%)
     const snipingBonus = rawHs < 40 ? 15 : 0;
@@ -166,7 +171,11 @@
       { label: "Entrying", displayValue: `${entrying}`, score: entrying },
       { label: "Trading", displayValue: `${trading}`, score: trading },
       { label: "Opening", displayValue: `${opening}`, score: opening },
-      { label: "Clutching", displayValue: `${clutching}`, score: clutching },
+      {
+        label: "Clutching",
+        displayValue: `${effectiveClutches}`,
+        score: clutchingScore,
+      },
       { label: "Sniping", displayValue: `${sniping}`, score: sniping },
       { label: "Utility", displayValue: `${utility}`, score: utility },
     ];
