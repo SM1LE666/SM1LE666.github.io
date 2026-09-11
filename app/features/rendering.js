@@ -188,14 +188,25 @@
     });
   }
 
-  window.AppRendering = {
+  // Создаем объект со всеми методами рендеринга
+  const AppRendering = {
     formatStatRow,
     renderOverviewStats,
     renderPlayerCard,
     applyMapCardBackgrounds,
   };
 
-  window.formatStatRow = formatStatRow;
-  window.renderOverviewStats = renderOverviewStats;
-  window.applyMapCardBackgrounds = applyMapCardBackgrounds;
+  if (typeof window !== "undefined") {
+    // 1. Экспортируем все возможные варианты названий объекта
+    window.AppRendering = AppRendering;
+    window.Rendering = AppRendering;
+    window.RenderingService = AppRendering;
+    window.rendering = AppRendering;
+
+    // 2. Экспортируем функции напрямую в window
+    window.formatStatRow = formatStatRow;
+    window.renderOverviewStats = renderOverviewStats;
+    window.renderPlayerCard = renderPlayerCard;
+    window.applyMapCardBackgrounds = applyMapCardBackgrounds;
+  }
 })();
