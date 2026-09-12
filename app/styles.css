@@ -2682,60 +2682,6 @@ footer {
   }
 }
 
-/* Для десктопной версии истории матчей */
-@media (min-width: 769px) {
-  .match-date {
-    order: 1;
-    min-width: 100px;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
-    text-align: left;
-  }
-
-  .match-result {
-    order: 2;
-    min-width: 60px;
-    font-weight: bold;
-    text-transform: uppercase;
-    padding: 0.15rem 0.4rem;
-    border-radius: 3px;
-    text-align: center;
-  }
-
-  .match-item.win .match-result {
-    background-color: rgba(76, 175, 80, 0.2);
-    color: #4caf50;
-  }
-
-  .match-item.loss .match-result {
-    background-color: rgba(244, 67, 54, 0.2);
-    color: #f44336;
-  }
-
-  .match-map {
-    order: 3;
-    min-width: 120px;
-    font-weight: bold;
-    color: var(--primary-color);
-    text-align: left;
-  }
-
-  .match-score {
-    order: 4;
-    min-width: 70px;
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    text-align: center;
-  }
-
-  .player-stats {
-    order: 5;
-    margin-left: auto;
-    display: flex;
-    gap: 0.6rem;
-  }
-}
 .show-more-container {
   display: flex !important;
   justify-content: center !important;
@@ -3056,6 +3002,8 @@ footer {
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   font-size: 0.9rem;
+  order: 2;
+  text-align: center;
 }
 
 .match-item.win .match-result {
@@ -3072,6 +3020,8 @@ footer {
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.8);
   font-family: "Orbitron", sans-serif;
+  min-width: 100px;
+  order: 1;
 }
 
 .match-map {
@@ -3082,6 +3032,7 @@ footer {
   width: 100%;
   margin: 0;
   font-family: "Orbitron", sans-serif;
+  order: 3;
 }
 
 .match-score {
@@ -3092,6 +3043,7 @@ footer {
   width: 100%;
   color: var(--primary-color);
   margin: 0;
+  order: 4;
 }
 
 .player-stats {
@@ -3100,6 +3052,7 @@ footer {
   gap: 0.5rem;
   width: 100%;
   margin: 0;
+  order: 5;
 }
 
 .stat-item {
@@ -3246,27 +3199,22 @@ footer {
   content: none !important;
 }
 
-/* Чуть уменьшаем шрифты на мобильных (главное меню и в целом) */
 @media (max-width: 768px) {
   html {
-    font-size: 15px; /* было ~16px: минус ~1px */
+    font-size: 15px;
   }
 
-  /* Заголовки секций в главном меню */
   #search h2,
   #results h2 {
-    font-size: 1.2rem; /* было ~1.3rem */
+    font-size: 1.2rem;
   }
 
-  /* Основной H1 в шапке (когда виден) */
   h1 {
-    font-size: 1.4rem; /* было 1.5rem в mobile media */
+    font-size: 1.4rem;
   }
 }
 
-/* --- FINAL mobile header override (must be last) --- */
 @media (max-width: 768px) {
-  /* Keep header in one row */
   .header-content {
     flex-direction: row !important;
     align-items: center !important;
@@ -3675,7 +3623,6 @@ footer {
   }
 }
 
-/* --- Maps: make map-stat-item tiles more compact/narrow --- */
 .maps-grid .map-stat-row {
   gap: 0.8rem;
 }
@@ -3702,7 +3649,6 @@ footer {
 }
 
 @media (min-width: 769px) {
-  /* Make tiles visually narrower by allowing more card width around them */
   .maps-grid .map-card-body {
     padding: 0.85rem 0.9rem;
   }
@@ -3717,7 +3663,6 @@ footer {
 }
 
 @media (max-width: 768px) {
-  /* Mobile: rows become columns; keep them compact too */
   .maps-grid .map-stat-item {
     padding: 0.55rem 0.7rem;
   }
@@ -3731,19 +3676,17 @@ footer {
   }
 }
 
-/* --- Maps: reduce map-stat-item width on desktop (stop full stretching) --- */
 @media (min-width: 769px) {
   .maps-grid .map-stat-item {
-    flex: 0 1 130px; /* was flex:1 (fills whole row); now narrower tiles */
+    flex: 0 1 130px;
     max-width: 140px;
   }
 
   .maps-grid .map-stat-row {
-    justify-content: center; /* keep the two tiles centered in the row */
+    justify-content: center;
   }
 }
 
-/* Pro card: smaller and more compact */
 .featured-player-card,
 .pro-card {
   background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.05));
