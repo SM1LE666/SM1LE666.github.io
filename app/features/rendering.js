@@ -105,13 +105,14 @@
     ];
 
     if (lifetime && typeof lifetime === "object") {
-      totalClutches = clutchKeys.reduce((sum, key) => {
+      const lifetimeClutches = clutchKeys.reduce((sum, key) => {
         const val = parseInt(lifetime[key], 10);
         return sum + (!isNaN(val) && val >= 0 ? val : 0);
       }, 0);
+
+      totalClutches = Math.max(totalClutches, lifetimeClutches);
     }
 
-    // Если API FACEIT не отдает эти поля в lifetime, вычисляем адеквատное значение по матчам и винрейту
     const matches = avgStats?.totalMatches || 100;
     const effectiveClutches =
       totalClutches > 0
