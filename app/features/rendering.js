@@ -72,7 +72,12 @@
     } = window.currentPlayerProfile;
 
     // 1. Извлекаем базовые показатели
-    const rawWinRate = parseFloat(lifetime["Win Rate %"] || 0);
+    let rawWinRate = parseFloat(lifetime["Win Rate %"]);
+    if (isNaN(rawWinRate) || rawWinRate === 0) {
+      const wins = parseInt(lifetime["Wins"] || "0", 10);
+      const totalMatches = avgStats?.totalMatches || 0;
+      rawWinRate = totalMatches > 0 ? (wins / totalMatches) * 100 : 50;
+    }
     const rawHs = parseFloat(
       lifetime["Average Headshots %"] || avgStats?.avgHs || 0,
     );
@@ -200,8 +205,8 @@
       { label: "Opening", displayValue: `${opening}`, score: opening },
       {
         label: "Clutching",
-        displayValue: `${effectiveClutches}`, // <--- Здесь отобразится реальная сумма из allMaps
-        score: clutchingScore, // <--- Здесь заполненность прогресс-бара
+        displayValue: `${clutchingScore}`, // Теперь показывает оценку от 0 до 100
+        score: clutchingScore,
       },
       { label: "Sniping", displayValue: `${sniping}`, score: sniping },
       { label: "Utility", displayValue: `${utility}`, score: utility },
