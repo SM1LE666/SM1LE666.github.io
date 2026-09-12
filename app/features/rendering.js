@@ -343,9 +343,6 @@
         const imagePath = mapBackgrounds[mapKey];
         card.style.setProperty("--map-bg-url", `url('${imagePath}')`);
         card.style.backgroundImage = `linear-gradient(135deg, rgba(26, 26, 26, 0.25), rgba(255, 85, 0, 0.08)), url('${imagePath}')`;
-        card.style.backgroundSize = "cover";
-        card.style.backgroundPosition = "center";
-        card.style.backgroundRepeat = "no-repeat";
         card.classList.add("has-map-bg");
       }
     });

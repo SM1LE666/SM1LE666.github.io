@@ -653,13 +653,11 @@ input[type="text"]:focus {
   min-height: 600px; /* Добавляем минимальную высоту */
 }
 
-/* Styles for player card */
 .player-header {
-  display: flex;
   align-items: center;
-  gap: 2.5rem; /* Увеличиваем отступы */
-  margin-bottom: 3rem;
-  padding: 2.5rem;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
   background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.15));
   border-radius: 15px;
   border: 2px solid rgba(255, 85, 0, 0.3);
@@ -671,7 +669,7 @@ input[type="text"]:focus {
 }
 
 .player-avatar img {
-  width: 140px; /* Увеличиваем размер аватара */
+  width: 140px;
   height: 140px;
   border-radius: 50%;
   border: 4px solid var(--primary-color);
@@ -684,8 +682,8 @@ input[type="text"]:focus {
 }
 
 .player-info h2 {
-  margin: 0 0 1rem 0;
-  font-size: 2.5rem; /* Увеличиваем размер заголовка */
+  font-size: 2.05rem;
+  margin-bottom: 0.6rem;
   color: var(--primary-color);
   text-shadow: 0 0 10px rgba(255, 85, 0, 0.4);
   font-family: "Orbitron", sans-serif;
@@ -2278,7 +2276,7 @@ footer {
 }
 
 .map-card-body {
-  padding: 1rem;
+  padding: 0.85rem 0.9rem;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -3502,13 +3500,6 @@ footer {
     min-height: 0;
   }
 
-  /* Header block inside player card */
-  .player-header {
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    gap: 1.6rem;
-  }
-
   .player-avatar img {
     width: 115px;
     height: 115px;
@@ -3644,20 +3635,6 @@ footer {
 
 .maps-grid .map-stat-item .stat-value {
   font-size: 1rem;
-}
-
-@media (min-width: 769px) {
-  .maps-grid .map-card-body {
-    padding: 0.85rem 0.9rem;
-  }
-
-  .maps-grid .map-stat-row {
-    gap: 0.75rem;
-  }
-
-  .maps-grid .map-stat-item {
-    min-width: 0;
-  }
 }
 
 @media (max-width: 768px) {
@@ -4046,7 +4023,6 @@ footer {
   border: 1px solid rgba(0, 230, 118, 0.3);
 }
 
-/* Градиентный Прогресс-бар */
 .metric-progress-track {
   width: 100%;
   height: 4px;
