@@ -1549,22 +1549,22 @@
         .map((match) => {
           let value;
           switch (recordType) {
-            case mostKills:
+            case "mostKills":
               value = Number(match.kills);
               break;
-            case mostAssists:
+            case "mostAssists":
               value = Number(match.assists);
               break;
-            case highestKD:
+            case "highestKD":
               value = Number(match.kdRatio);
               break;
-            case highestKDDifference:
+            case "highestKDDifference":
               value = Number(match.kills) - Number(match.deaths);
               break;
-            case mostMVPs:
+            case "mostMVPs":
               value = Number(match.mvps);
               break;
-            case highestHeadshotPct: {
+            case "highestHeadshotPct": {
               const kills = Number(match.kills);
               const headshots = Number(match.headshots);
               value = kills > 0 ? (headshots / kills) * 100 : 0;
