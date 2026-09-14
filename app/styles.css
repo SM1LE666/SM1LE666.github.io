@@ -4167,3 +4167,10 @@ footer {
   line-height: 1.6;
   color: #ccc;
 }
+
+.how-to-improve {
+  font-size: 0.85rem;
+  color: #ff5500;
+  font-family: "Orbitron", sans-serif;
+  text-align: right;
+}
