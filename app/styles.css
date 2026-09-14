@@ -4122,11 +4122,16 @@ h1::after {
   cursor: pointer;
   padding: 4px 8px;
   transition: color 0.2s;
+  box-shadow: none;
+}
+.metrics-modal-close {
+  font-size: 25px;
 }
 
 .metrics-modal-close:hover,
 .metrics-modal-back:hover {
   color: #fff;
+  transform: none;
 }
 
 /* Тело модалки */
@@ -4283,4 +4288,8 @@ h1::after {
 .metric-detail-content a {
   color: #ff5500;
   font-weight: bolder;
+}
+
+.metric-detail-content p {
+  margin-bottom: 8px;
 }
