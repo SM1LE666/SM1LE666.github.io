@@ -4052,3 +4052,118 @@ footer {
   background: linear-gradient(90deg, #00c853, #00e676);
   box-shadow: 0 0 6px rgba(0, 230, 118, 0.5);
 }
+
+/* Оверлей (фон) */
+.metrics-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.metrics-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Окно карточки */
+.metrics-modal {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.25s ease;
+}
+
+.metrics-modal-overlay.active .metrics-modal {
+  transform: scale(1);
+}
+
+/* Шапка модалки */
+.metrics-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #222;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.metrics-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  flex-grow: 1;
+  text-align: center;
+}
+
+/* Кнопки закрепить / стрелочки */
+.metrics-modal-close,
+.metrics-modal-back {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+
+.metrics-modal-close:hover,
+.metrics-modal-back:hover {
+  color: #fff;
+}
+
+/* Тело модалки */
+.metrics-modal-body {
+  padding: 16px 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Список метрик */
+.metrics-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.metrics-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: #242424;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.1s;
+}
+
+.metrics-list-item:hover {
+  background: var(--primary-color, #ff5500);
+  color: #fff;
+}
+
+/* Содержимое метрики */
+.metric-detail-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ccc;
+}

@@ -238,6 +238,7 @@
             `;
             })
             .join("")}
+            <span>How to improve?</span>
         </div>
       </div>
     `;
