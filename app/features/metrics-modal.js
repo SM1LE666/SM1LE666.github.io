@@ -79,7 +79,7 @@
     bindGlobalEvents() {
       document.addEventListener("click", (e) => {
         // Проверяем, был ли клик по элементу с текстом или классом
-        const trigger = e.target.closest(".metrics-grid span");
+        const trigger = e.target.closest(".metrics-grid p.how-to-improve");
         if (
           trigger &&
           trigger.textContent.trim().toLowerCase().includes("how to improve")

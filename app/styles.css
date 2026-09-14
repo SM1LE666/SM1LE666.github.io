@@ -4076,13 +4076,13 @@ footer {
   pointer-events: auto;
 }
 
-/* Окно карточки */
 .metrics-modal {
   background: #1a1a1a;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   width: 90%;
   max-width: 440px;
+  height: 500px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   color: #fff;
   overflow: hidden;
@@ -4094,13 +4094,18 @@ footer {
   transform: scale(1);
 }
 
-/* Шапка модалки */
 .metrics-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  background: #222;
+  background:
+    radial-gradient(
+      100% 100% at 50% 0%,
+      rgba(255, 85, 0, 0.05) 0%,
+      rgba(18, 18, 18, 0.6) 100%
+    ),
+    #141414;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -4109,6 +4114,8 @@ footer {
   font-size: 18px;
   flex-grow: 1;
   text-align: center;
+  font-family: "Orbitron", sans-serif;
+  color: #ff5500;
 }
 
 /* Кнопки закрепить / стрелочки */
@@ -4116,7 +4123,6 @@ footer {
 .metrics-modal-back {
   background: none;
   border: none;
-  color: #aaa;
   font-size: 20px;
   cursor: pointer;
   padding: 4px 8px;
@@ -4132,7 +4138,6 @@ footer {
 .metrics-modal-body {
   padding: 16px 20px;
   max-height: 400px;
-  overflow-y: auto;
 }
 
 /* Список метрик */
@@ -4140,6 +4145,8 @@ footer {
   list-style: none;
   padding: 0;
   margin: 0;
+  font-family: "Orbitron", sans-serif;
+  color: #ff5500;
 }
 
 .metrics-list-item {
@@ -4148,7 +4155,13 @@ footer {
   align-items: center;
   padding: 12px 14px;
   margin-bottom: 8px;
-  background: #242424;
+  background:
+    radial-gradient(
+      100% 100% at 50% 0%,
+      rgba(255, 85, 0, 0.05) 0%,
+      rgba(18, 18, 18, 0.6) 100%
+    ),
+    #141414;
   border-radius: 8px;
   cursor: pointer;
   transition:
@@ -4157,8 +4170,11 @@ footer {
 }
 
 .metrics-list-item:hover {
-  background: var(--primary-color, #ff5500);
   color: #fff;
+  background: rgba(255, 85, 0, 0.2);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.3);
 }
 
 /* Содержимое метрики */
@@ -4169,10 +4185,12 @@ footer {
 }
 
 .how-to-improve {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: #ff5500;
   font-family: "Orbitron", sans-serif;
-  text-align: right;
+  height: auto;
+  text-wrap: nowrap;
+  font-weight: bold;
 }
 .how-to-improve:hover {
   cursor: pointer;

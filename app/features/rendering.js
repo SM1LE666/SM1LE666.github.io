@@ -238,7 +238,7 @@
             `;
             })
             .join("")}
-            <span class="how-to-improve">How to improve?</span>
+            <p class="how-to-improve">How to improve?</p>
         </div>
       </div>
     `;
