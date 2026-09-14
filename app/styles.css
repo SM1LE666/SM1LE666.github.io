@@ -4174,3 +4174,93 @@ footer {
   font-family: "Orbitron", sans-serif;
   text-align: right;
 }
+.how-to-improve:hover {
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.15);
+}
+
+/* 2. Стилизация кастомных Dropdown-меню (.dropdown / .menu) */
+.dropdown-menu,
+.custom-select-options,
+.context-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  min-width: 200px;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+  background: linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-card) 100%);
+  border: 1px solid rgba(255, 85, 0, 0.3);
+  border-radius: var(--border-radius);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(255, 85, 0, 0.15);
+  backdrop-filter: blur(10px);
+  list-style: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Состояние открытия кастомного меню */
+.dropdown.active .dropdown-menu,
+.dropdown:hover .dropdown-menu,
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Элементы меню */
+.dropdown-item,
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1.25rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.dropdown-item i,
+.context-menu-item i {
+  color: var(--primary-color);
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-item:hover,
+.context-menu-item:hover {
+  background: rgba(255, 85, 0, 0.15);
+  color: #fff;
+  border-left-color: var(--primary-color);
+  padding-left: 1.5rem; /* Небольшой эффект сдвига */
+}
+
+.dropdown-item:hover i,
+.context-menu-item:hover i {
+  transform: scale(1.15);
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+  background: rgba(255, 85, 0, 0.25);
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+}
+
+/* Разделитель внутри выпадающего меню */
+.dropdown-divider {
+  height: 1px;
+  margin: 0.4rem 0;
+  overflow: hidden;
+  background-color: rgba(255, 85, 0, 0.2);
+}
