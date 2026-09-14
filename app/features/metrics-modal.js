@@ -4,8 +4,11 @@
   const METRICS_DETAILS = {
     Firepower: {
       title: "Firepower",
-      content:
-        "<p>Здесь вы можете настраивать информацию и советы по улучшению <b>Firepower</b>.</p>",
+      content: [
+        "<p>Play <a href='https://steamcommunity.com/sharedfiles/filedetails/?id=3070244462' target='_blank' rel='noopener noreferrer'>Aim Botz</a> for 15-20 minutes every day before playing.</p>",
+        "<p>Get 500 kills on DeathMatch after a productive session.</p>",
+        "<p>Keep your crosshair at head level.</p>",
+      ],
     },
     Entrying: {
       title: "Entrying",

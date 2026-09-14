@@ -3524,8 +3524,6 @@ footer {
 
   .stats-box {
     padding: 1.35rem;
-    height: auto; /* let content define height */
-    min-height: 0;
   }
 
   .stats-box h3 {
@@ -3544,8 +3542,8 @@ footer {
 /* --- Desktop Overview: stats rows left/right (uses formatStatRow spans) --- */
 @media (min-width: 1025px) {
   .stats-box {
-    height: 280px;
-    min-height: 280px;
+    height: 260px;
+    min-height: 260px;
     font-variant-numeric: tabular-nums;
   }
 
@@ -4194,7 +4192,8 @@ footer {
 }
 .how-to-improve:hover {
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.15);
+  text-shadow: 0 4px 12px rgba(255, 85, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 /* 2. Стилизация кастомных Dropdown-меню (.dropdown / .menu) */
