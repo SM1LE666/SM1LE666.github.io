@@ -330,7 +330,7 @@
 
       const proGrid = document.querySelector(".pro-grid");
       if (proGrid) {
-        proGrid.style.display = "grid";
+        proGrid.style.display = "flex";
       }
 
       // Скрываем десктопный сайдбар
