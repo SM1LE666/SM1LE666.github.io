@@ -1,44 +1,61 @@
 (function () {
-  // Список метрик и их контента для второго экрана
-  // Вы можете легко дополнить или отредактировать поля 'title' и 'content' для каждой метрики.
   const METRICS_DETAILS = {
     Firepower: {
       title: "Firepower",
       content: `
-    <p>1. Play <a href='https://steamcommunity.com/sharedfiles/filedetails/?id=3070244462' target='_blank' rel='noopener noreferrer'>Aim Botz</a> for 15-20 minutes every day before playing.</p>
-    <p>2. Get 500 kills on DeathMatch after a productive session.</p>
-    <p>3. Keep your crosshair at head level.</p>
-  `,
+      <p>1. Play <a href='https://steamcommunity.com/sharedfiles/filedetails/?id=3070244462' target='_blank' rel='noopener noreferrer'>Aim Botz</a> for 15-20 minutes every day before playing.</p>
+      <p>2. Get 500 kills on DeathMatch after a productive session.</p>
+      <p>3. Keep your crosshair at head level.</p>
+    `,
     },
     Entrying: {
       title: "Entrying",
-      content:
-        "<p>Здесь вы можете настраивать информацию и советы по улучшению <b>Entrying</b>.</p>",
+      content: `
+      <p>1. Learn pre-aiming and clearing common spots on <a href='https://steamcommunity.com/workshop/browse/?appid=730&browsesort=textsearch&section=readytouseitems&p=1&num_per_page=30&days=7&searchtext=Prefire' target='_blank' rel='noopener noreferrer'>prefire maps.</a></p>
+      <p>2. Always ask teammates for supporting flashbangs before yours peeking.</p>
+      <p>3. Practice your Entrying skills on special duel's servers</p>
+    `,
     },
     Trading: {
       title: "Trading",
-      content:
-        "<p>Здесь вы можете настраивать информацию и советы по улучшению <b>Trading</b>.</p>",
+      content: `
+      <p>1. Stick close to your entry fragger to trade instantly within 1-2 seconds.</p>
+      <p>2. Double-peek angles with your teammate to overwhelm the defender.</p>
+      <p>3. Never body-block your teammates during aggressive pushes.</p>
+    `,
     },
     Opening: {
       title: "Opening",
-      content:
-        "<p>Здесь вы можете настраивать информацию и советы по улучшению <b>Opening</b>.</p>",
+      content: `
+      <p>1. Learn default spawn timings to arrive at first-contact angles faster.</p>
+      <p>2. Throw early utility to block or delay aggressive enemy peeks.</p>
+      <p>3. Go for high-probability opening duels instead of risky dry peeks.</p>
+    `,
     },
     Clutching: {
       title: "Clutching",
-      content:
-        "<p>Здесь вы можете настраивать информацию и советы по улучшению <b>Clutching</b>.</p>",
+      content: `
+      
+      <p>1. Gather sound cues and information before making your move.</p>
+      <p>2. Play the C4 timer and force defenders to to take risks.</p>
+      <p>3. Practice your clutch strategies on dedicated servers.</p>
+    `,
     },
     Sniping: {
       title: "Sniping",
-      content:
-        "<p>Здесь вы можете настраивать информацию и советы по улучшению <b>Sniping</b>.</p>",
+      content: `
+      <p>1. Practice fast reaction shots and micro-adjustments on AWP DeathMatch.</p>
+      <p>2. Reposition after every kill to remain unpredictable to the enemy.</p>
+      <p>3. Don't repeek the same angle when playing against rifles.</p>
+    `,
     },
     Utility: {
       title: "Utility",
-      content:
-        "<p>Здесь вы можете настраивать информацию и советы по улучшению <b>Utility</b>.</p>",
+      content: `
+      <p>1. Learn essential lineup grenades on <a href='https://steamcommunity.com/workshop/browse/?appid=730&browsesort=textsearch&section=readytouseitems&p=1&num_per_page=30&days=7&searchtext=Utility' target='_blank' rel='noopener noreferrer'>Utilities maps.</a></p>
+      <p>2. Use HE grenades and Molotovs early to inflict free damage.</p>
+      <p>3. Always call your pop-flashes before throwing them for teammates.</p>
+    `,
     },
   };
 
