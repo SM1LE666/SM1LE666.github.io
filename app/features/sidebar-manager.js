@@ -1133,21 +1133,16 @@
 
             playerCard.style.display = "block";
             playerHeader.style.display = "flex";
-            statsContainer.style.display = "block"; // Changed from grid to block
+            statsContainer.style.display = "block";
 
-            // Render record filter buttons
             statsContainer.innerHTML = `
             <div class="record-filters">
-              <button class="record-filter-btn active" data-record="mostKills">"Most Kills"</button>
-              <button class="record-filter-btn" data-record="mostAssists">
-                "Most Assists"</button>
-              <button class="record-filter-btn" data-record="highestKD">"Highest K/D"</button>
-              <button class="record-filter-btn" data-record="highestKDDifference">
-                "Highest K/D Difference"</button>
-              <button class="record-filter-btn" data-record="mostMVPs">
-                "Most MVPs"</button>
-              <button class="record-filter-btn" data-record="highestHeadshotPct">
-                "Highest HS%"</button>
+              <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
+              <button class="record-filter-btn" data-record="mostAssists">Most Assists</button>
+              <button class="record-filter-btn" data-record="highestKD">Highest K/D</button>
+              <button class="record-filter-btn" data-record="highestKDDifference">Highest K/D Difference</button>
+              <button class="record-filter-btn" data-record="mostMVPs">Most MVPs</button>
+              <button class="record-filter-btn" data-record="highestHeadshotPct">Highest HS%</button>
             </div>
             <div class="record-display">
               <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
