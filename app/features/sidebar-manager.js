@@ -9,7 +9,11 @@
     return {};
   }
 
-  function extractFallbackMatch(infoData, playerId, fallbackMap = "Unknown Map") {
+  function extractFallbackMatch(
+    infoData,
+    playerId,
+    fallbackMap = "Unknown Map",
+  ) {
     const fallbackRound = infoData.rounds && infoData.rounds[0];
     return {
       map:
@@ -140,8 +144,7 @@
     getFilteredMatches() {
       if (!this.currentMapFilter) return this.currentMatches || [];
       return (this.currentMatches || []).filter(
-        (m) =>
-          SidebarManager.normalizeMapKey(m.map) === this.currentMapFilter,
+        (m) => SidebarManager.normalizeMapKey(m.map) === this.currentMapFilter,
       );
     }
 
@@ -1528,11 +1531,12 @@
       }
 
       const recordLabelMap = {
-        mostKills: getText("mostKills"),
-        highestKD: getText("highestKD"),
-        highestKDDifference: getText("highestKDDifference"),
-        mostMVPs: getText("mostMVPs"),
-        highestHeadshotPct: getText("highestHeadshotPct"),
+        mostKills: "mostKills",
+        mostAssits: "mostAssists",
+        highestKD: "highestKD",
+        highestKDDifference: "highestKDDifference",
+        mostMVPs: "mostMVPs",
+        highestHeadshotPct: "highestHeadshotPct",
       };
 
       const recordLabel = recordLabelMap[recordType] || "";
@@ -1544,6 +1548,9 @@
           switch (recordType) {
             case "mostKills":
               value = Number(match.kills);
+              break;
+            case "mostAssists":
+              value = Number(match.assists);
               break;
             case "highestKD":
               value = Number(match.kdRatio);
