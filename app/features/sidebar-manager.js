@@ -1138,24 +1138,16 @@
             // Render record filter buttons
             statsContainer.innerHTML = `
             <div class="record-filters">
-              <button class="record-filter-btn active" data-record="mostKills">${getText(
-                "mostKills",
-              )}</button>
-              <button class="record-filter-btn active" data-record="Most Assists">${getText(
-                "mostAssists",
-              )}</button>
-              <button class="record-filter-btn" data-record="highestKD">${getText(
-                "highestKD",
-              )}</button>
-              <button class="record-filter-btn" data-record="highestKDDifference">${getText(
-                "highestKDDifference",
-              )}</button>
-              <button class="record-filter-btn" data-record="mostMVPs">${getText(
-                "mostMVPs",
-              )}</button>
-              <button class="record-filter-btn" data-record="highestHeadshotPct">${getText(
-                "highestHeadshotPct",
-              )}</button>
+              <button class="record-filter-btn active" data-record="mostKills">"Most Kills"</button>
+              <button class="record-filter-btn" data-record="mostAssists">
+                "Most Assists"</button>
+              <button class="record-filter-btn" data-record="highestKD">"Highest K/D"</button>
+              <button class="record-filter-btn" data-record="highestKDDifference">
+                "Highest K/D Difference"</button>
+              <button class="record-filter-btn" data-record="mostMVPs">
+                "Most MVPs"</button>
+              <button class="record-filter-btn" data-record="highestHeadshotPct">
+                "Highest HS%"</button>
             </div>
             <div class="record-display">
               <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
