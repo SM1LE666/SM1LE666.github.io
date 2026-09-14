@@ -2402,7 +2402,7 @@ h1::after {
   grid-template-columns: repeat(3, 300px);
   grid-template-rows: repeat(2, auto);
   row-gap: 30px;
-  column-gap: 30px;
+  column-gap: 45px;
   margin: 2rem 0;
   width: 100%;
   justify-content: center;

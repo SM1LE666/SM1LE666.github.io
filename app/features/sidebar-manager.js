@@ -328,6 +328,11 @@
 
       this.isPlayerProfileActive = false;
 
+      const proGrid = document.querySelector(".pro-grid");
+      if (proGrid) {
+        proGrid.style.display = "grid";
+      }
+
       // Скрываем десктопный сайдбар
       this.sidebar.classList.remove("player-profile-active");
       this.sidebar.classList.remove("slide-in");
@@ -336,12 +341,11 @@
 
       // Скрываем мобильную шторку ПОЛНОСТЬЮ
       if (this.mobileDrawer) {
-        this.collapseDrawer(); // Сворачиваем если развернута
+        this.collapseDrawer();
         this.mobileDrawer.classList.remove("visible");
         this.mobileDrawer.style.animation =
           "slideOut 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards";
 
-        // Полностью скрываем после анимации
         setTimeout(() => {
           if (!this.isPlayerProfileActive) {
             this.mobileDrawer.style.display = "none";

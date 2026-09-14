@@ -495,6 +495,9 @@ function goBackToMain(updateUrl = true) {
     playerStatsContainer.innerHTML = "";
     playerStatsContainer.style.display = "none";
   }
+  if (proGrid) {
+    proGrid.style.display = "flex";
+  }
   if (resultsSection) resultsSection.style.display = "none";
   if (searchSection) searchSection.style.display = "block";
   if (output) {
