@@ -4281,3 +4281,8 @@ footer {
   overflow: hidden;
   background-color: rgba(255, 85, 0, 0.2);
 }
+
+.metric-detail-content a {
+  color: #ff5500;
+  font-weight: bolder;
+}
