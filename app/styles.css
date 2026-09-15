@@ -3888,6 +3888,14 @@ h1::after {
     position: static;
     margin-bottom: 20px;
   }
+
+  .metrics-modal-header h3 {
+    text-wrap: nowrap;
+  }
+  .metrics-modal-close {
+    width: 20px;
+    justify-content: right;
+  }
 }
 @media (max-width: 480px) {
   .fps-guide-btn {
