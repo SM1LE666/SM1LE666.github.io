@@ -170,10 +170,14 @@
   function init() {
     try {
       trackEvent("page_view", { title: document.title });
-    } catch {
-      // ignore
-    }
+    } catch {}
     installGlobalClickTracking();
+
+    if (getCookieConsent() === null) {
+      openCookieModal();
+    }
+
+    updateCookieFabVisibility();
   }
 
   const AppAnalytics = {
