@@ -271,9 +271,16 @@
           updateCookieFabVisibility();
         });
       }
-      if (getCookieConsent() === null) {
-        openCookieModal();
-      }
+      setTimeout(() => {
+        if (
+          typeof getCookieConsent === "function" &&
+          getCookieConsent() === null
+        ) {
+          if (typeof openCookieModal === "function") {
+            openCookieModal();
+          }
+        }
+      }, 100);
     }
 
     goBackToMainMenu() {
