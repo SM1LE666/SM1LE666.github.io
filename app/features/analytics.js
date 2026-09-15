@@ -66,9 +66,17 @@
 
   function openCookieModal() {
     const modal = document.getElementById("cookieModal");
-    if (!modal) return;
-    modal.style.display = "block";
+    if (!modal) {
+      console.error("Cookie modal element #cookieModal not found!");
+      return;
+    }
+
+    // Принудительно устанавливаем видимость через setProperty с !important
+    modal.style.setProperty("display", "flex", "important");
+    modal.style.setProperty("opacity", "1", "important");
+    modal.style.setProperty("visibility", "visible", "important");
     modal.classList.add("show");
+
     document.body.style.overflow = "hidden";
   }
 

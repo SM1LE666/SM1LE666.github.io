@@ -243,8 +243,7 @@
       if (cookieFab) {
         cookieFab.addEventListener("click", (e) => {
           e.preventDefault();
-          // Close other modals so it behaves like the others
-          closeAllModals();
+          if (typeof closeAllModals === "function") closeAllModals();
           openCookieModal();
         });
       }
@@ -256,7 +255,6 @@
           e.preventDefault();
           setCookieConsent("accepted");
           closeCookieModal();
-          // Send a one-time event after consent
           trackEvent("cookie_consent", { value: "accepted" });
           updateCookieFabVisibility();
         });
@@ -271,16 +269,18 @@
           updateCookieFabVisibility();
         });
       }
-      setTimeout(() => {
-        if (
-          typeof getCookieConsent === "function" &&
-          getCookieConsent() === null
-        ) {
-          if (typeof openCookieModal === "function") {
+
+      // Автооткрытие после полной загрузки страницы
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          const consent = getCookieConsent();
+          console.log("Current cookie consent:", consent); // Для отладки в консоли
+
+          if (consent === null) {
             openCookieModal();
           }
-        }
-      }, 100);
+        }, 300);
+      });
     }
 
     goBackToMainMenu() {
