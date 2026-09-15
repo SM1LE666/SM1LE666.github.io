@@ -3900,6 +3900,9 @@ h1::after {
     width: 25px;
     justify-content: left;
   }
+  .metric-value {
+    font-size: 15px;
+  }
 }
 @media (max-width: 480px) {
   .fps-guide-btn {
