@@ -294,7 +294,7 @@
         <div class="player-info">
           <h2>${playerData.nickname}</h2>
           <p style="
-    font-size: 20px;
+    font-size: 19px;
     font-weight: bold;">${levelValue} ${formatNumber(currentElo)} ELO</p>
           <p>${getText("country")}: ${countryName}</p>
           <p>${getText("matches")}: ${formatNumber(avgStats.totalMatches)}</p>
