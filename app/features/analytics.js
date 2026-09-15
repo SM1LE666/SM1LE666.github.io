@@ -170,13 +170,17 @@
   function init() {
     try {
       trackEvent("page_view", { title: document.title });
-    } catch {}
+    } catch {
+      // ignore
+    }
     installGlobalClickTracking();
 
+    // Проверяем, делал ли пользователь выбор ранее
     if (getCookieConsent() === null) {
       openCookieModal();
     }
 
+    // Обновляем видимость плавающей кнопки
     updateCookieFabVisibility();
   }
 
