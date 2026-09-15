@@ -271,6 +271,9 @@
           updateCookieFabVisibility();
         });
       }
+      if (getCookieConsent() === null) {
+        openCookieModal();
+      }
     }
 
     goBackToMainMenu() {

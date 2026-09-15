@@ -174,13 +174,6 @@
       // ignore
     }
     installGlobalClickTracking();
-
-    // Проверяем, делал ли пользователь выбор ранее
-    if (getCookieConsent() === null) {
-      openCookieModal();
-    }
-
-    // Обновляем видимость плавающей кнопки
     updateCookieFabVisibility();
   }
 
