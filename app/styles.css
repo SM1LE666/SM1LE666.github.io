@@ -880,7 +880,6 @@ footer {
   font-size: 1rem;
 }
 
-/* Modal Styles */
 .modal {
   display: none;
   position: fixed;
@@ -902,8 +901,16 @@ footer {
   max-width: 600px;
   position: relative;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 85, 0, 0.2);
+  border: 2px solid rgba(255, 85, 0, 0.2);
   animation: modalSlideIn 0.3s ease-out;
+  height: 270px;
+  font-family: "Orbitron", sans-serif;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    height: 360px;
+  }
 }
 
 @keyframes modalSlideIn {
