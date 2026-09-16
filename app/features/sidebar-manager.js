@@ -1056,64 +1056,115 @@
       }
     }
 
-    async updatePlayerStatsView(view) {
+    // Обновление отображения статистики в зависимости от выбранного вида
+    updatePlayerStatsView(view) {
       const statsContainer = document.querySelector(".stats-container");
       const playerCard = document.querySelector(".player-card");
-      if (!playerCard || !statsContainer) return;
+      const playerHeader = playerCard
+        ? playerCard.querySelector(".player-header")
+        : null;
+      if (!playerCard || !playerHeader) return;
 
       const search = document.getElementById("search");
-      const playerHeader = playerCard.querySelector(".player-header");
+      const statsBoxes = playerCard.querySelectorAll(".stats-box");
 
-      // 1. Сбрасываем незавершенные таймауты
+      // Отменяем предыдущий таймаут
       if (this.updateViewTimeout) {
         clearTimeout(this.updateViewTimeout);
       }
 
-      // 2. Фиксируем текущую высоту на момент переключения
-      const currentHeight = statsContainer.offsetHeight;
-      if (currentHeight > 0) {
-        statsContainer.style.minHeight = `${currentHeight}px`;
+      // Анимируем только видимые элементы
+      if (playerCard.style.display !== "none") {
+        playerCard.style.opacity = "0.7";
       }
 
-      // 3. Приглушаем контент и блокируем клики
-      statsContainer.style.pointerEvents = "none";
-      statsContainer.style.opacity = "0.2";
-
-      // 4. Переключаем контент
-      this.updateViewTimeout = setTimeout(async () => {
-        playerCard.style.display = "block";
-        if (playerHeader) playerHeader.style.display = "flex";
-        if (search) search.style.display = "none";
-        this.hideApiErrorText();
-
-        // Полная очистка родителя перед созданием новой вкладки
-        statsContainer.innerHTML = "";
-
+      this.updateViewTimeout = setTimeout(() => {
         switch (view) {
           case "overview":
+            this.hideApiErrorText();
+
+            if (search) search.style.display = "none";
+
+            // Удаляем все элементы карт и истории матчей если есть (ДО рендеринга нового контента)
+            statsContainer
+              .querySelectorAll(
+                ".maps-grid, .match-history, .map-card, .loading-indicator",
+              )
+              .forEach((element) => {
+                element.remove();
+              });
+
+            // Генерируем HTML для обзора с актуальными переводами
             renderOverviewStats(statsContainer);
+
+            // Восстанавливаем оригинальные стили
+            playerCard.style.display = "block";
+            playerHeader.style.display = "flex";
+            playerHeader.style.flexDirection = ""; // Сбрасываем кастомные стили
+            playerHeader.style.textAlign = "";
+            playerHeader.style.alignItems = "";
+            playerHeader.style.gap = "";
+
+            statsContainer.style.display = "grid";
+
+            // Показываем все блоки статистики
+            statsContainer.querySelectorAll(".stats-box").forEach((box) => {
+              box.style.display = "block";
+            });
+
             break;
 
-          case "matches":
-            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText("loadingMatchHistory")}</div>`;
-            await this.showMatchesStats(true);
-            break;
+          case "matches": {
+            // Показываем индикатор загрузки с переводом
+            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+              "loadingMatchHistory",
+            )}</div>`;
+            statsContainer.style.display = "block";
 
-          case "records":
+            // Показываем карточку с оригинальным заголовком
+            playerCard.style.display = "block";
+            playerHeader.style.display = "flex";
+
+            // Для мобильных адаптируем заголовок
+            if (window.innerWidth <= 768) {
+              playerHeader.style.flexDirection = "column";
+              playerHeader.style.textAlign = "center";
+              playerHeader.style.alignItems = "center";
+              playerHeader.style.gap = "1.5rem";
+            }
+
+            // Загружаем матчи с небольшой задержкой для плавности UI
+            setTimeout(() => {
+              this.showMatchesStats();
+            }, 300);
+            break;
+          }
+
+          case "records": {
+            this.hideApiErrorText();
+            if (search) search.style.display = "none";
+
+            playerCard.style.display = "block";
+            playerHeader.style.display = "flex";
+            statsContainer.style.display = "block";
+
             statsContainer.innerHTML = `
-              <div class="record-filters">
-                <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
-                <button class="record-filter-btn" data-record="mostAssists">Most Assists</button>
-                <button class="record-filter-btn" data-record="highestKD">Highest K/D</button>
-                <button class="record-filter-btn" data-record="highestKDDifference">Highest K/D Difference</button>
-                <button class="record-filter-btn" data-record="mostMVPs">Most MVPs</button>
-                <button class="record-filter-btn" data-record="highestHeadshotPct">Highest HS%</button>
-              </div>
-              <div class="record-display">
-                <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText("loadingRecords")}</div>
-              </div>
-            `;
+            <div class="record-filters">
+              <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
+              <button class="record-filter-btn" data-record="mostAssists">Most Assists</button>
+              <button class="record-filter-btn" data-record="highestKD">Highest K/D</button>
+              <button class="record-filter-btn" data-record="highestKDDifference">Highest K/D Difference</button>
+              <button class="record-filter-btn" data-record="mostMVPs">Most MVPs</button>
+              <button class="record-filter-btn" data-record="highestHeadshotPct">Highest HS%</button>
+            </div>
+            <div class="record-display">
+              <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+                "loadingRecords",
+              )}</div>
+            </div>
+          `;
 
+            // Add event listeners for filter buttons
             statsContainer
               .querySelectorAll(".record-filter-btn")
               .forEach((button) => {
@@ -1126,62 +1177,111 @@
                 });
               });
 
-            await this.showRecord("mostKills");
+            // Initially show the default record
+            this.showRecord("mostKills");
             break;
+          }
 
-          case "maps":
-            try {
-              const playerProfile = window.currentPlayerProfile;
-              if (!playerProfile || !playerProfile.statsData) {
-                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-                break;
+          case "maps": {
+            // Показываем индикатор загрузки
+            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+              "loadingMaps",
+            )}</div>`;
+            statsContainer.style.display = "block";
+
+            // Скрываем блоки статистики, но НЕ трогаем player-header
+            statsBoxes.forEach((box) => {
+              box.style.display = "none";
+            });
+
+            // ВАЖНО: Сохраняем правильные стили для player-header как в других случаях
+            if (playerHeader) {
+              playerHeader.style.display = "flex";
+              // Для мобильных применяем те же стили, что и для matches
+              if (window.innerWidth <= 768) {
+                playerHeader.style.flexDirection = "column";
+                playerHeader.style.textAlign = "center";
+                playerHeader.style.alignItems = "center";
+                playerHeader.style.gap = "1.5rem";
+              } else {
+                // Для десктопа восстанавливаем исходные стили
+                playerHeader.style.flexDirection = "";
+                playerHeader.style.textAlign = "";
+                playerHeader.style.alignItems = "";
+                playerHeader.style.gap = "";
               }
+            }
 
-              const segments = playerProfile.statsData.segments || [];
-              if (segments.length === 0) {
-                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-                break;
-              }
+            // Загружаем карты с небольшой задержкой для плавности UI
+            setTimeout(() => {
+              try {
+                const playerProfile = window.currentPlayerProfile;
 
-              if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
-                const allMapsStats = window.FaceitAPI.getAllMapsStats(segments);
-                allMapsStats.sort((a, b) => b.winRate - a.winRate);
+                if (!playerProfile || !playerProfile.statsData) {
+                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                  return;
+                }
 
-                if (allMapsStats && allMapsStats.length > 0) {
-                  let html = `<div class="maps-grid">`;
-                  allMapsStats.forEach((map) => {
-                    let cardClass = "map-card";
-                    let winRateColor = "#4caf50";
-                    if (map.winRate < 40) {
-                      cardClass += " poor-performance";
-                      winRateColor = "#f44336";
-                    } else if (map.winRate < 55) {
-                      cardClass += " average-performance";
-                      winRateColor = "#ff9800";
-                    } else {
-                      cardClass += " good-performance";
-                      winRateColor = "#4caf50";
-                    }
+                const segments = playerProfile.statsData.segments || [];
 
-                    const mapKey = String(map.name || "")
-                      .trim()
-                      .toLowerCase()
-                      .replace(/^de_/, "")
-                      .replace(/\s+/g, "_")
-                      .replace(/[^a-z0-9_]/g, "");
+                if (segments.length === 0) {
+                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                  return;
+                }
 
-                    const kd =
-                      typeof map.kd === "number" ? map.kd : parseFloat(map.kd);
-                    const avgKills =
-                      typeof map.avgKills === "number"
-                        ? map.avgKills
-                        : parseFloat(map.avgKills);
-                    const adr =
-                      typeof map.adr === "number"
-                        ? map.adr
-                        : parseFloat(map.adr);
+                // Используем getAllMapsStats для получения данных карт
+                if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
+                  const allMapsStats =
+                    window.FaceitAPI.getAllMapsStats(segments);
 
-                    html += `
+                  allMapsStats.sort((a, b) => b.winRate - a.winRate);
+
+                  if (allMapsStats && allMapsStats.length > 0) {
+                    // Создаем сетку карточек
+                    let html = `<div class="maps-grid">`;
+
+                    allMapsStats.forEach((map) => {
+                      // Определяем цвет карточки на основе винрейта
+                      let cardClass = "map-card";
+                      let winRateColor = "#4caf50";
+                      if (map.winRate < 40) {
+                        cardClass += " poor-performance";
+                        winRateColor = "#f44336";
+                      } else if (map.winRate < 55) {
+                        cardClass += " average-performance";
+                        winRateColor = "#ff9800";
+                      } else {
+                        cardClass += " good-performance";
+                        winRateColor = "#4caf50";
+                      }
+
+                      // Normalize map key for styling/backgrounds
+                      const mapKey = String(map.name || "")
+                        .trim()
+                        .toLowerCase()
+                        .replace(/^de_/, "")
+                        .replace(/\s+/g, "_")
+                        .replace(/[^a-z0-9_]/g, "");
+
+                      // Ensure kd and avgKills are numbers
+                      const kd =
+                        typeof map.kd === "number"
+                          ? map.kd
+                          : parseFloat(map.kd);
+                      const avgKills =
+                        typeof map.avgKills === "number"
+                          ? map.avgKills
+                          : parseFloat(map.avgKills);
+                      const hs =
+                        typeof map.hs === "number"
+                          ? map.hs
+                          : parseFloat(map.hs);
+                      const adr =
+                        typeof map.adr === "number"
+                          ? map.adr
+                          : parseFloat(map.adr);
+
+                      html += `
                       <div class="${cardClass}" data-map="${mapKey}">
                         <div class="map-card-header">
                           <h3 class="map-name">${map.name}</h3>
@@ -1229,37 +1329,71 @@
                         </div>
                       </div>
                     `;
-                  });
+                    });
 
-                  html += "</div>";
-                  statsContainer.innerHTML = html;
+                    html += "</div>";
+                    statsContainer.innerHTML = html;
 
-                  if (typeof applyMapCardBackgrounds === "function") {
+                    // Применяем фоны для карточек карт
                     applyMapCardBackgrounds(statsContainer);
+                  } else {
+                    // Fallback к analyzeMaps
+                    const mapAnalysis = window.FaceitAPI.analyzeMaps(
+                      segments,
+                      "cs2",
+                      true,
+                    );
+
+                    if (
+                      mapAnalysis &&
+                      mapAnalysis.allMaps &&
+                      mapAnalysis.allMaps.length > 0
+                    ) {
+                      mapAnalysis.allMaps.sort((a, b) => b.winRate - a.winRate);
+                      let html = `<table class="maps-table"><thead><tr>
+                      <th>${getText("mapName")}</th>
+                      <th>${getText("mapMatches")}</th>
+                      <th>${getText("mapWinRate")}</th>
+                      <th>K/D</th>
+                      <th>${getText("killsPerMatch")}</th>
+                    </tr></thead><tbody>`;
+
+                      mapAnalysis.allMaps.forEach((map) => {
+                        html += `<tr>
+                        <td>${map.name}</td>
+                        <td>${map.matches}</td>
+                        <td>${map.winRate.toFixed(1)}%</td>
+                        <td>${map.kd.toFixed(2)}</td>
+                        <td>${map.avgKills.toFixed(1)}</td>
+                      </tr>`;
+                      });
+
+                      html += "</tbody></table>";
+                      statsContainer.innerHTML = html;
+                    } else {
+                      statsContainer.innerHTML = `<p>${getText(
+                        "notEnoughData",
+                      )}</p>`;
+                    }
                   }
                 } else {
                   statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
                 }
-              } else {
-                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+              } catch (error) {
+                console.error("Ошибка при загрузке данных карт:", error);
+                statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
               }
-            } catch (error) {
-              console.error("Ошибка при загрузке данных карт:", error);
-              statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
-            }
+            }, 300);
+
             break;
+          }
 
           default:
             console.warn("Unknown view type:", view);
         }
 
-        // 5. Проявляем новые элементы после обновления DOM
-        requestAnimationFrame(() => {
-          statsContainer.style.opacity = "1";
-          statsContainer.style.pointerEvents = "";
-          statsContainer.style.minHeight = "";
-        });
-      }, 0);
+        playerCard.style.opacity = "1";
+      }, 150);
     }
 
     // В классе SidebarManager
