@@ -1255,11 +1255,10 @@
 
         // 5. Проявляем новые элементы после обновления DOM
         requestAnimationFrame(() => {
-          statsContainer.style.opacity = "1";
           statsContainer.style.pointerEvents = "";
           statsContainer.style.minHeight = "";
         });
-      }, 50);
+      }, 0);
     }
 
     // В классе SidebarManager
