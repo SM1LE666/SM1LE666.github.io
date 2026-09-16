@@ -1390,12 +1390,14 @@
           default:
             console.warn("Unknown view type:", view);
         }
-        // === КОНЕЦ SWITCH ===
 
-        // 5. Проявляем обновленный интерфейс и возвращаем гибкую высоту
-        statsContainer.style.opacity = "1";
-        statsContainer.style.minHeight = "";
-      }, 150);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            statsContainer.classList.remove("is-updating");
+            statsContainer.style.minHeight = "";
+          });
+        });
+      }, 100);
     }
 
     // В классе SidebarManager
