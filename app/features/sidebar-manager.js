@@ -1063,88 +1063,48 @@
 
       const search = document.getElementById("search");
       const playerHeader = playerCard.querySelector(".player-header");
-      const statsBoxes = statsContainer.querySelectorAll(".stats-box");
 
-      // 1. Отменяем прошлый таймаут анимации при быстром клике по вкладкам
+      // 1. Отменяем предыдущие таймауты
       if (this.updateViewTimeout) {
         clearTimeout(this.updateViewTimeout);
       }
 
-      // 2. Фиксируем текущую высоту, исключая скачки (Layout Shift)
+      // 2. Фиксируем высоту родительского контейнера на время перехода
       const currentHeight = statsContainer.offsetHeight;
       if (currentHeight > 0) {
         statsContainer.style.minHeight = `${currentHeight}px`;
       }
 
-      // 3. Плавно приглушаем прошлый контент и отключаем клики во время загрузки
+      // 3. Плавно приглушаем прошлый контент и блокируем клики
       statsContainer.style.pointerEvents = "none";
       statsContainer.style.transition = "opacity 0.15s ease-out";
-      statsContainer.style.opacity = "0.3";
+      statsContainer.style.opacity = "0.2";
 
-      // 4. Запускаем отрисовку нового вида
+      // 4. Рендеринг нового вида
       this.updateViewTimeout = setTimeout(async () => {
+        // Подготовка интерфейса
+        playerCard.style.display = "block";
+        if (playerHeader) playerHeader.style.display = "flex";
+        if (search) search.style.display = "none";
+        this.hideApiErrorText();
+
+        // Полностью очищаем контейнер перед рендером, чтобы не было конфликта старых и новых DOM-элементов
+        statsContainer.innerHTML = "";
+
         switch (view) {
           case "overview":
-            this.hideApiErrorText();
-
-            if (search) search.style.display = "none";
-
-            // Удаляем все элементы карт и истории матчей если есть
-            statsContainer
-              .querySelectorAll(
-                ".maps-grid, .match-history, .map-card, .loading-indicator, .map-filter-container, .matches-content-wrapper",
-              )
-              .forEach((element) => {
-                element.remove();
-              });
-
-            // Генерируем HTML для обзора
-            renderOverviewStats(statsContainer);
-
-            // Восстанавливаем оригинальные стили
-            playerCard.style.display = "block";
-            if (playerHeader) {
-              playerHeader.style.display = "flex";
-            }
-
             statsContainer.style.display = "grid";
-
-            // Показываем все блоки статистики
-            statsContainer.querySelectorAll(".stats-box").forEach((box) => {
-              box.style.display = "block";
-            });
-
+            renderOverviewStats(statsContainer);
             break;
 
-          case "matches": {
-            this.hideApiErrorText();
-            if (search) search.style.display = "none";
-
-            // Показываем индикатор загрузки с переводом
-            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-              "loadingMatchHistory",
-            )}</div>`;
+          case "matches":
             statsContainer.style.display = "block";
-
-            // Показываем карточку
-            playerCard.style.display = "block";
-            if (playerHeader) {
-              playerHeader.style.display = "flex";
-            }
-
-            // Дожидаемся загрузки матчей
+            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText("loadingMatchHistory")}</div>`;
             await this.showMatchesStats(true);
             break;
-          }
 
-          case "records": {
-            this.hideApiErrorText();
-            if (search) search.style.display = "none";
-
-            playerCard.style.display = "block";
-            if (playerHeader) playerHeader.style.display = "flex";
+          case "records":
             statsContainer.style.display = "block";
-
             statsContainer.innerHTML = `
               <div class="record-filters">
                 <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
@@ -1155,13 +1115,10 @@
                 <button class="record-filter-btn" data-record="highestHeadshotPct">Highest HS%</button>
               </div>
               <div class="record-display">
-                <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-                  "loadingRecords",
-                )}</div>
+                <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText("loadingRecords")}</div>
               </div>
             `;
 
-            // Добавляем обработчики событий для кнопок фильтров рекордов
             statsContainer
               .querySelectorAll(".record-filter-btn")
               .forEach((button) => {
@@ -1174,57 +1131,31 @@
                 });
               });
 
-            // Показываем стандартный рекорд
             await this.showRecord("mostKills");
             break;
-          }
 
-          case "maps": {
-            this.hideApiErrorText();
-            if (search) search.style.display = "none";
-
-            // Показываем индикатор загрузки
-            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-              "loadingMaps",
-            )}</div>`;
+          case "maps":
             statsContainer.style.display = "block";
-
-            // Скрываем блоки статистики, но не трогаем player-header
-            statsBoxes.forEach((box) => {
-              box.style.display = "none";
-            });
-
-            if (playerHeader) {
-              playerHeader.style.display = "flex";
-            }
-
             try {
               const playerProfile = window.currentPlayerProfile;
-
               if (!playerProfile || !playerProfile.statsData) {
                 statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
                 break;
               }
 
               const segments = playerProfile.statsData.segments || [];
-
               if (segments.length === 0) {
                 statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
                 break;
               }
 
-              // Используем getAllMapsStats для получения данных карт
               if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
                 const allMapsStats = window.FaceitAPI.getAllMapsStats(segments);
-
                 allMapsStats.sort((a, b) => b.winRate - a.winRate);
 
                 if (allMapsStats && allMapsStats.length > 0) {
-                  // Создаем сетку карточек
                   let html = `<div class="maps-grid">`;
-
                   allMapsStats.forEach((map) => {
-                    // Определяем цвет карточки на основе винрейта
                     let cardClass = "map-card";
                     let winRateColor = "#4caf50";
                     if (map.winRate < 40) {
@@ -1238,7 +1169,6 @@
                       winRateColor = "#4caf50";
                     }
 
-                    // Нормализуем ключ карты
                     const mapKey = String(map.name || "")
                       .trim()
                       .toLowerCase()
@@ -1310,47 +1240,11 @@
                   html += "</div>";
                   statsContainer.innerHTML = html;
 
-                  // Применяем фоны для карточек карт
                   if (typeof applyMapCardBackgrounds === "function") {
                     applyMapCardBackgrounds(statsContainer);
                   }
                 } else {
-                  // Fallback к analyzeMaps
-                  const mapAnalysis = window.FaceitAPI.analyzeMaps(
-                    segments,
-                    "cs2",
-                    true,
-                  );
-
-                  if (
-                    mapAnalysis &&
-                    mapAnalysis.allMaps &&
-                    mapAnalysis.allMaps.length > 0
-                  ) {
-                    mapAnalysis.allMaps.sort((a, b) => b.winRate - a.winRate);
-                    let html = `<table class="maps-table"><thead><tr>
-                      <th>${getText("mapName")}</th>
-                      <th>${getText("mapMatches")}</th>
-                      <th>${getText("mapWinRate")}</th>
-                      <th>K/D</th>
-                      <th>${getText("killsPerMatch")}</th>
-                    </tr></thead><tbody>`;
-
-                    mapAnalysis.allMaps.forEach((map) => {
-                      html += `<tr>
-                        <td>${map.name}</td>
-                        <td>${map.matches}</td>
-                        <td>${map.winRate.toFixed(1)}%</td>
-                        <td>${map.kd.toFixed(2)}</td>
-                        <td>${map.avgKills.toFixed(1)}</td>
-                      </tr>`;
-                    });
-
-                    html += "</tbody></table>";
-                    statsContainer.innerHTML = html;
-                  } else {
-                    statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-                  }
+                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
                 }
               } else {
                 statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
@@ -1359,15 +1253,13 @@
               console.error("Ошибка при загрузке данных карт:", error);
               statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
             }
-
             break;
-          }
 
           default:
             console.warn("Unknown view type:", view);
         }
 
-        // 5. Проявляем обновленный вид и восстанавливаем взаимодействиe
+        // 5. Проявляем обновленный контент и снимаем ограничения
         requestAnimationFrame(() => {
           statsContainer.style.opacity = "1";
           statsContainer.style.pointerEvents = "";
