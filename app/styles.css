@@ -653,6 +653,7 @@ input[type="text"]:focus {
 }
 
 .player-header {
+  display: flex;
   align-items: center;
   gap: 2.5rem;
   margin-bottom: 1.5rem;
@@ -4297,16 +4298,4 @@ h1::after {
 
 .metric-detail-content p {
   margin-bottom: 8px;
-}
-
-/* Блокируем скачки высоты и макета */
-.stats-container {
-  contain: intrinsic-size 1px 400px;
-  transition: opacity 0.2s ease-in-out;
-}
-
-/* Класс "подготовки" — скрывает контент во время перестройки */
-.stats-container.is-updating {
-  opacity: 0 !important;
-  pointer-events: none;
 }
