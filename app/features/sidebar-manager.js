@@ -1056,38 +1056,29 @@
       }
     }
 
-    async updatePlayerStatsView(view) {
+    // Обновление отображения статистики в зависимости от выбранного вида
+    updatePlayerStatsView(view) {
       const statsContainer = document.querySelector(".stats-container");
       const playerCard = document.querySelector(".player-card");
-      if (!playerCard || !statsContainer) return;
+      const playerHeader = playerCard
+        ? playerCard.querySelector(".player-header")
+        : null;
+      if (!playerCard || !playerHeader) return;
 
       const search = document.getElementById("search");
-      const playerHeader = playerCard.querySelector(".player-header");
+      const statsBoxes = playerCard.querySelectorAll(".stats-box");
 
-      // 1. Сбрасываем незавершенные таймауты
+      // Отменяем предыдущий таймаут
       if (this.updateViewTimeout) {
         clearTimeout(this.updateViewTimeout);
       }
 
-      // 2. Фиксируем текущую высоту на момент переключения
-      const currentHeight = statsContainer.offsetHeight;
-      if (currentHeight > 0) {
-        statsContainer.style.minHeight = `${currentHeight}px`;
+      // Анимируем только видимые элементы
+      if (playerCard.style.display !== "none") {
+        playerCard.style.opacity = "0.7";
       }
 
-      // 3. Приглушаем контент и блокируем клики
-      statsContainer.style.pointerEvents = "none";
-      statsContainer.style.opacity = "0.2";
-
-      // 4. Переключаем контент
-      this.updateViewTimeout = setTimeout(async () => {
-        playerCard.style.display = "block";
-        if (playerHeader) playerHeader.style.display = "flex";
-        if (search) search.style.display = "none";
-        this.hideApiErrorText();
-
-        // Полная очистка родителя перед созданием новой вкладки
-        statsContainer.innerHTML = "";
+      this.updateViewTimeout = setTimeout(() => {
         switch (view) {
           case "overview":
             this.hideApiErrorText();
