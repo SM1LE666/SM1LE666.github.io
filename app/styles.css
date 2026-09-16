@@ -653,7 +653,6 @@ input[type="text"]:focus {
 }
 
 .player-header {
-  display: flex;
   align-items: center;
   gap: 2.5rem;
   margin-bottom: 1.5rem;
@@ -726,15 +725,6 @@ input[type="text"]:focus {
   margin-top: 2rem;
 }
 
-.stats-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  width: 100%;
-  box-sizing: border-box;
-  transition: opacity 0.15s ease-out;
-}
-
 .stats-box {
   background:
     radial-gradient(
@@ -744,14 +734,20 @@ input[type="text"]:focus {
     ),
     #141414;
   font-family: "Orbitron", sans-serif;
-  padding: 1.5rem;
+  padding: 2rem;
   border-radius: 15px;
   border: 2px solid rgba(255, 85, 0, 0.2);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  height: 400px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   position: relative;
   overflow: hidden;
-  box-sizing: border-box;
-  contain: layout;
 }
 
 .stats-box::before {
@@ -774,35 +770,31 @@ input[type="text"]:focus {
 }
 
 .stats-box h3 {
-  margin: 0 0 1.2rem 0;
+  margin: 0 0 1.5rem 0;
   color: var(--primary-color);
-  font-size: 1.15rem;
+  font-size: 1.2rem; /* Уменьшаем размер с 1.4rem до 1.2rem */
   text-align: center;
   border-bottom: 2px solid rgba(255, 85, 0, 0.4);
-  padding-bottom: 0.8rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding-bottom: 1rem;
+  font-family: "Orbitron", sans-serif;
+  text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
+  white-space: nowrap; /* Предотвращаем перенос заголовков на новую строку */
+  overflow: hidden; /* Скрываем переполнение */
+  text-overflow: ellipsis; /* Добавляем многоточие если текст не помещается */
 }
 
-.stats-box p.stat-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0.6rem 0;
-  font-size: 0.95rem;
-}
-
-.stats-box p.stat-row .stat-row-label {
+.stats-box p {
+  margin: 0.8rem 0;
   color: rgba(255, 255, 255, 0.9);
-  font-weight: 600;
+  font-size: 1rem; /* Увеличиваем размер текста */
+  font-weight: 500;
 }
 
-.stats-box p.stat-row .stat-row-value {
+/* Выделяем важные значения */
+.stats-box p strong {
   color: var(--primary-color);
-  font-weight: 700;
-  margin-left: auto;
+  font-size: 1.1em;
+  text-shadow: 0 0 3px rgba(255, 85, 0, 0.3);
 }
 
 /* Footer Styles */
@@ -1882,12 +1874,12 @@ h1::after {
   }
 }
 
+/* Match History Styles */
 .match-history {
   display: flex;
   flex-direction: column;
-  margin-top: 0.6rem;
+  margin-top: 1rem;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .match-date {
@@ -3316,10 +3308,10 @@ h1::after {
   }
 }
 
+/* Map filter (matches view) */
 .map-filter-container {
   display: flex;
   justify-content: flex-end;
-  align-self: flex-end;
   width: 100%;
   margin-top: 0.6rem;
   margin-bottom: 0.6rem;
