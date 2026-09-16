@@ -1056,30 +1056,33 @@
       }
     }
 
-    // Обновление отображения статистики в зависимости от выбранного вида
     updatePlayerStatsView(view) {
       const statsContainer = document.querySelector(".stats-container");
       const playerCard = document.querySelector(".player-card");
-      const playerHeader = playerCard
-        ? playerCard.querySelector(".player-header")
-        : null;
-      if (!playerCard || !playerHeader) return;
+      if (!playerCard || !statsContainer) return;
 
       const search = document.getElementById("search");
-      // Сохраняем элементы .stats-box один раз
-      const statsBoxes = playerCard.querySelectorAll(".stats-box"); // Исправлено: ищем в playerCard, а не в playerHeader
+      const playerHeader = playerCard.querySelector(".player-header");
+      const statsBoxes = statsContainer.querySelectorAll(".stats-box");
 
-      // Отменяем предыдущий таймаут
+      // 1. Отменяем прошлый таймаут анимации при быстром клике по вкладкам
       if (this.updateViewTimeout) {
         clearTimeout(this.updateViewTimeout);
       }
 
-      // Анимируем только видимые элементы
-      if (playerCard.style.display !== "none") {
-        playerCard.style.opacity = "0.7";
+      // 2. Фиксируем текущую высоту, исключая скачки (Layout Shift)
+      const currentHeight = statsContainer.offsetHeight;
+      if (currentHeight > 0) {
+        statsContainer.style.minHeight = `${currentHeight}px`;
       }
 
-      this.updateViewTimeout = setTimeout(() => {
+      // 3. Плавно уводим старый вид в прозрачность
+      statsContainer.style.transition = "opacity 0.15s ease-out";
+      statsContainer.style.opacity = "0";
+
+      // 4. Запускаем отрисовку нового вида через 150 мс
+      this.updateViewTimeout = setTimeout(async () => {
+        // === ТВОЙ ОРИГИНАЛЬНЫЙ SWITCH ===
         switch (view) {
           case "overview":
             this.hideApiErrorText();
@@ -1100,11 +1103,13 @@
 
             // Восстанавливаем оригинальные стили
             playerCard.style.display = "block";
-            playerHeader.style.display = "flex";
-            playerHeader.style.flexDirection = ""; // Сбрасываем кастомные стили
-            playerHeader.style.textAlign = "";
-            playerHeader.style.alignItems = "";
-            playerHeader.style.gap = "";
+            if (playerHeader) {
+              playerHeader.style.display = "flex";
+              playerHeader.style.flexDirection = ""; // Сбрасываем кастомные стили
+              playerHeader.style.textAlign = "";
+              playerHeader.style.alignItems = "";
+              playerHeader.style.gap = "";
+            }
 
             statsContainer.style.display = "grid";
 
@@ -1124,20 +1129,20 @@
 
             // Показываем карточку с оригинальным заголовком
             playerCard.style.display = "block";
-            playerHeader.style.display = "flex";
+            if (playerHeader) {
+              playerHeader.style.display = "flex";
 
-            // Для мобильных адаптируем заголовок
-            if (window.innerWidth <= 768) {
-              playerHeader.style.flexDirection = "column";
-              playerHeader.style.textAlign = "center";
-              playerHeader.style.alignItems = "center";
-              playerHeader.style.gap = "1.5rem";
+              // Для мобильных адаптируем заголовок
+              if (window.innerWidth <= 768) {
+                playerHeader.style.flexDirection = "column";
+                playerHeader.style.textAlign = "center";
+                playerHeader.style.alignItems = "center";
+                playerHeader.style.gap = "1.5rem";
+              }
             }
 
-            // Загружаем матчи с небольшой задержкой для плавности UI
-            setTimeout(() => {
-              this.showMatchesStats();
-            }, 300);
+            // Загружаем матчи без лишнего setTimeout для мгновенного плавного показа
+            await this.showMatchesStats();
             break;
           }
 
@@ -1146,24 +1151,24 @@
             if (search) search.style.display = "none";
 
             playerCard.style.display = "block";
-            playerHeader.style.display = "flex";
+            if (playerHeader) playerHeader.style.display = "flex";
             statsContainer.style.display = "block";
 
             statsContainer.innerHTML = `
-            <div class="record-filters">
-              <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
-              <button class="record-filter-btn" data-record="mostAssists">Most Assists</button>
-              <button class="record-filter-btn" data-record="highestKD">Highest K/D</button>
-              <button class="record-filter-btn" data-record="highestKDDifference">Highest K/D Difference</button>
-              <button class="record-filter-btn" data-record="mostMVPs">Most MVPs</button>
-              <button class="record-filter-btn" data-record="highestHeadshotPct">Highest HS%</button>
-            </div>
-            <div class="record-display">
-              <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-                "loadingRecords",
-              )}</div>
-            </div>
-          `;
+          <div class="record-filters">
+            <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
+            <button class="record-filter-btn" data-record="mostAssists">Most Assists</button>
+            <button class="record-filter-btn" data-record="highestKD">Highest K/D</button>
+            <button class="record-filter-btn" data-record="highestKDDifference">Highest K/D Difference</button>
+            <button class="record-filter-btn" data-record="mostMVPs">Most MVPs</button>
+            <button class="record-filter-btn" data-record="highestHeadshotPct">Highest HS%</button>
+          </div>
+          <div class="record-display">
+            <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+              "loadingRecords",
+            )}</div>
+          </div>
+        `;
 
             // Add event listeners for filter buttons
             statsContainer
@@ -1213,178 +1218,171 @@
               }
             }
 
-            // Загружаем карты с небольшой задержкой для плавности UI
-            setTimeout(() => {
-              try {
-                const playerProfile = window.currentPlayerProfile;
+            // Прямое выполнение генерации карт без задержки 300мс
+            try {
+              const playerProfile = window.currentPlayerProfile;
 
-                if (!playerProfile || !playerProfile.statsData) {
-                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-                  return;
-                }
+              if (!playerProfile || !playerProfile.statsData) {
+                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                break;
+              }
 
-                const segments = playerProfile.statsData.segments || [];
+              const segments = playerProfile.statsData.segments || [];
 
-                if (segments.length === 0) {
-                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-                  return;
-                }
+              if (segments.length === 0) {
+                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                break;
+              }
 
-                // Используем getAllMapsStats для получения данных карт
-                if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
-                  const allMapsStats =
-                    window.FaceitAPI.getAllMapsStats(segments);
+              // Используем getAllMapsStats для получения данных карт
+              if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
+                const allMapsStats = window.FaceitAPI.getAllMapsStats(segments);
 
-                  allMapsStats.sort((a, b) => b.winRate - a.winRate);
+                allMapsStats.sort((a, b) => b.winRate - a.winRate);
 
-                  if (allMapsStats && allMapsStats.length > 0) {
-                    // Создаем сетку карточек
-                    let html = `<div class="maps-grid">`;
+                if (allMapsStats && allMapsStats.length > 0) {
+                  // Создаем сетку карточек
+                  let html = `<div class="maps-grid">`;
 
-                    allMapsStats.forEach((map) => {
-                      // Определяем цвет карточки на основе винрейта
-                      let cardClass = "map-card";
-                      let winRateColor = "#4caf50";
-                      if (map.winRate < 40) {
-                        cardClass += " poor-performance";
-                        winRateColor = "#f44336";
-                      } else if (map.winRate < 55) {
-                        cardClass += " average-performance";
-                        winRateColor = "#ff9800";
-                      } else {
-                        cardClass += " good-performance";
-                        winRateColor = "#4caf50";
-                      }
-
-                      // Normalize map key for styling/backgrounds
-                      const mapKey = String(map.name || "")
-                        .trim()
-                        .toLowerCase()
-                        .replace(/^de_/, "")
-                        .replace(/\s+/g, "_")
-                        .replace(/[^a-z0-9_]/g, "");
-
-                      // Ensure kd and avgKills are numbers
-                      const kd =
-                        typeof map.kd === "number"
-                          ? map.kd
-                          : parseFloat(map.kd);
-                      const avgKills =
-                        typeof map.avgKills === "number"
-                          ? map.avgKills
-                          : parseFloat(map.avgKills);
-                      const hs =
-                        typeof map.hs === "number"
-                          ? map.hs
-                          : parseFloat(map.hs);
-                      const adr =
-                        typeof map.adr === "number"
-                          ? map.adr
-                          : parseFloat(map.adr);
-
-                      html += `
-                      <div class="${cardClass}" data-map="${mapKey}">
-                        <div class="map-card-header">
-                          <h3 class="map-name">${map.name}</h3>
-                          <div class="win-rate-badge" style="background: ${winRateColor}">
-                            ${map.winRate.toFixed(1)}%
-                          </div>
-                        </div>
-                        <div class="map-card-body">
-                          <div class="map-stat-row">
-                            <div class="map-stat-item">
-                              <i class="fas fa-gamepad"></i>
-                              <span class="stat-label">${getText("mapMatches")}</span>
-                              <span class="stat-value">${map.matches}</span>
-                            </div>
-                            <div class="map-stat-item">
-                              <i class="fas fa-crosshairs"></i>
-                              <span class="stat-label">K/D</span>
-                              <span class="stat-value">${!isNaN(kd) ? kd.toFixed(2) : "-"}</span>
-                            </div>
-                          </div>
-                          <div class="map-stat-row">
-                            <div class="map-stat-item">
-                              <i class="fas fa-bolt"></i>
-                              <span class="stat-label">Avg.kills</span>
-                              <span class="stat-value">${!isNaN(avgKills) ? avgKills.toFixed(1) : "-"}</span>
-                            </div>
-                            <div class="map-stat-item">
-                              <i class="fas fa-trophy"></i>
-                              <span class="stat-label">${getText("mapWinRate")}</span>
-                              <span class="stat-value">${map.winRate.toFixed(1)}%</span>
-                            </div>
-                          </div>
-                          <div class="map-stat-row">
-                            <div class="map-stat-item">
-                              <i class="fas fa-fire"></i>
-                              <span class="stat-label">ADR</span>
-                              <span class="stat-value">${!isNaN(adr) ? adr.toFixed(1) : "-"}</span>
-                            </div>
-                            <div class="map-stat-item">
-                              <i class="fas fa-star"></i>
-                              <span class="stat-label">Clutches</span>
-                              <span class="stat-value">${typeof map.clutches === "number" ? map.clutches : "-"}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    `;
-                    });
-
-                    html += "</div>";
-                    statsContainer.innerHTML = html;
-
-                    // Применяем фоны для карточек карт
-                    applyMapCardBackgrounds(statsContainer);
-                  } else {
-                    // Fallback к analyzeMaps
-                    const mapAnalysis = window.FaceitAPI.analyzeMaps(
-                      segments,
-                      "cs2",
-                      true,
-                    );
-
-                    if (
-                      mapAnalysis &&
-                      mapAnalysis.allMaps &&
-                      mapAnalysis.allMaps.length > 0
-                    ) {
-                      mapAnalysis.allMaps.sort((a, b) => b.winRate - a.winRate);
-                      let html = `<table class="maps-table"><thead><tr>
-                      <th>${getText("mapName")}</th>
-                      <th>${getText("mapMatches")}</th>
-                      <th>${getText("mapWinRate")}</th>
-                      <th>K/D</th>
-                      <th>${getText("killsPerMatch")}</th>
-                    </tr></thead><tbody>`;
-
-                      mapAnalysis.allMaps.forEach((map) => {
-                        html += `<tr>
-                        <td>${map.name}</td>
-                        <td>${map.matches}</td>
-                        <td>${map.winRate.toFixed(1)}%</td>
-                        <td>${map.kd.toFixed(2)}</td>
-                        <td>${map.avgKills.toFixed(1)}</td>
-                      </tr>`;
-                      });
-
-                      html += "</tbody></table>";
-                      statsContainer.innerHTML = html;
+                  allMapsStats.forEach((map) => {
+                    // Определяем цвет карточки на основе винрейта
+                    let cardClass = "map-card";
+                    let winRateColor = "#4caf50";
+                    if (map.winRate < 40) {
+                      cardClass += " poor-performance";
+                      winRateColor = "#f44336";
+                    } else if (map.winRate < 55) {
+                      cardClass += " average-performance";
+                      winRateColor = "#ff9800";
                     } else {
-                      statsContainer.innerHTML = `<p>${getText(
-                        "notEnoughData",
-                      )}</p>`;
+                      cardClass += " good-performance";
+                      winRateColor = "#4caf50";
                     }
+
+                    // Normalize map key for styling/backgrounds
+                    const mapKey = String(map.name || "")
+                      .trim()
+                      .toLowerCase()
+                      .replace(/^de_/, "")
+                      .replace(/\s+/g, "_")
+                      .replace(/[^a-z0-9_]/g, "");
+
+                    // Ensure kd and avgKills are numbers
+                    const kd =
+                      typeof map.kd === "number" ? map.kd : parseFloat(map.kd);
+                    const avgKills =
+                      typeof map.avgKills === "number"
+                        ? map.avgKills
+                        : parseFloat(map.avgKills);
+                    const hs =
+                      typeof map.hs === "number" ? map.hs : parseFloat(map.hs);
+                    const adr =
+                      typeof map.adr === "number"
+                        ? map.adr
+                        : parseFloat(map.adr);
+
+                    html += `
+                <div class="${cardClass}" data-map="${mapKey}">
+                  <div class="map-card-header">
+                    <h3 class="map-name">${map.name}</h3>
+                    <div class="win-rate-badge" style="background: ${winRateColor}">
+                      ${map.winRate.toFixed(1)}%
+                    </div>
+                  </div>
+                  <div class="map-card-body">
+                    <div class="map-stat-row">
+                      <div class="map-stat-item">
+                        <i class="fas fa-gamepad"></i>
+                        <span class="stat-label">${getText("mapMatches")}</span>
+                        <span class="stat-value">${map.matches}</span>
+                      </div>
+                      <div class="map-stat-item">
+                        <i class="fas fa-crosshairs"></i>
+                        <span class="stat-label">K/D</span>
+                        <span class="stat-value">${!isNaN(kd) ? kd.toFixed(2) : "-"}</span>
+                      </div>
+                    </div>
+                    <div class="map-stat-row">
+                      <div class="map-stat-item">
+                        <i class="fas fa-bolt"></i>
+                        <span class="stat-label">Avg.kills</span>
+                        <span class="stat-value">${!isNaN(avgKills) ? avgKills.toFixed(1) : "-"}</span>
+                      </div>
+                      <div class="map-stat-item">
+                        <i class="fas fa-trophy"></i>
+                        <span class="stat-label">${getText("mapWinRate")}</span>
+                        <span class="stat-value">${map.winRate.toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    <div class="map-stat-row">
+                      <div class="map-stat-item">
+                        <i class="fas fa-fire"></i>
+                        <span class="stat-label">ADR</span>
+                        <span class="stat-value">${!isNaN(adr) ? adr.toFixed(1) : "-"}</span>
+                      </div>
+                      <div class="map-stat-item">
+                        <i class="fas fa-star"></i>
+                        <span class="stat-label">Clutches</span>
+                        <span class="stat-value">${typeof map.clutches === "number" ? map.clutches : "-"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+                  });
+
+                  html += "</div>";
+                  statsContainer.innerHTML = html;
+
+                  // Применяем фоны для карточек карт
+                  if (typeof applyMapCardBackgrounds === "function") {
+                    applyMapCardBackgrounds(statsContainer);
                   }
                 } else {
-                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                  // Fallback к analyzeMaps
+                  const mapAnalysis = window.FaceitAPI.analyzeMaps(
+                    segments,
+                    "cs2",
+                    true,
+                  );
+
+                  if (
+                    mapAnalysis &&
+                    mapAnalysis.allMaps &&
+                    mapAnalysis.allMaps.length > 0
+                  ) {
+                    mapAnalysis.allMaps.sort((a, b) => b.winRate - a.winRate);
+                    let html = `<table class="maps-table"><thead><tr>
+                <th>${getText("mapName")}</th>
+                <th>${getText("mapMatches")}</th>
+                <th>${getText("mapWinRate")}</th>
+                <th>K/D</th>
+                <th>${getText("killsPerMatch")}</th>
+              </tr></thead><tbody>`;
+
+                    mapAnalysis.allMaps.forEach((map) => {
+                      html += `<tr>
+                  <td>${map.name}</td>
+                  <td>${map.matches}</td>
+                  <td>${map.winRate.toFixed(1)}%</td>
+                  <td>${map.kd.toFixed(2)}</td>
+                  <td>${map.avgKills.toFixed(1)}</td>
+                </tr>`;
+                    });
+
+                    html += "</tbody></table>";
+                    statsContainer.innerHTML = html;
+                  } else {
+                    statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                  }
                 }
-              } catch (error) {
-                console.error("Ошибка при загрузке данных карт:", error);
-                statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
+              } else {
+                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
               }
-            }, 300);
+            } catch (error) {
+              console.error("Ошибка при загрузке данных карт:", error);
+              statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
+            }
 
             break;
           }
@@ -1392,8 +1390,11 @@
           default:
             console.warn("Unknown view type:", view);
         }
+        // === КОНЕЦ SWITCH ===
 
-        playerCard.style.opacity = "1";
+        // 5. Проявляем обновленный интерфейс и возвращаем гибкую высоту
+        statsContainer.style.opacity = "1";
+        statsContainer.style.minHeight = "";
       }, 150);
     }
 
