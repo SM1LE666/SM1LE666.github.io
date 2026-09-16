@@ -1392,8 +1392,12 @@
             console.warn("Unknown view type:", view);
         }
 
-        playerCard.style.opacity = "1";
-      }, 150);
+        requestAnimationFrame(() => {
+          statsContainer.style.opacity = "1";
+          statsContainer.style.pointerEvents = "";
+          statsContainer.style.minHeight = "";
+        });
+      }, 0);
     }
 
     // В классе SidebarManager
