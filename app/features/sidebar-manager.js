@@ -1392,11 +1392,8 @@
             console.warn("Unknown view type:", view);
         }
 
-        requestAnimationFrame(() => {
-          statsContainer.style.pointerEvents = "";
-          statsContainer.style.minHeight = "";
-        });
-      }, 0);
+        playerCard.style.opacity = "1";
+      }, 150);
     }
 
     // В классе SidebarManager
