@@ -1882,12 +1882,12 @@ h1::after {
   }
 }
 
-/* Match History Styles */
 .match-history {
   display: flex;
   flex-direction: column;
-  margin-top: 1rem;
+  margin-top: 0.6rem;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .match-date {
@@ -3316,10 +3316,10 @@ h1::after {
   }
 }
 
-/* Map filter (matches view) */
 .map-filter-container {
   display: flex;
   justify-content: flex-end;
+  align-self: flex-end;
   width: 100%;
   margin-top: 0.6rem;
   margin-bottom: 0.6rem;
