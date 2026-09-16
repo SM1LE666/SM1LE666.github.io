@@ -1056,243 +1056,324 @@
       }
     }
 
-    updatePlayerStatsView(view) {
+    async updatePlayerStatsView(view) {
       const statsContainer = document.querySelector(".stats-container");
       const playerCard = document.querySelector(".player-card");
       if (!playerCard || !statsContainer) return;
 
       const search = document.getElementById("search");
       const playerHeader = playerCard.querySelector(".player-header");
+      const statsBoxes = statsContainer.querySelectorAll(".stats-box");
 
-      // 1. Отменяем предыдущие незавершённые таймауты переключения views
+      // 1. Отменяем прошлый таймаут анимации при быстром клике по вкладкам
       if (this.updateViewTimeout) {
         clearTimeout(this.updateViewTimeout);
       }
 
-      // 2. Фиксируем текущую высоту контейнера, предотвращая сжатие/скачки макета
+      // 2. Фиксируем текущую высоту, исключая скачки (Layout Shift)
       const currentHeight = statsContainer.offsetHeight;
       if (currentHeight > 0) {
         statsContainer.style.minHeight = `${currentHeight}px`;
       }
 
-      // 3. Плавно скрываем прошлый контент
+      // 3. Плавно приглушаем прошлый контент и отключаем клики во время загрузки
+      statsContainer.style.pointerEvents = "none";
       statsContainer.style.transition = "opacity 0.15s ease-out";
-      statsContainer.style.opacity = "0";
+      statsContainer.style.opacity = "0.3";
 
-      // 4. Отрисовка нового вида через requestAnimationFrame + лёгкую задержку для плавной анимации
-      this.updateViewTimeout = setTimeout(() => {
-        requestAnimationFrame(async () => {
-          // Сбрасываем отображение блоков карточки
-          playerCard.style.display = "block";
-          if (playerHeader) {
-            playerHeader.style.display = "flex"; // Оставляем управление структурой за CSS
+      // 4. Запускаем отрисовку нового вида
+      this.updateViewTimeout = setTimeout(async () => {
+        switch (view) {
+          case "overview":
+            this.hideApiErrorText();
+
+            if (search) search.style.display = "none";
+
+            // Удаляем все элементы карт и истории матчей если есть
+            statsContainer
+              .querySelectorAll(
+                ".maps-grid, .match-history, .map-card, .loading-indicator, .map-filter-container, .matches-content-wrapper",
+              )
+              .forEach((element) => {
+                element.remove();
+              });
+
+            // Генерируем HTML для обзора
+            renderOverviewStats(statsContainer);
+
+            // Восстанавливаем оригинальные стили
+            playerCard.style.display = "block";
+            if (playerHeader) {
+              playerHeader.style.display = "flex";
+            }
+
+            statsContainer.style.display = "grid";
+
+            // Показываем все блоки статистики
+            statsContainer.querySelectorAll(".stats-box").forEach((box) => {
+              box.style.display = "block";
+            });
+
+            break;
+
+          case "matches": {
+            this.hideApiErrorText();
+            if (search) search.style.display = "none";
+
+            // Показываем индикатор загрузки с переводом
+            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+              "loadingMatchHistory",
+            )}</div>`;
+            statsContainer.style.display = "block";
+
+            // Показываем карточку
+            playerCard.style.display = "block";
+            if (playerHeader) {
+              playerHeader.style.display = "flex";
+            }
+
+            // Дожидаемся загрузки матчей
+            await this.showMatchesStats(true);
+            break;
           }
 
-          switch (view) {
-            case "overview":
-              this.hideApiErrorText();
-              if (search) search.style.display = "none";
+          case "records": {
+            this.hideApiErrorText();
+            if (search) search.style.display = "none";
 
-              // Очищаем специфичные элементы других вкладок
-              statsContainer
-                .querySelectorAll(
-                  ".maps-grid, .match-history, .map-card, .loading-indicator, .map-filter-container, .matches-content-wrapper",
-                )
-                .forEach((element) => element.remove());
+            playerCard.style.display = "block";
+            if (playerHeader) playerHeader.style.display = "flex";
+            statsContainer.style.display = "block";
 
-              // Генерируем HTML обзора
-              renderOverviewStats(statsContainer);
+            statsContainer.innerHTML = `
+              <div class="record-filters">
+                <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
+                <button class="record-filter-btn" data-record="mostAssists">Most Assists</button>
+                <button class="record-filter-btn" data-record="highestKD">Highest K/D</button>
+                <button class="record-filter-btn" data-record="highestKDDifference">Highest K/D Difference</button>
+                <button class="record-filter-btn" data-record="mostMVPs">Most MVPs</button>
+                <button class="record-filter-btn" data-record="highestHeadshotPct">Highest HS%</button>
+              </div>
+              <div class="record-display">
+                <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+                  "loadingRecords",
+                )}</div>
+              </div>
+            `;
 
-              statsContainer.style.display = "grid";
-              statsContainer.querySelectorAll(".stats-box").forEach((box) => {
-                box.style.display = "block";
-              });
-              break;
-
-            case "matches":
-              this.hideApiErrorText();
-              if (search) search.style.display = "none";
-
-              statsContainer.style.display = "block";
-              await this.showMatchesStats(true);
-              break;
-
-            case "records":
-              this.hideApiErrorText();
-              if (search) search.style.display = "none";
-
-              statsContainer.style.display = "block";
-              statsContainer.innerHTML = `
-                <div class="record-filters">
-                  <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
-                  <button class="record-filter-btn" data-record="mostAssists">Most Assists</button>
-                  <button class="record-filter-btn" data-record="highestKD">Highest K/D</button>
-                  <button class="record-filter-btn" data-record="highestKDDifference">Highest K/D Difference</button>
-                  <button class="record-filter-btn" data-record="mostMVPs">Most MVPs</button>
-                  <button class="record-filter-btn" data-record="highestHeadshotPct">Highest HS%</button>
-                </div>
-                <div class="record-display">
-                  <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-                    "loadingRecords",
-                  )}</div>
-                </div>
-              `;
-
-              statsContainer
-                .querySelectorAll(".record-filter-btn")
-                .forEach((button) => {
-                  button.addEventListener("click", (e) => {
-                    statsContainer
-                      .querySelectorAll(".record-filter-btn")
-                      .forEach((btn) => btn.classList.remove("active"));
-                    e.target.classList.add("active");
-                    this.showRecord(e.target.dataset.record);
-                  });
+            // Добавляем обработчики событий для кнопок фильтров рекордов
+            statsContainer
+              .querySelectorAll(".record-filter-btn")
+              .forEach((button) => {
+                button.addEventListener("click", (e) => {
+                  statsContainer
+                    .querySelectorAll(".record-filter-btn")
+                    .forEach((btn) => btn.classList.remove("active"));
+                  e.target.classList.add("active");
+                  this.showRecord(e.target.dataset.record);
                 });
+              });
 
-              this.showRecord("mostKills");
-              break;
+            // Показываем стандартный рекорд
+            await this.showRecord("mostKills");
+            break;
+          }
 
-            case "maps":
-              this.hideApiErrorText();
-              if (search) search.style.display = "none";
+          case "maps": {
+            this.hideApiErrorText();
+            if (search) search.style.display = "none";
 
-              statsContainer.style.display = "block";
+            // Показываем индикатор загрузки
+            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
+              "loadingMaps",
+            )}</div>`;
+            statsContainer.style.display = "block";
 
-              try {
-                const playerProfile = window.currentPlayerProfile;
+            // Скрываем блоки статистики, но не трогаем player-header
+            statsBoxes.forEach((box) => {
+              box.style.display = "none";
+            });
 
-                if (!playerProfile || !playerProfile.statsData) {
-                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-                  break;
-                }
+            if (playerHeader) {
+              playerHeader.style.display = "flex";
+            }
 
-                const segments = playerProfile.statsData.segments || [];
+            try {
+              const playerProfile = window.currentPlayerProfile;
 
-                if (segments.length === 0) {
-                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
-                  break;
-                }
+              if (!playerProfile || !playerProfile.statsData) {
+                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                break;
+              }
 
-                if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
-                  const allMapsStats =
-                    window.FaceitAPI.getAllMapsStats(segments);
-                  allMapsStats.sort((a, b) => b.winRate - a.winRate);
+              const segments = playerProfile.statsData.segments || [];
 
-                  if (allMapsStats && allMapsStats.length > 0) {
-                    let html = `<div class="maps-grid">`;
+              if (segments.length === 0) {
+                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                break;
+              }
 
-                    allMapsStats.forEach((map) => {
-                      let cardClass = "map-card";
-                      let winRateColor = "#4caf50";
-                      if (map.winRate < 40) {
-                        cardClass += " poor-performance";
-                        winRateColor = "#f44336";
-                      } else if (map.winRate < 55) {
-                        cardClass += " average-performance";
-                        winRateColor = "#ff9800";
-                      } else {
-                        cardClass += " good-performance";
-                        winRateColor = "#4caf50";
-                      }
+              // Используем getAllMapsStats для получения данных карт
+              if (window.FaceitAPI && window.FaceitAPI.getAllMapsStats) {
+                const allMapsStats = window.FaceitAPI.getAllMapsStats(segments);
 
-                      const mapKey = String(map.name || "")
-                        .trim()
-                        .toLowerCase()
-                        .replace(/^de_/, "")
-                        .replace(/\s+/g, "_")
-                        .replace(/[^a-z0-9_]/g, "");
+                allMapsStats.sort((a, b) => b.winRate - a.winRate);
 
-                      const kd =
-                        typeof map.kd === "number"
-                          ? map.kd
-                          : parseFloat(map.kd);
-                      const avgKills =
-                        typeof map.avgKills === "number"
-                          ? map.avgKills
-                          : parseFloat(map.avgKills);
-                      const adr =
-                        typeof map.adr === "number"
-                          ? map.adr
-                          : parseFloat(map.adr);
+                if (allMapsStats && allMapsStats.length > 0) {
+                  // Создаем сетку карточек
+                  let html = `<div class="maps-grid">`;
 
-                      html += `
-                        <div class="${cardClass}" data-map="${mapKey}">
-                          <div class="map-card-header">
-                            <h3 class="map-name">${map.name}</h3>
-                            <div class="win-rate-badge" style="background: ${winRateColor}">
-                              ${map.winRate.toFixed(1)}%
+                  allMapsStats.forEach((map) => {
+                    // Определяем цвет карточки на основе винрейта
+                    let cardClass = "map-card";
+                    let winRateColor = "#4caf50";
+                    if (map.winRate < 40) {
+                      cardClass += " poor-performance";
+                      winRateColor = "#f44336";
+                    } else if (map.winRate < 55) {
+                      cardClass += " average-performance";
+                      winRateColor = "#ff9800";
+                    } else {
+                      cardClass += " good-performance";
+                      winRateColor = "#4caf50";
+                    }
+
+                    // Нормализуем ключ карты
+                    const mapKey = String(map.name || "")
+                      .trim()
+                      .toLowerCase()
+                      .replace(/^de_/, "")
+                      .replace(/\s+/g, "_")
+                      .replace(/[^a-z0-9_]/g, "");
+
+                    const kd =
+                      typeof map.kd === "number" ? map.kd : parseFloat(map.kd);
+                    const avgKills =
+                      typeof map.avgKills === "number"
+                        ? map.avgKills
+                        : parseFloat(map.avgKills);
+                    const adr =
+                      typeof map.adr === "number"
+                        ? map.adr
+                        : parseFloat(map.adr);
+
+                    html += `
+                      <div class="${cardClass}" data-map="${mapKey}">
+                        <div class="map-card-header">
+                          <h3 class="map-name">${map.name}</h3>
+                          <div class="win-rate-badge" style="background: ${winRateColor}">
+                            ${map.winRate.toFixed(1)}%
+                          </div>
+                        </div>
+                        <div class="map-card-body">
+                          <div class="map-stat-row">
+                            <div class="map-stat-item">
+                              <i class="fas fa-gamepad"></i>
+                              <span class="stat-label">${getText("mapMatches")}</span>
+                              <span class="stat-value">${map.matches}</span>
+                            </div>
+                            <div class="map-stat-item">
+                              <i class="fas fa-crosshairs"></i>
+                              <span class="stat-label">K/D</span>
+                              <span class="stat-value">${!isNaN(kd) ? kd.toFixed(2) : "-"}</span>
                             </div>
                           </div>
-                          <div class="map-card-body">
-                            <div class="map-stat-row">
-                              <div class="map-stat-item">
-                                <i class="fas fa-gamepad"></i>
-                                <span class="stat-label">${getText("mapMatches")}</span>
-                                <span class="stat-value">${map.matches}</span>
-                              </div>
-                              <div class="map-stat-item">
-                                <i class="fas fa-crosshairs"></i>
-                                <span class="stat-label">K/D</span>
-                                <span class="stat-value">${!isNaN(kd) ? kd.toFixed(2) : "-"}</span>
-                              </div>
+                          <div class="map-stat-row">
+                            <div class="map-stat-item">
+                              <i class="fas fa-bolt"></i>
+                              <span class="stat-label">Avg.kills</span>
+                              <span class="stat-value">${!isNaN(avgKills) ? avgKills.toFixed(1) : "-"}</span>
                             </div>
-                            <div class="map-stat-row">
-                              <div class="map-stat-item">
-                                <i class="fas fa-bolt"></i>
-                                <span class="stat-label">Avg.kills</span>
-                                <span class="stat-value">${!isNaN(avgKills) ? avgKills.toFixed(1) : "-"}</span>
-                              </div>
-                              <div class="map-stat-item">
-                                <i class="fas fa-trophy"></i>
-                                <span class="stat-label">${getText("mapWinRate")}</span>
-                                <span class="stat-value">${map.winRate.toFixed(1)}%</span>
-                              </div>
+                            <div class="map-stat-item">
+                              <i class="fas fa-trophy"></i>
+                              <span class="stat-label">${getText("mapWinRate")}</span>
+                              <span class="stat-value">${map.winRate.toFixed(1)}%</span>
                             </div>
-                            <div class="map-stat-row">
-                              <div class="map-stat-item">
-                                <i class="fas fa-fire"></i>
-                                <span class="stat-label">ADR</span>
-                                <span class="stat-value">${!isNaN(adr) ? adr.toFixed(1) : "-"}</span>
-                              </div>
-                              <div class="map-stat-item">
-                                <i class="fas fa-star"></i>
-                                <span class="stat-label">Clutches</span>
-                                <span class="stat-value">${typeof map.clutches === "number" ? map.clutches : "-"}</span>
-                              </div>
+                          </div>
+                          <div class="map-stat-row">
+                            <div class="map-stat-item">
+                              <i class="fas fa-fire"></i>
+                              <span class="stat-label">ADR</span>
+                              <span class="stat-value">${!isNaN(adr) ? adr.toFixed(1) : "-"}</span>
+                            </div>
+                            <div class="map-stat-item">
+                              <i class="fas fa-star"></i>
+                              <span class="stat-label">Clutches</span>
+                              <span class="stat-value">${typeof map.clutches === "number" ? map.clutches : "-"}</span>
                             </div>
                           </div>
                         </div>
-                      `;
+                      </div>
+                    `;
+                  });
+
+                  html += "</div>";
+                  statsContainer.innerHTML = html;
+
+                  // Применяем фоны для карточек карт
+                  if (typeof applyMapCardBackgrounds === "function") {
+                    applyMapCardBackgrounds(statsContainer);
+                  }
+                } else {
+                  // Fallback к analyzeMaps
+                  const mapAnalysis = window.FaceitAPI.analyzeMaps(
+                    segments,
+                    "cs2",
+                    true,
+                  );
+
+                  if (
+                    mapAnalysis &&
+                    mapAnalysis.allMaps &&
+                    mapAnalysis.allMaps.length > 0
+                  ) {
+                    mapAnalysis.allMaps.sort((a, b) => b.winRate - a.winRate);
+                    let html = `<table class="maps-table"><thead><tr>
+                      <th>${getText("mapName")}</th>
+                      <th>${getText("mapMatches")}</th>
+                      <th>${getText("mapWinRate")}</th>
+                      <th>K/D</th>
+                      <th>${getText("killsPerMatch")}</th>
+                    </tr></thead><tbody>`;
+
+                    mapAnalysis.allMaps.forEach((map) => {
+                      html += `<tr>
+                        <td>${map.name}</td>
+                        <td>${map.matches}</td>
+                        <td>${map.winRate.toFixed(1)}%</td>
+                        <td>${map.kd.toFixed(2)}</td>
+                        <td>${map.avgKills.toFixed(1)}</td>
+                      </tr>`;
                     });
 
-                    html += "</div>";
+                    html += "</tbody></table>";
                     statsContainer.innerHTML = html;
-
-                    if (typeof applyMapCardBackgrounds === "function") {
-                      applyMapCardBackgrounds(statsContainer);
-                    }
                   } else {
                     statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
                   }
-                } else {
-                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
                 }
-              } catch (error) {
-                console.error("Ошибка при загрузке данных карт:", error);
-                statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
+              } else {
+                statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
               }
-              break;
+            } catch (error) {
+              console.error("Ошибка при загрузке данных карт:", error);
+              statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
+            }
 
-            default:
-              console.warn("Unknown view type:", view);
+            break;
           }
 
-          // 5. Проявляем обновлённый вид и сбрасываем зафиксированную высоту
+          default:
+            console.warn("Unknown view type:", view);
+        }
+
+        // 5. Проявляем обновленный вид и восстанавливаем взаимодействиe
+        requestAnimationFrame(() => {
           statsContainer.style.opacity = "1";
+          statsContainer.style.pointerEvents = "";
           statsContainer.style.minHeight = "";
         });
-      }, 150);
+      }, 50);
     }
 
     // В классе SidebarManager
