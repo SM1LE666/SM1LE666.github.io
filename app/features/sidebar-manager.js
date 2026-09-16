@@ -1064,47 +1064,42 @@
       const search = document.getElementById("search");
       const playerHeader = playerCard.querySelector(".player-header");
 
-      // 1. Отменяем предыдущие таймауты
+      // 1. Сбрасываем незавершенные таймауты
       if (this.updateViewTimeout) {
         clearTimeout(this.updateViewTimeout);
       }
 
-      // 2. Фиксируем высоту родительского контейнера на время перехода
+      // 2. Фиксируем текущую высоту на момент переключения
       const currentHeight = statsContainer.offsetHeight;
       if (currentHeight > 0) {
         statsContainer.style.minHeight = `${currentHeight}px`;
       }
 
-      // 3. Плавно приглушаем прошлый контент и блокируем клики
+      // 3. Приглушаем контент и блокируем клики
       statsContainer.style.pointerEvents = "none";
-      statsContainer.style.transition = "opacity 0.15s ease-out";
       statsContainer.style.opacity = "0.2";
 
-      // 4. Рендеринг нового вида
+      // 4. Переключаем контент
       this.updateViewTimeout = setTimeout(async () => {
-        // Подготовка интерфейса
         playerCard.style.display = "block";
         if (playerHeader) playerHeader.style.display = "flex";
         if (search) search.style.display = "none";
         this.hideApiErrorText();
 
-        // Полностью очищаем контейнер перед рендером, чтобы не было конфликта старых и новых DOM-элементов
+        // Полная очистка родителя перед созданием новой вкладки
         statsContainer.innerHTML = "";
 
         switch (view) {
           case "overview":
-            statsContainer.style.display = "grid";
             renderOverviewStats(statsContainer);
             break;
 
           case "matches":
-            statsContainer.style.display = "block";
             statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText("loadingMatchHistory")}</div>`;
             await this.showMatchesStats(true);
             break;
 
           case "records":
-            statsContainer.style.display = "block";
             statsContainer.innerHTML = `
               <div class="record-filters">
                 <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
@@ -1135,7 +1130,6 @@
             break;
 
           case "maps":
-            statsContainer.style.display = "block";
             try {
               const playerProfile = window.currentPlayerProfile;
               if (!playerProfile || !playerProfile.statsData) {
@@ -1259,7 +1253,7 @@
             console.warn("Unknown view type:", view);
         }
 
-        // 5. Проявляем обновленный контент и снимаем ограничения
+        // 5. Проявляем новые элементы после обновления DOM
         requestAnimationFrame(() => {
           statsContainer.style.opacity = "1";
           statsContainer.style.pointerEvents = "";

@@ -726,6 +726,15 @@ input[type="text"]:focus {
   margin-top: 2rem;
 }
 
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: opacity 0.15s ease-out;
+}
+
 .stats-box {
   background:
     radial-gradient(
@@ -735,20 +744,17 @@ input[type="text"]:focus {
     ),
     #141414;
   font-family: "Orbitron", sans-serif;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 15px;
   border: 2px solid rgba(255, 85, 0, 0.2);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-  height: 400px;
-  min-height: 150px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+  contain: layout; /* Изолирует перерасчет геометрии внутри блока */
 }
 
 .stats-box::before {
@@ -771,31 +777,35 @@ input[type="text"]:focus {
 }
 
 .stats-box h3 {
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1.2rem 0;
   color: var(--primary-color);
-  font-size: 1.2rem; /* Уменьшаем размер с 1.4rem до 1.2rem */
+  font-size: 1.15rem;
   text-align: center;
   border-bottom: 2px solid rgba(255, 85, 0, 0.4);
-  padding-bottom: 1rem;
-  font-family: "Orbitron", sans-serif;
-  text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
-  white-space: nowrap; /* Предотвращаем перенос заголовков на новую строку */
-  overflow: hidden; /* Скрываем переполнение */
-  text-overflow: ellipsis; /* Добавляем многоточие если текст не помещается */
+  padding-bottom: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.stats-box p {
-  margin: 0.8rem 0;
+.stats-box p.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.6rem 0;
+  font-size: 0.95rem;
+}
+
+.stats-box p.stat-row .stat-row-label {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem; /* Увеличиваем размер текста */
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* Выделяем важные значения */
-.stats-box p strong {
+.stats-box p.stat-row .stat-row-value {
   color: var(--primary-color);
-  font-size: 1.1em;
-  text-shadow: 0 0 3px rgba(255, 85, 0, 0.3);
+  font-weight: 700;
+  margin-left: auto;
 }
 
 /* Footer Styles */
