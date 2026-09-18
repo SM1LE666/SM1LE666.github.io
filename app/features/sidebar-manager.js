@@ -1056,7 +1056,6 @@
       }
     }
 
-    // Обновление отображения статистики в зависимости от выбранного вида
     updatePlayerStatsView(view) {
       const statsContainer = document.querySelector(".stats-container");
       const playerCard = document.querySelector(".player-card");
@@ -1068,12 +1067,10 @@
       const search = document.getElementById("search");
       const statsBoxes = playerCard.querySelectorAll(".stats-box");
 
-      // Отменяем предыдущий таймаут
       if (this.updateViewTimeout) {
         clearTimeout(this.updateViewTimeout);
       }
 
-      // Анимируем только видимые элементы
       if (playerCard.style.display !== "none") {
         playerCard.style.opacity = "0.7";
       }
@@ -1085,7 +1082,6 @@
 
             if (search) search.style.display = "none";
 
-            // Удаляем все элементы карт и истории матчей если есть (ДО рендеринга нового контента)
             statsContainer
               .querySelectorAll(
                 ".maps-grid, .match-history, .map-card, .loading-indicator",
@@ -1099,8 +1095,7 @@
 
             // Восстанавливаем оригинальные стили
             playerCard.style.display = "block";
-            playerHeader.style.display = "flex";
-            playerHeader.style.flexDirection = ""; // Сбрасываем кастомные стили
+            playerHeader.style.flexDirection = "";
             playerHeader.style.textAlign = "";
             playerHeader.style.alignItems = "";
             playerHeader.style.gap = "";
