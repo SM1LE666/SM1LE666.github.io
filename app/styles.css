@@ -2297,6 +2297,9 @@ h1::after {
 .map-card.good-performance .performance-indicator {
   color: #4caf50;
 }
+.map-card.good-performance:hover {
+  box-shadow: 0px 10px 25px rgb(0 255 10 / 40%);
+}
 
 .map-card.average-performance .win-rate-badge {
   background: #ff9800;
@@ -2304,6 +2307,10 @@ h1::after {
 
 .map-card.average-performance .performance-indicator {
   color: #ff9800;
+}
+
+.map-card.average-performance:hover {
+  box-shadow: 0px 10px 25px rgba(255, 152, 0, 0.4);
 }
 
 .map-card.poor-performance .win-rate-badge {
@@ -2314,7 +2321,10 @@ h1::after {
   color: #f44336;
 }
 
-/* Мобильная шторка - стили для навигации по статистике игрока */
+.map-card.poor-performance:hover {
+  box-shadow: 0px 10px 25px rgb(255 17 0 / 40%);
+}
+
 .mobile-sidebar-drawer {
   position: fixed;
   bottom: 0;
@@ -2335,11 +2345,11 @@ h1::after {
   display: block;
   opacity: 1;
   visibility: visible;
-  transform: translateY(calc(100% - 60px)); /* Показываем только заголовок */
+  transform: translateY(calc(100% - 60px));
 }
 
 .mobile-sidebar-drawer.expanded {
-  transform: translateY(0); /* Полностью видна при развороте */
+  transform: translateY(0);
 }
 
 .mobile-sidebar-drawer.expanded .drawer-toggle-btn i {
