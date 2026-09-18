@@ -101,7 +101,13 @@ button:active {
   top: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background: linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+  background:
+    radial-gradient(
+      100% 100% at 50% 0%,
+      rgba(255, 85, 0, 0.05) 0%,
+      rgba(18, 18, 18, 0.6) 100%
+    ),
+    #141414;
   z-index: 1000;
   transform: translateX(-100%);
   transition:
@@ -486,7 +492,6 @@ input[type="text"]:focus {
   background: rgba(255, 255, 255, 1);
 }
 
-/* Специальные стили для основной кнопки поиска */
 #searchButton {
   font-family: "Orbitron", sans-serif;
   background: rgba(255, 85, 0, 0.1);
@@ -495,8 +500,8 @@ input[type="text"]:focus {
   font-weight: bold;
   padding: 0.8rem 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  height: 50px; /* Фиксированная высота для обеих кнопок */
-  min-width: 200px; /* Минимальная ширина для обеих кнопок */
+  height: 50px;
+  min-width: 200px;
   text-align: center;
   justify-content: center;
 }
@@ -509,7 +514,6 @@ input[type="text"]:focus {
   color: white;
 }
 
-/* Общие стили для кнопок ANALYZE и REACTION TEST */
 #reactionTestBtn {
   font-family: "Orbitron", sans-serif;
   background: rgba(255, 85, 0, 0.1);
@@ -518,20 +522,18 @@ input[type="text"]:focus {
   font-weight: bold;
   padding: 0.8rem 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  height: 50px; /* Фиксированная высота для обеих кнопок */
-  min-width: 200px; /* Минимальная ширина для обеих кнопок */
+  height: 50px;
+  min-width: 200px;
   text-align: center;
   justify-content: center;
 }
 
-/* Search buttons: make ANALYZE and REACTION TEST одинаковой ширины */
 #searchButton,
 #reactionTestBtn {
-  width: 235px; /* единая ширина на десктопе */
-  min-width: 235px; /* переопределяем возможные различия */
+  width: 235px;
+  min-width: 235px;
 }
 
-/* --- Fix: Reaction Test button sizing (avoid being overridden by generic mobile button rules) --- */
 #searchButton,
 #reactionTestBtn {
   height: 50px;
@@ -542,7 +544,6 @@ input[type="text"]:focus {
 }
 
 @media (max-width: 768px) {
-  /* On mobile these buttons should still be equal and not rely on generic button {max-width:320px} */
   #searchButton,
   #reactionTestBtn {
     width: 100% !important;
@@ -568,7 +569,6 @@ input[type="text"]:focus {
   color: white;
 }
 
-/* Оформление информационных сообщений */
 #output {
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -619,9 +619,9 @@ input[type="text"]:focus {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 0.5rem;
   text-align: center;
-  white-space: nowrap; /* Предотвращаем перенос текста на новую строку */
-  overflow: hidden; /* Скрываем переполнение */
-  text-overflow: ellipsis; /* Добавляем многоточие если текст не помещается */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat-value {
@@ -641,15 +641,15 @@ input[type="text"]:focus {
 }
 
 .player-card {
-  grid-column: 1 / -1; /* Make player card span full width */
+  grid-column: 1 / -1;
   background: var(--bg-darker);
   border-radius: 20px;
-  padding: 2.5rem; /* Увеличиваем отступы */
+  padding: 2.5rem;
   margin-bottom: 2rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   border: 2px solid rgba(255, 85, 0, 0.2);
   width: 100%;
-  min-height: 600px; /* Добавляем минимальную высоту */
+  min-height: 600px;
 }
 
 .player-header {
@@ -661,6 +661,7 @@ input[type="text"]:focus {
   border-radius: 15px;
   border: 2px solid rgba(255, 85, 0, 0.3);
   box-shadow: 0 4px 15px rgba(255, 85, 0, 0.1);
+  height: 300px;
 }
 
 .player-avatar {
@@ -1643,7 +1644,6 @@ h1::after {
   }
 }
 
-/* Стили для кастомного скроллбара в сайдбаре */
 .sidebar-content {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 85, 0, 0.5) transparent;
@@ -3917,6 +3917,7 @@ h1::after {
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  height: 235px;
 }
 
 .metrics-card-header {
