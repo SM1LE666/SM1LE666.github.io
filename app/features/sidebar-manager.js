@@ -1092,15 +1092,6 @@
 
             // Генерируем HTML для обзора с актуальными переводами
             renderOverviewStats(statsContainer);
-
-            // Восстанавливаем оригинальные стили
-            playerCard.style.display = "block";
-            playerHeader.style.flexDirection = "";
-            playerHeader.style.textAlign = "";
-            playerHeader.style.alignItems = "";
-            playerHeader.style.gap = "";
-
-            statsContainer.style.display = "grid";
             break;
 
           case "matches": {
