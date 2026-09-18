@@ -416,7 +416,6 @@
       });
     }
 
-    // Обновите метод showMatchesStats
     async showMatchesStats(render = true) {
       try {
         const playerId = window.currentPlayerData?.player_id;
@@ -1485,12 +1484,26 @@
       const recordDisplay = document.querySelector(".record-display");
       if (!recordDisplay) return;
 
+      // 1. Показываем индикатор загрузки с сообщением о подгрузке всех матчей
       recordDisplay.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
         "loadingRecords",
       )}</div>`;
 
-      if (this.currentMatches.length === 0) {
+      // 2. Убеждаемся, что список истории (allHistoryItems) загружен
+      if (!this.allHistoryItems || this.allHistoryItems.length === 0) {
         await this.showMatchesStats(false);
+      }
+
+      if (!this.allHistoryItems || this.allHistoryItems.length === 0) {
+        recordDisplay.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+        return;
+      }
+
+      // 3. Подгружаем детали для ВСЕХ матчей из истории перед расчётом
+      try {
+        await this.ensureMatchesLoadedRange(0, this.allHistoryItems.length);
+      } catch (err) {
+        console.error("Error loading full match stats for records:", err);
       }
 
       if (this.currentMatches.length === 0) {
@@ -1500,7 +1513,7 @@
 
       const recordLabelMap = {
         mostKills: "Most Kills",
-        mostAssits: "Most Assists",
+        mostAssists: "Most Assists",
         highestKD: "Highest K/D",
         highestKDDifference: "Highest K/D Diff",
         mostMVPs: "Most MVPs",
@@ -1509,6 +1522,7 @@
 
       const recordLabel = recordLabelMap[recordType] || "";
 
+      // 4. Считаем рекорды по всему массиву currentMatches
       const rankedMatches = this.currentMatches
         .filter((match) => match.result !== "Error")
         .map((match) => {
