@@ -195,7 +195,7 @@ button:active {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 1rem;
+  padding: 1.6rem 1.1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   color: rgba(255, 255, 255, 0.7);
@@ -390,7 +390,7 @@ section {
   position: relative;
   overflow: hidden;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1250px;
   pointer-events: auto;
 }
 
@@ -743,8 +743,6 @@ input[type="text"]:focus {
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
-  height: 400px;
-  min-height: 150px;
   display: block;
   position: relative;
   overflow: hidden;
@@ -772,25 +770,24 @@ input[type="text"]:focus {
 .stats-box h3 {
   margin: 0 0 1.5rem 0;
   color: var(--primary-color);
-  font-size: 1.2rem; /* Уменьшаем размер с 1.4rem до 1.2rem */
+  font-size: 1.2rem;
   text-align: center;
   border-bottom: 2px solid rgba(255, 85, 0, 0.4);
   padding-bottom: 1rem;
   font-family: "Orbitron", sans-serif;
   text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
-  white-space: nowrap; /* Предотвращаем перенос заголовков на новую строку */
-  overflow: hidden; /* Скрываем переполнение */
-  text-overflow: ellipsis; /* Добавляем многоточие если текст не помещается */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stats-box p {
   margin: 0.8rem 0;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem; /* Увеличиваем размер текста */
+  font-size: 1rem;
   font-weight: 500;
 }
 
-/* Выделяем важные значения */
 .stats-box p strong {
   color: var(--primary-color);
   font-size: 1.1em;
@@ -1248,17 +1245,12 @@ footer {
   margin-bottom: 2rem;
 }
 
-/* Results section - ИСПРАВЛЕНИЕ ВЫСОТЫ */
 #results {
   min-height: auto !important;
   height: auto !important;
-  padding: 2.5rem;
-  margin-bottom: 2rem;
 }
 
-/* КАРДИНАЛЬНОЕ ИСПРАВЛЕНИЕ - убираем flex из body и main на мобильных */
 @media (max-width: 768px) {
-  /* Возвращаем flex для body чтобы футер остался внизу */
   body {
     display: flex !important;
     flex-direction: column !important;
@@ -1266,7 +1258,6 @@ footer {
     height: auto !important;
   }
 
-  /* Убираем flex только из main */
   main {
     display: block !important;
     flex: none !important;
@@ -1275,7 +1266,6 @@ footer {
     max-width: 100% !important;
   }
 
-  /* Footer остается внизу */
   footer {
     margin-top: auto !important;
   }
