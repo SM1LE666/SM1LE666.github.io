@@ -1101,12 +1101,6 @@
             playerHeader.style.gap = "";
 
             statsContainer.style.display = "grid";
-
-            // Показываем все блоки статистики
-            statsContainer.querySelectorAll(".stats-box").forEach((box) => {
-              box.style.display = "block";
-            });
-
             break;
 
           case "matches": {

@@ -745,9 +745,7 @@ input[type="text"]:focus {
     box-shadow 0.3s ease;
   height: 400px;
   min-height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  display: block;
   position: relative;
   overflow: hidden;
 }
