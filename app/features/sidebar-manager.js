@@ -425,11 +425,7 @@
           return;
         }
 
-        // Reset map filter when loading a new player's matches to avoid leaking
-        // selected map from previously viewed profile
         this.currentMapFilter = null;
-
-        // Сбрасываем состояние при новой загрузке
         this.currentMatches = [];
         this.allHistoryItems = [];
         this.orderedMatches = [];
@@ -1082,14 +1078,7 @@
 
             if (search) search.style.display = "none";
 
-            statsContainer
-              .querySelectorAll(
-                ".maps-grid, .match-history, .map-card, .loading-indicator",
-              )
-              .forEach((element) => {
-                element.remove();
-              });
-
+            statsContainer.innerHTML = "";
             // Генерируем HTML для обзора с актуальными переводами
             renderOverviewStats(statsContainer);
             break;
