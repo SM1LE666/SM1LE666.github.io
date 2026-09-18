@@ -306,7 +306,7 @@
             onclick="window.open('https://www.faceit.com/${profileLang}/players/${playerData.nickname}', '_blank')"
             style="cursor: pointer; width: 45px; height: 45px; margin-top: 5px; border-radius: 8px; border: 2px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s; object-fit: contain;"
             onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 10px var(--primary-color)';"
-            onmouseout="this.style.transform='scale(1)';"
+            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"
           />
         </div>
       </div>
