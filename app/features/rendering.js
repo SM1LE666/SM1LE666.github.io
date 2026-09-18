@@ -304,9 +304,9 @@
             alt="${getText("faceitProfile")}"
             title="${getText("faceitProfile")}"
             onclick="window.open('https://www.faceit.com/${profileLang}/players/${playerData.nickname}', '_blank')"
-            style="cursor: pointer; width: 45px; height: 45px; margin-top: 5px; border-radius: 8px; border: 2px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s; margin-right: 10px; object-fit: contain;"
+            style="cursor: pointer; width: 45px; height: 45px; margin-top: 5px; border-radius: 8px; border: 2px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s; object-fit: contain;"
             onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 10px var(--primary-color)';"
-            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"
+            onmouseout="this.style.transform='scale(1)';"
           />
         </div>
       </div>
@@ -343,13 +343,11 @@
       if (mapKey && mapBackgrounds[mapKey]) {
         const imagePath = mapBackgrounds[mapKey];
         card.style.setProperty("--map-bg-url", `url('${imagePath}')`);
-        card.style.backgroundImage = `linear-gradient(135deg, rgba(26, 26, 26, 0.25), rgba(255, 85, 0, 0.08)), url('${imagePath}')`;
         card.classList.add("has-map-bg");
       }
     });
   }
 
-  // Экспорт объекта и глобальных функций
   const AppRendering = {
     formatStatRow,
     renderOverviewStats,

@@ -2390,7 +2390,6 @@ h1::after {
 }
 
 .map-card {
-  background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.05));
   border-radius: 15px;
   padding: 0;
   overflow: hidden;
@@ -2410,7 +2409,6 @@ h1::after {
   background-repeat: no-repeat !important;
 }
 
-/* --- Maps: background images from /images (optional per card) --- */
 .map-card.has-map-bg {
   background-image:
     linear-gradient(135deg, rgba(26, 26, 26, 0.25), rgba(255, 85, 0, 0.08)),
@@ -2529,10 +2527,9 @@ h1::after {
   align-items: center;
   text-align: center;
   justify-content: center;
-  flex: 1;
-  padding: 0.6rem;
+  padding: 0.5rem 0.6rem;
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  border-radius: 7px;
   transition: all 0.3s ease;
   height: auto;
 }
@@ -2570,7 +2567,6 @@ h1::after {
   border-top: 1px solid rgba(255, 85, 0, 0.2);
 }
 
-/* Maps table fallback styles */
 .maps-table {
   width: 100%;
   border-collapse: collapse;
@@ -3589,12 +3585,6 @@ h1::after {
 
 .maps-grid .map-stat-row {
   gap: 0.8rem;
-}
-
-.maps-grid .map-stat-item {
-  padding: 0.5rem 0.6rem;
-  height: auto;
-  border-radius: 7px;
 }
 
 .maps-grid .map-stat-item i {
