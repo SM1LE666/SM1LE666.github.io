@@ -2041,6 +2041,7 @@ h1::after {
   overflow: hidden;
   cursor: pointer;
   transition: all 0.2s ease;
+  background: rgb(43 43 43 / 30%);
 }
 
 .match-item:hover {
@@ -2054,7 +2055,6 @@ h1::after {
     padding: 0.8rem 1rem;
     gap: 1.5rem;
     border-radius: 15px;
-    border-left: 4px solid #4caf50;
     margin-bottom: 0.5rem;
   }
 
@@ -3327,7 +3327,7 @@ h1::after {
   background: rgb(51, 51, 51, 0.9);
   color: var(--text-color);
   border: 1px solid rgba(255, 85, 0, 0.25);
-  padding: 0.5rem 0.8rem;
+  padding: 0.5rem 1.4rem 0.5rem 0.5rem;
   border-radius: 10px;
   min-width: 180px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
@@ -4287,9 +4287,4 @@ h1::after {
 
 .metric-detail-content p {
   margin-bottom: 8px;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-areas: "grid grid grid";
 }
