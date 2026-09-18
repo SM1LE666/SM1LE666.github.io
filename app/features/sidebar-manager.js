@@ -1067,10 +1067,6 @@
         clearTimeout(this.updateViewTimeout);
       }
 
-      if (playerCard.style.display !== "none") {
-        playerCard.style.opacity = "0.7";
-      }
-
       this.updateViewTimeout = setTimeout(() => {
         switch (view) {
           case "overview":
