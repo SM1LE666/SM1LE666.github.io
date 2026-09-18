@@ -4288,3 +4288,8 @@ h1::after {
 .metric-detail-content p {
   margin-bottom: 8px;
 }
+
+.stats-grid {
+  display: grid;
+  grid-template-areas: "grid grid grid";
+}

@@ -245,7 +245,7 @@
 
     container.innerHTML = `
     ${metricsCardHtml}
-
+    <div class="stats-grid">
       <div class="stats-box slide-in-animation">
         <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
         <p class="stat-row">${formatStatRow(`${getText("Matches")}: ${formatNumber(avgStats.totalMatches)}`)}</p>
@@ -264,6 +264,7 @@
         <h3><i class="fas fa-map-marked-alt"></i> ${getText("worstMapTitle")}</h3>
         ${renderMapBox(mapAnalysis.worstMap)}
       </div>
+    </div>
     `;
   }
 
