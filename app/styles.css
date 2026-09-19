@@ -2375,7 +2375,6 @@ h1::after {
   }
 }
 
-/* Maps Grid Styles */
 .maps-grid {
   display: grid;
   grid-template-columns: repeat(3, 300px);
@@ -2414,7 +2413,6 @@ h1::after {
     var(--map-bg-url);
 }
 
-/* darken image for readability */
 .map-card::after {
   content: "";
   position: absolute;
@@ -2680,7 +2678,6 @@ h1::after {
   background: linear-gradient(135deg, var(--primary-hover), #cc4400);
 }
 
-/* Cookie modal table */
 .cookie-actions {
   display: flex;
   gap: 1rem;

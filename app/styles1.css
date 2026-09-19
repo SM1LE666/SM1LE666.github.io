@@ -1,6 +1,3 @@
-/* ==========================================================================
-   1. VARIABLES & BASE SETUP
-   ========================================================================== */
 :root {
   --primary-color: #ff5500;
   --primary-hover: #e04e00;
@@ -55,16 +52,12 @@ body.sidebar-open {
   margin-left: var(--sidebar-width);
 }
 
-/* Скрытие глобальных элементов при активном профиле */
 body.profile-active #search,
 body.profile-active header,
 body.profile-active footer {
   display: none !important;
 }
 
-/* ==========================================================================
-   2. KEYFRAMES & ANIMATIONS
-   ========================================================================== */
 @keyframes gradientShift {
   0%,
   100% {
@@ -129,9 +122,6 @@ body.profile-active footer {
   }
 }
 
-/* ==========================================================================
-   3. COMMON BUTTONS & INPUTS
-   ========================================================================== */
 button {
   display: flex;
   align-items: center;
@@ -188,9 +178,6 @@ input[type="text"]:focus {
   background: rgba(255, 255, 255, 1);
 }
 
-/* ==========================================================================
-   4. LAYOUT COMPONENTS (HEADER, MAIN, FOOTER)
-   ========================================================================== */
 header {
   color: #fff;
   padding: 1.1rem 2rem;
@@ -383,9 +370,6 @@ footer {
   box-shadow: 0 6px 10px rgba(255, 85, 0, 0.4);
 }
 
-/* ==========================================================================
-   5. NAVIGATION & SIDEBAR
-   ========================================================================== */
 .sidebar {
   position: fixed;
   left: 0;
@@ -526,9 +510,6 @@ footer {
   animation: overlayFadeIn 0.3s ease;
 }
 
-/* ==========================================================================
-   6. SEARCH & CONTENT PANELS
-   ========================================================================== */
 #search {
   display: flex;
   flex-direction: column;
@@ -587,9 +568,6 @@ footer {
   font-weight: bold;
 }
 
-/* ==========================================================================
-   7. PLAYER CARD & STATS
-   ========================================================================== */
 #playerStats {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -808,9 +786,6 @@ footer {
   text-shadow: 0 0 3px rgba(255, 85, 0, 0.3);
 }
 
-/* ==========================================================================
-   8. MODALS & FORMS
-   ========================================================================== */
 .modal {
   display: none;
   position: fixed;
@@ -870,7 +845,6 @@ footer {
   margin-bottom: 1.5rem;
 }
 
-/* Support Modal */
 .support-options {
   display: flex;
   justify-content: center;
@@ -938,7 +912,6 @@ footer {
   font-style: italic;
 }
 
-/* Contact Modal */
 .contact-info {
   margin-bottom: 2rem;
 }
@@ -1044,9 +1017,6 @@ footer {
   color: #fff;
 }
 
-/* ==========================================================================
-   9. REACTION TEST WIDGET
-   ========================================================================== */
 .reaction-btn {
   background: linear-gradient(135deg, #ff6b35, #f7931e);
   border: none;
@@ -1101,9 +1071,6 @@ footer {
   text-shadow: none;
 }
 
-/* ==========================================================================
-   10. MEDIA QUERIES & RESPONSIVENESS
-   ========================================================================== */
 @media (max-width: 768px) {
   header,
   .header-content {
@@ -1136,5 +1103,500 @@ footer {
   #reactionTestBtn {
     max-width: 300px !important;
     height: 50px !important;
+  }
+}
+
+.cookie-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.cookie-btn {
+  flex: 1;
+  padding: 0.9rem 1.25rem;
+  border-radius: var(--border-radius);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid rgba(255, 85, 0, 0.25);
+}
+
+.cookie-btn.primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
+  color: #fff;
+  border-color: rgba(255, 85, 0, 0.35);
+}
+
+.cookie-btn.primary:hover {
+  background: linear-gradient(135deg, var(--primary-hover), #cc4400);
+  box-shadow: 0 6px 15px rgba(255, 85, 0, 0.35);
+}
+
+.cookie-btn.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.cookie-btn.secondary:hover {
+  background: rgba(255, 85, 0, 0.08);
+  border-color: rgba(255, 85, 0, 0.35);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .cookie-actions {
+    flex-direction: column;
+  }
+}
+
+.cookie-fab {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  width: 55px;
+  height: 55px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2500;
+
+  background: rgba(255, 85, 0, 0.14);
+  border: 1px solid rgba(255, 85, 0, 0.32);
+  color: var(--primary-color);
+
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.45),
+    0 0 14px rgba(255, 85, 0, 0.18);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  padding: 0;
+}
+
+.cookie-fab i {
+  font-size: 1.25rem;
+}
+
+.cookie-fab:hover {
+  background: rgba(255, 85, 0, 0.22);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  color: #fff;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(255, 85, 0, 0.35);
+}
+
+.cookie-fab:active {
+  transform: translateY(0);
+}
+
+.cookie-fab:focus {
+  outline: none;
+}
+
+.cookie-fab:focus-visible {
+  box-shadow:
+    0 0 0 3px rgba(255, 85, 0, 0.35),
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(255, 85, 0, 0.35);
+}
+
+@media (max-width: 768px) {
+  .cookie-fab {
+    right: 14px;
+    bottom: 14px;
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cookie-fab {
+    right: 12px;
+    bottom: 12px;
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.map-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff5500, #ff7b00);
+  border-radius: 15px 15px 0 0;
+}
+
+.map-name {
+  margin: 0;
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.23rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.win-rate-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  min-width: 50px;
+  text-align: center;
+}
+
+.map-card-body {
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.performance-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #ff9800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+
+/* Цвета для различных уровней производительности */
+.map-card.good-performance .win-rate-badge {
+  background: #4caf50;
+}
+
+.map-card.good-performance .performance-indicator {
+  color: #4caf50;
+}
+.map-card.good-performance:hover {
+  box-shadow: 0px 10px 25px rgb(0 255 10 / 40%);
+}
+
+.map-card.average-performance .win-rate-badge {
+  background: #ff9800;
+}
+
+.map-card.average-performance .performance-indicator {
+  color: #ff9800;
+}
+
+.map-card.average-performance:hover {
+  box-shadow: 0px 10px 25px rgba(255, 152, 0, 0.4);
+}
+
+.map-card.poor-performance .win-rate-badge {
+  background: #f44336;
+}
+
+.map-card.poor-performance .performance-indicator {
+  color: #f44336;
+}
+
+.map-card.poor-performance:hover {
+  box-shadow: 0px 10px 25px rgb(255 17 0 / 40%);
+}
+
+.maps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 300px);
+  grid-template-rows: repeat(2, auto);
+  row-gap: 30px;
+  column-gap: 45px;
+  margin: 2rem 0;
+  width: 100%;
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.map-card {
+  border-radius: 15px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 85, 0, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  min-height: 280px;
+  margin: 0;
+  width: 300px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.map-card.has-map-bg {
+  background-image:
+    linear-gradient(135deg, rgba(26, 26, 26, 0.25), rgba(255, 85, 0, 0.08)),
+    var(--map-bg-url);
+}
+
+.map-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+  pointer-events: none;
+  opacity: 0;
+}
+
+.map-card.has-map-bg::after {
+  opacity: 1;
+}
+
+.map-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.map-card:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 85, 0, 0.3);
+  border-color: var(--primary-color);
+}
+
+.map-card.average-performance {
+  border-color: rgba(255, 152, 0, 0.4);
+  margin-bottom: 1rem;
+}
+
+.map-card.good-performance {
+  border-color: rgb(0 255 10 / 40%);
+  margin-bottom: 1rem;
+}
+
+.map-card.poor-performance {
+  border-color: rgb(255 17 0 / 40%);
+  margin-bottom: 1rem;
+}
+
+.map-card.average-performance::before {
+  color: yellow;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-glow));
+  border-radius: 15px 15px 0 0;
+}
+
+.map-card.poor-performance::before {
+  color: red;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-glow));
+  border-radius: 15px 15px 0 0;
+}
+
+.map-card.good-performance::before {
+  color: green;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-glow));
+  border-radius: 15px 15px 0 0;
+}
+
+.map-card-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.win-rate-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.map-stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.map-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  padding: 0.5rem 0.6rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 7px;
+  transition: all 0.3s ease;
+  height: auto;
+}
+
+.map-stat-item:hover {
+  background: rgba(255, 85, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.map-stat-item i {
+  font-size: 1.35rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.map-card-footer {
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 85, 0, 0.2);
+}
+
+.maps-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: rgba(51, 51, 51, 0.8);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.maps-table th,
+.maps-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 85, 0, 0.2);
+}
+
+.maps-table th {
+  background: rgba(255, 85, 0, 0.1);
+  color: var(--primary-color);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+}
+
+.maps-table td {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.maps-table tr:hover {
+  background: rgba(255, 85, 0, 0.05);
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .maps-grid {
+    grid-template-columns: repeat(2, 300px);
+  }
+}
+
+@media (max-width: 768px) {
+  .maps-grid {
+    margin: 0;
+    padding: 0;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .map-card {
+    width: 100%;
+    max-width: 100%;
+    min-height: 280px;
+    margin: 0 auto;
+    transform: translateX(0);
+    border: 3px solid rgb(255 255 255 / 20%);
+  }
+
+  .map-stat-row {
+    flex-direction: row;
+    gap: 0.3rem;
+  }
+
+  .map-stat-item {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0.4rem;
+    font-size: 0.75rem;
+  }
+
+  .map-stat-item i {
+    margin-bottom: 0.2rem;
+    margin-right: 0;
+  }
+
+  .maps-table {
+    font-size: 0.8rem;
+  }
+
+  .maps-table th,
+  .maps-table td {
+    padding: 0.5rem;
   }
 }
