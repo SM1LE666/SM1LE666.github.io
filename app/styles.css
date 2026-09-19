@@ -656,13 +656,12 @@ input[type="text"]:focus {
   display: flex;
   align-items: center;
   gap: 2.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
   padding: 1.5rem;
   background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.15));
   border-radius: 15px;
   border: 2px solid rgba(255, 85, 0, 0.3);
   box-shadow: 0 4px 15px rgba(255, 85, 0, 0.1);
-  height: 300px;
 }
 
 .player-avatar {
@@ -781,20 +780,12 @@ input[type="text"]:focus {
   text-overflow: ellipsis;
 }
 
-.stats-box p {
-  margin: 0.8rem 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  font-weight: 500;
-}
-
 .stats-box p strong {
   color: var(--primary-color);
   font-size: 1.1em;
   text-shadow: 0 0 3px rgba(255, 85, 0, 0.3);
 }
 
-/* Footer Styles */
 footer {
   color: rgba(255, 255, 255, 0.7);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 1);
@@ -3514,15 +3505,8 @@ h1::after {
     margin-bottom: 0.9rem;
     padding-bottom: 0.7rem;
   }
-
-  .stats-box p {
-    font-size: 0.92rem;
-    margin: 0.5rem 0;
-    line-height: 1.32;
-  }
 }
 
-/* --- Desktop Overview: stats rows left/right (uses formatStatRow spans) --- */
 @media (min-width: 1025px) {
   .stats-box {
     height: 260px;
@@ -3535,9 +3519,9 @@ h1::after {
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    margin: 0.75rem 0; /* больше расстояние между строками */
-    font-size: 1rem; /* трохи больше */
+    font-size: 1rem;
     line-height: 1.35;
+    margin: 0.4rem 0;
   }
 
   .stats-box p.stat-row .stat-row-label {
@@ -3902,7 +3886,7 @@ h1::after {
   border: 1px solid rgba(255, 85, 0, 0.25);
   border-radius: 12px;
   padding: 1.25rem 1.4rem;
-  margin: 1.15rem 0 2rem 0;
+  margin: 0 0 1.5rem 0;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -3933,7 +3917,7 @@ h1::after {
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 0.8rem;
   width: 100%;
 }
@@ -3968,11 +3952,11 @@ h1::after {
 }
 
 .metric-label {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 600;
   color: #a0a0a0;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
   font-family: "Orbitron", sans-serif;
 }
 
@@ -4317,7 +4301,7 @@ h1::after {
     ),
     #141414;
   font-family: "Orbitron", sans-serif;
-  padding: 1.35rem;
+  padding: 1.3rem;
   border-radius: 15px;
   border: 2px solid rgba(255, 85, 0, 0.2);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
