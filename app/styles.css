@@ -3902,11 +3902,13 @@ h1::after {
   border: 1px solid rgba(255, 85, 0, 0.25);
   border-radius: 12px;
   padding: 1.25rem 1.4rem;
-  margin: 1.15rem 0;
+  margin: 1.15rem 0 2rem 0;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  height: 235px;
+  height: auto;
+  min-height: auto;
+  box-sizing: border-box;
 }
 
 .metrics-card-header {
@@ -3931,8 +3933,9 @@ h1::after {
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 0.8rem;
+  width: 100%;
 }
 
 .metric-item {
@@ -4043,7 +4046,6 @@ h1::after {
   box-shadow: 0 0 6px rgba(0, 230, 118, 0.5);
 }
 
-/* Оверлей (фон) */
 .metrics-modal-overlay {
   position: fixed;
   top: 0;
@@ -4181,20 +4183,22 @@ h1::after {
 }
 
 .how-to-improve {
+  grid-column: 1 / -1;
   font-size: 0.95rem;
   color: #ff5500;
   font-family: "Orbitron", sans-serif;
-  height: auto;
-  text-wrap: nowrap;
   font-weight: bold;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  text-wrap: nowrap;
 }
+
 .how-to-improve:hover {
   cursor: pointer;
   text-shadow: 0 4px 12px rgba(255, 85, 0, 0.15);
   transform: translateY(-1px);
 }
 
-/* 2. Стилизация кастомных Dropdown-меню (.dropdown / .menu) */
 .dropdown-menu,
 .custom-select-options,
 .context-menu {
@@ -4257,7 +4261,7 @@ h1::after {
   background: rgba(255, 85, 0, 0.15);
   color: #fff;
   border-left-color: var(--primary-color);
-  padding-left: 1.5rem; /* Небольшой эффект сдвига */
+  padding-left: 1.5rem;
 }
 
 .dropdown-item:hover i,
@@ -4300,10 +4304,7 @@ h1::after {
   grid-template-columns: repeat(3, 1fr);
   gap: 25px;
   width: 100%;
-  max-width: 100%;
   margin: 0 auto;
-  justify-content: center;
-  align-items: stretch;
   box-sizing: border-box;
 }
 
@@ -4316,7 +4317,7 @@ h1::after {
     ),
     #141414;
   font-family: "Orbitron", sans-serif;
-  padding: 1.5rem;
+  padding: 1.35rem;
   border-radius: 15px;
   border: 2px solid rgba(255, 85, 0, 0.2);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
@@ -4326,7 +4327,20 @@ h1::after {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  width: 100%;
+  height: auto;
   box-sizing: border-box;
-  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 }
