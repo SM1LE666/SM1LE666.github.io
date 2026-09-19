@@ -347,14 +347,12 @@ h1::after {
   );
 }
 
-/* Mobile: don't clip the underline */
 @media (max-width: 768px) {
   header,
   .header-content {
     overflow: visible !important;
   }
 
-  /* keep the underline close to the title on compact header */
   header .header-content h1::after {
     bottom: -5px;
   }
@@ -426,13 +424,12 @@ h2 {
   color: var(--primary-color);
   text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
   font-size: 1.6rem;
-  margin-bottom: 1.1rem; /* было 1.5rem */
+  margin-bottom: 1.1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Search Section Styles */
 #search {
   display: flex;
   flex-direction: column;
@@ -443,7 +440,6 @@ h2 {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Контейнер для поисковых элементов */
 .search-container {
   display: flex;
   align-items: center;
@@ -453,22 +449,18 @@ h2 {
   width: 100%;
 }
 
-/* Скрываем секцию поиска только когда показана статистика игрока */
 body.profile-active #search {
   display: none !important;
 }
 
-/* Скрываем header когда профиль активен */
 body.profile-active header {
   display: none !important;
 }
 
-/* Скрываем footer когда профиль активен */
 body.profile-active footer {
   display: none !important;
 }
 
-/* Search Input */
 input[type="text"] {
   font-family: "Orbitron", sans-serif;
   flex: 1;
@@ -642,7 +634,13 @@ input[type="text"]:focus {
 
 .player-card {
   grid-column: 1 / -1;
-  background: var(--bg-darker);
+  background:
+    radial-gradient(
+      100% 100% at 50% 0%,
+      rgba(255, 85, 0, 0.05) 0%,
+      rgba(18, 18, 18, 0.6) 100%
+    ),
+    #141414;
   border-radius: 20px;
   padding: 2.5rem;
   margin-bottom: 2rem;
