@@ -1281,7 +1281,6 @@ footer {
     display: block !important;
   }
 
-  /* Убираем растягивание у всех секций на мобильных */
   section {
     min-height: auto !important;
     height: auto !important;
@@ -1290,7 +1289,6 @@ footer {
     margin-bottom: 1rem !important;
   }
 
-  /* Исправляем основной контейнер результатов */
   #results .stats-container,
   #results .maps-grid,
   #results .match-history,
@@ -1302,7 +1300,6 @@ footer {
     display: block !important;
   }
 
-  /* Исправляем stats-box чтобы они не растягивались */
   .stats-box {
     height: auto !important;
     min-height: auto !important;
@@ -1663,11 +1660,11 @@ h1::after {
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-content {
-    padding: 0 0.65rem; /* чуть меньше горизонтальные отступы */
+    padding: 0 0.65rem;
   }
 
   h1 {
-    margin-right: 5.2rem; /* расширяем "зону" под кнопки справа */
+    margin-right: 5.2rem;
     padding-right: 0.1rem;
   }
 
@@ -1712,7 +1709,6 @@ h1::after {
     font-size: 2.5rem;
   }
 
-  /* Адаптивность для мобильных устройств - НОВЫЙ ДИЗАЙН */
   .match-item {
     display: flex;
     flex-direction: column;
@@ -1724,7 +1720,6 @@ h1::after {
     height: auto;
   }
 
-  /* Убираем цветную полосу слева, она больше не нужна */
   .match-item::before {
     content: none;
   }
@@ -1741,7 +1736,6 @@ h1::after {
     width: 100%;
   }
 
-  /* Блок с датой и результатом (слева) */
   .match-header {
     display: flex;
     flex-direction: column;
@@ -1775,7 +1769,6 @@ h1::after {
     color: #f44336;
   }
 
-  /* Блок с картой и счетом (справа) */
   .match-details {
     display: flex;
     flex-direction: column;
@@ -1852,7 +1845,6 @@ h1::after {
   }
 }
 
-/* Match History Styles */
 .match-history {
   display: flex;
   flex-direction: column;
@@ -3289,7 +3281,6 @@ h1::after {
   }
 }
 
-/* Map filter (matches view) */
 .map-filter-container {
   display: flex;
   justify-content: flex-end;
@@ -3336,7 +3327,6 @@ h1::after {
   }
 }
 
-/* --- LAST: force underline for header title on mobile (wins all overrides) --- */
 @media (max-width: 768px) {
   header .header-content h1 {
     position: relative !important;
