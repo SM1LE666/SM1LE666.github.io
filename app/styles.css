@@ -27,28 +27,17 @@ body {
   font-family: "Roboto", Arial, sans-serif;
   background:
     radial-gradient(
-      circle at 15% 20%,
-      rgba(255, 85, 0, 0.12) 0%,
-      transparent 40%
-    ),
-    radial-gradient(
-      circle at 85% 80%,
-      rgba(255, 85, 0, 0.08) 0%,
+      circle at 10% 15%,
+      rgba(255, 85, 0, 0.15) 0%,
       transparent 45%
     ),
-    linear-gradient(
-      135deg,
-      #0d0d0d 0%,
-      #171717 30%,
-      #24180d 50%,
-      #171717 70%,
-      #0d0d0d 100%
-    );
-  background-size:
-    100% 100%,
-    100% 100%,
-    400% 400%;
-  animation: gradientShift 12s ease infinite;
+    radial-gradient(
+      circle at 90% 85%,
+      rgba(255, 85, 0, 0.12) 0%,
+      transparent 50%
+    ),
+    linear-gradient(135deg, #0a0a0a 0%, #141414 40%, #1f140a 70%, #0a0a0a 100%);
+  background-attachment: fixed;
   color: var(--text-color);
   line-height: 1.6;
   position: relative;
@@ -3624,11 +3613,11 @@ h1::after {
 
 .featured-player-card,
 .pro-card {
-  background: rgba(20, 20, 20, 0.5) !important;
+  background: rgba(20, 20, 20, 0.55) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 14px;
-  padding: 0;
+  padding: 0 !important;
   overflow: hidden !important;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 85, 0, 0.2);
@@ -3638,6 +3627,9 @@ h1::after {
     border-color 0.3s ease;
   position: relative;
   height: 260px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
 }
 
 .featured-player-card::before,
@@ -3700,20 +3692,24 @@ h1::after {
 
 .featured-player-card-body,
 .pro-card-body {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: calc(100% - 35px) !important;
   padding: 0 !important;
+  margin: 0 !important;
   display: flex !important;
+  align-items: flex-end !important;
   justify-content: center !important;
-  align-items: center !important;
-  position: relative !important;
-  z-index: 1 !important;
   overflow: hidden !important;
 }
 
 .featured-player-photo,
 .pro-card-photo {
-  height: 100% !important;
   width: 100% !important;
+  height: 100% !important;
   display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
   object-fit: cover !important;
   object-position: center bottom !important;
   transition: transform 0.4s ease !important;
