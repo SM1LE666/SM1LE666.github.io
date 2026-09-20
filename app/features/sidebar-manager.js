@@ -1122,9 +1122,9 @@
               <button class="record-filter-btn">Highest HS%</button>
             </div>
             <div class="record-display">
-              <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-                "Loading records...",
-              )}</div>
+              <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
+                "Loading records..."
+              </div>
             </div>
           `;
 
@@ -1148,9 +1148,9 @@
 
           case "maps": {
             // Показываем индикатор загрузки
-            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-              "Loading maps...",
-            )}</div>`;
+            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
+              "Loading maps..."
+            </div>`;
             statsContainer.style.display = "block";
 
             // Скрываем блоки статистики, но НЕ трогаем player-header
@@ -1182,14 +1182,14 @@
                 const playerProfile = window.currentPlayerProfile;
 
                 if (!playerProfile || !playerProfile.statsData) {
-                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                  statsContainer.innerHTML = `<p>notEnoughData</p>`;
                   return;
                 }
 
                 const segments = playerProfile.statsData.segments || [];
 
                 if (segments.length === 0) {
-                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                  statsContainer.innerHTML = `<p>notEnoughData</p>`;
                   return;
                 }
 
@@ -1201,7 +1201,6 @@
                   allMapsStats.sort((a, b) => b.winRate - a.winRate);
 
                   if (allMapsStats && allMapsStats.length > 0) {
-                    // Создаем сетку карточек
                     let html = `<div class="maps-grid">`;
 
                     allMapsStats.forEach((map) => {
