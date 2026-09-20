@@ -1,8 +1,4 @@
 (function () {
-  function getTranslator() {
-    return window.getText || ((key) => key);
-  }
-
   function formatNumber(value) {
     const formatter = window.FaceitAPI?.formatNumber?.bind(window.FaceitAPI);
     return formatter ? formatter(value) : String(value);
@@ -19,15 +15,14 @@
   }
 
   function renderMapBox(map) {
-    const getText = getTranslator();
-    if (!map) return `<p>${getText("notEnoughData")}</p>`;
+    if (!map) return `<p>Not enough data</p>`;
 
     return `
-      <p class="stat-row">${formatStatRow(`${getText("mapName")}: ${map.name}`)}</p>
-      <p class="stat-row">${formatStatRow(`${getText("mapMatches")}: ${map.matches}`)}</p>
-      <p class="stat-row">${formatStatRow(`${getText("mapWinRate")}: ${map.winRate.toFixed(1)}%`)}</p>
+      <p class="stat-row">${formatStatRow(`Map: ${map.name}`)}</p>
+      <p class="stat-row">${formatStatRow(`Matches: ${map.matches}`)}</p>
+      <p class="stat-row">${formatStatRow(`Win Rate: ${map.winRate.toFixed(1)}%`)}</p>
       <p class="stat-row">${formatStatRow(`K/D: ${map.kd.toFixed(2)}`)}</p>
-      <p class="stat-row">${formatStatRow(`${getText("Headshots")}: ${map.hs.toFixed(1)}%`)}</p>
+      <p class="stat-row">${formatStatRow(`Headshots: ${map.hs.toFixed(1)}%`)}</p>
     `;
   }
 
@@ -63,7 +58,6 @@
   function renderOverviewStats(container) {
     if (!container || !window.currentPlayerProfile) return;
 
-    const getText = getTranslator();
     const {
       avgStats,
       mapAnalysis,
@@ -247,21 +241,21 @@
     ${metricsCardHtml}
     <div class="stats-grid">
       <div class="stats-box slide-in-animation">
-        <h3><i class="fas fa-chart-line"></i> ${getText("avgStatsTitle")}</h3>
-        <p class="stat-row">${formatStatRow(`${getText("Matches")}: ${formatNumber(avgStats.totalMatches)}`)}</p>
-        <p class="stat-row">${formatStatRow(`${getText("killsPerMatch")}: ${avgStats.avgKills}`)}</p>
-        <p class="stat-row">${formatStatRow(`${getText("deathsPerMatch")}: ${avgStats.avgDeaths}`)}</p>
+        <h3><i class="fas fa-chart-line"></i> Average Statistics</h3>
+        <p class="stat-row">${formatStatRow(`Matches: ${formatNumber(avgStats.totalMatches)}`)}</p>
+        <p class="stat-row">${formatStatRow(`Avg. Kills: ${avgStats.avgKills}`)}</p>
+        <p class="stat-row">${formatStatRow(`Avg. Deaths: ${avgStats.avgDeaths}`)}</p>
         <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
-        <p class="stat-row">${formatStatRow(`${getText("Headshots")}: ${avgStats.avgHs}%`)}</p>
+        <p class="stat-row">${formatStatRow(`Headshots: ${avgStats.avgHs}%`)}</p>
       </div>
 
       <div class="stats-box slide-in-animation">
-        <h3><i class="fas fa-map"></i> ${getText("bestMapTitle")}</h3>
+        <h3><i class="fas fa-map"></i> Best Map</h3>
         ${renderMapBox(mapAnalysis.bestMap)}
       </div>
 
       <div class="stats-box slide-in-animation">
-        <h3><i class="fas fa-map-marked-alt"></i> ${getText("worstMapTitle")}</h3>
+        <h3><i class="fas fa-map-marked-alt"></i> Worst Map</h3>
         ${renderMapBox(mapAnalysis.worstMap)}
       </div>
     </div>
@@ -275,14 +269,12 @@
     avgStats,
     lifetime,
   ) {
-    const getText = getTranslator();
     const faceitLevel = playerData.games?.cs2?.skill_level;
 
     const levelValue = faceitLevel
       ? `<img src="/images/levels/lvl${faceitLevel}.svg" alt="Level ${faceitLevel}" style="width: 35px; height: 35px; object-fit: contain; vertical-align: middle;" />`
       : "N/A";
 
-    const profileLang = window.currentLanguage === "ru" ? "ru" : "en";
     const countryCode = playerData.country
       ? playerData.country.toLowerCase()
       : "";
@@ -303,14 +295,14 @@
           <p style="
     font-size: 19px;
     font-weight: bold;">${levelValue} ${formatNumber(currentElo)} ELO</p>
-          <p>${getText("country")}: ${countryName}${flagImg}</p>
-          <p>${getText("matches")}: ${formatNumber(avgStats.totalMatches)}</p>
-          <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
+          <p>Country: ${countryName}${flagImg}</p>
+          <p>Matches: ${formatNumber(avgStats.totalMatches)}</p>
+          <p>Win Rate: ${lifetime["Win Rate %"] || "0"}%</p>
           <img
             src="/assets/faceit.svg"
-            alt="${getText("faceitProfile")}"
-            title="${getText("faceitProfile")}"
-            onclick="window.open('https://www.faceit.com/${profileLang}/players/${playerData.nickname}', '_blank')"
+            alt="FACEIT Profile"
+            title="FACEIT Profile"
+            onclick="window.open('https://www.faceit.com/en/players/${playerData.nickname}', '_blank')"
             style="cursor: pointer; width: 45px; height: 45px; margin-top: 5px; border-radius: 8px; border: 2px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s; object-fit: contain;"
             onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 10px var(--primary-color)';"
             onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"

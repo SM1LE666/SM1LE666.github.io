@@ -4,7 +4,6 @@ const appState = window.AppState || {
   currentPlayerProfile: null,
   sidebarManager: null,
   lastHandledPath: null,
-  currentLanguage: "en",
 };
 
 let playerStats = appState.playerStats ?? null;
@@ -12,11 +11,7 @@ let isInitialized = appState.isInitialized ?? false;
 let currentPlayerProfile = appState.currentPlayerProfile ?? null;
 let sidebarManager = appState.sidebarManager ?? null;
 let lastHandledPath = appState.lastHandledPath ?? null;
-let currentLanguage = "en";
-const translations = window.AppI18nCatalog || { en: {} };
 const SidebarManager = window.SidebarManager || null;
-
-window.currentLanguage = currentLanguage;
 
 function syncStateFromApp() {
   appState.playerStats = playerStats;
@@ -24,212 +19,6 @@ function syncStateFromApp() {
   appState.currentPlayerProfile = currentPlayerProfile;
   appState.sidebarManager = sidebarManager;
   appState.lastHandledPath = lastHandledPath;
-  appState.currentLanguage = currentLanguage;
-}
-
-function getText(key, placeholders = {}) {
-  let text =
-    translations[currentLanguage]?.[key] || translations.en?.[key] || key;
-
-  Object.keys(placeholders).forEach((placeholder) => {
-    text = text.replace(`{${placeholder}}`, placeholders[placeholder]);
-  });
-
-  return text;
-}
-
-function getCurrentLanguage() {
-  return window.currentLanguage || currentLanguage || "en";
-}
-
-function setElementHtml(selector, html) {
-  const element = document.querySelector(selector);
-  if (element) element.innerHTML = html;
-}
-
-function setElementText(selector, text) {
-  const element = document.querySelector(selector);
-  if (element) element.textContent = text;
-}
-
-function updateReactionTestTexts() {
-  setElementHtml(
-    "#reactionTestModal h2",
-    `<i class="fas fa-bolt"></i> ${getText("reactionTest")}`,
-  );
-
-  const instructions = document.getElementById("reactionInstructions");
-  if (instructions) {
-    const paragraphs = instructions.querySelectorAll("p");
-    if (paragraphs.length >= 3) {
-      paragraphs[0].textContent = getText("reactionInstructions1");
-      paragraphs[1].textContent = getText("reactionInstructions2");
-      paragraphs[2].innerHTML = getText("reactionInstructions3");
-    }
-    setElementHtml(
-      "#startReactionTest",
-      `<i class="fas fa-play"></i> ${getText("startTest")}`,
-    );
-  }
-
-  setElementText(
-    "#reactionWaiting .reaction-screen p",
-    getText("reactionWait"),
-  );
-  setElementText(
-    "#reactionReady .reaction-screen p",
-    getText("reactionClickNow"),
-  );
-  setElementText("#reactionResults h3", getText("reactionYourResult"));
-
-  const timeValue = document.getElementById("reactionTimeValue");
-  if (timeValue) {
-    setElementHtml(
-      ".reaction-time",
-      `<span id="reactionTimeValue">${timeValue.textContent}</span> ${getText("reactionTimeMs")}`,
-    );
-  }
-
-  setElementHtml(
-    "#retryReactionTest",
-    `<i class="fas fa-redo"></i> ${getText("reactionRetryTest")}`,
-  );
-  setElementText("#reactionTooEarly h3", getText("reactionTooEarly"));
-  setElementText("#reactionTooEarly p", getText("reactionTooEarlyText"));
-  setElementHtml(
-    "#restartReactionTest",
-    `<i class="fas fa-redo"></i> ${getText("reactionTryAgain")}`,
-  );
-}
-
-function updateTranslatedNodes(selector) {
-  document.querySelectorAll(selector).forEach((element) => {
-    const translateKey = element.dataset.translate;
-    if (translateKey) element.textContent = getText(translateKey);
-  });
-}
-
-function updateSidebarTexts() {
-  updateTranslatedNodes(".sidebar-item span[data-translate]");
-}
-
-function updateDrawerTexts() {
-  const drawer = document.getElementById("mobileSidebarDrawer");
-  if (!drawer || window.getComputedStyle(drawer).display === "none") return;
-
-  updateTranslatedNodes(
-    "#mobileSidebarDrawer .drawer-title[data-translate], #mobileSidebarDrawer .drawer-item span[data-translate]",
-  );
-}
-
-function updateModalTexts() {
-  setElementHtml(
-    "#supportModal h2",
-    `<i class="fas fa-heart"></i> ${getText("supportTitle")}`,
-  );
-  setElementHtml(
-    ".steam-support",
-    `<i class="fab fa-steam"></i> ${getText("steamTradeOffer")}`,
-  );
-
-  const supportInfo = document.querySelector(".steam-info");
-  if (supportInfo) {
-    supportInfo.innerHTML = `
-      <p><strong>${getText("howToSupport")}</strong></p>
-      <ol>
-        <li>${getText("supportStep1")}</li>
-        <li>${getText("supportStep2")}</li>
-        <li>${getText("supportStep3")}</li>
-      </ol>
-      <p><small>${getText("supportNote")}</small></p>
-    `;
-  }
-
-  setElementHtml(
-    "#contactModal h2",
-    `<i class="fas fa-envelope"></i> ${getText("contactTitle")}`,
-  );
-  setElementText(
-    "#contactModal .modal-content > p",
-    getText("contactDescription"),
-  );
-  setElementText('label[for="contactName"]', getText("yourName"));
-  setElementText('label[for="contactEmail"]', getText("email"));
-  setElementText('label[for="contactSubject"]', getText("messageSubject"));
-  setElementText('label[for="contactMessage"]', getText("message"));
-
-  const nameInput = document.getElementById("contactName");
-  if (nameInput) nameInput.placeholder = getText("enterName");
-
-  const messageTextarea = document.getElementById("contactMessage");
-  if (messageTextarea)
-    messageTextarea.placeholder = getText("messagePlaceholder");
-
-  const subjectSelect = document.getElementById("contactSubject");
-  if (subjectSelect) {
-    const optionKeys = [
-      "selectSubject",
-      "bugReport",
-      "featureRequest",
-      "support",
-      "partnership",
-      "other",
-    ];
-    optionKeys.forEach((key, index) => {
-      if (subjectSelect.options[index]) {
-        subjectSelect.options[index].textContent = getText(key);
-      }
-    });
-  }
-
-  setElementHtml(
-    ".submit-btn",
-    `<i class="fas fa-paper-plane"></i> ${getText("sendMessage")}`,
-  );
-}
-
-function updatePageTexts() {
-  setElementHtml(
-    "#search h2",
-    `<i class="fas fa-search"></i> ${getText("searchTitle")}`,
-  );
-  setElementHtml(
-    "#results h2",
-    `<i class="fas fa-trophy"></i> ${getText("resultsTitle")}`,
-  );
-
-  const nicknameInput = document.getElementById("nickname");
-  if (nicknameInput) nicknameInput.placeholder = getText("searchPlaceholder");
-
-  const searchButton = document.getElementById("searchButton");
-  if (searchButton) searchButton.textContent = getText("analyzeButton");
-
-  updateSidebarTexts();
-
-  const output = document.getElementById("output");
-  if (output) {
-    const outputText = output.textContent.trim();
-    if (
-      outputText.includes("Enter a nickname") ||
-      outputText.includes("Введите никнейм")
-    ) {
-      output.textContent = getText("enterNickname");
-    }
-  }
-
-  setElementHtml(
-    ".support-btn",
-    `<i class="fas fa-heart"></i> ${getText("supportUs")}`,
-  );
-  setElementHtml(
-    ".contact-btn",
-    `<i class="fas fa-envelope"></i> ${getText("contactUs")}`,
-  );
-  setElementHtml(
-    "#reactionTestBtn",
-    `<i class="fas fa-bolt"></i> ${getText("reactionTest")}`,
-  );
-  updateModalTexts();
 }
 
 function updateUrlForPlayer(nickname) {
@@ -293,8 +82,6 @@ async function init() {
     history.replaceState(null, "", window.location.pathname);
   }
 
-  currentLanguage = "en";
-  window.currentLanguage = currentLanguage;
   playerStats = document.getElementById("playerStats");
   sidebarManager = new SidebarManager();
   window.sidebarManager = sidebarManager;
@@ -303,8 +90,6 @@ async function init() {
   window.AppUIEvents.initializeEventListeners();
   window.addEventListener("resize", () => sidebarManager?.handleResize());
   window.addEventListener("popstate", handleUrlChange);
-
-  updatePageTexts();
 
   try {
     await window.Config.loadConfig();
@@ -320,7 +105,7 @@ async function init() {
 }
 
 function parseAnalyzeError(error) {
-  let errorText = "Игрок не найден или произошла ошибка запроса.";
+  let errorText = "Player not found or request error occurred.";
   try {
     const parsedError = JSON.parse(error.message);
     if (parsedError.errors && parsedError.errors[0]?.code === "err_nf0") {
@@ -371,7 +156,7 @@ function showPlayerResults() {
 async function analyzePlayer() {
   const nickname = document.getElementById("nickname")?.value?.trim();
   if (!nickname) {
-    alert(getText("enterNicknameValidation"));
+    alert("Please enter a nickname or profile URL.");
     return;
   }
 
@@ -380,7 +165,7 @@ async function analyzePlayer() {
   const faceitService = window.FaceitAPI;
 
   if (!playerStats) playerStats = playerStatsContainer;
-  if (output) output.textContent = `${getText("gettingData")} ${nickname}...`;
+  if (output) output.textContent = `Getting data for ${nickname}...`;
 
   try {
     if (!window.Config.loaded) await window.Config.loadConfig();
@@ -403,7 +188,7 @@ async function analyzePlayer() {
     });
 
     if (output) {
-      output.textContent = `${getText("gettingStats")} ${playerData.nickname}...`;
+      output.textContent = `Getting CS:2 statistics for ${playerData.nickname}...`;
     }
 
     const gameId = "cs2";
@@ -592,10 +377,6 @@ function closeModalRoute(updateUrl = true) {
   }
 }
 
-window.getText = getText;
-window.getCurrentLanguage = getCurrentLanguage;
-window.updateReactionTestTexts = updateReactionTestTexts;
-window.updateDrawerTexts = updateDrawerTexts;
 window.updateUrlForPlayer = updateUrlForPlayer;
 window.analyzePlayer = analyzePlayer;
 window.searchPlayer = searchPlayer;
