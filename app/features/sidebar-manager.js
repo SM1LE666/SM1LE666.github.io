@@ -438,9 +438,9 @@
         // Показываем индикатор загрузки с переводом
         const statsContainer = document.querySelector(".stats-container");
         if (render && statsContainer) {
-          statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-            "loadingMatchHistory",
-          )}</div>`;
+          statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
+            "Loading match history..."
+          </div>`;
         }
 
         // Загружаем все матчи игрока (через прокси)
@@ -616,9 +616,9 @@
 
         // Показываем индикатор обработки с переводом
         if (render && statsContainer) {
-          statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-            "processingMatches",
-          )}</div>`;
+          statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
+            "Processing matches..."
+        </div>`;
         }
 
         // Сохраняем историю и подготавливаем ленивую загрузку деталей матчей
@@ -951,9 +951,9 @@
         statsContainer.appendChild(wrapper);
       }
 
-      wrapper.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-        "processingMatches",
-      )}</div>`;
+      wrapper.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
+        "Processing matches, please wait..."
+      </div>`;
     }
 
     async ensureMatchesLoadedRange(startIndex, endIndexExclusive) {
@@ -1080,9 +1080,9 @@
 
           case "matches": {
             // Показываем индикатор загрузки с переводом
-            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-              "Loading match history...",
-            )}</div>`;
+            statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
+              "Loading match history..."
+            </div>`;
             statsContainer.style.display = "block";
 
             // Показываем карточку с оригинальным заголовком
@@ -1256,7 +1256,7 @@
                           <div class="map-stat-row">
                             <div class="map-stat-item">
                               <i class="fas fa-gamepad"></i>
-                              <span class="stat-label">${getText("mapMatches")}</span>
+                              <span class="stat-label">Matches</span>
                               <span class="stat-value">${map.matches}</span>
                             </div>
                             <div class="map-stat-item">
@@ -1273,7 +1273,7 @@
                             </div>
                             <div class="map-stat-item">
                               <i class="fas fa-trophy"></i>
-                              <span class="stat-label">${getText("mapWinRate")}</span>
+                              <span class="stat-label">Win Rate</span>
                               <span class="stat-value">${map.winRate.toFixed(1)}%</span>
                             </div>
                           </div>
@@ -1314,11 +1314,11 @@
                     ) {
                       mapAnalysis.allMaps.sort((a, b) => b.winRate - a.winRate);
                       let html = `<table class="maps-table"><thead><tr>
-                      <th>${getText("mapName")}</th>
-                      <th>${getText("mapMatches")}</th>
-                      <th>${getText("mapWinRate")}</th>
+                      <th>Map</th>
+                      <th>Matches</th>
+                      <th>WinRate</th>
                       <th>K/D</th>
-                      <th>${getText("killsPerMatch")}</th>
+                      <th>Avg Kills</th>
                     </tr></thead><tbody>`;
 
                       mapAnalysis.allMaps.forEach((map) => {
@@ -1334,13 +1334,13 @@
                       html += "</tbody></table>";
                       statsContainer.innerHTML = html;
                     } else {
-                      statsContainer.innerHTML = `<p>${getText(
-                        "notEnoughData",
-                      )}</p>`;
+                      statsContainer.innerHTML = `<p>
+                        "Not enough data to display map statistics."
+                    </p>`;
                     }
                   }
                 } else {
-                  statsContainer.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+                  statsContainer.innerHTML = `<p>Not enough data to display map statistics.</p>`;
                 }
               } catch (error) {
                 console.error("Ошибка при загрузке данных карт:", error);
@@ -1373,7 +1373,7 @@
       }
 
       if (!matches || matches.length === 0) {
-        wrapper.innerHTML = `<p>${getText("noMatchHistory")}</p>`;
+        wrapper.innerHTML = `<p>No match history available.</p>`;
         return;
       }
 
@@ -1402,7 +1402,7 @@
         <div class="show-more-container">
           <button class="show-more-btn" style="font-family: 'Orbitron', sans-serif;" onclick="sidebarManager.loadMoreMatches()">
             <i class="fas fa-chevron-down"></i>
-            ${getText("showMoreMatches")} (${remainingMatches})
+            Show More (${remainingMatches})
           </button>
         </div>
       `;
@@ -1437,9 +1437,7 @@
 
       const showMoreContainer = document.querySelector(".show-more-container");
       if (showMoreContainer) {
-        showMoreContainer.innerHTML = `<div class="loading-indicator small"><i class="fas fa-spinner fa-spin"></i> ${getText(
-          "processingMatches",
-        )}</div>`;
+        showMoreContainer.innerHTML = `<div class="loading-indicator small"><i class="fas fa-spinner fa-spin"></i>Processing matches...</div>`;
       }
 
       try {
@@ -1484,9 +1482,7 @@
       if (!recordDisplay) return;
 
       // 1. Показываем индикатор загрузки с сообщением о подгрузке всех матчей
-      recordDisplay.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-        "loadingRecords",
-      )}</div>`;
+      recordDisplay.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading records...</div>`;
 
       // 2. Убеждаемся, что список истории (allHistoryItems) загружен
       if (!this.allHistoryItems || this.allHistoryItems.length === 0) {
@@ -1494,7 +1490,7 @@
       }
 
       if (!this.allHistoryItems || this.allHistoryItems.length === 0) {
-        recordDisplay.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+        recordDisplay.innerHTML = `<p>Not enough data to display records.</p>`;
         return;
       }
 
@@ -1506,7 +1502,7 @@
       }
 
       if (this.currentMatches.length === 0) {
-        recordDisplay.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+        recordDisplay.innerHTML = `<p>Not enough data to display records.</p>`;
         return;
       }
 
@@ -1560,7 +1556,7 @@
         .slice(0, 5);
 
       if (rankedMatches.length === 0) {
-        recordDisplay.innerHTML = `<p>${getText("notEnoughData")}</p>`;
+        recordDisplay.innerHTML = `<p>Not enough data to display records.</p>`;
         return;
       }
 
