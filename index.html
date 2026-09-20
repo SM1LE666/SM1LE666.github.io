@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google" content="notranslate" />
     <meta name="robots" content="notranslate" />
-    <meta http-equiv="Content-Language" content="ru,en" />
+    <meta http-equiv="Content-Language" content="en" />
     <meta name="translate" content="no" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
@@ -21,7 +21,7 @@
     />
     <meta
       name="keywords"
-      content="FACEIT, Faceit analyse, фейсит анализ, faceit analyzer, Counter-Strike 2, CS2, player statistics, match analysis, K/D, winrate, CS2 maps, FACEIT ranking, ELO, esports, game analytics"
+      content="FACEIT, Faceit analyse, faceit analyzer, Counter-Strike 2, CS2, player statistics, match analysis, K/D, winrate, CS2 maps, FACEIT ranking, ELO, esports, game analytics"
     />
     <meta name="author" content="FACEIT Analyze" />
     <meta name="robots" content="index, follow" />
@@ -66,31 +66,29 @@
     <div id="mobileSidebarDrawer" class="mobile-sidebar-drawer mobile-only">
       <div class="drawer-header" id="drawerHeader">
         <div class="drawer-handle"></div>
-        <span class="drawer-title" data-translate="drawerTitle"
-          >Player Statistics</span
-        >
+        <span class="drawer-title">Player Statistics</span>
       </div>
       <div class="drawer-content">
         <!-- Кнопка назад в главное меню -->
         <div class="drawer-item back-button" data-action="back">
           <i class="fas fa-arrow-left"></i>
-          <span data-translate="sidebarBack">Main Menu</span>
+          <span>Main Menu</span>
         </div>
         <div class="drawer-item active" data-view="overview">
           <i class="fas fa-chart-bar"></i>
-          <span data-translate="sidebarOverview">Overview</span>
+          <span>Overview</span>
         </div>
         <div class="drawer-item" data-view="matches">
           <i class="fas fa-history"></i>
-          <span data-translate="sidebarMatches">Matches</span>
+          <span>Matches</span>
         </div>
         <div class="drawer-item" data-view="maps">
           <i class="fas fa-map"></i>
-          <span data-translate="sidebarMaps">Maps</span>
+          <span>Maps</span>
         </div>
         <div class="drawer-item" data-view="records">
           <i class="fas fa-trophy"></i>
-          <span data-translate="sidebarRecords">Records</span>
+          <span>Records</span>
         </div>
       </div>
     </div>
@@ -101,7 +99,7 @@
         <!-- Кнопка назад в главное меню -->
         <div class="sidebar-item back-button" data-action="back">
           <i class="fas fa-arrow-left"></i>
-          <span data-translate="sidebarBack">Back</span>
+          <span>Back</span>
         </div>
 
         <!-- Разделитель -->
@@ -109,19 +107,19 @@
 
         <div class="sidebar-item active" data-view="overview">
           <i class="fas fa-chart-bar"></i>
-          <span data-translate="sidebarOverview">Overview</span>
+          <span>Overview</span>
         </div>
         <div class="sidebar-item" data-view="matches">
           <i class="fas fa-history"></i>
-          <span data-translate="sidebarMatches">Matches</span>
+          <span>Matches</span>
         </div>
         <div class="sidebar-item" data-view="maps">
           <i class="fas fa-map"></i>
-          <span data-translate="sidebarMaps">Maps</span>
+          <span>Maps</span>
         </div>
         <div class="sidebar-item" data-view="records">
           <i class="fas fa-trophy"></i>
-          <span data-translate="sidebarRecords">Records</span>
+          <span>Records</span>
         </div>
       </div>
     </aside>
@@ -142,7 +140,7 @@
           <input
             type="text"
             id="nickname"
-            placeholder="Введите никнейм игрока или ссылку на профиль"
+            placeholder="Enter player nickname or profile URL"
           />
           <button id="searchButton">
             <i class="fas fa-chart-pie"></i> ANALYZE
@@ -267,16 +265,16 @@
           </a>
         </div>
         <div class="steam-info">
-          <p><strong>Как поддержать:</strong></p>
+          <p><strong>How to support:</strong></p>
           <ol>
-            <li>Нажмите на кнопку "Steam Trade Offer"</li>
-            <li>Выберите предметы для передачи</li>
-            <li>Отправьте трейд-оффер</li>
+            <li>Click on "Steam Trade Offer" button</li>
+            <li>Select items to trade</li>
+            <li>Send trade offer</li>
           </ol>
           <p>
             <small
-              >Любые скины CS:2 или другие игровые предметы будут приняты с
-              благодарностью!</small
+              >Any CS:2 skins or other game items will be accepted with
+              gratitude!</small
             >
           </p>
         </div>
@@ -287,18 +285,18 @@
     <div id="contactModal" class="modal" translate="no">
       <div class="modal-content">
         <span class="close">&times;</span>
-        <h2><i class="fas fa-envelope"></i> Отправить сообщение</h2>
-        <p>Есть вопросы, предложения или нужна помощь? Напишите нам!</p>
+        <h2><i class="fas fa-envelope"></i> Send Message</h2>
+        <p>Have questions, suggestions or need help? Write to us!</p>
 
         <div class="contact-form">
           <form id="contactForm">
             <div class="form-group">
-              <label for="contactName">Ваше имя</label>
+              <label for="contactName">Your name</label>
               <input
                 type="text"
                 id="contactName"
                 name="name"
-                placeholder="Введите ваше имя"
+                placeholder="Enter your name"
                 required
               />
             </div>
@@ -315,30 +313,30 @@
             </div>
 
             <div class="form-group">
-              <label for="contactSubject">Тема сообщения</label>
+              <label for="contactSubject">Message subject</label>
               <select id="contactSubject" name="subject" required>
-                <option value="">Выберите тему</option>
-                <option value="bug_report">Сообщить об ошибке</option>
-                <option value="feature_request">Предложить улучшение</option>
-                <option value="support">Техническая поддержка</option>
-                <option value="partnership">Сотрудничество</option>
-                <option value="other">Другое</option>
+                <option value="">Select subject</option>
+                <option value="bug_report">Report a bug</option>
+                <option value="feature_request">Suggest improvement</option>
+                <option value="support">Technical support</option>
+                <option value="partnership">Partnership</option>
+                <option value="other">Other</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="contactMessage">Сообщение</label>
+              <label for="contactMessage">Message</label>
               <textarea
                 id="contactMessage"
                 name="message"
                 rows="5"
-                placeholder="Опишите ваш вопрос или предложение..."
+                placeholder="Describe your question or suggestion..."
                 required
               ></textarea>
             </div>
 
             <button type="submit" class="submit-btn">
-              <i class="fas fa-paper-plane"></i> Отправить сообщение
+              <i class="fas fa-paper-plane"></i> Send message
             </button>
           </form>
         </div>
@@ -349,57 +347,55 @@
     <div id="reactionTestModal" class="modal" translate="no">
       <div class="modal-content">
         <span class="close">&times;</span>
-        <h2><i class="fas fa-bolt"></i> Тест на реакцию</h2>
+        <h2><i class="fas fa-bolt"></i> Reaction Test</h2>
 
         <div id="reactionTestContent">
           <div id="reactionInstructions">
-            <p>Нажмите кнопку "Начать тест" и ждите зеленый экран.</p>
+            <p>Press the 'Start Test' button and wait for the green screen.</p>
+            <p>As soon as the screen turns green - click immediately!</p>
             <p>
-              Как только экран станет зеленым - немедленно кликните по нему!
-            </p>
-            <p>
-              <strong>Внимание:</strong> Если кликнете слишком рано - тест
-              начнется заново.
+              <strong>Attention:</strong> If you click too early - the test will
+              restart.
             </p>
             <button id="startReactionTest" class="reaction-btn">
-              <i class="fas fa-play"></i> Начать тест
+              <i class="fas fa-play"></i> Start Test
             </button>
           </div>
 
           <div id="reactionWaiting" style="display: none">
             <div class="reaction-screen waiting">
-              <p>Ждите зеленый цвет...</p>
+              <p>Wait for green color...</p>
               <div class="loading-spinner"></div>
             </div>
           </div>
 
           <div id="reactionReady" style="display: none">
             <div class="reaction-screen ready">
-              <p>КЛИКНИТЕ СЕЙЧАС!</p>
+              <p>CLICK NOW!</p>
             </div>
           </div>
 
           <div id="reactionResults" style="display: none">
             <div class="reaction-result">
-              <h3>Ваш результат:</h3>
+              <h3>Your result:</h3>
               <div class="reaction-time">
-                <span id="reactionTimeValue">0</span> мс
+                <span id="reactionTimeValue">0</span> ms
               </div>
               <div class="reaction-rating">
-                <span id="reactionRating">Отлично!</span>
+                <span id="reactionRating">Excellent!</span>
               </div>
               <button id="retryReactionTest" class="reaction-btn">
-                <i class="fas fa-redo"></i> Попробовать еще раз
+                <i class="fas fa-redo"></i> Retry test
               </button>
             </div>
           </div>
 
           <div id="reactionTooEarly" style="display: none">
             <div class="reaction-error">
-              <h3>Слишком рано!</h3>
-              <p>Вы кликнули до появления зеленого экрана.</p>
+              <h3>Too early!</h3>
+              <p>You clicked before the green screen appeared.</p>
               <button id="restartReactionTest" class="reaction-btn">
-                <i class="fas fa-redo"></i> Начать заново
+                <i class="fas fa-redo"></i> Try again
               </button>
             </div>
           </div>
@@ -414,7 +410,6 @@
     <script src="/app/features/analytics.js?v=1.3"></script>
     <script src="/app/features/modals.js?v=1.3"></script>
     <script src="/app/features/rendering.js?v=1.7"></script>
-    <script src="/app/features/i18n-catalog.js?v=1.3"></script>
     <script src="/app/features/player-resolve.js?v=1.3"></script>
     <script src="/app/features/ui-events.js?v=1.4"></script>
     <script src="/app/features/sidebar-manager.js?v=1.5"></script>
