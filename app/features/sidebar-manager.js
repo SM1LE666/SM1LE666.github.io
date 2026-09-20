@@ -1081,7 +1081,7 @@
           case "matches": {
             // Показываем индикатор загрузки с переводом
             statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-              "loadingMatchHistory",
+              "Loading match history...",
             )}</div>`;
             statsContainer.style.display = "block";
 
@@ -1114,16 +1114,16 @@
 
             statsContainer.innerHTML = `
             <div class="record-filters">
-              <button class="record-filter-btn active" data-record="mostKills">Most Kills</button>
-              <button class="record-filter-btn" data-record="mostAssists">Most Assists</button>
-              <button class="record-filter-btn" data-record="highestKD">Highest K/D</button>
-              <button class="record-filter-btn" data-record="highestKDDifference">Highest K/D Difference</button>
-              <button class="record-filter-btn" data-record="mostMVPs">Most MVPs</button>
-              <button class="record-filter-btn" data-record="highestHeadshotPct">Highest HS%</button>
+              <button class="record-filter-btn active">Most Kills</button>
+              <button class="record-filter-btn">Most Assists</button>
+              <button class="record-filter-btn">Highest K/D</button>
+              <button class="record-filter-btn">Highest K/D Difference</button>
+              <button class="record-filter-btn">Most MVPs</button>
+              <button class="record-filter-btn">Highest HS%</button>
             </div>
             <div class="record-display">
               <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-                "loadingRecords",
+                "Loading records...",
               )}</div>
             </div>
           `;
@@ -1149,7 +1149,7 @@
           case "maps": {
             // Показываем индикатор загрузки
             statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> ${getText(
-              "loadingMaps",
+              "Loading maps...",
             )}</div>`;
             statsContainer.style.display = "block";
 

@@ -116,15 +116,15 @@
     const getText = window.getText || ((key) => key);
     const ratingElement = document.getElementById("reactionRating");
     if (reactionTime < 150) {
-      ratingElement.textContent = getText("reactionRatingExcellent");
+      ratingElement.textContent = getText("Excellent!");
     } else if (reactionTime < 200) {
-      ratingElement.textContent = getText("reactionRatingGood");
+      ratingElement.textContent = getText("Good!");
     } else if (reactionTime < 250) {
-      ratingElement.textContent = getText("reactionRatingNormal");
+      ratingElement.textContent = getText("Normal");
     } else if (reactionTime < 350) {
-      ratingElement.textContent = getText("reactionRatingAverage");
+      ratingElement.textContent = getText("Average");
     } else {
-      ratingElement.textContent = getText("reactionRatingSlow");
+      ratingElement.textContent = getText("Slow");
     }
   }
 
