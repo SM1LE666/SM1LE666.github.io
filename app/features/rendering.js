@@ -333,16 +333,16 @@
     })();
 
     const mapBackgrounds = {
-      ancient: new URL("images/maps/ancient.jpg", assetBaseUrl).toString(),
-      anubis: new URL("images/maps/anubis.jpg", assetBaseUrl).toString(),
-      dust2: new URL("images/maps/dust2.jpg", assetBaseUrl).toString(),
-      inferno: new URL("images/maps/inferno.jpg", assetBaseUrl).toString(),
-      mirage: new URL("images/maps/mirage.jpg", assetBaseUrl).toString(),
-      nuke: new URL("images/maps/nuke.jpg", assetBaseUrl).toString(),
-      overpass: new URL("images/maps/overpass.jpg", assetBaseUrl).toString(),
-      train: new URL("images/maps/train.jpg", assetBaseUrl).toString(),
-      vertigo: new URL("images/maps/vertigo.jpg", assetBaseUrl).toString(),
-      cache: new URL("images/maps/cache.jpg", assetBaseUrl).toString(),
+      ancient: new URL("images/maps/ancient.webp", assetBaseUrl).toString(),
+      anubis: new URL("images/maps/anubis.webp", assetBaseUrl).toString(),
+      dust2: new URL("images/maps/dust2.webp", assetBaseUrl).toString(),
+      inferno: new URL("images/maps/inferno.webp", assetBaseUrl).toString(),
+      mirage: new URL("images/maps/mirage.webp", assetBaseUrl).toString(),
+      nuke: new URL("images/maps/nuke.webp", assetBaseUrl).toString(),
+      overpass: new URL("images/maps/overpass.webp", assetBaseUrl).toString(),
+      train: new URL("images/maps/train.webp", assetBaseUrl).toString(),
+      vertigo: new URL("images/maps/vertigo.webp", assetBaseUrl).toString(),
+      cache: new URL("images/maps/cache.webp", assetBaseUrl).toString(),
     };
 
     mapCards.forEach((card) => {
