@@ -59,7 +59,7 @@
     }
 
     const resultClass = match.result.toLowerCase();
-    const resultText = getText(resultClass);
+    const resultText = match.result.toUpperCase();
     const matchUrl = buildMatchUrl(match.matchId);
 
     return `
@@ -104,7 +104,7 @@
       this.sidebar = document.getElementById("sidebar");
       this.mobileToggle = document.getElementById("mobileMenuToggle");
       this.mobileOverlay = document.getElementById("mobileOverlay");
-      this.mobileDrawer = document.getElementById("mobileSidebarDrawer"); // Новая шторка
+      this.mobileDrawer = document.getElementById("mobileSidebarDrawer");
       this.isPlayerProfileActive = false;
       this.isMobileOpen = false;
       this.isDrawerExpanded = false; // Состояние разворота шторки
@@ -439,7 +439,7 @@
         const statsContainer = document.querySelector(".stats-container");
         if (render && statsContainer) {
           statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
-            "Loading match history..."
+            Loading match history...
           </div>`;
         }
 
@@ -617,7 +617,7 @@
         // Показываем индикатор обработки с переводом
         if (render && statsContainer) {
           statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
-            "Processing matches..."
+            Processing matches...
         </div>`;
         }
 
@@ -952,7 +952,7 @@
       }
 
       wrapper.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
-        "Processing matches, please wait..."
+        Processing matches, please wait...
       </div>`;
     }
 
