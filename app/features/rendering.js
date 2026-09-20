@@ -307,7 +307,7 @@
           <p>${getText("matches")}: ${formatNumber(avgStats.totalMatches)}</p>
           <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
           <img
-            src="/assets/faceit.png"
+            src="/assets/faceit.svg"
             alt="${getText("faceitProfile")}"
             title="${getText("faceitProfile")}"
             onclick="window.open('https://www.faceit.com/${profileLang}/players/${playerData.nickname}', '_blank')"
