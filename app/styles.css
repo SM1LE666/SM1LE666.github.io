@@ -101,33 +101,25 @@ button:active {
   top: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background:
-    radial-gradient(
-      100% 100% at 50% 0%,
-      rgba(255, 85, 0, 0.05) 0%,
-      rgba(18, 18, 18, 0.6) 100%
-    ),
-    #141414;
+  background: radial-gradient(
+    100% 100% at 50% 0%,
+    rgba(255, 85, 0, 0.08) 0%,
+    rgba(15, 15, 15, 0.85) 100%
+  );
+  backdrop-filter: blur(12px);
   z-index: 1000;
-  transform: translateX(-100%);
-  transition:
-    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    opacity 0.3s ease,
-    visibility 0.3s ease;
-  border-right: 2px solid rgba(255, 85, 0, 0.2);
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(255, 85, 0, 0.15);
+  box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
 }
 
-/* Состояния сайдбара */
 .sidebar.active {
   transform: translateX(0);
   opacity: 1;
   visibility: visible;
 }
 
-/* Сайдбар показывается только когда профиль игрока активен */
 .sidebar.player-profile-active {
   transform: translateX(0);
   opacity: 1;
@@ -135,7 +127,6 @@ button:active {
   backdrop-filter: blur(10px);
 }
 
-/* Анимация появления сайдбара при загрузке профиля */
 .sidebar.player-profile-active.slide-in {
   animation: sidebarSlideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
@@ -195,58 +186,61 @@ button:active {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.6rem 1.1rem;
+  padding: 1.2rem 0.8rem;
+  margin: 0.4rem 0.6rem;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  transition: all 0.3s ease;
-  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
-  border-left: 3px solid transparent;
+  border: 1px solid transparent;
   position: relative;
 }
 
 .sidebar-item:hover {
-  background: rgba(255, 85, 0, 0.1);
-  color: var(--primary-color);
-  border-left-color: var(--primary-color);
+  background: rgba(255, 85, 0, 0.08);
+  color: #fff;
+  border-color: rgba(255, 85, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.1);
 }
 
 .sidebar-item.active {
-  background: rgba(255, 85, 0, 0.15);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 85, 0, 0.2),
+    rgba(255, 85, 0, 0.05)
+  );
   color: var(--primary-color);
-  border-left-color: var(--primary-color);
+  border-color: rgba(255, 85, 0, 0.4);
+  box-shadow: 0 0 15px rgba(255, 85, 0, 0.15);
 }
 
 .sidebar-item.active::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 60%;
-  background: var(--primary-color);
-  border-radius: 2px 0 0 2px;
-}
-
-.sidebar-item i {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  transition: transform 0.3s ease;
-}
-
-.sidebar-item:hover i {
-  transform: scale(1.1);
+  display: none;
 }
 
 .sidebar-item span {
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  margin-top: 0.4rem;
 }
 
-/* Специальные стили для текста KD и MVP - делаем одинаковый размер */
+.sidebar-item i {
+  font-size: 1.4rem;
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
+}
+
+.sidebar-item:hover i {
+  transform: translateY(-2px) scale(1.1);
+  color: var(--primary-color);
+}
+
 .stat-item span,
 .stat-item i {
   font-size: 0.65rem !important;
@@ -254,7 +248,6 @@ button:active {
   color: var(--primary-color);
 }
 
-/* Mobile Overlay */
 .mobile-overlay {
   display: none;
   position: fixed;
@@ -896,6 +889,7 @@ footer {
 @media (max-width: 768px) {
   .modal-content {
     height: auto;
+    align-self: flex-start;
   }
 }
 
