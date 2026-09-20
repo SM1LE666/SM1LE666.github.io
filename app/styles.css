@@ -150,7 +150,6 @@ button:active {
   }
 }
 
-/* Пульсирующий эффект для активации */
 .sidebar.pulse-glow {
   box-shadow:
     4px 0 20px rgba(0, 0, 0, 0.3),
@@ -283,7 +282,6 @@ button:active {
   }
 }
 
-/* Main content adjustment when sidebar is active */
 body.sidebar-open {
   margin-left: var(--sidebar-width);
 }
@@ -1164,27 +1162,27 @@ footer {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 0; /* Убираем скругление */
+  border-radius: 0;
   cursor: pointer;
-  transition: none; /* Убираем анимацию перехода */
+  transition: none;
   font-size: 1.5rem;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
-  box-shadow: none; /* Убираем тень */
+  box-shadow: none;
 }
 
 .reaction-screen.waiting {
-  background: #ff4444; /* Простой красный цвет */
+  background: #ff4444;
   color: white;
-  text-shadow: none; /* Убираем тень текста */
+  text-shadow: none;
 }
 
 .reaction-screen.ready {
-  background: #4caf50; /* Простой зеленый цвет */
+  background: #4caf50;
   color: white;
-  text-shadow: none; /* Убираем тень текста */
-  animation: none; /* Убираем анимацию пульсации */
+  text-shadow: none;
+  animation: none;
 }
 
 .loading-spinner {
@@ -1501,7 +1499,6 @@ footer {
     object-position: center 30% !important;
   }
 
-  /* Header и Footer на мобильных */
   body.profile-active header {
     display: none !important;
   }
@@ -1510,7 +1507,6 @@ footer {
     display: none !important;
   }
 
-  /* Секции на мобильных */
   section {
     padding: 1.5rem 1rem;
     margin-bottom: 1rem;
@@ -1798,7 +1794,6 @@ h1::after {
     color: var(--text-color);
   }
 
-  /* Нижняя часть: статистика (во всю ширину) */
   .player-stats {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
@@ -1926,7 +1921,6 @@ h1::after {
   line-height: 1.05;
 }
 
-/* Desktop specific: keep everything on one line but tighter */
 @media (min-width: 769px) {
   .match-date {
     font-size: 0.75rem;
@@ -1965,7 +1959,6 @@ h1::after {
   }
 }
 
-/* Mobile: smaller tiles, less vertical padding */
 @media (max-width: 768px) {
   .match-item {
     padding: 0.75rem 0.9rem;
@@ -2370,7 +2363,6 @@ h1::after {
   }
 }
 
-/* Скрытие на десктопах */
 @media (min-width: 769px) {
   .mobile-sidebar-drawer {
     display: none !important;
@@ -2778,7 +2770,6 @@ h1::after {
     0 0 22px rgba(255, 85, 0, 0.35);
 }
 
-/* Mobile: keep away from bottom safe area / thumbs */
 @media (max-width: 768px) {
   .cookie-fab {
     right: 14px;
@@ -3234,8 +3225,6 @@ h1::after {
     padding: 0.75rem 0 !important;
   }
 }
-
-/* --- Header CSS hotfixes (typos + conflicting overrides) --- */
 
 @media (max-width: 480px) {
   h1 {
@@ -4138,13 +4127,11 @@ h1::after {
   transform: none;
 }
 
-/* Тело модалки */
 .metrics-modal-body {
   padding: 16px 20px;
   max-height: 400px;
 }
 
-/* Список метрик */
 .metrics-list {
   list-style: none;
   padding: 0;
