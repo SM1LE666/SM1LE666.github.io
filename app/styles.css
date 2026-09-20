@@ -383,13 +383,13 @@ section {
   backdrop-filter: blur(10px);
   padding: 2rem;
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 85, 0, 0.1);
   position: relative;
   overflow: hidden;
   width: 100%;
   max-width: 1350px;
   pointer-events: auto;
+  box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
 }
 
 section::before {
@@ -3444,6 +3444,12 @@ h1::after {
   #results {
     padding: 1.5rem 1.5rem;
     margin-bottom: 1rem;
+    background: radial-gradient(
+      100% 100% at 50% 0%,
+      rgba(255, 85, 0, 0.08) 0%,
+      rgba(15, 15, 15, 0.85) 100%
+    );
+    border: 2px solid rgba(255, 85, 0, 0.3);
   }
 
   .player-card {
@@ -3508,6 +3514,7 @@ h1::after {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    letter-spacing: 0.35px;
   }
 
   .stats-box p.stat-row .stat-row-value {
@@ -4306,7 +4313,6 @@ h1::after {
 
 @media (min-width: 1025px) {
   #results {
-    padding: 2rem;
     max-width: 1350px;
   }
 

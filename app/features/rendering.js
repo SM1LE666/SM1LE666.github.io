@@ -283,6 +283,12 @@
       : "N/A";
 
     const profileLang = window.currentLanguage === "ru" ? "ru" : "en";
+    const countryCode = playerData.country
+      ? playerData.country.toLowerCase()
+      : "";
+    const flagImg = countryCode
+      ? `<img src="https://flagcdn.com/24x18/${countryCode}.png" alt="${countryName}" style="vertical-align: middle; margin-left: 6px; border-radius: 2px; box-shadow: 0 0 4px rgba(0,0,0,0.4);" />`
+      : "";
 
     return `
     <div class="player-card fade-in-animation">
@@ -297,7 +303,7 @@
           <p style="
     font-size: 19px;
     font-weight: bold;">${levelValue} ${formatNumber(currentElo)} ELO</p>
-          <p>${getText("country")}: ${countryName}</p>
+          <p>${getText("country")}: ${countryName}${flagImg}</p>
           <p>${getText("matches")}: ${formatNumber(avgStats.totalMatches)}</p>
           <p>${getText("winRate")}: ${lifetime["Win Rate %"] || "0"}%</p>
           <img
