@@ -249,13 +249,23 @@ function updateUrlForPlayer(nickname) {
 }
 
 async function handleUrlChange() {
-  const path = window.location.pathname;
-  if (lastHandledPath === path) return;
+  const currentPath = window.location.pathname;
+  if (lastHandledPath === currentPath) return;
 
-  lastHandledPath = path;
+  lastHandledPath = currentPath;
   syncStateFromApp();
 
-  const route = window.AppRouter ? window.AppRouter.resolvePath(path) : null;
+  const route = window.AppRouter
+    ? window.AppRouter.resolvePath(currentPath)
+    : null;
+
+  if (route?.type === "modal") {
+    openModalByRoute(route.modalId, false);
+    return;
+  } else {
+    closeModalRoute(false);
+  }
+
   const nickname = route?.type === "player" ? route.nickname : null;
   const nicknameInput = document.getElementById("nickname");
 
@@ -271,6 +281,7 @@ async function handleUrlChange() {
     return;
   }
 
+  // 3. Главная страница (/)
   if (nicknameInput?.value) nicknameInput.value = "";
   goBackToMain(false);
 }
@@ -516,6 +527,69 @@ function goBackToMain(updateUrl = true) {
 
   window.scrollTo({ top: 0, behavior: "smooth" });
   if (updateUrl) updateUrlForPlayer(null);
+}
+
+const MODAL_ROUTE_MAP = {
+  "reaction-test": "reactionTestModal",
+  contact: "contactModal",
+  support: "supportModal",
+};
+
+function openModalByRoute(modalRoute, updateUrl = true) {
+  const modalId = MODAL_ROUTE_MAP[modalRoute];
+  if (!modalId) return;
+
+  // Закрываем другие модалки перед открытием текущей
+  Object.values(MODAL_ROUTE_MAP).forEach((id) => {
+    const el = document.getElementById(id);
+    if (el && id !== modalId) {
+      el.style.display = "none";
+      el.classList.remove("show");
+    }
+  });
+
+  const modalElement = document.getElementById(modalId);
+  if (modalElement) {
+    modalElement.style.display = "flex";
+    modalElement.classList.add("show");
+  }
+
+  if (updateUrl) {
+    const targetPath = `/${modalRoute}`;
+    if (window.location.pathname !== targetPath) {
+      // Сохраняем предыдущий путь в state, чтобы корректно вернуться назад
+      history.pushState(
+        { modal: modalRoute, previousPath: window.location.pathname },
+        "",
+        targetPath,
+      );
+      lastHandledPath = targetPath;
+      syncStateFromApp();
+    }
+  }
+}
+
+function closeModalRoute(updateUrl = true) {
+  Object.values(MODAL_ROUTE_MAP).forEach((modalId) => {
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      modalElement.style.display = "none";
+      modalElement.classList.remove("show");
+    }
+  });
+
+  if (updateUrl) {
+    // Возвращаемся к профилю игрока или на главную
+    const fallbackPath = window.currentPlayerData?.nickname
+      ? `/player/${encodeURIComponent(window.currentPlayerData.nickname)}`
+      : "/";
+
+    if (window.location.pathname !== fallbackPath) {
+      history.pushState(null, "", fallbackPath);
+      lastHandledPath = fallbackPath;
+      syncStateFromApp();
+    }
+  }
 }
 
 window.getText = getText;

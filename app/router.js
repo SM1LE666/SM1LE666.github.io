@@ -9,15 +9,31 @@
     return `/player/${encodeURIComponent(String(nickname).trim())}`;
   }
 
+  function buildModalUrl(modalRoute) {
+    if (!modalRoute) return "/";
+    return `/${modalRoute}`;
+  }
+
   function resolvePath(path) {
     const normalizedPath = normalizePath(path);
-    const match = normalizedPath.match(/^\/player\/(.+)$/);
 
-    if (match && match[1]) {
+    const modalMatch = normalizedPath.match(
+      /^\/(reaction-test|support|contact)$/i,
+    );
+    if (modalMatch && modalMatch[1]) {
+      return {
+        type: "modal",
+        modalId: modalMatch[1].toLowerCase(),
+        path: normalizedPath,
+      };
+    }
+
+    const playerMatch = normalizedPath.match(/^\/player\/(.+)$/i);
+    if (playerMatch && playerMatch[1]) {
       return {
         type: "player",
         path: normalizedPath,
-        nickname: decodeURIComponent(match[1]),
+        nickname: decodeURIComponent(playerMatch[1]),
       };
     }
 
@@ -32,6 +48,7 @@
     window.AppRouter = {
       normalizePath,
       buildPlayerUrl,
+      buildModalUrl,
       resolvePath,
     };
   }

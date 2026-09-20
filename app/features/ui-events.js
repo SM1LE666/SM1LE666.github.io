@@ -99,6 +99,43 @@
       }
     });
 
+    document
+      .getElementById("reactionTestBtn")
+      ?.addEventListener("click", () => {
+        if (typeof openModalByRoute === "function") {
+          openModalByRoute("reaction-test");
+        }
+      });
+
+    document.querySelector(".contact-btn")?.addEventListener("click", () => {
+      if (typeof openModalByRoute === "function") {
+        openModalByRoute("contact");
+      }
+    });
+
+    document.querySelector(".support-btn")?.addEventListener("click", () => {
+      if (typeof openModalByRoute === "function") {
+        openModalByRoute("support");
+      }
+    });
+
+    document.querySelectorAll(".modal .close").forEach((closeBtn) => {
+      closeBtn.addEventListener("click", () => {
+        if (typeof closeModalRoute === "function") {
+          closeModalRoute(true);
+        }
+      });
+    });
+
+    // 3. Закрытие по клику на затемненный фон (оверлей) вокруг модалки
+    window.addEventListener("click", (event) => {
+      if (event.target.classList.contains("modal")) {
+        if (typeof closeModalRoute === "function") {
+          closeModalRoute(true);
+        }
+      }
+    });
+
     initializeProPlayerCards();
   }
 
