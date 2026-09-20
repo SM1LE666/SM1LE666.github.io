@@ -25,15 +25,29 @@ html,
 body {
   height: 100%;
   font-family: "Roboto", Arial, sans-serif;
-  background: linear-gradient(
-    135deg,
-    #0f0f0f 0%,
-    #1a1a1a 25%,
-    #2d1f0f 50%,
-    #1a1a1a 75%,
-    #0f0f0f 100%
-  );
-  background-size: 400% 400%;
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(255, 85, 0, 0.12) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(255, 85, 0, 0.08) 0%,
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      #0d0d0d 0%,
+      #171717 30%,
+      #24180d 50%,
+      #171717 70%,
+      #0d0d0d 100%
+    );
+  background-size:
+    100% 100%,
+    100% 100%,
+    400% 400%;
   animation: gradientShift 12s ease infinite;
   color: var(--text-color);
   line-height: 1.6;
@@ -42,7 +56,6 @@ body {
   pointer-events: auto;
 }
 
-/* Анимация градиентного фона */
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;
@@ -437,7 +450,11 @@ h2 {
   transform: scale(1);
   transform-origin: center top;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  background: rgba(20, 20, 20, 0.55) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 85, 0, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45) !important;
 }
 
 .search-container {
@@ -466,22 +483,26 @@ input[type="text"] {
   flex: 1;
   min-width: 300px;
   padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
+  font-size: 1rem;
   border-radius: var(--border-radius);
-  background: rgb(177 177 177 / 90%);
-  color: #333;
-  border: 2px solid rgba(255, 85, 0, 0.3);
-  box-shadow: 0 4px 15px rgba(255, 85, 0, 0.1);
+  background: rgba(10, 10, 10, 0.65) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 85, 0, 0.25) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease;
+}
+
+input[type="text"]::placeholder {
+  color: rgba(255, 255, 255, 0.45);
 }
 
 input[type="text"]:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: var(--primary-color) !important;
   box-shadow:
-    0 0 0 3px rgba(255, 85, 0, 0.2),
-    0 4px 20px rgba(255, 85, 0, 0.3);
-  background: rgba(255, 255, 255, 1);
+    0 0 0 2px rgba(255, 85, 0, 0.25),
+    0 0 15px rgba(255, 85, 0, 0.3) !important;
+  background: rgba(15, 15, 15, 0.85) !important;
 }
 
 #searchButton {
@@ -890,6 +911,7 @@ footer {
   border: 2px solid rgba(255, 85, 0, 0.2);
   animation: modalSlideIn 0.3s ease-out;
   height: auto;
+  align-self: center;
   font-family: "Orbitron", sans-serif;
 }
 
@@ -1447,12 +1469,10 @@ footer {
     display: block !important;
   }
 
-  /* Скрываем карточки про-игроков при активном профиле */
   body.profile-active .featured-players-grid {
     display: none !important;
   }
 
-  /* Pro-grid управление */
   .pro-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
@@ -1463,12 +1483,10 @@ footer {
     box-shadow: none !important;
   }
 
-  /* Скрываем pro-grid когда профиль активен */
   body.profile-active .pro-grid {
     display: none !important;
   }
 
-  /* Карточки про-игроков на мобильных */
   .featured-players-grid {
     grid-template-columns: 1fr;
     gap: 1rem !important;
@@ -3606,13 +3624,18 @@ h1::after {
 
 .featured-player-card,
 .pro-card {
-  background: linear-gradient(135deg, var(--bg-darker), rgba(255, 85, 0, 0.05));
-  border-radius: 12px;
+  background: rgba(20, 20, 20, 0.5) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 14px;
   padding: 0;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(255, 85, 0, 0.2);
-  transition: all 0.3s ease;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 85, 0, 0.2);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   position: relative;
   height: 260px !important;
 }
@@ -3630,13 +3653,32 @@ h1::after {
   z-index: 2;
 }
 
+.featured-player-card::after,
+.pro-card::after {
+  content: "PRO";
+  position: absolute;
+  top: 38px;
+  right: 8px;
+  background: rgba(255, 85, 0, 0.85);
+  color: #fff;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
 .featured-player-card:hover,
 .pro-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-6px) !important;
   box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.4),
-    0 0 15px rgba(255, 85, 0, 0.3);
-  border-color: var(--primary-color);
+    0 12px 30px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(255, 85, 0, 0.35) !important;
+  border-color: var(--primary-color) !important;
 }
 
 .featured-player-card-header,
@@ -3670,13 +3712,16 @@ h1::after {
 .featured-player-photo,
 .pro-card-photo {
   height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
+  width: 100% !important;
   display: block !important;
   object-fit: cover !important;
   object-position: center bottom !important;
-  border-radius: 0 !important;
-  border: none !important;
+  transition: transform 0.4s ease !important;
+}
+
+.featured-player-card:hover .featured-player-photo,
+.pro-card:hover .pro-card-photo {
+  transform: scale(1.08) translateY(1px) !important;
 }
 
 @media (max-width: 1024px) {

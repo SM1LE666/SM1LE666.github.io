@@ -287,7 +287,7 @@
       ? playerData.country.toLowerCase()
       : "";
     const flagImg = countryCode
-      ? `<img src="https://flagcdn.com/24x18/${countryCode}.png" alt="${countryName}" style="vertical-align: middle; margin-left: 6px; border-radius: 2px; box-shadow: 0 0 4px rgba(0,0,0,0.4);" />`
+      ? `<img src="https://flagcdn.com/24x18/${countryCode}.png" alt="${countryName}" style="vertical-align: middle; margin-left: 6px; border-radius: 2px; box-shadow: 0 0 4px rgba(0,0,0,0.4); width: 25px; margin-bottom: 3px;" />`
       : "";
 
     return `
