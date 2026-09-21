@@ -2371,34 +2371,33 @@ h1::after {
 
 .maps-grid {
   display: grid;
-  grid-template-columns: repeat(3, 300px);
-  grid-template-rows: repeat(2, auto);
-  row-gap: 30px;
-  column-gap: 45px;
-  margin: 2rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
   width: 100%;
-  justify-content: center;
-  padding: 0 1rem;
+  padding: 0;
 }
 
 .map-card {
-  border-radius: 15px;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(255, 85, 0, 0.2);
-  transition: all 0.3s ease;
   position: relative;
-  min-height: 280px;
-  margin: 0;
-  width: 300px;
-  max-width: 300px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  min-height: 290px;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: var(--bg-darker);
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
+  border: 1px solid rgba(255, 85, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
 }
 
 .map-card.has-map-bg {
@@ -2413,11 +2412,12 @@ h1::after {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.45) 0%,
-    rgba(0, 0, 0, 0.65) 100%
+    rgba(15, 15, 15, 0.55) 0%,
+    rgba(10, 10, 10, 0.85) 60%,
+    rgba(10, 10, 10, 0.95) 100%
   );
-  pointer-events: none;
-  opacity: 0;
+  z-index: 1;
+  transition: opacity 0.3s ease;
 }
 
 .map-card.has-map-bg::after {
@@ -2426,171 +2426,178 @@ h1::after {
 
 .map-card > * {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
-.map-card:hover {
-  transform: translateY(-5px);
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(255, 85, 0, 0.3);
-  border-color: var(--primary-color);
+/* Полоса статуса / производительности сверху */
+.map-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  z-index: 3;
+  border-radius: 16px 16px 0 0;
 }
 
-.map-card.average-performance {
-  border-color: rgba(255, 152, 0, 0.4);
-  margin-bottom: 1rem;
+/* Цветовые акценты производительности */
+.map-card.good-performance::before {
+  background: linear-gradient(90deg, #4caf50, #81c784);
 }
-
 .map-card.good-performance {
-  border-color: rgb(0 255 10 / 40%);
-  margin-bottom: 1rem;
+  border-color: rgba(76, 175, 80, 0.3);
 }
-
-.map-card.poor-performance {
-  border-color: rgb(255 17 0 / 40%);
-  margin-bottom: 1rem;
+.map-card.good-performance:hover {
+  border-color: #4caf50;
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(76, 175, 80, 0.25);
 }
 
 .map-card.average-performance::before {
-  color: yellow;
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-glow));
-  border-radius: 15px 15px 0 0;
+  background: linear-gradient(90deg, #ff9800, #ffb74d);
+}
+.map-card.average-performance {
+  border-color: rgba(255, 152, 0, 0.3);
+}
+.map-card.average-performance:hover {
+  border-color: #ff9800;
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(255, 152, 0, 0.25);
 }
 
 .map-card.poor-performance::before {
-  color: red;
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-glow));
-  border-radius: 15px 15px 0 0;
+  background: linear-gradient(90deg, #f44336, #e57373);
+}
+.map-card.poor-performance {
+  border-color: rgba(244, 67, 54, 0.3);
+}
+.map-card.poor-performance:hover {
+  border-color: #f44336;
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(244, 67, 54, 0.25);
 }
 
-.map-card.good-performance::before {
-  color: green;
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-glow));
-  border-radius: 15px 15px 0 0;
+.map-card:hover {
+  transform: translateY(-6px);
 }
 
 .map-card-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
-  padding: 1rem 1.5rem;
+  padding: 1.1rem 1.25rem 0.6rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
+  background: transparent;
+}
+
+.map-name {
+  margin: 0;
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.5px;
 }
 
 .win-rate-badge {
-  padding: 0.4rem 0.8rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 20px;
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  font-family: "Orbitron", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.map-card.good-performance .win-rate-badge {
+  background: rgba(76, 175, 80, 0.85);
+  border: 1px solid rgba(129, 199, 132, 0.5);
+}
+
+.map-card.average-performance .win-rate-badge {
+  background: rgba(255, 152, 0, 0.85);
+  border: 1px solid rgba(255, 183, 77, 0.5);
+}
+
+.map-card.poor-performance .win-rate-badge {
+  background: rgba(244, 67, 54, 0.85);
+  border: 1px solid rgba(229, 115, 115, 0.5);
+}
+
+.map-card-body {
+  padding: 0.8rem 1.25rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
 }
 
 .map-stat-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
 }
 
 .map-stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
   justify-content: center;
-  padding: 0.5rem 0.6rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 7px;
-  transition: all 0.3s ease;
-  height: auto;
+  padding: 0.6rem 0.5rem;
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .map-stat-item:hover {
-  background: rgba(255, 85, 0, 0.1);
-  transform: translateY(-2px);
+  background: rgba(255, 85, 0, 0.12);
+  border-color: rgba(255, 85, 0, 0.3);
 }
 
 .map-stat-item i {
-  font-size: 1.35rem;
+  font-size: 1.1rem;
   color: var(--primary-color);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .stat-label {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.65);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.15rem;
   font-weight: 500;
 }
 
 .stat-value {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
 }
 
-.map-card-footer {
-  padding: 1rem 1.5rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-top: 1px solid rgba(255, 85, 0, 0.2);
-}
-
-.maps-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  background: rgba(51, 51, 51, 0.8);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.maps-table th,
-.maps-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 85, 0, 0.2);
-}
-
-.maps-table th {
-  background: rgba(255, 85, 0, 0.1);
-  color: var(--primary-color);
-  font-weight: bold;
+.performance-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.9rem;
-}
-
-.maps-table td {
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-}
-
-.maps-table tr:hover {
-  background: rgba(255, 85, 0, 0.05);
+  letter-spacing: 0.8px;
+  margin-top: 0.2rem;
+  padding: 0.4rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -2601,19 +2608,12 @@ h1::after {
 
 @media (max-width: 768px) {
   .maps-grid {
-    margin: 0;
-    padding: 0;
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 
   .map-card {
-    width: 100%;
-    max-width: 100%;
-    min-height: 280px;
-    margin: 0 auto;
-    transform: translateX(0);
-    border: 3px solid rgb(255 255 255 / 20%);
+    min-height: 260px;
   }
 
   .map-stat-row {
