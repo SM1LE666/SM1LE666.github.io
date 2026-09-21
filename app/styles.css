@@ -2474,13 +2474,21 @@ h1::after {
   width: 100%;
   padding: 0.5rem 0.25rem;
   box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .map-stat-item .stat-label,
 .map-stat-item .stat-value {
   display: block;
   width: 100%;
-  margin: 0;
+  margin: 0.5rem 0;
   padding: 0;
   text-align: center;
 }
@@ -2492,6 +2500,7 @@ h1::after {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.2;
+  font-family: "Orbitron", sans-serif;
 }
 
 .map-stat-item .stat-value {
@@ -2520,25 +2529,6 @@ h1::after {
 .map-stat-item i {
   font-size: 1.2rem;
   color: var(--primary-color);
-}
-
-.stat-label {
-  font-size: 0.6rem;
-  color: rgba(255, 255, 255, 0.75);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  margin-top: 0.25rem;
-  font-weight: 500;
-  font-family: "Orbitron", sans-serif;
-}
-
-.stat-value {
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  margin: 0.5rem 0;
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
