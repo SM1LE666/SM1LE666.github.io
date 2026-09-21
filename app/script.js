@@ -69,8 +69,6 @@ async function handleUrlChange() {
     }
     return;
   }
-
-  // 3. Главная страница (/)
   if (nicknameInput?.value) nicknameInput.value = "";
   goBackToMain(false);
 }
@@ -244,14 +242,14 @@ async function analyzePlayer() {
     showPlayerResults();
 
     if (sidebarManager) {
-      setTimeout(() => {
-        sidebarManager.showForPlayerProfile();
+      requestAnimationFrame(() => {
         const statsContainer = document.querySelector(".stats-container");
         if (statsContainer) {
           sidebarManager.originalStatsHTML = statsContainer.innerHTML;
         }
+        sidebarManager.showForPlayerProfile();
         sidebarManager.switchView("overview");
-      }, 300);
+      });
     }
   } catch (error) {
     console.error("Ошибка при получении данных игрока:", error);
@@ -324,7 +322,6 @@ function openModalByRoute(modalRoute, updateUrl = true) {
   const modalId = MODAL_ROUTE_MAP[modalRoute];
   if (!modalId) return;
 
-  // Закрываем другие модалки перед открытием текущей
   Object.values(MODAL_ROUTE_MAP).forEach((id) => {
     const el = document.getElementById(id);
     if (el && id !== modalId) {
@@ -342,7 +339,6 @@ function openModalByRoute(modalRoute, updateUrl = true) {
   if (updateUrl) {
     const targetPath = `/${modalRoute}`;
     if (window.location.pathname !== targetPath) {
-      // Сохраняем предыдущий путь в state, чтобы корректно вернуться назад
       history.pushState(
         { modal: modalRoute, previousPath: window.location.pathname },
         "",
@@ -364,7 +360,6 @@ function closeModalRoute(updateUrl = true) {
   });
 
   if (updateUrl) {
-    // Возвращаемся к профилю игрока или на главную
     const fallbackPath = window.currentPlayerData?.nickname
       ? `/player/${encodeURIComponent(window.currentPlayerData.nickname)}`
       : "/";
