@@ -2470,15 +2470,45 @@ h1::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.45rem 0.35rem;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(3px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+  text-align: center;
+  width: 100%;
+  padding: 0.5rem 0.25rem;
+  box-sizing: border-box;
+}
+
+.map-stat-item .stat-label,
+.map-stat-item .stat-value {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.map-stat-item .stat-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #a0a0a0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.map-stat-item .stat-value {
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+  margin-top: 0.2rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.map-stat-item i,
+.map-stat-item svg {
+  display: block;
+  margin: 0 auto 0.25rem auto;
+  flex-shrink: 0;
 }
 
 .map-stat-item:hover {
@@ -2493,18 +2523,19 @@ h1::after {
 }
 
 .stat-label {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: rgba(255, 255, 255, 0.75);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.1rem;
+  letter-spacing: 0.4px;
+  margin-top: 0.25rem;
   font-weight: 500;
+  font-family: "Orbitron", sans-serif;
 }
 
 .stat-value {
   font-family: "Orbitron", sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: #fff;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   margin: 0.5rem 0;
@@ -3997,7 +4028,6 @@ h1::after {
   color: #ff5500;
 }
 
-/* Кнопки закрепить / стрелочки */
 .metrics-modal-close,
 .metrics-modal-back {
   background: none;
@@ -4108,7 +4138,6 @@ h1::after {
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Состояние открытия кастомного меню */
 .dropdown.active .dropdown-menu,
 .dropdown:hover .dropdown-menu,
 .dropdown-menu.show {
@@ -4117,7 +4146,6 @@ h1::after {
   transform: translateY(0);
 }
 
-/* Элементы меню */
 .dropdown-item,
 .context-menu-item {
   display: flex;
