@@ -120,8 +120,6 @@ function showAnalyzeError(errorText, output) {
   if (!banner) {
     banner = document.createElement("div");
     banner.id = "custom-error-banner";
-    banner.style.cssText =
-      "position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;background-color:rgba(51,51,51,0.9);color:#ff5500;padding:14px 24px;border-radius:8px;border:1px solid #ff5500;box-shadow:0 4px 20px rgba(0,0,0,0.5);font-family:Orbitron,sans-serif;font-size:13px;text-align:center;transition:opacity 0.3s ease";
     document.body.appendChild(banner);
   }
 

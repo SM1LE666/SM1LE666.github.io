@@ -47,7 +47,7 @@
     });
 
     if (!response.ok) {
-      throw new Error(`Ошибка API: ${response.status} ${response.statusText}`);
+      throw new Error(`Error API: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
@@ -115,7 +115,9 @@
         : countryCode;
 
     if (!normalizedCode || normalizedCode === "Н/Д") {
-      return (window.currentLanguage || "en") === "ru" ? "Неизвестно" : "Unknown";
+      return (window.currentLanguage || "en") === "ru"
+        ? "Неизвестно"
+        : "Unknown";
     }
 
     if (_countryCache[normalizedCode]) {
