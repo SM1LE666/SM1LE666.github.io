@@ -30,11 +30,11 @@
     },
     {
       "source": "/faceit.png",
-      "destination": "/assets/faceit.png"
+      "destination": "/assets/faceit.svg"
     },
     {
       "source": "/logooo.png",
-      "destination": "/assets/logooo.png"
+      "destination": "/assets/logooo.webp"
     },
     {
       "source": "/(.*)",

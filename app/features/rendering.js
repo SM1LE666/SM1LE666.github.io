@@ -288,7 +288,7 @@
         <div class="player-avatar">
           <img src="${playerData.avatar || ".png"}" alt="${
             playerData.nickname
-          }" onerror="this.src='/assets/logooo.png'">
+          }" onerror="this.src='/assets/logooo.webp'">
         </div>
         <div class="player-info">
           <h2>${playerData.nickname}</h2>
