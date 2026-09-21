@@ -624,22 +624,6 @@ input[type="text"]:focus {
   text-overflow: ellipsis;
 }
 
-.stat-value {
-  font-size: 2.2rem;
-  color: var(--primary-color);
-  font-weight: bold;
-  margin: 0.5rem 0;
-  text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 1rem;
-}
-
 .player-card {
   grid-column: 1 / -1;
   background:
@@ -2216,15 +2200,6 @@ h1::after {
   border-radius: 15px 15px 0 0;
 }
 
-.map-name {
-  margin: 0;
-  font-family: "Orbitron", sans-serif;
-  font-size: 1.23rem;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
 .win-rate-badge {
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
@@ -2243,22 +2218,6 @@ h1::after {
   gap: 0.8rem;
 }
 
-.stat-label {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.3rem;
-  font-weight: 500;
-}
-
-.stat-value {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
 .performance-indicator {
   display: flex;
   align-items: center;
@@ -2273,7 +2232,6 @@ h1::after {
   margin-bottom: 0.7rem;
 }
 
-/* Цвета для различных уровней производительности */
 .map-card.good-performance .win-rate-badge {
   background: #4caf50;
 }
@@ -2429,7 +2387,6 @@ h1::after {
   z-index: 2;
 }
 
-/* Полоса статуса / производительности сверху */
 .map-card::before {
   content: "";
   position: absolute;
@@ -2441,7 +2398,6 @@ h1::after {
   border-radius: 16px 16px 0 0;
 }
 
-/* Цветовые акценты производительности */
 .map-card.good-performance::before {
   background: linear-gradient(90deg, #4caf50, #81c784);
 }
@@ -2547,10 +2503,9 @@ h1::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem 0.35rem;
-  background: rgba(0, 0, 0, 0.35);
+  padding: 0.45rem 0.35rem;
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   transition:
@@ -2586,6 +2541,7 @@ h1::after {
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  margin: 0.5rem 0;
 }
 
 .performance-indicator {
@@ -3560,19 +3516,9 @@ h1::after {
   }
 }
 
-.maps-grid .map-stat-row {
-  gap: 0.8rem;
-}
-
 .maps-grid .map-stat-item i {
   font-size: 1.2rem;
   margin-bottom: 0.35rem;
-}
-
-.maps-grid .map-stat-item .stat-label {
-  font-size: 0.72rem;
-  margin-bottom: 0.2rem;
-  letter-spacing: 0.4px;
 }
 
 .maps-grid .map-stat-item .stat-value {
@@ -3596,7 +3542,7 @@ h1::after {
 @media (min-width: 769px) {
   .maps-grid .map-stat-item {
     flex: 0 1 130px;
-    max-width: 140px;
+    max-width: 120px;
   }
 
   .maps-grid .map-stat-row {
