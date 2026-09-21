@@ -1046,14 +1046,14 @@
         loadedForMap < requiredCount
       ) {
         const chunk_end = Math.min(
-          chunk_start + chunkSize,
+          chunkStart + chunkSize,
           this.allHistoryItems.length,
         );
-        await this.ensureMatchesLoadedRange(chunk_start, chunk_end);
+        await this.ensureMatchesLoadedRange(chunkStart, chunk_end);
         this.mapScanOffsets[mapKey] = chunk_end;
 
         loadedForMap = this.getFilteredMatches().length;
-        chunk_start = chunk_end;
+        chunkStart = chunk_end;
       }
     }
 
