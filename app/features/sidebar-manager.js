@@ -32,9 +32,17 @@
     };
   }
 
+  function getCurrentLanguage() {
+    return window.currentLanguage || "en";
+  }
+
   function buildMatchUrl(matchId) {
     if (!matchId) return "";
-    const lang = getCurrentLanguage();
+    const lang =
+      typeof getCurrentLanguage === "function"
+        ? getCurrentLanguage()
+        : window.currentLanguage || "en";
+
     if (matchId.startsWith("1-")) {
       return `https://www.faceit.com/${lang}/cs2/room/${matchId}`;
     }
