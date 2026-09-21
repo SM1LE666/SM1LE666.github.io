@@ -1422,7 +1422,6 @@
         const newMatches = statsContainer.querySelectorAll(".match-item");
         newMatches.forEach((item, index) => {
           if (index >= matches.length - this.matchesLimit) {
-            // Анимируем только новые матчи
             item.style.opacity = "0";
             item.style.transform = "translateY(20px)";
             setTimeout(() => {
@@ -1585,7 +1584,6 @@
     `;
     }
 
-    // Mobile sidebar methods (for desktop compatibility)
     toggleMobileSidebar() {
       if (!this.isPlayerProfileActive) return;
 
@@ -1612,7 +1610,6 @@
       document.body.style.overflow = "";
     }
 
-    // Н
     toggleDrawer() {
       if (!this.isPlayerProfileActive) return;
 
@@ -1627,7 +1624,6 @@
       this.isDrawerExpanded = true;
       if (this.mobileDrawer) {
         this.mobileDrawer.classList.add("expanded");
-        // Показываем о
         if (this.mobileOverlay) {
           this.mobileOverlay.classList.add("active");
         }
@@ -1650,7 +1646,6 @@
 
     handleResize() {
       if (window.innerWidth > 768) {
-        // На десктопе
         this.closeMobileSidebar();
         this.collapseDrawer();
 
@@ -1667,7 +1662,6 @@
           document.body.classList.add("sidebar-open");
         }
       } else {
-        // На мобильных
         document.body.classList.remove("sidebar-open");
         this.sidebar.classList.remove("slide-in");
         this.sidebar.classList.remove("player-profile-active");
@@ -1685,6 +1679,5 @@
       }
     }
   }
-
   window.SidebarManager = SidebarManager;
 })();
