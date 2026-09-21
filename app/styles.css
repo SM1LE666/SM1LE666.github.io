@@ -2158,8 +2158,8 @@ h1::after {
 .drawer-item span {
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.9rem;
+  letter-spacing: 0.3px;
+  font-size: 0.85rem;
 }
 
 .back-button {
@@ -2538,17 +2538,12 @@ h1::after {
 }
 
 @media (max-width: 768px) {
-  .maps-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
   .map-card {
     min-height: 260px;
+    margin-bottom: 0.5rem;
   }
 
   .map-stat-row {
-    flex-direction: row;
     gap: 0.3rem;
   }
 
@@ -2558,11 +2553,6 @@ h1::after {
     align-items: center;
     padding: 0.4rem;
     font-size: 0.75rem;
-  }
-
-  .map-stat-item i {
-    margin-bottom: 0.2rem;
-    margin-right: 0;
   }
 
   .maps-table {
@@ -3296,16 +3286,6 @@ h1::after {
   }
 }
 
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.5rem !important;
-  }
-
-  header .header-content h1::after {
-    bottom: -8px !important;
-  }
-}
-
 @media (max-width: 768px) {
   #drawerHeader {
     position: relative;
@@ -3465,8 +3445,8 @@ h1::after {
     align-items: baseline !important;
     justify-content: space-between !important;
     gap: 0.75rem !important;
-    margin: 0.7rem 0 !important;
-    font-size: 0.98rem !important;
+    margin: 0.35rem 0 !important;
+    font-size: 0.9rem !important;
     line-height: 1.32 !important;
   }
 
@@ -4234,17 +4214,10 @@ h1::after {
   box-sizing: border-box;
 }
 
-@media (max-width: 1024px) {
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-  }
-}
-
 @media (max-width: 768px) {
   .stats-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 15px;
   }
 }
 

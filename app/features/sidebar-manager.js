@@ -321,16 +321,15 @@
           this.mobileDrawer.classList.remove("visible", "expanded");
         }
       } else {
-        // На мобильных показываем шторку
         if (this.mobileDrawer) {
           this.mobileDrawer.style.display = "block";
           this.mobileDrawer.classList.add("visible");
 
-          // Убеждаемся, что шторка свернута по умолчанию
           this.mobileDrawer.classList.remove("expanded");
           this.isDrawerExpanded = false;
-          // Сразу обновляем тексты в шторке на текущем языке
-          updateDrawerTexts();
+          if (typeof updateDrawerTexts === "function") {
+            updateDrawerTexts();
+          }
         }
       }
     }
@@ -341,7 +340,7 @@
 
       const nicknameInput = document.getElementById("nickname");
       if (nicknameInput && nicknameInput.value.trim() !== "") {
-        return; // Не скрываем сайдбар, если есть введенный никнейм
+        return;
       }
 
       this.isPlayerProfileActive = false;
@@ -991,11 +990,13 @@
         const batchResults = await Promise.all(
           batchIndexes.map(async (historyIndex) => {
             const historyMatch = this.allHistoryItems[historyIndex];
+            const matchId = historyMatch?.match_id || historyMatch?.matchId;
+            if (!historyMatch || !matchId) {
+              return null;
+            }
+
             try {
-              const stats = await this.fetchMatchStats(
-                historyMatch.match_id,
-                playerId,
-              );
+              const stats = await this.fetchMatchStats(matchId, playerId);
               return this.formatMatchData(
                 historyMatch,
                 stats,
@@ -1005,7 +1006,7 @@
               );
             } catch (error) {
               console.error(
-                `Error fetching stats for match ${historyMatch.match_id}:`,
+                `Error fetching stats for match ${matchId}:`,
                 error,
               );
               return this.formatMatchData(
