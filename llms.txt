@@ -1,0 +1,16 @@
+# FACEIT Analyze
+
+> FACEIT Analyze — professional tool for analyzing Counter-Strike 2 player statistics on the FACEIT platform.
+
+## Overview
+
+FACEIT Analyze provides detailed breakdowns of CS2 player stats, including K/D ratio, win rate, HLTV ratings, map performance, and match history.
+
+## Main Resources
+
+- [FACEIT Analyze Homepage](https://faceitanalyze.me/): Main analytics tool for searching CS2 player profiles.
+- [Reaction Test](https://faceitanalyze.me/reaction-test): Interactive reaction time testing tool for gamers.
+
+## Optional
+
+- [Site Manifest](https://faceitanalyze.me/assets/site.webmanifest): Application metadata and resources.
