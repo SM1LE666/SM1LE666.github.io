@@ -14,7 +14,6 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-
     <meta
       name="description"
       content="FACEIT Analyze — professional analysis of Counter-Strike 2 player statistics. Get detailed stats, map ratings, K/D ratio, and match result analysis for FACEIT."
@@ -38,11 +37,7 @@
     <title>FACEIT Analyze</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@400;700&display=swap"
-    />
-    <link rel="stylesheet" href="/app/styles.css?v=1.10" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link
       rel="preload"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/webfonts/fa-solid-900.woff2"
@@ -52,8 +47,27 @@
     />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@400;700&display=swap"
+      media="print"
+      onload="this.media = 'all'"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <link rel="stylesheet" href="/app/styles.css?v=1.10" />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@400;700&display=swap"
+      />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+      />
+    </noscript>
     <link
       rel="icon"
       type="image/png"
