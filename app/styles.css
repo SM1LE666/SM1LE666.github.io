@@ -2166,7 +2166,6 @@ h1::after {
   border-bottom: 1px solid rgba(255, 85, 0, 0.2);
 }
 
-/* Анимации для появления/скрытия шторки */
 @keyframes slideIn {
   from {
     transform: translateY(100%);
@@ -2198,38 +2197,6 @@ h1::after {
   height: 4px;
   background: linear-gradient(90deg, #ff5500, #ff7b00);
   border-radius: 15px 15px 0 0;
-}
-
-.win-rate-badge {
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  min-width: 50px;
-  text-align: center;
-}
-
-.map-card-body {
-  padding: 0.85rem 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.performance-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: #ff9800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 0.5rem;
-  margin-bottom: 0.7rem;
 }
 
 .map-card.good-performance .win-rate-badge {
@@ -2521,9 +2488,8 @@ h1::after {
 }
 
 .map-stat-item i {
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   color: var(--primary-color);
-  margin-bottom: 0.15rem;
 }
 
 .stat-label {
@@ -2542,22 +2508,6 @@ h1::after {
   color: #fff;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   margin: 0.5rem 0;
-}
-
-.performance-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  font-family: "Orbitron", sans-serif;
-  font-weight: 600;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-top: 0.2rem;
-  padding: 0.4rem;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -3514,15 +3464,6 @@ h1::after {
     margin-left: auto;
     white-space: nowrap;
   }
-}
-
-.maps-grid .map-stat-item i {
-  font-size: 1.2rem;
-  margin-bottom: 0.35rem;
-}
-
-.maps-grid .map-stat-item .stat-value {
-  font-size: 1rem;
 }
 
 @media (max-width: 768px) {
