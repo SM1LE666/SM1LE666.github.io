@@ -772,7 +772,6 @@
             );
           }
         } catch (err) {
-          console.error("Error rendering map filter:", err);
           if (render) {
             this.displayMatchHistory(
               this.currentMatches.slice(0, this.matchesLimit),
@@ -781,7 +780,6 @@
           }
         }
       } catch (error) {
-        console.error("Error fetching match history:", error);
         const statsContainer = document.querySelector(".stats-container");
         if (render && statsContainer) {
           statsContainer.innerHTML = `<p class="api-error-text">${error.message}</p>`;
@@ -1081,7 +1079,7 @@
           case "matches": {
             // Показываем индикатор загрузки с переводом
             statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
-              "Loading match history..."
+              Loading match history...
             </div>`;
             statsContainer.style.display = "block";
 
@@ -1123,7 +1121,7 @@
             </div>
             <div class="record-display">
               <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
-                "Loading records..."
+                Loading records...
               </div>
             </div>
           `;
@@ -1149,7 +1147,7 @@
           case "maps": {
             // Показываем индикатор загрузки
             statsContainer.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
-              "Loading maps..."
+              Loading maps...
             </div>`;
             statsContainer.style.display = "block";
 
