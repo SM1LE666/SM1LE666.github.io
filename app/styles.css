@@ -4140,3 +4140,93 @@ h1::after {
   width: 300px;
   letter-spacing: 2px;
 }
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+.aim-modal-content {
+  max-width: 800px;
+  width: 90%;
+  padding: 20px;
+  text-align: center;
+}
+
+.aim-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 15px 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.stat-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.aim-arena {
+  position: relative;
+  width: 100%;
+  height: 450px;
+  background: #12141d;
+  border: 2px solid var(--border-color, #2a2e3d);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.aim-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(18, 20, 29, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  z-index: 10;
+}
+
+.aim-overlay.hidden {
+  display: none;
+}
+
+.aim-target {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #ff4655 0%,
+    #ff4655 40%,
+    #ffffff 40%,
+    #ffffff 70%,
+    #ff4655 70%
+  );
+  box-shadow: 0 0 10px rgba(255, 70, 85, 0.6);
+  transform: translate(-50%, -50%) scale(0);
+  animation: targetPop 0.15s forwards ease-out;
+  cursor: pointer;
+}
+
+@keyframes targetPop {
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.grade-badge {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ff4655;
+}

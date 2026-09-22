@@ -152,6 +152,50 @@
       <div class="header-content">
         <h1 translate="no"><i class="fas fa-chart-bar"></i> FACEIT Analyze</h1>
       </div>
+      <button
+        id="aimTrainerBtn"
+        class="header-btn desktop-only"
+        title="Aim Trainer"
+      >
+        <i class="fa-solid fa-crosshair"></i>Aim Trainer
+      </button>
+
+      <!-- Game's modal -->
+      <div id="aimTrainerModal" class="modal">
+        <div class="modal-content aim-modal-content">
+          <span class="close-btn" id="closeAimTrainer">&times;</span>
+          <h2><i class="fa-solid fa-crosshair"></i>Aim Trainer</h2>
+
+          <!-- Game stats -->
+          <div class="aim-stats">
+            <div class="stat-box">Time: <span id="aimTimer">0.0</span>s</div>
+            <div class="stat-box">
+              Targets: <span id="aimTargetsCount">0</span>/30
+            </div>
+            <div class="stat-box">
+              Accuracy: <span id="aimAccuracy">100</span>%
+            </div>
+          </div>
+
+          <!-- Gaming field -->
+          <div id="aimArena" class="aim-arena">
+            <div id="aimStartScreen" class="aim-overlay">
+              <button id="startAimGameBtn" class="primary-btn">
+                Start Game
+              </button>
+            </div>
+            <div id="aimResultScreen" class="aim-overlay hidden">
+              <h3>Results</h3>
+              <p>Time: <strong id="resTime">0</strong>s</p>
+              <p>Accuracy: <strong id="resAccuracy">0</strong>%</p>
+              <p>Grade: <strong id="resGrade" class="grade-badge">-</strong></p>
+              <button id="restartAimGameBtn" class="primary-btn">
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </header>
 
     <main translate="no" id="mainContent">
@@ -450,5 +494,6 @@
     <script src="/app/features/sidebar-manager.js?v=1.9"></script>
     <script src="/app/script.js?v=1.6"></script>
     <script src="/app/features/metrics-modal.js?v=1.3"></script>
+    <script src="/app/features/minigame.js?v=1.0"></script>
   </body>
 </html>
