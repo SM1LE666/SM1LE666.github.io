@@ -2307,7 +2307,7 @@ h1::after {
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
-  border: 1px solid rgba(255, 85, 0, 0.2);
+  border: 2px solid rgba(255, 85, 0, 0.2);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
