@@ -4163,6 +4163,27 @@ h1::after {
   font-family: "Orbitron", sans-serif;
 }
 
+.aim-trainer-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1;
+}
+
+.aim-trainer-btn i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 0.9rem;
+}
+
+.aim-trainer-btn span {
+  display: inline-block;
+  line-height: 1;
+}
+
 .primary-btn {
   margin: 0 auto;
 }
