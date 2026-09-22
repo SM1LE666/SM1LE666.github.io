@@ -291,31 +291,6 @@ header {
   pointer-events: auto;
 }
 
-.header-content {
-  max-width: none;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 2rem;
-  position: relative;
-}
-
-h1 {
-  font-family: "Orbitron", sans-serif;
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin: 0;
-  text-shadow:
-    2px 2px 4px rgba(0, 0, 0, 0.8),
-    0 0 10px var(--accent-glow);
-  letter-spacing: 2px;
-  color: #fff;
-  position: relative;
-  display: inline-block;
-}
-
 h1::after {
   content: "";
   position: absolute;
@@ -803,9 +778,11 @@ footer {
 }
 
 .support-btn:hover {
-  background: linear-gradient(135deg, #ff5252, #ff1744);
   transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(255, 107, 107, 0.4);
+  background: linear-gradient(135deg, #ff5252, #ff1744);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(255, 107, 107, 0.45);
 }
 
 .contact-btn {
@@ -819,9 +796,34 @@ footer {
 }
 
 .contact-btn:hover {
-  background: linear-gradient(135deg, var(--primary-hover), #cc4400);
   transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(255, 85, 0, 0.4);
+  background: linear-gradient(135deg, var(--primary-hover), #cc4400);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(255, 85, 0, 0.45);
+}
+
+.support-btn::before,
+.contact-btn::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  ) !important;
+  transition: left 0.5s ease !important;
+  pointer-events: none !important;
+}
+
+.support-btn:hover::before,
+.contact-btn:hover::before {
+  left: 100% !important;
 }
 
 .footer-content p {
@@ -1437,6 +1439,8 @@ footer {
   justify-content: flex-start;
   align-items: center;
   padding: 0 2rem;
+  max-width: none;
+  position: relative;
 }
 
 h1 {
@@ -3242,6 +3246,9 @@ h1::after {
   width: 205px;
   padding-top: 0.85rem;
   padding-bottom: 0.85rem;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 @media (max-width: 480px) {
