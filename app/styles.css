@@ -4141,44 +4141,187 @@ h1::after {
   letter-spacing: 2px;
 }
 
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none !important;
+.aim-trainer-btn {
+  margin-left: auto; /* Прижимает кнопку к правому краю во flex-контейнере */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 70, 85, 0.15) 0%,
+    rgba(255, 70, 85, 0.05) 100%
+  );
+  border: 1px solid rgba(255, 70, 85, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Эффект свечения и градиент при наведении */
+.aim-trainer-btn:hover {
+  background: linear-gradient(135deg, #ff4655 0%, #e03e4d 100%);
+  border-color: #ff4655;
+  box-shadow:
+    0 0 15px rgba(255, 70, 85, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+/* Анимация при нажатии */
+.aim-trainer-btn:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 0 8px rgba(255, 70, 85, 0.3);
+}
+
+/* Стиль и анимация иконки прицела */
+.aim-trainer-btn .icon-aim {
+  font-size: 1rem;
+  color: #ff4655;
+  transition:
+    transform 0.3s ease,
+    color 0.25s ease;
+}
+
+.aim-trainer-btn:hover .icon-aim {
+  color: #ffffff;
+  transform: rotate(90deg) scale(1.1);
+}
+
+/* Блик при наведении */
+.aim-trainer-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.aim-trainer-btn:hover::before {
+  left: 100%;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 11, 16, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
 .aim-modal-content {
+  background: #181a24;
+  border: 1px solid rgba(255, 70, 85, 0.3);
+  border-radius: 16px;
   max-width: 800px;
   width: 90%;
-  padding: 20px;
+  padding: 24px;
+  position: relative;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(255, 70, 85, 0.15);
   text-align: center;
+  color: #ffffff;
+}
+
+.aim-modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #ffffff;
+}
+
+.aim-modal-content h2 i {
+  color: #ff4655;
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #8f96a3;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  color: #ff4655;
 }
 
 .aim-stats {
   display: flex;
   justify-content: space-around;
-  margin: 15px 0;
-  font-size: 1.1rem;
-  font-weight: bold;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .stat-box {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #a0a5b5;
+}
+
+.stat-box span {
+  color: #ffffff;
+  font-size: 1.1rem;
 }
 
 .aim-arena {
   position: relative;
   width: 100%;
   height: 450px;
-  background: #12141d;
-  border: 2px solid var(--border-color, #2a2e3d);
+  background: #0f1015;
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   overflow: hidden;
   cursor: crosshair;
   user-select: none;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
 }
 
 .aim-overlay {
@@ -4187,17 +4330,56 @@ h1::after {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(18, 20, 29, 0.9);
+  background: rgba(15, 16, 21, 0.92);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
   z-index: 10;
 }
 
 .aim-overlay.hidden {
   display: none;
+}
+
+.aim-overlay h3 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: #ffffff;
+}
+
+.aim-overlay p {
+  font-size: 1.1rem;
+  margin: 4px 0;
+  color: #a0a5b5;
+}
+
+.aim-overlay p strong {
+  color: #ffffff;
+}
+
+.primary-btn {
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #ff4655;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(255, 70, 85, 0.4);
+}
+
+.primary-btn:hover {
+  background: #e03e4d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 70, 85, 0.6);
+}
+
+.primary-btn:active {
+  transform: translateY(0);
 }
 
 .aim-target {
@@ -4213,7 +4395,7 @@ h1::after {
     #ffffff 70%,
     #ff4655 70%
   );
-  box-shadow: 0 0 10px rgba(255, 70, 85, 0.6);
+  box-shadow: 0 0 12px rgba(255, 70, 85, 0.8);
   transform: translate(-50%, -50%) scale(0);
   animation: targetPop 0.15s forwards ease-out;
   cursor: pointer;
@@ -4226,7 +4408,14 @@ h1::after {
 }
 
 .grade-badge {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  color: #ff4655;
+  color: #ff4655 !important;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
 }
