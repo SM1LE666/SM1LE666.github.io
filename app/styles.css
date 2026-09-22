@@ -2230,6 +2230,12 @@ h1::after {
     border-color 0.3s ease;
 }
 
+.map-card.has-map-bg {
+  background-image:
+    linear-gradient(135deg, rgba(26, 26, 26, 0.25), rgba(255, 85, 0, 0.08)),
+    var(--map-bg-url);
+}
+
 .map-card::after {
   content: "";
   position: absolute;
