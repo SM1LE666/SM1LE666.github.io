@@ -4141,8 +4141,9 @@ h1::after {
   letter-spacing: 2px;
 }
 
+.primary-btn,
 .aim-trainer-btn {
-  margin-left: auto; /* Прижимает кнопку к правому краю во flex-контейнере */
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -4151,12 +4152,7 @@ h1::after {
   font-weight: 600;
   letter-spacing: 0.5px;
   color: #ffffff;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 70, 85, 0.15) 0%,
-    rgba(255, 70, 85, 0.05) 100%
-  );
-  border: 1px solid rgba(255, 70, 85, 0.4);
+  border: 1px solid rgba(255, 85, 0, 0.32);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -4164,26 +4160,25 @@ h1::after {
   position: relative;
   overflow: hidden;
   user-select: none;
+  font-family: "Orbitron", sans-serif;
 }
 
-/* Эффект свечения и градиент при наведении */
+.primary-btn:hover,
 .aim-trainer-btn:hover {
-  background: linear-gradient(135deg, #ff4655 0%, #e03e4d 100%);
-  border-color: #ff4655;
-  box-shadow:
-    0 0 15px rgba(255, 70, 85, 0.5),
-    0 4px 12px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 85, 0, 0.22);
+  border-color: var(--primary-color);
   transform: translateY(-2px);
-  color: #ffffff;
+  color: #fff;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    0 0 22px rgba(255, 85, 0, 0.35);
 }
 
-/* Анимация при нажатии */
 .aim-trainer-btn:active {
   transform: translateY(0) scale(0.97);
   box-shadow: 0 0 8px rgba(255, 70, 85, 0.3);
 }
 
-/* Стиль и анимация иконки прицела */
 .aim-trainer-btn .icon-aim {
   font-size: 1rem;
   color: #ff4655;
@@ -4197,7 +4192,6 @@ h1::after {
   transform: rotate(90deg) scale(1.1);
 }
 
-/* Блик при наведении */
 .aim-trainer-btn::before {
   content: "";
   position: absolute;
@@ -4244,7 +4238,7 @@ h1::after {
 
 .aim-modal-content {
   background: #181a24;
-  border: 1px solid rgba(255, 70, 85, 0.3);
+  border: 1px solid rgba(255, 85, 0, 0.32);
   border-radius: 16px;
   max-width: 800px;
   width: 90%;
@@ -4298,7 +4292,7 @@ h1::after {
 .stat-box {
   flex: 1;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 85, 0, 0.32);
   padding: 10px 16px;
   border-radius: 10px;
   font-size: 1rem;
@@ -4337,6 +4331,7 @@ h1::after {
   align-items: center;
   gap: 16px;
   z-index: 10;
+  border: 1px solid rgba(255, 85, 0, 0.32);
 }
 
 .aim-overlay.hidden {
@@ -4357,25 +4352,6 @@ h1::after {
 
 .aim-overlay p strong {
   color: #ffffff;
-}
-
-.primary-btn {
-  padding: 12px 28px;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #ffffff;
-  background: #ff4655;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(255, 70, 85, 0.4);
-}
-
-.primary-btn:hover {
-  background: #e03e4d;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 70, 85, 0.6);
 }
 
 .primary-btn:active {
