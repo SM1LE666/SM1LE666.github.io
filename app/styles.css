@@ -4163,6 +4163,10 @@ h1::after {
   font-family: "Orbitron", sans-serif;
 }
 
+.primary-btn {
+  align-items: center;
+}
+
 .primary-btn:hover,
 .aim-trainer-btn:hover {
   background: rgba(255, 85, 0, 0.22);
