@@ -307,11 +307,6 @@ h1::after {
 }
 
 @media (max-width: 768px) {
-  header,
-  .header-content {
-    overflow: visible !important;
-  }
-
   header .header-content h1::after {
     bottom: -5px;
   }
@@ -472,17 +467,10 @@ input[type="text"]:focus {
   #searchButton,
   #reactionTestBtn {
     width: 100% !important;
-    max-width: 320px !important;
     min-width: 0 !important;
-    height: 50px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  #searchButton,
-  #reactionTestBtn {
     max-width: 300px !important;
     height: 50px !important;
+    margin: 0;
   }
 }
 
@@ -1196,13 +1184,6 @@ footer {
     flex: none !important;
     display: block !important;
   }
-
-  .stats-box {
-    height: auto !important;
-    min-height: auto !important;
-    flex: none !important;
-    margin-bottom: 1rem !important;
-  }
 }
 
 /* Responsive design */
@@ -1288,15 +1269,6 @@ footer {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     margin-top: 1.5rem;
-  }
-
-  .stats-box {
-    padding: 1.5rem;
-    height: auto;
-    min-height: 150px;
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto;
   }
 
   .stats-box h3 {
@@ -1417,11 +1389,6 @@ h1::after {
 }
 
 @media (max-width: 768px) {
-  header {
-    padding: 0.8rem 0;
-    overflow: visible;
-  }
-
   .header-content {
     padding: 0 1rem;
     min-height: 44px;
@@ -1432,13 +1399,6 @@ h1::after {
   }
 }
 
-@media (max-width: 480px) {
-  header {
-    padding: 0.75rem 0;
-  }
-}
-
-/* Дополнительные стили для планшетов */
 @media (min-width: 769px) and (max-width: 1024px) {
   main {
     max-width: 1200px;
@@ -1511,12 +1471,6 @@ h1::after {
   input[type="text"] {
     min-width: auto;
     width: 100%;
-  }
-
-  #searchButton,
-  #reactionTestBtn {
-    width: 100%;
-    margin: 0;
   }
 
   .reaction-screen {
@@ -2643,13 +2597,10 @@ h1::after {
     width: calc(100% - 1rem);
   }
 
-  .stats-box {
-    padding: 1rem;
-  }
-
   .stats-container {
     justify-items: center;
   }
+
   .footer-buttons {
     grid-template-areas: "grid grid";
   }
@@ -2889,10 +2840,6 @@ h1::after {
 }
 
 @media (max-width: 480px) {
-  h1 {
-    font-size: 1.22rem !important;
-  }
-
   h1::after {
     bottom: -3px;
     height: 3px;
@@ -2900,10 +2847,6 @@ h1::after {
 }
 
 @media (max-width: 768px) {
-  header {
-    padding: 0.8rem 0 !important;
-  }
-
   .header-content {
     min-height: 44px;
   }
@@ -2913,22 +2856,11 @@ h1::after {
   }
 }
 
-@media (max-width: 480px) {
-  header {
-    padding: 0.75rem 0 !important;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    margin-right: 6.4rem !important;
-  }
-}
-
 @media (max-width: 768px) {
   header,
   .header-content {
     overflow: visible !important;
+    padding: 0.75rem 0 !important;
   }
 
   header .header-content h1::after {
@@ -3013,6 +2945,7 @@ h1::after {
     text-align: left;
     font-size: 1.5rem !important;
     line-height: 1.15 !important;
+    text-wrap: nowrap;
   }
 
   header .header-content h1::after {
@@ -3195,7 +3128,9 @@ h1::after {
     height: auto !important;
     min-height: 150px !important;
     font-variant-numeric: tabular-nums;
-    font-family: "Orbitron", sans-serif;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
   }
 
   .stats-box p.stat-row {
