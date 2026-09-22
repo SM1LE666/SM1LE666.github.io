@@ -146,8 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function calculateGrade(accuracy, time) {
-    if (accuracy >= 95 && time < 18) return "S+ (ZywOo Level)";
-    if (accuracy >= 90 && time < 22) return "S (Pro Player)";
+    if (accuracy >= 95 && time < 18) return "S+ (S1mple's Level!!)";
+    if (accuracy >= 90 && time < 22) return "S (Pro Player!)";
     if (accuracy >= 80 && time < 28) return "A (FACEIT Level 10)";
     if (accuracy >= 70 && time < 35) return "B (Gold Nova)";
     if (accuracy >= 50) return "C (Silver)";
