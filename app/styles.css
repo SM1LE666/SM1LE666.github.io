@@ -1427,15 +1427,6 @@ h1::after {
     min-height: 44px;
   }
 
-  h1 {
-    font-size: 1.5rem;
-    margin-right: 5.2rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.15;
-  }
-
   h1::after {
     bottom: -6px;
   }
@@ -1444,10 +1435,6 @@ h1::after {
 @media (max-width: 480px) {
   header {
     padding: 0.75rem 0;
-  }
-  h1 {
-    font-size: 1.28rem;
-    margin-right: 6.4rem;
   }
 }
 
@@ -2602,11 +2589,6 @@ h1::after {
     padding: 0 0.5rem;
   }
 
-  h1 {
-    font-size: 1.6rem;
-    margin-right: 3.8rem;
-  }
-
   section {
     padding: 1rem;
     margin: 0 auto 1rem auto;
@@ -2899,13 +2881,6 @@ h1::after {
     justify-content: flex-start !important;
   }
 
-  h1 {
-    font-size: 1.28rem !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-
   h1::after {
     bottom: -4px;
     height: 3px;
@@ -2931,10 +2906,6 @@ h1::after {
 
   .header-content {
     min-height: 44px;
-  }
-
-  h1 {
-    line-height: 1.15 !important;
   }
 
   h1::after {
@@ -3041,6 +3012,7 @@ h1::after {
     padding-right: 0.1rem;
     text-align: left;
     font-size: 1.5rem !important;
+    line-height: 1.15 !important;
   }
 
   header .header-content h1::after {
