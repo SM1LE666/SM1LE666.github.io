@@ -1411,12 +1411,14 @@ h1 {
   }
 
   .match-date {
-    display: block !important;
-    width: 100% !important;
-    font-size: 0.8rem !important;
-    color: rgba(255, 255, 255, 0.6) !important;
-    margin-top: 0.2rem !important;
-    order: unset !important;
+    display: block;
+    width: 100%;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.2rem;
+    order: unset;
+    font-size: 0.75rem;
+    min-width: auto;
   }
 
   .match-map {
@@ -1500,11 +1502,6 @@ h1 {
     gap: 0.5rem !important;
   }
 
-  .match-date {
-    font-size: 0.75rem !important;
-    min-width: auto !important;
-  }
-
   .match-result {
     font-size: 0.75rem !important;
     padding: 0.2rem 0.5rem !important;
@@ -1519,16 +1516,18 @@ h1 {
   }
 
   .match-map {
-    font-size: 0.95rem !important;
-    width: auto !important;
-    text-align: center !important;
-    order: unset !important;
+    font-size: 0.95rem;
+    width: auto;
+    text-align: center;
+    order: unset;
+    min-width: 80px;
   }
 
   .match-score {
-    font-size: 0.95rem !important;
-    width: auto !important;
-    order: unset !important;
+    font-size: 0.95rem;
+    width: auto;
+    order: unset;
+    min-width: 60px;
   }
 
   .player-stats {
@@ -1565,12 +1564,6 @@ h1 {
   flex-direction: column;
   margin-top: 1rem;
   width: 100%;
-}
-
-.match-date {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
-  min-width: 80px;
 }
 
 .match-item.loss .match-result {
@@ -1625,7 +1618,6 @@ h1 {
 
 .match-item:hover {
   transform: translateY(-2px);
-  color: rgba(255, 85, 0, 0.1);
 }
 
 @media (min-width: 769px) {
@@ -1679,6 +1671,7 @@ h1 {
   padding: 0 1rem;
   cursor: pointer;
   position: relative;
+  font-family: "Orbitron", sans-serif;
 }
 
 .drawer-handle {
@@ -2488,8 +2481,8 @@ h1 {
 .stat-item span {
   font-size: 0.75rem;
   font-family: "Orbitron", sans-serif;
-  font-weight: bold;
   line-height: 1.1;
+  margin-top: 0.2rem;
 }
 
 .stat-item:hover {
@@ -2529,16 +2522,6 @@ h1 {
   .match-header {
     min-width: 100px;
     flex-shrink: 0;
-  }
-
-  .match-map {
-    min-width: 80px;
-    font-size: 1.2rem;
-  }
-
-  .match-score {
-    min-width: 60px;
-    font-size: 1.1rem;
   }
 
   .stat-item {
@@ -2694,11 +2677,6 @@ h1::after {
 }
 
 @media (max-width: 768px) {
-  #drawerHeader {
-    position: relative;
-    font-family: "Orbitron", sans-serif;
-  }
-
   #drawerHeader .drawer-title {
     position: absolute;
     left: 50%;
