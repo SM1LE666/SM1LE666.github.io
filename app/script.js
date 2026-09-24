@@ -80,10 +80,11 @@ async function init() {
     history.replaceState(null, "", window.location.pathname);
   }
 
-  playerStats = document.getElementById("playerStats");
-  sidebarManager = new SidebarManager();
-  window.sidebarManager = sidebarManager;
-  syncStateFromApp();
+  if (!sidebarManager && (SidebarManager || window.SidebarManager)) {
+    const ManagerClass = SidebarManager || window.SidebarManager;
+    sidebarManager = new ManagerClass();
+    window.sidebarManager = sidebarManager;
+  }
 
   window.AppUIEvents.initializeEventListeners();
   window.addEventListener(
