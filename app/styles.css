@@ -1,24 +1,3 @@
-/* General Styles */
-:root {
-  --primary-color: #ff5500;
-  --primary-hover: #e04e00;
-  --text-color: #fff;
-  --bg-dark: #222;
-  --bg-darker: #1a1a1a;
-  --bg-header: #2d2d2d;
-  --bg-footer: #2d2d2d;
-  --bg-card: #333;
-  --accent-glow: #ff7b00;
-  --border-radius: 8px;
-  --sidebar-width: 210px;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 html,
 body {
   height: 100%;

@@ -35,6 +35,27 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://faceitanalyze.me" />
     <title>FACEIT Analyze</title>
+    <style>
+      :root {
+        --primary-color: #ff5500;
+        --primary-hover: #e04e00;
+        --text-color: #fff;
+        --bg-dark: #222;
+        --bg-darker: #1a1a1a;
+        --bg-header: #2d2d2d;
+        --bg-footer: #2d2d2d;
+        --bg-card: #333;
+        --accent-glow: #ff7b00;
+        --border-radius: 8px;
+        --sidebar-width: 210px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
@@ -57,7 +78,16 @@
       media="print"
       onload="this.media = 'all'"
     />
-    <link rel="stylesheet" href="/app/styles.css?v=1.13" />
+    <link rel="preload" href="/app/styles.css?v=1.13" as="style" />
+    <link
+      rel="stylesheet"
+      href="/app/styles.css?v=1.13"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="/app/styles.css?v=1.13" />
+    </noscript>
     <noscript>
       <link
         rel="stylesheet"
