@@ -774,18 +774,6 @@ footer {
   font-size: 1rem;
 }
 
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(5px);
-}
-
 .modal-content {
   background: linear-gradient(135deg, var(--bg-darker), var(--bg-card));
   margin: 5% auto;
@@ -1340,6 +1328,7 @@ h1 {
   color: #fff;
   position: relative;
   display: inline-block;
+  text-wrap: nowrap;
 }
 
 @media (max-width: 768px) {
@@ -1350,6 +1339,10 @@ h1 {
 
   h1::after {
     bottom: -6px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin-left: 0.8rem;
   }
 }
 
@@ -3056,33 +3049,60 @@ h1::after {
     max-width: 100% !important;
   }
 }
+
 .record-filters {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
   justify-content: center;
-  margin-bottom: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+#recordFilterSelect {
+  background: rgba(30, 30, 30, 0.85);
+  color: var(--text-color);
+  border: 1px solid rgba(255, 85, 0, 0.35);
+  border-radius: var(--border-radius);
+  padding: 0.65rem 1.2rem;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.4),
+    0 0 10px rgba(255, 85, 0, 0.15);
+  outline: none;
+  transition: all 0.3s ease;
+  min-width: 250px;
+  text-align: center;
+}
+
+#recordFilterSelect:hover,
+#recordFilterSelect:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px rgba(255, 85, 0, 0.35);
+  background: rgba(40, 40, 40, 0.95);
+}
+
+#recordFilterSelect option {
+  background: var(--bg-darker);
+  color: #fff;
+  padding: 0.6rem;
   font-family: "Orbitron", sans-serif;
 }
 
-.record-filter-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.85);
-  padding: 0.45rem 0.9rem;
-  font-size: 0.85rem;
-  text-transform: none;
-  letter-spacing: 0.3px;
+@media (max-width: 768px) {
+  #recordFilterSelect {
+    width: 100%;
+    max-width: 320px;
+    min-width: 0;
+  }
 }
+
 .record-match-list h3 {
   display: none;
 }
-.record-filter-btn.active {
-  background: rgba(255, 85, 0, 0.25);
-  border-color: var(--primary-color);
-  color: #fff;
-  box-shadow: 0 0 12px rgba(255, 85, 0, 0.35);
-}
+
 .pro-grid {
   display: flex;
   margin-bottom: 2rem;
@@ -3789,11 +3809,12 @@ h1::after {
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 1000;
   width: 100%;
   height: 100%;
   background-color: rgba(10, 11, 16, 0.85);
   backdrop-filter: blur(8px);
-  z-index: 1000;
+  -webkit-backdrop-filter: blur(8px);
   justify-content: center;
   align-items: center;
   animation: fadeIn 0.2s ease-out;

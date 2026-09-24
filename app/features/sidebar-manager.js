@@ -1120,35 +1120,32 @@
             statsContainer.style.display = "block";
 
             statsContainer.innerHTML = `
-            <div class="record-filters">
-              <button class="record-filter-btn active">Most Kills</button>
-              <button class="record-filter-btn">Most Assists</button>
-              <button class="record-filter-btn">Highest K/D</button>
-              <button class="record-filter-btn">Highest K/D Difference</button>
-              <button class="record-filter-btn">Most MVPs</button>
-              <button class="record-filter-btn">Highest HS%</button>
-            </div>
-            <div class="record-display">
-              <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i>
-                Loading records...
-              </div>
-            </div>
-          `;
+    <div class="record-filters">
+      <select id="recordFilterSelect">
+        <option value="mostKills">Most Kills</option>
+        <option value="mostAssists">Most Assists</option>
+        <option value="highestKD">Highest K/D</option>
+        <option value="highestKDDifference">Highest K/D Difference</option>
+        <option value="mostMVPs">Most MVPs</option>
+        <option value="highestHeadshotPct">Highest HS%</option>
+      </select>
+    </div>
+    <div class="record-display">
+      <div class="loading-indicator">
+        <i class="fas fa-spinner fa-spin"></i> Loading records...
+      </div>
+    </div>
+  `;
 
-            // Add event listeners for filter buttons
-            statsContainer
-              .querySelectorAll(".record-filter-btn")
-              .forEach((button) => {
-                button.addEventListener("click", (e) => {
-                  statsContainer
-                    .querySelectorAll(".record-filter-btn")
-                    .forEach((btn) => btn.classList.remove("active"));
-                  e.target.classList.add("active");
-                  this.showRecord(e.target.dataset.record);
-                });
+            // Обработчик изменения значения в select
+            const recordSelect = document.getElementById("recordFilterSelect");
+            if (recordSelect) {
+              recordSelect.addEventListener("change", (e) => {
+                this.showRecord(e.target.value);
               });
+            }
 
-            // Initially show the default record
+            // Загрузка рекорда по умолчанию
             this.showRecord("mostKills");
             break;
           }
