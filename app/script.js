@@ -86,7 +86,10 @@ async function init() {
   syncStateFromApp();
 
   window.AppUIEvents.initializeEventListeners();
-  window.addEventListener("resize", () => sidebarManager?.handleResize());
+  window.addEventListener(
+    "resize",
+    debounce(() => sidebarManager?.handleResize(), 150),
+  );
   window.addEventListener("popstate", handleUrlChange);
 
   try {
@@ -368,6 +371,18 @@ function closeModalRoute(updateUrl = true) {
       syncStateFromApp();
     }
   }
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
 
 window.updateUrlForPlayer = updateUrlForPlayer;

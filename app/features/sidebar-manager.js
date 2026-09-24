@@ -301,8 +301,7 @@
       const playerHeader = document.querySelector(".player-header");
       if (playerHeader) {
         // Сохраняем исходное значение display
-        this.originalPlayerHeaderDisplay =
-          window.getComputedStyle(playerHeader).display;
+        this.originalPlayerHeaderDisplay = "flex";
       }
 
       this.isPlayerProfileActive = true;
