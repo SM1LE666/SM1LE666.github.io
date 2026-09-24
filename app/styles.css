@@ -11,12 +11,10 @@
   --accent-glow: #ff7b00;
   --border-radius: 8px;
   --sidebar-width: 210px;
-  --pro-photo-scale: 0.88;
 }
 
 * {
   box-sizing: border-box;
-  transition: all 0.2s ease;
   margin: 0;
   padding: 0;
 }
@@ -175,6 +173,8 @@ button:active {
   gap: 0.5rem;
   height: 100%;
   padding-top: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 85, 0, 0.5) transparent;
 }
 
 .sidebar-item {
@@ -209,10 +209,6 @@ button:active {
   color: var(--primary-color);
   border-color: rgba(255, 85, 0, 0.4);
   box-shadow: 0 0 15px rgba(255, 85, 0, 0.2);
-}
-
-.sidebar-item.active::after {
-  display: none;
 }
 
 .sidebar-item i {
@@ -300,9 +296,6 @@ h1::after {
 }
 
 @media (max-width: 768px) {
-  header .header-content h1::after {
-    bottom: -5px;
-  }
   .footer-content {
     padding: 0 15px 15px 15px;
   }
@@ -691,9 +684,36 @@ footer {
   gap: 0.5rem;
 }
 
+.support-btn,
+.contact-btn {
+  position: relative;
+  width: 205px;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  font-family: inherit;
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.support-btn i,
+.contact-btn i {
+  font-size: 1rem;
+}
+
 .support-btn {
   background: linear-gradient(135deg, #ff6b6b, #ff5252);
-  color: white;
 }
 
 .support-btn:hover {
@@ -710,7 +730,6 @@ footer {
     var(--primary-color),
     var(--primary-hover)
   );
-  color: white;
 }
 
 .contact-btn:hover {
@@ -723,25 +742,25 @@ footer {
 
 .support-btn::before,
 .contact-btn::before {
-  content: "" !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
     90deg,
     transparent,
     rgba(255, 255, 255, 0.25),
     transparent
-  ) !important;
-  transition: left 0.5s ease !important;
-  pointer-events: none !important;
+  );
+  transition: left 0.5s ease;
+  pointer-events: none;
 }
 
 .support-btn:hover::before,
 .contact-btn:hover::before {
-  left: 100% !important;
+  left: 100%;
 }
 
 .footer-content p {
@@ -1360,11 +1379,6 @@ h1 {
   }
 }
 
-.sidebar-content {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 85, 0, 0.5) transparent;
-}
-
 .sidebar-content::-webkit-scrollbar {
   width: 4px;
 }
@@ -1424,6 +1438,7 @@ h1 {
     min-height: auto !important;
     border-radius: 16px !important;
     margin-bottom: 0.5rem !important;
+    flex-wrap: wrap !important;
   }
 
   .match-item::before {
@@ -2651,6 +2666,22 @@ h1 {
   }
 }
 
+h1::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--primary-color),
+    transparent
+  );
+  pointer-events: none;
+}
+
 @media (max-width: 768px) {
   header,
   .header-content {
@@ -2658,30 +2689,14 @@ h1 {
     padding: 0.75rem 0 !important;
   }
 
-  header .header-content h1::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
+  h1::after {
     bottom: -6px;
-    height: 3px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--primary-color),
-      transparent
-    );
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: none;
   }
 }
 
 @media (max-width: 480px) {
-  header .header-content h1::after {
+  h1::after {
     bottom: -5px;
-    height: 3px;
   }
 }
 
@@ -2732,49 +2747,6 @@ h1 {
 }
 
 @media (max-width: 768px) {
-  header .header-content h1 {
-    position: relative !important;
-    overflow: visible !important;
-    margin-left: 1rem;
-    padding-right: 0.1rem;
-    text-align: left;
-    font-size: 1.5rem !important;
-    line-height: 1.15 !important;
-    text-wrap: nowrap;
-  }
-
-  header .header-content h1::after {
-    content: "" !important;
-    position: absolute !important;
-    bottom: -5px !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 3px !important;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--primary-color),
-      transparent
-    ) !important;
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: none !important;
-  }
-
-  header .header-content h1::after {
-    bottom: -8px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  header .header-content h1::after {
-    bottom: -5px !important;
-    height: 3px !important;
-  }
-}
-
-@media (max-width: 768px) {
   #drawerHeader {
     position: relative;
     font-family: "Orbitron", sans-serif;
@@ -2806,28 +2778,18 @@ h1 {
   .footer-btn,
   .support-btn,
   .contact-btn {
-    width: auto !important;
-    min-width: 0 !important;
-    padding: 0.6rem 0.8rem !important;
-    font-size: 0.72rem !important;
-    letter-spacing: 0.5px !important;
-    gap: 0.35rem !important;
+    width: auto;
+    min-width: 0;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+    gap: 0.35rem;
     white-space: nowrap;
   }
 
   .footer-btn i {
-    font-size: 0.85rem !important;
+    font-size: 0.85rem;
   }
-}
-
-.support-btn,
-.contact-btn {
-  width: 205px;
-  padding-top: 0.85rem;
-  padding-bottom: 0.85rem;
-  position: relative !important;
-  overflow: hidden !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 @media (max-width: 480px) {
