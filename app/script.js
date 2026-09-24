@@ -238,23 +238,22 @@ async function analyzePlayer() {
     );
     playerStatsContainer.style.display = "block";
 
+    // Объединяем отрисовку элементов и активацию сайдбара в один кадр
     requestAnimationFrame(() => {
-      window.AppRendering.renderOverviewStats(
-        playerStatsContainer.querySelector(".stats-container"),
-      );
-      showPlayerResults();
-    });
+      const statsContainer =
+        playerStatsContainer.querySelector(".stats-container");
 
-    if (sidebarManager) {
-      requestAnimationFrame(() => {
-        const statsContainer = document.querySelector(".stats-container");
+      showPlayerResults();
+      window.AppRendering.renderOverviewStats(statsContainer);
+
+      if (sidebarManager) {
         if (statsContainer) {
           sidebarManager.originalStatsHTML = statsContainer.innerHTML;
         }
+        // showForPlayerProfile уже включает обзор (overview), switchView вызван не будет
         sidebarManager.showForPlayerProfile();
-        sidebarManager.switchView("overview");
-      });
-    }
+      }
+    });
   } catch (error) {
     console.error("Ошибка при получении данных игрока:", error);
     window.trackEvent("analyze_error", {
