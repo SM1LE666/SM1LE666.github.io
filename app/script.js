@@ -237,10 +237,13 @@ async function analyzePlayer() {
       lifetime,
     );
     playerStatsContainer.style.display = "block";
-    window.AppRendering.renderOverviewStats(
-      playerStatsContainer.querySelector(".stats-container"),
-    );
-    showPlayerResults();
+
+    requestAnimationFrame(() => {
+      window.AppRendering.renderOverviewStats(
+        playerStatsContainer.querySelector(".stats-container"),
+      );
+      showPlayerResults();
+    });
 
     if (sidebarManager) {
       requestAnimationFrame(() => {

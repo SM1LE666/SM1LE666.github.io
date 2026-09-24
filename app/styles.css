@@ -2119,6 +2119,10 @@ h1 {
   transition: all 0.3s ease;
 }
 
+#cookieModal {
+  display: none;
+}
+
 #showMoreBtn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 85, 0, 0.4);
@@ -3718,6 +3722,7 @@ h1::after {
 .modal {
   display: none;
   position: fixed;
+  contain: layout;
   top: 0;
   left: 0;
   z-index: 1000;
