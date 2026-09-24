@@ -347,6 +347,15 @@
     });
   }
 
+  document.getElementById("aimTrainerBtn")?.addEventListener("click", () => {
+    if (!window.minigameLoaded) {
+      const script = document.createElement("script");
+      script.src = "/app/features/minigame.js?v=1.1";
+      document.body.appendChild(script);
+      window.minigameLoaded = true;
+    }
+  });
+
   const AppRendering = {
     formatStatRow,
     renderOverviewStats,
