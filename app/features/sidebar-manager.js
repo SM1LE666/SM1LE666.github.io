@@ -303,24 +303,29 @@ if (typeof window !== "undefined") {
         let consecutiveErrors = 0;
 
         while (consecutiveErrors < 3) {
-          let retries = 0,
-            success = false;
+          let retries = 0;
+          let success = false;
 
           while (retries <= 2 && !success) {
             try {
-              const res = await fetch(
-                `/api/history?playerId=${encodeURIComponent(String(playerId))}&gameId=cs2&limit=${pageSize}&offset=${offset}`,
-                {
-                  headers: { Accept: "application/json" },
-                },
-              );
+              const historyUrl = `/api/history?playerId=${encodeURIComponent(
+                String(playerId),
+              )}&gameId=cs2&limit=${pageSize}&offset=${offset}`;
 
-              if (!res.ok) throw new Error(`HTTP ${res.status}`);
-              const data = await res.json();
-              if (!data?.items) throw new Error("Missing items");
+              const response = await fetch(historyUrl, {
+                headers: { Accept: "application/json" },
+              });
+
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+              const data = await response.json();
+              if (!data || !data.items) throw new Error("Invalid items");
 
               if (data.items.length === 0) break;
-              if (!totalHistory) totalHistory = data.total || data.items.length;
+
+              if (!totalHistory) {
+                totalHistory = data.total || data.items.length;
+              }
 
               for (const item of data.items) {
                 const matchId = item?.match_id || item?.matchId;
@@ -329,27 +334,34 @@ if (typeof window !== "undefined") {
                   allHistoryItems.push(item);
                 }
               }
+
               success = true;
               consecutiveErrors = 0;
-            } catch (err) {
-              if (pageCount === 0 && retries < 2) {
-                retries++;
-                await new Promise((r) => setTimeout(r, 1000));
-              } else {
-                consecutiveErrors++;
+
+              // Если получили меньше pageSize, значит это реально конец истории
+              if (data.items.length < pageSize) {
                 break;
+              }
+            } catch (error) {
+              retries++;
+              if (retries > 2) {
+                consecutiveErrors++;
+                console.warn(`Page at offset ${offset} failed after retries`);
+              } else {
+                await new Promise((resolve) => setTimeout(resolve, 1000));
               }
             }
           }
 
-          if (!success && pageCount === 0)
-            throw new Error("Failed to load match history");
-          pageCount++;
+          if (!success) {
+            // Прерываем только если это первая страница, иначе работаем с тем, что качнули
+            if (pageCount === 0)
+              throw new Error("Failed to load match history");
+            break;
+          }
 
-          if (success) {
-            if (allHistoryItems.slice(-pageSize).length < pageSize) break;
-            offset += pageSize;
-          } else break;
+          pageCount++;
+          offset += pageSize;
         }
 
         if (!allHistoryItems.length) {
