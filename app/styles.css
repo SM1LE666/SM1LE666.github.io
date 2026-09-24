@@ -1420,16 +1420,8 @@ h1 {
   }
 
   .match-map {
-    font-size: 1.1rem !important;
-    width: auto !important;
     text-align: left !important;
     margin: 0 !important;
-  }
-
-  .match-score {
-    font-size: 1.1rem !important;
-    width: auto !important;
-    margin-left: auto !important;
   }
 
   .player-stats {
@@ -1519,16 +1511,6 @@ h1 {
     order: unset !important;
   }
 
-  .match-item.win .match-result {
-    background-color: rgba(76, 175, 80, 0.3);
-    color: #4caf50;
-  }
-
-  .match-item.loss .match-result {
-    background-color: rgba(244, 67, 54, 0.3);
-    color: #f44336;
-  }
-
   .match-details {
     display: flex;
     flex-direction: column;
@@ -1591,23 +1573,8 @@ h1 {
   min-width: 80px;
 }
 
-.match-result {
-  text-transform: uppercase;
-  font-weight: bold;
-  color: #4caf50;
-  min-width: 80px;
-}
-
 .match-item.loss .match-result {
   color: #f44336;
-}
-
-.match-score {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: var(--primary-color);
-  min-width: 60px;
-  text-align: center;
 }
 
 .stat-item i {
@@ -1636,13 +1603,6 @@ h1 {
     font-size: 1.05rem;
     min-width: 60px;
     text-align: center;
-  }
-}
-
-/* Mobile view for match items */
-@media (max-width: 768px) {
-  .match-score {
-    font-size: 1rem;
   }
 }
 
@@ -2458,6 +2418,7 @@ h1 {
   font-size: 0.9rem;
   order: 2;
   text-align: center;
+  min-width: 80px;
 }
 
 .match-item.win .match-result {
