@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+(function () {
   const aimBtn = document.getElementById("aimTrainerBtn");
   const aimModal = document.getElementById("aimTrainerModal");
   const closeAimModal = document.getElementById("closeAimTrainer");
@@ -24,22 +24,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const MAX_TARGETS = 30;
   const TARGET_RADIUS = 18;
 
-  if (aimBtn) {
-    aimBtn.addEventListener("click", () => {
+  // Функция открытия модального окна
+  function openModal() {
+    if (aimModal) {
       aimModal.style.display = "flex";
       resetGameUI();
-    });
+    }
+  }
+
+  // При первом включении скрипта сразу открываем окно
+  openModal();
+
+  if (aimBtn) {
+    aimBtn.addEventListener("click", openModal);
   }
 
   if (closeAimModal) {
     closeAimModal.addEventListener("click", () => {
-      aimModal.style.display = "none";
+      if (aimModal) aimModal.style.display = "none";
       stopGame();
     });
   }
 
-  startBtn.addEventListener("click", startGame);
-  restartBtn.addEventListener("click", startGame);
+  if (startBtn) startBtn.addEventListener("click", startGame);
+  if (restartBtn) restartBtn.addEventListener("click", startGame);
 
   function startGame() {
     score = 0;
@@ -60,28 +68,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateTimer() {
     const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
-    timerEl.textContent = elapsed;
+    if (timerEl) timerEl.textContent = elapsed;
   }
 
-  aimArena.addEventListener("click", (e) => {
-    if (!isPlaying) return;
-    if (e.target.closest(".aim-overlay")) return;
+  if (aimArena) {
+    aimArena.addEventListener("click", (e) => {
+      if (!isPlaying) return;
+      if (e.target.closest(".aim-overlay")) return;
 
-    totalClicks++;
+      totalClicks++;
 
-    if (e.target.classList.contains("aim-target")) {
-      score++;
-      e.target.remove();
+      if (e.target.classList.contains("aim-target")) {
+        score++;
+        e.target.remove();
 
-      if (score >= MAX_TARGETS) {
-        endGame();
-      } else {
-        spawnTarget();
+        if (score >= MAX_TARGETS) {
+          endGame();
+        } else {
+          spawnTarget();
+        }
       }
-    }
 
-    updateStatsUI();
-  });
+      updateStatsUI();
+    });
+  }
 
   function spawnTarget() {
     clearTargets();
@@ -109,10 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateStatsUI() {
-    targetsCountEl.textContent = score;
+    if (targetsCountEl) targetsCountEl.textContent = score;
     const accuracy =
       totalClicks > 0 ? Math.round((score / totalClicks) * 100) : 100;
-    accuracyEl.textContent = accuracy;
+    if (accuracyEl) accuracyEl.textContent = accuracy;
   }
 
   function endGame() {
@@ -123,9 +133,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const elapsedTime = ((performance.now() - startTime) / 1000).toFixed(2);
     const accuracy = Math.round((score / totalClicks) * 100);
 
-    resTimeEl.textContent = elapsedTime;
-    resAccuracyEl.textContent = accuracy;
-    resGradeEl.textContent = calculateGrade(accuracy, parseFloat(elapsedTime));
+    if (resTimeEl) resTimeEl.textContent = elapsedTime;
+    if (resAccuracyEl) resAccuracyEl.textContent = accuracy;
+    if (resGradeEl)
+      resGradeEl.textContent = calculateGrade(
+        accuracy,
+        parseFloat(elapsedTime),
+      );
 
     resultScreen.classList.remove("hidden");
   }
@@ -138,11 +152,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function resetGameUI() {
     stopGame();
-    startScreen.classList.remove("hidden");
-    resultScreen.classList.add("hidden");
-    timerEl.textContent = "0.0";
-    targetsCountEl.textContent = "0";
-    accuracyEl.textContent = "100";
+    if (startScreen) startScreen.classList.remove("hidden");
+    if (resultScreen) resultScreen.classList.add("hidden");
+    if (timerEl) timerEl.textContent = "0.0";
+    if (targetsCountEl) targetsCountEl.textContent = "0";
+    if (accuracyEl) accuracyEl.textContent = "100";
   }
 
   function calculateGrade(accuracy, time) {
@@ -153,4 +167,4 @@ document.addEventListener("DOMContentLoaded", () => {
     if (accuracy >= 50) return "C (Silver)";
     return "D (Needs Practice)";
   }
-});
+})();

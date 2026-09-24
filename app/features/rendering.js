@@ -350,7 +350,7 @@
   document.getElementById("aimTrainerBtn")?.addEventListener("click", () => {
     if (!window.minigameLoaded) {
       const script = document.createElement("script");
-      script.src = "/app/features/minigame.js?v=1.1";
+      script.src = "/app/features/minigame.js?v=1.2";
       document.body.appendChild(script);
       window.minigameLoaded = true;
     }
