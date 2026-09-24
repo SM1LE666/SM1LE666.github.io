@@ -1583,10 +1583,8 @@ h1 {
 }
 
 .stat-item i {
-  margin-top: 0.2rem;
-  font-size: 16px !important;
+  font-size: 13px !important;
   color: var(--primary-color);
-  margin-bottom: 1px;
 }
 
 @media (min-width: 769px) {
@@ -2514,17 +2512,10 @@ h1 {
   background: rgba(255, 255, 255, 0.08);
   padding: 0.4rem 0.6rem;
   border-radius: var(--border-radius);
-  min-width: 50px;
-  width: auto;
-  height: auto;
+  width: 45px;
+  height: 45px;
   max-width: none;
   border: 1px solid rgba(255, 85, 0, 0.1);
-}
-
-.stat-item i {
-  font-size: 0.9rem;
-  margin-bottom: 2px;
-  color: var(--primary-color);
 }
 
 .stat-item span {
