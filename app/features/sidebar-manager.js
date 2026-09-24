@@ -282,12 +282,12 @@
       window.addEventListener("load", () => {
         setTimeout(() => {
           const consent = getCookieConsent();
-          console.log("Current cookie consent:", consent); // Для отладки в консоли
+          console.log("Current cookie consent:", consent);
 
           if (consent === null) {
             openCookieModal();
           }
-        }, 300);
+        }, 2000);
       });
     }
 
