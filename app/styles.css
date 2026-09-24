@@ -1505,31 +1505,10 @@ h1 {
     margin-top: 0.2rem;
   }
 
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 0.4rem 0.2rem;
-    border-radius: 8px;
-    min-height: 48px;
-    height: auto;
-    width: 100%;
-    max-width: none;
-    aspect-ratio: auto;
-  }
-
   .stat-item i {
     font-size: 0.85rem;
     margin-bottom: 2px;
     color: var(--primary-color);
-  }
-
-  .stat-item span {
-    font-size: 0.75rem;
-    line-height: 1;
-    font-weight: 700;
   }
 
   .stat-item span:first-child {
@@ -1611,17 +1590,6 @@ h1 {
   }
 }
 
-@media (max-width: 768px) {
-  .stat-item i {
-    font-size: 0.78rem !important;
-  }
-
-  .stat-item span {
-    font-size: 0.52rem !important;
-    line-height: 1;
-  }
-}
-
 /* Mobile view for match items */
 @media (max-width: 768px) {
   .match-date,
@@ -1633,11 +1601,6 @@ h1 {
 
   .match-score {
     font-size: 1rem;
-  }
-
-  .stat-item {
-    width: 32px;
-    height: 32px;
   }
 }
 
@@ -2502,6 +2465,7 @@ h1 {
   justify-content: flex-end;
   gap: 0.6rem;
   width: auto;
+  order: 5;
 }
 
 .stat-item {
@@ -2589,36 +2553,23 @@ h1 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    aspect-ratio: auto;
   }
 
   .stat-item i {
-    font-size: 0.8rem;
-    margin: 0;
     line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 50%;
     color: var(--primary-color);
-  }
-
-  .stat-item span {
-    font-size: 0.55rem;
-    margin: 0;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 50%;
-    color: var(--primary-color);
-    font-weight: bold;
+    font-size: 1rem !important;
   }
 
   .stat-item span {
     font-size: 0.8rem !important;
-  }
-  .stat-item i {
-    font-size: 1rem !important;
+    margin: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50%;
   }
 }
 
