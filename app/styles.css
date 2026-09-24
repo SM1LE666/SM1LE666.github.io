@@ -1424,14 +1424,13 @@ h1 {
   }
 
   .match-item {
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    border: 1px solid var(--border-color);
-    position: relative;
-    gap: 1rem;
-    min-height: auto;
-    height: auto;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0.85rem 1rem !important;
+    gap: 0.75rem !important;
+    height: auto !important;
+    min-height: auto !important;
+    border-radius: 16px !important;
   }
 
   .match-item::before {
@@ -1443,34 +1442,25 @@ h1 {
     gap: 0;
   }
 
-  .match-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
-  }
-
+  .match-top-row,
   .match-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    border: none;
-    padding: 0;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
   }
 
   .match-date {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+    font-size: 0.75rem !important;
+    min-width: auto !important;
   }
 
   .match-result {
-    font-size: 0.85rem;
-    font-weight: bold;
-    padding: 0.25rem 0.6rem;
-    border-radius: 6px;
-    color: #fff;
-    text-transform: uppercase;
+    font-size: 0.75rem !important;
+    padding: 0.2rem 0.5rem !important;
+    order: unset !important;
   }
 
   .match-item.win .match-result {
@@ -1491,57 +1481,54 @@ h1 {
   }
 
   .match-map {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--primary-color);
+    font-size: 0.95rem !important;
+    width: auto !important;
+    text-align: center !important;
+    order: unset !important;
   }
 
   .match-score {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-color);
+    font-size: 0.95rem !important;
+    width: auto !important;
+    order: unset !important;
   }
 
   .player-stats {
-    border-top: 1px solid var(--border-color) !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 0.35rem !important;
     width: 100% !important;
     max-width: 100% !important;
-    justify-items: center !important;
-    align-items: center !important;
-    margin-top: 1rem !important;
+    border-top: 1px solid rgba(255, 85, 0, 0.2) !important;
+    padding-top: 0.6rem !important;
+    margin-top: 0.2rem !important;
   }
 
   .stat-item {
-    background: rgba(0, 0, 0, 0.2) !important;
-    padding: 0.5rem 0.3rem !important;
-    border-radius: 6px !important;
-    text-align: center !important;
-    font-size: 0.8rem !important;
-    font-weight: 500 !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.3rem !important;
-    min-height: 55px !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    padding: 0.4rem 0.2rem !important;
+    border-radius: 8px !important;
+    min-height: 48px !important;
     height: auto !important;
-    aspect-ratio: 1 !important;
     width: 100% !important;
-    max-width: 90px !important;
+    max-width: none !important;
+    aspect-ratio: auto !important;
   }
 
   .stat-item i {
-    font-size: 1rem !important;
+    font-size: 0.85rem !important;
+    margin-bottom: 2px !important;
     color: var(--primary-color) !important;
-    margin: 0 !important;
   }
 
   .stat-item span {
-    font-size: 0.8rem !important;
-    color: var(--text-color) !important;
-    font-weight: 500 !important;
-    line-height: 1.1 !important;
-    margin: 0 !important;
+    font-size: 0.75rem !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
   }
 
   .stat-item span:first-child {
@@ -1595,13 +1582,9 @@ h1 {
 }
 
 .stat-item i {
+  margin-top: 0.2rem;
   font-size: 16px !important;
   color: var(--primary-color);
-}
-
-.stat-item i {
-  margin-top: 0.2rem;
-  font-size: 13.5px !important;
   margin-bottom: 1px;
 }
 
