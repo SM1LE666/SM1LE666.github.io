@@ -239,8 +239,13 @@ async function analyzePlayer() {
     );
     playerStatsContainer.style.display = "block";
 
+    const statsContainer =
+      playerStatsContainer.querySelector(".stats-container");
+
     showPlayerResults();
-    window.AppRendering.renderOverviewStats(statsContainer);
+    if (statsContainer) {
+      window.AppRendering.renderOverviewStats(statsContainer);
+    }
 
     requestAnimationFrame(() => {
       if (sidebarManager) {
