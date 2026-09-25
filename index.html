@@ -37,6 +37,8 @@
     <title>FACEIT Analyze</title>
     <style>
       :root {
+        --font-main: "Roboto", Arial, sans-serif;
+        --font-accent: "Orbitron", sans-serif;
         --primary-color: #ff5500;
         --primary-hover: #e04e00;
         --text-color: #fff;
@@ -54,6 +56,90 @@
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-darker);
+        color: var(--text-color);
+        min-height: 100vh;
+      }
+
+      header {
+        background-color: var(--bg-header);
+        padding: 1rem 2rem;
+        border-bottom: 2px solid var(--primary-color);
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      #mainContent {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+
+      #search {
+        background-color: var(--bg-card);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .search-container {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+      }
+
+      #nickname {
+        padding: 12px 16px;
+        border-radius: 6px;
+        border: 1px solid #444;
+        background-color: var(--bg-dark);
+        color: #fff;
+        min-width: 280px;
+      }
+
+      .pro-grid {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .pro-card {
+        background-color: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 10px;
+        width: 163px;
+        text-align: center;
+      }
+
+      .pro-card-photo {
+        width: 143px;
+        height: 149px;
+        object-fit: cover;
+        border-radius: 4px;
+        background-color: var(--bg-dark);
+      }
+
+      .desktop-only {
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .desktop-only {
+          display: none !important;
+        }
       }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -81,12 +167,12 @@
     <link rel="preload" href="/app/styles.css?v=1.13" as="style" />
     <link
       rel="stylesheet"
-      href="/app/styles.css?v=1.13"
+      href="/app/styles.css?v=1.14"
       media="print"
       onload="this.media = 'all'"
     />
     <noscript>
-      <link rel="stylesheet" href="/app/styles.css?v=1.13" />
+      <link rel="stylesheet" href="/app/styles.css?v=1.14" />
     </noscript>
     <noscript>
       <link

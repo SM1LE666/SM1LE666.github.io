@@ -1,7 +1,7 @@
 html,
 body {
   height: 100%;
-  font-family: "Roboto", Arial, sans-serif;
+  font-family: var(--font-main);
   background:
     radial-gradient(
       circle at 10% 15%,
@@ -29,6 +29,23 @@ body {
   transition: margin-left 0.3s ease;
 }
 
+h1,
+h2,
+h3,
+button,
+input[type="text"],
+.sidebar-item span,
+.map-name,
+.win-rate-badge,
+.map-stat-item .stat-value,
+.stat-box,
+.metric-value,
+.metric-label,
+.drawer-title,
+#custom-error-banner {
+  font-family: var(--font-accent);
+}
+
 button {
   display: flex;
   align-items: center;
@@ -39,7 +56,6 @@ button {
   border: 1px solid rgba(255, 85, 0, 0.3);
   border-radius: var(--border-radius);
   color: var(--primary-color);
-  font-family: inherit;
   font-weight: 500;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -204,7 +220,6 @@ button:active {
 }
 
 .sidebar-item span {
-  font-family: "Orbitron", sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
   text-align: center;
@@ -338,7 +353,6 @@ section::before {
 }
 
 h2 {
-  font-family: "Orbitron", sans-serif;
   margin-top: 0;
   color: var(--primary-color);
   text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
@@ -421,7 +435,6 @@ input[type="text"]:focus {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
   justify-content: center;
-  font-family: "Orbitron", sans-serif;
   width: 235px;
   min-width: 235px;
   height: 50px;
@@ -484,7 +497,6 @@ input[type="text"]:focus {
 
 .stat-card h3 {
   width: 100%;
-  font-family: "Orbitron", sans-serif;
   font-size: 1.2rem;
   color: var(--primary-color);
   margin-bottom: 1rem;
@@ -607,7 +619,6 @@ input[type="text"]:focus {
   text-align: center;
   border-bottom: 2px solid rgba(255, 85, 0, 0.4);
   padding-bottom: 1rem;
-  font-family: "Orbitron", sans-serif;
   text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
   white-space: nowrap;
   overflow: hidden;
@@ -1296,7 +1307,6 @@ footer {
 }
 
 h1 {
-  font-family: "Orbitron", sans-serif;
   font-size: 2.5rem;
   font-weight: bold;
   margin: 0;
@@ -1950,7 +1960,6 @@ h1 {
 
 .map-name {
   margin: 0;
-  font-family: "Orbitron", sans-serif;
   font-size: 1.2rem;
   font-weight: 700;
   color: #fff;
@@ -1961,7 +1970,6 @@ h1 {
 .win-rate-badge {
   padding: 0.35rem 0.75rem;
   border-radius: 20px;
-  font-family: "Orbitron", sans-serif;
   font-weight: 700;
   font-size: 0.85rem;
   color: #fff;
@@ -3226,7 +3234,6 @@ h1::after {
 .metric-label {
   font-size: 0.6rem;
   color: #a0a0a0;
-  font-family: "Orbitron", sans-serif;
   font-weight: 600;
   text-align: center;
   text-transform: uppercase;
@@ -3239,7 +3246,6 @@ h1::after {
 }
 
 .metric-value {
-  font-family: "Orbitron", sans-serif;
   font-size: 1.35rem;
   font-weight: 700;
   color: #ffffff;
@@ -3363,7 +3369,6 @@ h1::after {
   font-size: 18px;
   flex-grow: 1;
   text-align: center;
-  font-family: "Orbitron", sans-serif;
   color: #ff5500;
 }
 
@@ -3615,7 +3620,6 @@ h1::after {
   border-radius: 8px;
   border: 1px solid #ff5500;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  font-family: Orbitron, sans-serif;
   font-size: 13px;
   text-align: center;
   transition: opacity 0.3s ease;
@@ -3807,7 +3811,6 @@ h1::after {
   font-size: 1rem;
   font-weight: 600;
   color: #a0a5b5;
-  font-family: "Orbitron", sans-serif;
 }
 
 .stat-box span {
