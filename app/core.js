@@ -1,4 +1,27 @@
 (function () {
+  class Config {
+    constructor() {
+      this.loaded = false;
+      this.apiBaseUrl = "https://api.faceit.com";
+    }
+
+    async loadConfig() {
+      this.loaded = true;
+      return true;
+    }
+  }
+
+  window.Config = new Config();
+
+  window.AppState = {
+    playerStats: null,
+    isInitialized: false,
+    currentPlayerProfile: null,
+    sidebarManager: null,
+    lastHandledPath: null,
+    currentLanguage: "en",
+  };
+
   function normalizePath(path) {
     if (!path) return "/";
     return String(path).trim() || "/";
@@ -44,12 +67,10 @@
     };
   }
 
-  if (typeof window !== "undefined") {
-    window.AppRouter = {
-      normalizePath,
-      buildPlayerUrl,
-      buildModalUrl,
-      resolvePath,
-    };
-  }
+  window.AppRouter = {
+    normalizePath,
+    buildPlayerUrl,
+    buildModalUrl,
+    resolvePath,
+  };
 })();

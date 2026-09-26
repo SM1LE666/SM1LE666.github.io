@@ -101,7 +101,7 @@
     />
     <link rel="manifest" href="/assets/site.webmanifest" />
   </head>
-  <body translate="no">
+  <body>
     <!-- Мобильная шторка - ТОЛЬКО для навигации по статистике игрока -->
     <div id="mobileSidebarDrawer" class="mobile-sidebar-drawer mobile-only">
       <div class="drawer-header" id="drawerHeader">
@@ -167,9 +167,9 @@
     <!-- Mobile overlay -->
     <div id="mobileOverlay" class="mobile-overlay"></div>
 
-    <header translate="no" id="header">
+    <header id="header">
       <div class="header-content">
-        <h1 translate="no"><i class="fas fa-chart-bar"></i> FACEIT Analyze</h1>
+        <h1><i class="fas fa-chart-bar"></i> FACEIT Analyze</h1>
         <button
           id="aimTrainerBtn"
           class="header-btn aim-trainer-btn desktop-only"
@@ -217,8 +217,8 @@
       </div>
     </header>
 
-    <main translate="no" id="mainContent">
-      <section id="search" translate="no">
+    <main id="mainContent">
+      <section id="search">
         <h2><i class="fas fa-search"></i>Search Player</h2>
         <div class="search-container">
           <input
@@ -235,7 +235,7 @@
         </div>
       </section>
 
-      <section class="pro-grid" translate="no">
+      <section class="pro-grid">
         <div class="pro-card">
           <div class="pro-card-header">
             <h3 class="pro-name">donk</h3>
@@ -296,7 +296,7 @@
         </div>
       </section>
 
-      <section id="results" translate="no" style="display: none">
+      <section id="results" style="display: none">
         <h2><i class="fas fa-search"></i> Player Statistics</h2>
         <div id="output">Enter a nickname to see results.</div>
         <div class="player-stats" id="playerStats">
@@ -305,7 +305,7 @@
       </section>
     </main>
 
-    <footer translate="no" id="footer">
+    <footer id="footer">
       <div class="footer-content">
         <div class="fps-guide-btn">
           <a
@@ -329,7 +329,7 @@
     </footer>
 
     <!-- Cookie Consent Modal -->
-    <div id="cookieModal" class="modal" translate="no">
+    <div id="cookieModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2><i class="fas fa-cookie-bite"></i> Cookie Settings</h2>
@@ -361,7 +361,7 @@
     </button>
 
     <!-- Support Modal -->
-    <div id="supportModal" class="modal" translate="no">
+    <div id="supportModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2><i class="fas fa-heart"></i> Support FACEIT Analyze</h2>
@@ -392,7 +392,7 @@
     </div>
 
     <!-- Contact Modal -->
-    <div id="contactModal" class="modal" translate="no">
+    <div id="contactModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2><i class="fas fa-envelope"></i> Send Message</h2>
@@ -454,7 +454,7 @@
     </div>
 
     <!-- Reaction Test Modal -->
-    <div id="reactionTestModal" class="modal" translate="no">
+    <div id="reactionTestModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2><i class="fas fa-bolt"></i> Reaction Test</h2>
@@ -513,8 +513,7 @@
       </div>
     </div>
     <!-- Базовые состояния и роутер -->
-    <script src="/app/state.js?v=1.4" defer></script>
-    <script src="/app/router.js?v=1.5" defer></script>
+    <script src="/app/core.js?v=1.0" defer></script>
 
     <!-- Сервисы API и аналитика -->
     <script src="/app/services/faceit.js?v=1.4" defer></script>
