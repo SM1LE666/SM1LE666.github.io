@@ -1,6 +1,5 @@
 (function () {
   const aimBtn = document.getElementById("aimTrainerBtn");
-  const aimModal = document.getElementById("aimTrainerModal");
   const closeAimModal = document.getElementById("closeAimTrainer");
   const aimArena = document.getElementById("aimArena");
   const startBtn = document.getElementById("startAimGameBtn");
@@ -24,25 +23,23 @@
   const MAX_TARGETS = 30;
   const TARGET_RADIUS = 18;
 
-  // Функция открытия модального окна
-  function openModal() {
-    if (aimModal) {
-      aimModal.style.display = "flex";
-      resetGameUI();
-    }
-  }
-
-  // При первом включении скрипта сразу открываем окно
-  openModal();
-
+  // Обработчик клика по кнопке открытия (работает с первого раза через SPA-маршрутизатор)
   if (aimBtn) {
-    aimBtn.addEventListener("click", openModal);
+    aimBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (typeof window.openModalByRoute === "function") {
+        window.openModalByRoute("aim-trainer", true);
+      }
+    });
   }
 
+  // Обработчик закрытия
   if (closeAimModal) {
-    closeAimModal.addEventListener("click", () => {
-      if (aimModal) aimModal.style.display = "none";
-      stopGame();
+    closeAimModal.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (typeof window.closeModalRoute === "function") {
+        window.closeModalRoute(true);
+      }
     });
   }
 
@@ -54,8 +51,8 @@
     totalClicks = 0;
     isPlaying = true;
 
-    startScreen.classList.add("hidden");
-    resultScreen.classList.add("hidden");
+    if (startScreen) startScreen.classList.add("hidden");
+    if (resultScreen) resultScreen.classList.add("hidden");
 
     updateStatsUI();
     clearTargets();
@@ -96,6 +93,7 @@
   function spawnTarget() {
     clearTargets();
 
+    if (!aimArena) return;
     const target = document.createElement("div");
     target.classList.add("aim-target");
 
@@ -114,6 +112,7 @@
   }
 
   function clearTargets() {
+    if (!aimArena) return;
     const existingTargets = aimArena.querySelectorAll(".aim-target");
     existingTargets.forEach((t) => t.remove());
   }
@@ -141,7 +140,7 @@
         parseFloat(elapsedTime),
       );
 
-    resultScreen.classList.remove("hidden");
+    if (resultScreen) resultScreen.classList.remove("hidden");
   }
 
   function stopGame() {
@@ -167,4 +166,8 @@
     if (accuracy >= 50) return "C (Silver)";
     return "D (Needs Practice)";
   }
+
+  // Экспортируем методы для связи со script.js
+  window.resetAimGameUI = resetGameUI;
+  window.stopAimGame = stopGame;
 })();

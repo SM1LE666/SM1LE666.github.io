@@ -347,12 +347,24 @@
     });
   }
 
-  document.getElementById("aimTrainerBtn")?.addEventListener("click", () => {
+  document.getElementById("aimTrainerBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!window.minigameLoaded) {
       const script = document.createElement("script");
-      script.src = "/app/features/minigame.js?v=1.2";
+      script.src = "/app/features/minigame.js?v=1.3";
+      script.onload = () => {
+        window.minigameLoaded = true;
+        if (typeof window.openModalByRoute === "function") {
+          window.openModalByRoute("aim-trainer", true);
+        }
+      };
       document.body.appendChild(script);
-      window.minigameLoaded = true;
+    } else {
+      if (typeof window.openModalByRoute === "function") {
+        window.openModalByRoute("aim-trainer", true);
+      }
     }
   });
 
