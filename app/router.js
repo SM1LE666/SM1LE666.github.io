@@ -18,7 +18,7 @@
     const normalizedPath = normalizePath(path);
 
     const modalMatch = normalizedPath.match(
-      /^\/(reaction-test|support|contact)$/i,
+      /^\/(reaction-test|support|contact|aim-trainer)$/i,
     );
     if (modalMatch && modalMatch[1]) {
       return {

@@ -320,6 +320,7 @@ const MODAL_ROUTE_MAP = {
   "reaction-test": "reactionTestModal",
   contact: "contactModal",
   support: "supportModal",
+  "aim-trainer": "aimTrainerModal",
 };
 
 function openModalByRoute(modalRoute, updateUrl = true) {
