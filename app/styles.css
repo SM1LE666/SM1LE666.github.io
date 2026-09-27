@@ -2198,15 +2198,6 @@ h1 {
     0 0 22px rgba(255, 85, 0, 0.35);
 }
 
-@media (max-width: 480px) {
-  .cookie-fab {
-    right: 12px;
-    bottom: 12px;
-    width: 50px;
-    height: 50px;
-  }
-}
-
 /* Responsive design */
 @media (max-width: 768px) {
   main {
@@ -2313,8 +2304,38 @@ h1 {
     justify-items: center;
   }
 
+  .cookie-fab {
+    right: 12px;
+    bottom: 12px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .fps-guide-btn {
+    height: 40px;
+  }
+
   .footer-buttons {
-    grid-template-areas: "grid grid";
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 0.6rem !important;
+    width: 100% !important;
+  }
+
+  .footer-btn,
+  .support-btn,
+  .contact-btn {
+    width: auto;
+    min-width: 0;
+    font-size: 0.72rem;
+    padding: 0.75rem 1.8rem;
+    letter-spacing: 0.5px;
+    gap: 0.35rem;
+    white-space: nowrap;
+  }
+
+  .footer-btn i {
+    font-size: 0.85rem;
   }
 }
 
@@ -2593,40 +2614,6 @@ h1::after {
   }
 }
 
-@media (max-width: 480px) {
-  .footer-buttons {
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: center !important;
-    gap: 0.6rem !important;
-    width: 100% !important;
-  }
-
-  .footer-btn,
-  .support-btn,
-  .contact-btn {
-    width: auto;
-    min-width: 0;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.5px;
-    gap: 0.35rem;
-    white-space: nowrap;
-  }
-
-  .footer-btn i {
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .footer-btn,
-  .support-btn,
-  .contact-btn {
-    padding: 0.75rem 1.8rem !important;
-  }
-}
-
 @media (min-width: 1025px) {
   #results {
     padding: 1.5rem 1.5rem;
@@ -2637,6 +2624,7 @@ h1::after {
       rgba(15, 15, 15, 0.85) 100%
     );
     border: 2px solid rgba(255, 85, 0, 0.3);
+    max-width: 1350px;
   }
 
   .player-card {
@@ -2661,18 +2649,12 @@ h1::after {
     line-height: 1.35;
   }
 
-  .stats-box {
-    padding: 1.35rem;
-  }
-
   .stats-box h3 {
     font-size: 1.05rem;
     margin-bottom: 0.9rem;
     padding-bottom: 0.7rem;
   }
-}
 
-@media (min-width: 1025px) {
   .stats-box {
     height: 260px;
     min-height: 260px;
@@ -2704,6 +2686,10 @@ h1::after {
     font-weight: 700;
     margin-left: auto;
     white-space: nowrap;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(7, 1fr);
   }
 }
 
@@ -2931,6 +2917,59 @@ h1::after {
     max-width: 320px;
     min-width: 0;
   }
+
+  .pro-card {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .pro-card-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+  }
+
+  .pro-card-photo,
+  .pro-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    transform: translateY(1px);
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .fps-guide-btn {
+    position: static;
+    margin-bottom: 20px;
+  }
+
+  .metrics-modal-header h3 {
+    text-wrap: nowrap;
+  }
+  .metrics-modal-close {
+    width: 20px;
+    justify-content: right;
+  }
+  .metrics-modal-back {
+    width: 25px;
+    justify-content: left;
+  }
+  .metric-value {
+    font-size: 15px;
+  }
 }
 
 .record-match-list h3 {
@@ -2971,31 +3010,6 @@ h1::after {
   padding-left: 0.65rem;
 }
 
-@media (max-width: 768px) {
-  .pro-card {
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-  }
-
-  .pro-card-body {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    display: flex !important;
-    align-items: flex-end !important;
-    justify-content: center !important;
-    overflow: hidden !important;
-  }
-
-  .pro-card-photo,
-  .pro-card img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    object-position: center bottom !important;
-    transform: translateY(1px);
-  }
-}
 .fps-guide-btn {
   position: absolute;
   left: 30px;
@@ -3035,33 +3049,6 @@ h1::after {
 
 .fps-guide-btn .guide-btn:active {
   transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-  .fps-guide-btn {
-    position: static;
-    margin-bottom: 20px;
-  }
-
-  .metrics-modal-header h3 {
-    text-wrap: nowrap;
-  }
-  .metrics-modal-close {
-    width: 20px;
-    justify-content: right;
-  }
-  .metrics-modal-back {
-    width: 25px;
-    justify-content: left;
-  }
-  .metric-value {
-    font-size: 15px;
-  }
-}
-@media (max-width: 480px) {
-  .fps-guide-btn {
-    height: 40px;
-  }
 }
 
 .metrics-card {
@@ -3499,24 +3486,6 @@ h1::after {
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-}
-
-@media (min-width: 1025px) {
-  #results {
-    max-width: 1350px;
-  }
-
-  .metrics-grid {
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.8rem;
-  }
-}
-
 #custom-error-banner {
   position: fixed;
   top: 20px;
@@ -3809,10 +3778,4 @@ h1::after {
   font-weight: 800;
   color: #ff4655 !important;
   text-transform: uppercase;
-}
-
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none !important;
-  }
 }

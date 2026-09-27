@@ -71,7 +71,6 @@
       return;
     }
 
-    // Принудительно устанавливаем видимость через setProperty с !important
     modal.style.setProperty("display", "flex", "important");
     modal.style.setProperty("opacity", "1", "important");
     modal.style.setProperty("visibility", "visible", "important");
