@@ -3282,8 +3282,10 @@ h1::after {
 
 .metrics-modal-close:hover,
 .metrics-modal-back:hover {
-  color: #fff;
-  transform: none;
+  text-shadow: 0 4px 12px rgba(255, 85, 0, 0.15);
+  transform: translateY(-1px);
+  background: none;
+  box-shadow: none;
 }
 
 .metrics-modal-body {
