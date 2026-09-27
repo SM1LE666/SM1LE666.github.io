@@ -2399,13 +2399,8 @@ h1 {
 }
 
 .player-stats {
-  display: flex;
-  flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.6rem;
   width: auto;
-  order: 5;
 }
 
 .stat-item {
@@ -2977,7 +2972,6 @@ h1::after {
 }
 
 .pro-grid {
-  display: flex;
   margin-bottom: 2rem;
   background: none;
   backdrop-filter: none;
@@ -3094,7 +3088,6 @@ h1::after {
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 0.8rem;
   width: 100%;
 }

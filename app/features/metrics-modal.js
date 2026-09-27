@@ -95,14 +95,16 @@
       });
     }
 
-    // Делегирование событий на клик по "How to improve?"
     bindGlobalEvents() {
       document.addEventListener("click", (e) => {
-        // Проверяем, был ли клик по элементу с текстом или классом
-        const trigger = e.target.closest(".metrics-grid p.how-to-improve");
+        const trigger = e.target.closest(".how-to-improve");
         if (
-          trigger &&
-          trigger.textContent.trim().toLowerCase().includes("how to improve")
+          trigger ||
+          (e.target.textContent &&
+            e.target.textContent
+              .trim()
+              .toLowerCase()
+              .includes("how to improve"))
         ) {
           e.preventDefault();
           this.open();
