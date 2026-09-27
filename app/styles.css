@@ -1357,16 +1357,6 @@ h1 {
     gap: 0;
   }
 
-  .match-top-row,
-  .match-header {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    width: 100% !important;
-    gap: 0.5rem !important;
-  }
-
   .match-result {
     font-size: 0.75rem !important;
     padding: 0.2rem 0.5rem !important;
@@ -1662,35 +1652,27 @@ h1 {
   border-radius: 15px 15px 0 0;
 }
 
-.map-card.good-performance .win-rate-badge {
+.map-card.good-performance .win-rate-badge,
+.map-card.good-performance .performance-indicator {
   background: #4caf50;
 }
 
-.map-card.good-performance .performance-indicator {
-  color: #4caf50;
-}
 .map-card.good-performance:hover {
   box-shadow: 0px 10px 25px rgb(0 255 10 / 40%);
 }
 
-.map-card.average-performance .win-rate-badge {
-  background: #ff9800;
-}
-
+.map-card.average-performance .win-rate-badge,
 .map-card.average-performance .performance-indicator {
-  color: #ff9800;
+  background: #ff9800;
 }
 
 .map-card.average-performance:hover {
   box-shadow: 0px 10px 25px rgba(255, 152, 0, 0.4);
 }
 
-.map-card.poor-performance .win-rate-badge {
-  background: #f44336;
-}
-
+.map-card.poor-performance .win-rate-badge,
 .map-card.poor-performance .performance-indicator {
-  color: #f44336;
+  background: #f44336;
 }
 
 .map-card.poor-performance:hover {
@@ -2240,16 +2222,6 @@ h1 {
     font-size: 0.85rem;
   }
 
-  .match-details,
-  .match-top-row {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    width: 100% !important;
-    gap: 0.5rem !important;
-  }
-
   .match-result {
     font-size: 0.75rem !important;
     border-radius: 6px !important;
@@ -2339,7 +2311,6 @@ h1 {
 .player-stats {
   align-items: center;
   width: auto;
-  align-items: center;
   width: auto;
   display: flex;
   order: 5;
