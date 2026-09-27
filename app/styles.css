@@ -1391,10 +1391,6 @@ h1 {
     gap: 0.5rem;
   }
 
-  .match-map {
-    min-width: 80px;
-  }
-
   .match-score {
     font-size: 0.95rem;
     width: auto;
@@ -2300,7 +2296,6 @@ h1 {
 
   /* СТРОКА 1: Дата матча по центру */
   .match-date {
-    display: block !important;
     width: 100% !important;
     text-align: center !important;
     font-size: 0.85rem !important;
@@ -2308,37 +2303,40 @@ h1 {
     margin: 0 !important;
   }
 
-  /* СТРОКА 2: Результат, Карта, Счёт в одну линию или одну колонку */
   .match-details,
   .match-top-row {
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: space-between !important;
     width: 100% !important;
-    gap: 0.6rem !important;
+    gap: 0.5rem !important;
   }
 
   .match-result {
     font-size: 0.75rem !important;
     font-weight: bold;
-    padding: 0.3rem 0.8rem !important;
+    padding: 0.3rem 0.6rem !important;
     border-radius: 6px !important;
     text-transform: uppercase;
+    min-width: 70px;
+    text-align: center;
   }
 
   .match-map {
-    font-size: 1.1rem !important;
+    font-size: 0.95rem !important;
     text-align: center !important;
     margin: 0 !important;
+    width: auto !important;
   }
 
   .match-score {
-    font-size: 1.1rem !important;
+    font-size: 0.95rem !important;
     font-weight: bold !important;
     color: var(--primary-color) !important;
-    text-align: center !important;
+    text-align: right !important;
     margin: 0 !important;
+    width: auto !important;
   }
 
   /* СТРОКА 3: Stat-item'ы */
@@ -2594,7 +2592,7 @@ h1::after {
 
 .map-filter-container {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   width: 100%;
   margin-top: 0.6rem;
   margin-bottom: 0.6rem;
@@ -2753,10 +2751,6 @@ h1::after {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .map-filter-container {
-    justify-content: center;
   }
 
   #mapFilterSelect {
@@ -2961,8 +2955,8 @@ h1::after {
   }
 
   .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
   }
 
   .fps-guide-btn {
