@@ -3260,6 +3260,7 @@ h1::after {
 .metrics-modal-header h3 {
   margin: 0;
   font-size: 18px;
+  line-height: 1;
   flex-grow: 1;
   text-align: center;
   color: #ff5500;
@@ -3276,9 +3277,7 @@ h1::after {
   padding: 4px 8px;
   transition: color 0.2s;
   box-shadow: none;
-}
-.metrics-modal-close {
-  font-size: 25px;
+  line-height: 1;
 }
 
 .metrics-modal-close:hover,

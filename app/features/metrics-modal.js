@@ -139,7 +139,7 @@
       this.modal.innerHTML = `
         <div class="metrics-modal-header">
           <h3>How to improve?</h3>
-          <button class="metrics-modal-close" aria-label="Close">&times;</button>
+          <button class="metrics-modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
         </div>
         <div class="metrics-modal-body">
           <ul class="metrics-list">
@@ -187,7 +187,7 @@
             <i class="fas fa-arrow-left"></i>
           </button>
           <h3>${detailData.title}</h3>
-          <button class="metrics-modal-close" aria-label="Close">&times;</button>
+          <button class="metrics-modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
         </div>
         <div class="metrics-modal-body metric-detail-content">
           ${detailData.content}
