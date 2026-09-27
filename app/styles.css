@@ -1391,13 +1391,6 @@ h1 {
     gap: 0.5rem;
   }
 
-  .match-score {
-    font-size: 0.95rem;
-    width: auto;
-    order: unset;
-    min-width: 60px;
-  }
-
   .player-stats {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -1446,25 +1439,15 @@ h1 {
     flex-wrap: wrap !important;
   }
 
-  .match-date {
-    display: block;
-    width: 100%;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-top: 0.2rem;
-    order: unset;
-    font-size: 0.75rem;
-    min-width: auto;
-  }
-
   .player-stats {
     display: grid !important;
     grid-template-columns: repeat(6, 1fr) !important;
     gap: 0.4rem !important;
     width: 100% !important;
     border-top: 1px solid rgba(255, 85, 0, 0.2) !important;
-    padding-top: 0.75rem !important;
-    margin-top: 0.25rem !important;
+    padding-top: 0.8rem !important;
+    margin-top: 0.2rem !important;
+    justify-items: center;
   }
 }
 
@@ -1473,10 +1456,6 @@ h1 {
   flex-direction: column;
   margin-top: 1rem;
   width: 100%;
-}
-
-.match-item.loss .match-result {
-  color: #f44336;
 }
 
 .stat-item i {
@@ -1522,12 +1501,6 @@ h1 {
     background: #333;
   }
 
-  .match-date {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-    min-width: 70px;
-  }
-
   .match-map,
   .match-score {
     font-size: 0.85rem;
@@ -1562,11 +1535,6 @@ h1 {
     font-size: 0.78rem;
     min-width: 62px;
     padding: 0.12rem 0.35rem;
-  }
-
-  .match-map {
-    font-size: 0.88rem;
-    min-width: 105px;
   }
 
   .match-score {
@@ -2294,15 +2262,6 @@ h1 {
     overflow: hidden;
   }
 
-  /* СТРОКА 1: Дата матча по центру */
-  .match-date {
-    width: 100% !important;
-    text-align: center !important;
-    font-size: 0.85rem !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-    margin: 0 !important;
-  }
-
   .match-details,
   .match-top-row {
     display: flex !important;
@@ -2315,40 +2274,7 @@ h1 {
 
   .match-result {
     font-size: 0.75rem !important;
-    font-weight: bold;
-    padding: 0.3rem 0.6rem !important;
     border-radius: 6px !important;
-    text-transform: uppercase;
-    min-width: 70px;
-    text-align: center;
-  }
-
-  .match-map {
-    font-size: 0.95rem !important;
-    text-align: center !important;
-    margin: 0 !important;
-    width: auto !important;
-  }
-
-  .match-score {
-    font-size: 0.95rem !important;
-    font-weight: bold !important;
-    color: var(--primary-color) !important;
-    text-align: right !important;
-    margin: 0 !important;
-    width: auto !important;
-  }
-
-  /* СТРОКА 3: Stat-item'ы */
-  .player-stats {
-    display: grid !important;
-    grid-template-columns: repeat(6, 1fr) !important;
-    gap: 0.4rem !important;
-    width: 100% !important;
-    border-top: 1px solid rgba(255, 85, 0, 0.2) !important;
-    padding-top: 0.8rem !important;
-    margin-top: 0.2rem !important;
-    justify-items: center;
   }
 
   .stat-item {
@@ -2370,11 +2296,6 @@ h1 {
     font-size: 0.85rem !important;
     color: var(--primary-color) !important;
     margin-bottom: 2px;
-  }
-
-  .stat-item span {
-    font-weight: bold !important;
-    color: #ffffff !important;
   }
 }
 
@@ -2532,7 +2453,7 @@ h1 {
   }
 
   .stat-item span {
-    font-size: 0.7rem !important;
+    font-size: 0.68rem;
     margin: 0;
     line-height: 1;
     display: flex;
@@ -3576,8 +3497,8 @@ h1::after {
 }
 
 .aim-trainer-btn {
-  display: flex !important;
-  align-items: center !important;
+  display: flex;
+  align-items: center;
   justify-content: center;
   gap: 8px;
   line-height: 1;

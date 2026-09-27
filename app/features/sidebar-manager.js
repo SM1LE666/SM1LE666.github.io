@@ -229,7 +229,9 @@ if (typeof window !== "undefined") {
     hideForPlayerProfile() {
       if (!this.isPlayerProfileActive) return;
       const nicknameInput = document.getElementById("nickname");
-      if (nicknameInput && nicknameInput.value.trim() !== "") return;
+      if (nicknameInput) {
+        nicknameInput.value = "";
+      }
 
       this.isPlayerProfileActive = false;
       document.querySelector(".pro-grid")?.style.setProperty("display", "flex");
