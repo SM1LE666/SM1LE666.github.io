@@ -1063,9 +1063,6 @@ footer {
 
 @media (max-width: 768px) {
   body {
-    display: flex !important;
-    flex-direction: column !important;
-    min-height: 100vh !important;
     height: auto !important;
   }
 
@@ -1395,10 +1392,6 @@ h1 {
   }
 
   .match-map {
-    font-size: 0.95rem;
-    width: auto;
-    text-align: center;
-    order: unset;
     min-width: 80px;
   }
 
@@ -1466,11 +1459,6 @@ h1 {
     order: unset;
     font-size: 0.75rem;
     min-width: auto;
-  }
-
-  .match-map {
-    text-align: left !important;
-    margin: 0 !important;
   }
 
   .player-stats {
@@ -2341,8 +2329,6 @@ h1 {
 
   .match-map {
     font-size: 1.1rem !important;
-    font-weight: 700 !important;
-    color: var(--primary-color) !important;
     text-align: center !important;
     margin: 0 !important;
   }
@@ -2389,10 +2375,8 @@ h1 {
   }
 
   .stat-item span {
-    font-size: 0.75rem !important;
     font-weight: bold !important;
     color: #ffffff !important;
-    line-height: 1 !important;
   }
 }
 
