@@ -1574,11 +1574,6 @@ h1 {
     display: none !important;
   }
 
-  .match-date {
-    font-size: 0.75rem;
-    min-width: 90px;
-  }
-
   .match-result {
     font-size: 0.78rem;
     min-width: 62px;
@@ -2299,6 +2294,106 @@ h1 {
   .footer-btn i {
     font-size: 0.85rem;
   }
+
+  .match-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 1.2rem 1rem 1rem 1rem !important;
+    gap: 0.8rem !important;
+    height: auto !important;
+    border-radius: 16px !important;
+    background: rgba(20, 20, 20, 0.75) !important;
+    border: 1px solid rgba(255, 85, 0, 0.25) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* СТРОКА 1: Дата матча по центру */
+  .match-date {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    margin: 0 !important;
+  }
+
+  /* СТРОКА 2: Результат, Карта, Счёт в одну линию или одну колонку */
+  .match-details,
+  .match-top-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    gap: 0.6rem !important;
+  }
+
+  .match-result {
+    font-size: 0.75rem !important;
+    font-weight: bold;
+    padding: 0.3rem 0.8rem !important;
+    border-radius: 6px !important;
+    text-transform: uppercase;
+  }
+
+  .match-map {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: var(--primary-color) !important;
+    text-align: center !important;
+    margin: 0 !important;
+  }
+
+  .match-score {
+    font-size: 1.1rem !important;
+    font-weight: bold !important;
+    color: var(--primary-color) !important;
+    text-align: center !important;
+    margin: 0 !important;
+  }
+
+  /* СТРОКА 3: Stat-item'ы */
+  .player-stats {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 0.4rem !important;
+    width: 100% !important;
+    border-top: 1px solid rgba(255, 85, 0, 0.2) !important;
+    padding-top: 0.8rem !important;
+    margin-top: 0.2rem !important;
+    justify-items: center;
+  }
+
+  .stat-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 85, 0, 0.2) !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    max-width: 48px !important;
+    height: 48px !important;
+    padding: 0.2rem !important;
+    box-sizing: border-box;
+  }
+
+  .stat-item i {
+    font-size: 0.85rem !important;
+    color: var(--primary-color) !important;
+    margin-bottom: 2px;
+  }
+
+  .stat-item span {
+    font-size: 0.75rem !important;
+    font-weight: bold !important;
+    color: #ffffff !important;
+    line-height: 1 !important;
+  }
 }
 
 .match-item.win {
@@ -2363,6 +2458,11 @@ h1 {
 .player-stats {
   align-items: center;
   width: auto;
+  align-items: center;
+  width: auto;
+  display: flex;
+  order: 5;
+  gap: 0.7rem;
 }
 
 .stat-item {
