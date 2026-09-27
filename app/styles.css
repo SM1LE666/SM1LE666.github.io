@@ -2972,6 +2972,7 @@ h1::after {
 }
 
 .pro-grid {
+  display: flex;
   margin-bottom: 2rem;
   background: none;
   backdrop-filter: none;
@@ -3218,9 +3219,12 @@ h1::after {
 
 .metrics-modal-overlay.active {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .metrics-modal {
+  position: relative;
+  z-index: 10000;
   background: #1a1a1a;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -3263,6 +3267,8 @@ h1::after {
 
 .metrics-modal-close,
 .metrics-modal-back {
+  position: relative;
+  z-index: 10001;
   background: none;
   border: none;
   font-size: 20px;
@@ -3295,6 +3301,9 @@ h1::after {
 }
 
 .metrics-list-item {
+  position: relative;
+  z-index: 10001;
+  pointer-events: auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -3312,6 +3321,10 @@ h1::after {
   transition:
     background 0.2s,
     transform 0.1s;
+}
+
+.metrics-list-item * {
+  pointer-events: none;
 }
 
 .metrics-list-item:hover {
