@@ -1,18 +1,17 @@
 {
   "specVersion": "1.0",
-  "name": "FACEIT Analyze",
-  "description": "Веб-сервис для анализа статистики, метрик и игровой производительности игроков Counter-Strike 2 на платформе FACEIT.",
-  "url": "https://faceitanalyze.me",
-  "provider": {
-    "name": "FACEIT Analyze",
-    "url": "https://faceitanalyze.me"
-  },
   "entries": [
     {
-      "name": "CS2 Player Analytics",
-      "description": "Поиск игроков, анализ игровой статистики и карт FACEIT",
-      "type": "web",
-      "url": "https://faceitanalyze.me/"
+      "identifier": "faceit-analyze-main",
+      "displayName": "FACEIT Analyze CS2 Statistics",
+      "description": "Сервис для поиска и анализа статистики игроков CS2 на платформе FACEIT",
+      "type": "text/markdown",
+      "url": "https://faceitanalyze.me/llms.txt",
+      "representativeQueries": [
+        "FACEIT CS2 player stats lookup",
+        "CS2 HLTV rating calculator",
+        "Analyze FACEIT match history"
+      ]
     }
   ]
 }
