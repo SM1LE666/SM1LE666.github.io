@@ -2,10 +2,10 @@
   "specVersion": "1.0",
   "entries": [
     {
-      "identifier": "faceit-analyze-main",
+      "identifier": "urn:air:faceitanalyze:cs2:analytics",
       "displayName": "FACEIT Analyze CS2 Statistics",
       "description": "Сервис для поиска и анализа статистики игроков CS2 на платформе FACEIT",
-      "type": "text/markdown",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
       "url": "https://faceitanalyze.me/llms.txt",
       "representativeQueries": [
         "FACEIT CS2 player stats lookup",
