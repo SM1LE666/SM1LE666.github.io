@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0",
+  "name": "FACEIT Analyze",
+  "description": "Веб-сервис для анализа статистики, метрик и игровой производительности игроков Counter-Strike 2 на платформе FACEIT.",
+  "url": "https://faceitanalyze.me",
+  "provider": {
+    "name": "FACEIT Analyze",
+    "url": "https://faceitanalyze.me"
+  },
+  "capabilities": [
+    {
+      "name": "CS2 Player Analytics",
+      "description": "Аналитика статистики игроков Counter-Strike 2"
+    },
+    {
+      "name": "FACEIT Statistics Fetching",
+      "description": "Получение данных с платформы FACEIT"
+    }
+  ],
+  "endpoints": [
+    {
+      "name": "Player Analytics & Search",
+      "description": "Интерфейс поиска и детального анализа карт игроков CS2 на FACEIT",
+      "url": "https://faceitanalyze.me/",
+      "type": "web"
+    }
+  ]
+}
