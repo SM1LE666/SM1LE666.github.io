@@ -4,6 +4,7 @@
   "name": "FACEIT Analyze",
   "description": "Веб-сервис для анализа статистики, метрик и игровой производительности игроков Counter-Strike 2 на платформе FACEIT.",
   "url": "https://faceitanalyze.me",
+  "icon": "/assets/faceit.svg",
   "provider": {
     "name": "FACEIT Analyze",
     "url": "https://faceitanalyze.me"

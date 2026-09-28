@@ -5,6 +5,18 @@
       "destination": "/api/:path*"
     },
     {
+      "source": "/ai-catalog.json",
+      "destination": "/ai-catalog.json"
+    },
+    {
+      "source": "/.well-known/ai-catalog.json",
+      "destination": "/ai-catalog.json"
+    },
+    {
+      "source": "/llms.txt",
+      "destination": "/llms.txt"
+    },
+    {
       "source": "/robots.txt",
       "destination": "/robots.txt"
     },
