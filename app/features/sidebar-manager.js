@@ -824,7 +824,7 @@ if (typeof window !== "undefined") {
                 <span>Compare</span>
               </div>
               <div class="compare-form">
-                <input type="text" id="compareInput" class="compare-input" placeholder="Steam-ссылка или ник на Faceit" autocomplete="off" spellcheck="false" />
+                <input type="text" id="compareInput" class="compare-input" placeholder="Enter player nickname or profile URL" autocomplete="off" spellcheck="false" />
                 <button type="button" id="compareBtn" class="compare-btn"><i class="fas fa-search"></i> Compare</button>
               </div>
               <div class="compare-status" id="compareStatus"></div>
@@ -850,28 +850,40 @@ if (typeof window !== "undefined") {
             String(s ?? "").replace(
               /[&<>"']/g,
               (c) =>
-                ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+                ({
+                  "&": "&amp;",
+                  "<": "&lt;",
+                  ">": "&gt;",
+                  '"': "&quot;",
+                  "'": "&#39;",
+                })[c],
             );
 
           const runCompare = async () => {
             const currentProfile = window.currentPlayerProfile;
             const currentPlayer = window.currentPlayerData;
             if (!currentProfile || !currentPlayer?.player_id) {
-              setStatus("error", "Нет данных текущего игрока для сравнения.");
+              setStatus(
+                "error",
+                "No data available for the current player to compare.",
+              );
               return;
             }
 
             // 1. Проверка ввода
             const raw = compareInput.value.trim();
             if (!raw) {
-              setStatus("error", "Введите ссылку на Steam-профиль или ник Faceit.");
+              setStatus(
+                "error",
+                "Enter a valid Faceit nickname, Steam link, or Faceit profile URL to compare.",
+              );
               return;
             }
 
             compareBtn.disabled = true;
             compareInput.disabled = true;
             compareOutput.innerHTML = "";
-            setStatus("loading", "Проверяем профиль...");
+            setStatus("loading", "Waiting for Faceit API response...");
 
             try {
               // 2. Находим игрока Faceit (Steam-ссылка / ник / ссылка на Faceit)
@@ -879,7 +891,9 @@ if (typeof window !== "undefined") {
               try {
                 if (window.AppPlayerResolve?.isSteamInput(raw)) {
                   opponentPlayer =
-                    await window.AppPlayerResolve.resolveFaceitPlayerFromSteam(raw);
+                    await window.AppPlayerResolve.resolveFaceitPlayerFromSteam(
+                      raw,
+                    );
                   if (!opponentPlayer?.games && opponentPlayer?.nickname) {
                     opponentPlayer = await window.FaceitAPI.getPlayerData(
                       opponentPlayer.nickname,
@@ -890,28 +904,57 @@ if (typeof window !== "undefined") {
                 }
               } catch (err) {
                 if (/^Error API: 404/.test(err.message)) {
-                  throw new Error("Игрок не найден на Faceit.");
+                  throw new Error("Player not found on Faceit.");
                 }
                 throw err;
               }
 
               // 3. Проверка валидности профиля
-              if (!opponentPlayer?.player_id) throw new Error("Профиль игрока недоступен.");
-              if (!opponentPlayer.games?.cs2) throw new Error("У этого игрока нет профиля CS2 на Faceit.");
+              if (!opponentPlayer?.player_id)
+                throw new Error("Profile data is incomplete or invalid.");
+              if (!opponentPlayer.games?.cs2)
+                throw new Error(
+                  "This player does not have CS2 stats on Faceit.",
+                );
               if (opponentPlayer.player_id === currentPlayer.player_id) {
-                throw new Error("Это тот же игрок, которого вы уже смотрите.");
+                throw new Error(
+                  "Input player is the same as the current player.",
+                );
               }
 
               let statsData;
               try {
-                statsData = await window.FaceitAPI.getStatsData(opponentPlayer.player_id, "cs2");
+                statsData = await window.FaceitAPI.getStatsData(
+                  opponentPlayer.player_id,
+                  "cs2",
+                );
               } catch {
-                throw new Error("Не удалось загрузить статистику игрока.");
+                throw new Error(
+                  "Failed to retrieve stats data for the opponent player.",
+                );
               }
               const lifetime = statsData?.lifetime || {};
               const segments = statsData?.segments || [];
-              const avgStats = window.FaceitAPI.calculateAvgStats(lifetime, segments, "cs2");
-              if (!avgStats.totalMatches) throw new Error("У игрока нет сыгранных матчей CS2 для сравнения.");
+              const avgStats = window.FaceitAPI.calculateAvgStats(
+                lifetime,
+                segments,
+                "cs2",
+              );
+              if (!avgStats.totalMatches)
+                throw new Error("This player has no CS2 matches to compare.");
+
+              const [currentElo, opponentElo] = await Promise.all([
+                window.FaceitAPI.getCurrentElo(
+                  currentPlayer.player_id,
+                  "cs2",
+                  currentPlayer.games?.cs2?.faceit_elo,
+                ),
+                window.FaceitAPI.getCurrentElo(
+                  opponentPlayer.player_id,
+                  "cs2",
+                  opponentPlayer.games?.cs2?.faceit_elo,
+                ),
+              ]);
 
               // Профиль соперника в том же формате, что и window.currentPlayerProfile
               const opponentProfile = {
@@ -923,35 +966,78 @@ if (typeof window !== "undefined") {
               // Пользователь мог уйти с вкладки, пока шёл запрос
               if (!compareOutput.isConnected) return;
 
-              // 3. Сравнение по метрикам из metrics-grid
+              // 4. Сравнение: Faceit-показатели + метрики из metrics-grid
               const metricsA = window.computeHltvMetrics(currentProfile);
               const metricsB = window.computeHltvMetrics(opponentProfile);
+              const fmtInt = (v) => window.FaceitAPI.formatNumber(v);
+
+              const faceitRows = [
+                {
+                  label: "Matches",
+                  a: Number(currentProfile.avgStats?.totalMatches) || 0,
+                  b: avgStats.totalMatches,
+                  fmt: fmtInt,
+                  countInScore: false,
+                },
+                {
+                  label: "ELO",
+                  a: Number(currentElo) || 0,
+                  b: Number(opponentElo) || 0,
+                  fmt: fmtInt,
+                  countInScore: true,
+                },
+                {
+                  label: "K/D",
+                  a: parseFloat(currentProfile.avgStats?.kd) || 0,
+                  b: parseFloat(avgStats.kd) || 0,
+                  fmt: (v) => v.toFixed(2),
+                  countInScore: true,
+                },
+              ].map((r) => ({
+                ...r,
+                fa: r.fmt(r.a),
+                fb: r.fmt(r.b),
+                max: Math.max(r.a, r.b) || 1,
+              }));
+
+              const hltvRows = metricsA.map((mA, i) => ({
+                label: mA.label,
+                a: mA.score,
+                b: metricsB[i].score,
+                fa: mA.displayValue,
+                fb: metricsB[i].displayValue,
+                max: 100,
+                countInScore: true,
+              }));
 
               let winsA = 0;
               let winsB = 0;
-              const rows = metricsA
-                .map((mA, i) => {
-                  const mB = metricsB[i];
-                  let winner = "tie";
-                  if (mA.score > mB.score) winner = "a";
-                  else if (mB.score > mA.score) winner = "b";
-                  if (winner === "a") winsA++;
-                  if (winner === "b") winsB++;
+              const buildRows = (list) =>
+                list
+                  .map((r) => {
+                    let winner = "tie";
+                    if (r.a > r.b) winner = "a";
+                    else if (r.b > r.a) winner = "b";
+                    if (r.countInScore && winner === "a") winsA++;
+                    if (r.countInScore && winner === "b") winsB++;
 
-                  return `
+                    return `
                     <div class="compare-row" data-winner="${winner}">
                       <div class="compare-row-top">
-                        <span class="compare-val a">${mA.displayValue}</span>
-                        <span class="compare-label">${mA.label}</span>
-                        <span class="compare-val b">${mB.displayValue}</span>
+                        <span class="compare-val a">${r.fa}</span>
+                        <span class="compare-label">${r.label}</span>
+                        <span class="compare-val b">${r.fb}</span>
                       </div>
                       <div class="compare-track">
-                        <div class="compare-half left"><div class="compare-fill" style="--w:${mA.score}%"></div></div>
-                        <div class="compare-half right"><div class="compare-fill" style="--w:${mB.score}%"></div></div>
+                        <div class="compare-half left"><div class="compare-fill" style="--w:${((r.a / r.max) * 100).toFixed(1)}%"></div></div>
+                        <div class="compare-half right"><div class="compare-fill" style="--w:${((r.b / r.max) * 100).toFixed(1)}%"></div></div>
                       </div>
                     </div>`;
-                })
-                .join("");
+                  })
+                  .join("");
+
+              const faceitRowsHtml = buildRows(faceitRows);
+              const hltvRowsHtml = buildRows(hltvRows);
 
               const chip = (player, side) => `
                 <div class="compare-player ${side}">
@@ -974,10 +1060,13 @@ if (typeof window !== "undefined") {
                     </div>
                     ${chip(opponentPlayer, "right")}
                   </div>
-                  <div class="compare-rows">${rows}</div>
+                  <div class="compare-section-title">Faceit</div>
+                  <div class="compare-rows">${faceitRowsHtml}</div>
+                  <div class="compare-section-title">HLTV Performance Profile</div>
+                  <div class="compare-rows">${hltvRowsHtml}</div>
                 </div>`;
 
-              setStatus("ok", `Профиль найден: ${esc(opponentPlayer.nickname)}`);
+              setStatus("ok", `Player: ${esc(opponentPlayer.nickname)}`);
 
               // двойной rAF, чтобы полосы анимировались от краёв
               const result = compareOutput.querySelector(".compare-result");
@@ -986,7 +1075,13 @@ if (typeof window !== "undefined") {
               );
             } catch (error) {
               if (compareOutput.isConnected) {
-                setStatus("error", esc(error.message || "Не удалось выполнить сравнение."));
+                setStatus(
+                  "error",
+                  esc(
+                    error.message ||
+                      "An error occurred while comparing players.",
+                  ),
+                );
               }
             } finally {
               compareBtn.disabled = false;

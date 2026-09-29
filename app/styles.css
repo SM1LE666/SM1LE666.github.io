@@ -2995,6 +2995,7 @@ h1::after {
 
 .metrics-card-header .icon-accent {
   color: #ff5500;
+  filter: drop-shadow(0 0 6px rgba(255, 85, 0, 0.6));
 }
 
 .metrics-grid {
@@ -3697,6 +3698,7 @@ h1::after {
   text-transform: uppercase;
 }
 
+/* ===== Compare ===== */
 .compare-form {
   display: flex;
   gap: 0.8rem;
@@ -3950,4 +3952,20 @@ h1::after {
   .compare-val {
     font-size: 0.95rem;
   }
+}
+
+.compare-section-title {
+  margin: 1.4rem 0 0.9rem;
+  padding-bottom: 0.4rem;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ff5500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(255, 85, 0, 0.15);
+}
+
+.compare-players + .compare-section-title {
+  margin-top: 0;
 }
