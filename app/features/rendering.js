@@ -55,15 +55,13 @@
     }
   }
 
-  function renderOverviewStats(container) {
-    if (!container || !window.currentPlayerProfile) return;
-
+  // Расчёт 7 HLTV-метрик (0 - 100). Используется в Overview и в Compare.
+  function computeHltvMetrics(profile) {
     const {
       avgStats,
-      mapAnalysis,
       lifetime = {},
       allMaps = [],
-    } = window.currentPlayerProfile;
+    } = profile || {};
 
     // 1. Извлекаем базовые показатели
     let rawWinRate = parseFloat(lifetime["Win Rate %"]);
@@ -205,6 +203,21 @@
       { label: "Sniping", displayValue: `${sniping}`, score: sniping },
       { label: "Utility", displayValue: `${utility}`, score: utility },
     ];
+
+    return metrics;
+  }
+
+  function renderOverviewStats(container) {
+    if (!container || !window.currentPlayerProfile) return;
+
+    const {
+      avgStats,
+      mapAnalysis,
+      lifetime = {},
+      allMaps = [],
+    } = window.currentPlayerProfile;
+
+    const metrics = computeHltvMetrics(window.currentPlayerProfile);
 
     const metricsCardHtml = `
       <div class="metrics-card slide-in-animation">
@@ -371,6 +384,7 @@
   const AppRendering = {
     formatStatRow,
     renderOverviewStats,
+    computeHltvMetrics,
     renderPlayerCard,
     applyMapCardBackgrounds,
   };
@@ -379,6 +393,7 @@
     window.AppRendering = AppRendering;
     window.formatStatRow = formatStatRow;
     window.renderOverviewStats = renderOverviewStats;
+    window.computeHltvMetrics = computeHltvMetrics;
     window.renderPlayerCard = renderPlayerCard;
     window.applyMapCardBackgrounds = applyMapCardBackgrounds;
   }
