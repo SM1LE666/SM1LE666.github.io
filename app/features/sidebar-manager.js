@@ -810,6 +810,241 @@ if (typeof window !== "undefined") {
             statsContainer.innerHTML = `<p class="api-error-text">Ошибка загрузки данных карт</p>`;
           }
           break;
+        case "Compare": {
+          if (search) search.style.display = "none";
+          playerCard.style.display = "block";
+          playerCard
+            .querySelectorAll(".stats-box")
+            .forEach((box) => (box.style.display = "none"));
+          statsContainer.style.display = "block";
+          statsContainer.innerHTML = `
+            <div class="metrics-card compare-card">
+              <div class="metrics-card-header">
+                <i class="fas fa-code-compare icon-accent"></i>
+                <span>Compare</span>
+              </div>
+              <div class="compare-form">
+                <input type="text" id="compareInput" class="compare-input" placeholder="Steam-ссылка или ник на Faceit" autocomplete="off" spellcheck="false" />
+                <button type="button" id="compareBtn" class="compare-btn"><i class="fas fa-magnifying-glass-chart"></i> Compare</button>
+              </div>
+              <div class="compare-status" id="compareStatus"></div>
+              <div class="compare-output" id="compareOutput"></div>
+            </div>`;
+
+          const compareInput = document.getElementById("compareInput");
+          const compareBtn = document.getElementById("compareBtn");
+          const compareStatus = document.getElementById("compareStatus");
+          const compareOutput = document.getElementById("compareOutput");
+
+          const setStatus = (type, text) => {
+            const icons = {
+              loading: "fa-spinner fa-spin",
+              error: "fa-circle-exclamation",
+              ok: "fa-circle-check",
+            };
+            compareStatus.className = `compare-status ${type}`;
+            compareStatus.innerHTML = `<i class="fas ${icons[type]}"></i><span>${text}</span>`;
+          };
+
+          const esc = (s) =>
+            String(s ?? "").replace(
+              /[&<>"']/g,
+              (c) =>
+                ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+            );
+
+          const num = (v) => {
+            const n = parseFloat(String(v ?? "").replace("%", "").replace(",", "."));
+            return Number.isFinite(n) ? n : null;
+          };
+
+          const lifetimeStat = (data, keys) => {
+            const lifetime = data?.stats?.lifetime || {};
+            for (const key of keys) {
+              const n = num(lifetime[key]);
+              if (n !== null) return n;
+            }
+            return null;
+          };
+
+          const avgAdr = (data) => {
+            const maps = window.FaceitAPI?.getAllMapsStats?.(data?.stats?.segments || []) || [];
+            let sum = 0;
+            let weight = 0;
+            maps.forEach((m) => {
+              const adr = num(m.adr);
+              const played = num(m.matches) || 0;
+              if (adr !== null && played > 0) {
+                sum += adr * played;
+                weight += played;
+              }
+            });
+            return weight ? sum / weight : null;
+          };
+
+          const metrics = [
+            { label: "ELO", icon: "fa-chart-line", get: (d) => num(d.player?.games?.cs2?.faceit_elo), fmt: (v) => Math.round(v) },
+            { label: "Matches", icon: "fa-gamepad", get: (d) => lifetimeStat(d, ["Matches"]), fmt: (v) => Math.round(v) },
+            { label: "Win Rate", icon: "fa-trophy", get: (d) => lifetimeStat(d, ["Win Rate %"]), fmt: (v) => `${v.toFixed(0)}%` },
+            { label: "K/D", icon: "fa-crosshairs", get: (d) => lifetimeStat(d, ["Average K/D Ratio", "K/D Ratio"]), fmt: (v) => v.toFixed(2) },
+            { label: "K/R", icon: "fa-bolt", get: (d) => lifetimeStat(d, ["Average K/R Ratio", "K/R Ratio"]), fmt: (v) => v.toFixed(2) },
+            { label: "HS %", icon: "fa-percentage", get: (d) => lifetimeStat(d, ["Average Headshots %"]), fmt: (v) => `${v.toFixed(0)}%` },
+            { label: "ADR", icon: "fa-fire", get: avgAdr, fmt: (v) => v.toFixed(1) },
+            { label: "Best Streak", icon: "fa-star", get: (d) => lifetimeStat(d, ["Longest Win Streak"]), fmt: (v) => Math.round(v) },
+          ];
+
+          const runCompare = async () => {
+            const current = {
+              player: window.currentPlayerData,
+              stats: window.currentPlayerProfile?.statsData,
+            };
+            if (!current.player?.player_id) {
+              setStatus("error", "Нет данных текущего игрока для сравнения.");
+              return;
+            }
+
+            // 1. Разбор ввода
+            const raw = compareInput.value.trim();
+            let type = "nickname";
+            let value = raw;
+            if (!raw) {
+              setStatus("error", "Введите ссылку на Steam-профиль или ник Faceit.");
+              return;
+            }
+            if (/steamcommunity\.com/i.test(raw)) {
+              const m = raw.match(/steamcommunity\.com\/(?:profiles\/(\d{17})|id\/([A-Za-z0-9_-]{2,32}))/i);
+              if (!m) {
+                setStatus("error", "Некорректная ссылка на Steam-профиль.");
+                return;
+              }
+              type = m[1] ? "steam64" : "vanity";
+              value = m[1] || m[2];
+            } else if (/^\d{17}$/.test(raw)) {
+              type = "steam64";
+            } else {
+              const faceitUrl = raw.match(/faceit\.com\/[a-z-]+\/players\/([^/?#\s]+)/i);
+              value = faceitUrl ? decodeURIComponent(faceitUrl[1]) : raw;
+              if (!/^[A-Za-z0-9_.-]{3,12}$/.test(value)) {
+                setStatus("error", "Ник Faceit: 3–12 символов (буквы, цифры, _ . -), либо ссылка на Steam.");
+                return;
+              }
+            }
+
+            compareBtn.disabled = true;
+            compareInput.disabled = true;
+            compareOutput.innerHTML = "";
+            setStatus("loading", "Проверяем профиль...");
+
+            try {
+              // 2. Проверка валидности профиля
+              const response = await fetch(
+                `/api/server?action=compare-player&type=${type}&value=${encodeURIComponent(value)}`,
+                { headers: { Accept: "application/json" } },
+              );
+              if (response.status === 404) {
+                throw new Error(
+                  type === "nickname"
+                    ? "Игрок с таким ником на Faceit не найден."
+                    : "Для этого Steam-профиля не найден аккаунт Faceit (CS2).",
+                );
+              }
+              if (!response.ok) throw new Error(`Ошибка сервера (${response.status}).`);
+
+              const opponent = await response.json();
+              if (!opponent?.player?.player_id) throw new Error("Профиль игрока недоступен.");
+              if (!opponent.player.games?.cs2) throw new Error("У этого игрока нет профиля CS2 на Faceit.");
+              if (opponent.player.player_id === current.player.player_id) {
+                throw new Error("Это тот же игрок, которого вы уже смотрите.");
+              }
+              if (!(lifetimeStat(opponent, ["Matches"]) > 0)) {
+                throw new Error("У игрока нет сыгранных матчей CS2 для сравнения.");
+              }
+
+              // Пользователь мог уйти с вкладки, пока шёл запрос
+              if (!compareOutput.isConnected) return;
+
+              // 3. Сравнение по метрикам
+              let winsA = 0;
+              let winsB = 0;
+              const rows = metrics
+                .map((metric) => {
+                  const a = metric.get(current);
+                  const b = metric.get(opponent);
+                  if (a === null && b === null) return "";
+
+                  const max = Math.max(a ?? 0, b ?? 0);
+                  const pct = (v) => (v === null || max <= 0 ? 0 : Math.max(4, (v / max) * 100));
+
+                  let winner = "tie";
+                  if (a !== null && (b === null || a > b)) winner = "a";
+                  else if (b !== null && (a === null || b > a)) winner = "b";
+                  if (winner === "a") winsA++;
+                  if (winner === "b") winsB++;
+
+                  return `
+                    <div class="compare-row" data-winner="${winner}">
+                      <div class="compare-row-top">
+                        <span class="compare-val a">${a === null ? "-" : metric.fmt(a)}</span>
+                        <span class="compare-label"><i class="fas ${metric.icon}"></i>${metric.label}</span>
+                        <span class="compare-val b">${b === null ? "-" : metric.fmt(b)}</span>
+                      </div>
+                      <div class="compare-track">
+                        <div class="compare-half left"><div class="compare-fill" style="--w:${pct(a).toFixed(1)}%"></div></div>
+                        <div class="compare-half right"><div class="compare-fill" style="--w:${pct(b).toFixed(1)}%"></div></div>
+                      </div>
+                    </div>`;
+                })
+                .join("");
+
+              if (!rows) throw new Error("Нет общих метрик для сравнения.");
+
+              const chip = (player, side) => `
+                <div class="compare-player ${side}">
+                  ${
+                    player?.avatar
+                      ? `<img class="compare-avatar" src="${esc(player.avatar)}" alt="" />`
+                      : `<span class="compare-avatar compare-avatar-fallback"><i class="fas fa-user"></i></span>`
+                  }
+                  <span class="compare-nickname">${esc(player?.nickname || "-")}</span>
+                </div>`;
+
+              compareOutput.innerHTML = `
+                <div class="compare-result">
+                  <div class="compare-players">
+                    ${chip(current.player, "left")}
+                    <div class="compare-score">
+                      <span class="${winsA > winsB ? "lead" : ""}">${winsA}</span>
+                      <span>:</span>
+                      <span class="${winsB > winsA ? "lead" : ""}">${winsB}</span>
+                    </div>
+                    ${chip(opponent.player, "right")}
+                  </div>
+                  <div class="compare-rows">${rows}</div>
+                </div>`;
+
+              setStatus("ok", `Профиль найден: ${esc(opponent.player.nickname)}`);
+
+              // двойной rAF, чтобы полосы анимировались от краёв
+              const result = compareOutput.querySelector(".compare-result");
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() => result?.classList.add("animate")),
+              );
+            } catch (error) {
+              if (compareOutput.isConnected) {
+                setStatus("error", esc(error.message || "Не удалось выполнить сравнение."));
+              }
+            } finally {
+              compareBtn.disabled = false;
+              compareInput.disabled = false;
+            }
+          };
+
+          compareBtn.addEventListener("click", runCompare);
+          compareInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") runCompare();
+          });
+          break;
+        }
       }
       playerCard.style.opacity = "1";
     }
