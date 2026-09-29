@@ -4118,8 +4118,11 @@ h1::after {
   gap: 0.15rem;
   padding: 0.4rem 0.2rem;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: radial-gradient(
+    100% 100% at 50% 0%,
+    rgba(255, 85, 0, 0.08) 0%,
+    rgba(15, 15, 15, 0.85) 100%
+  );
   transition:
     background 0.2s ease,
     border-color 0.2s ease;
@@ -4347,5 +4350,26 @@ h1::after {
 
   .mc-more-btn {
     width: 100%;
+  }
+}
+
+/* Фикс чипов на мобильных: глобальное `button { width: 100%; max-width: 300px }`
+   при max-width: 480px растягивало каждый чип на весь экран */
+.mc-chip {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  min-height: 40px;
+}
+
+@media (max-width: 768px) {
+  .mc-filter {
+    padding: 0.3rem 0.2rem 0.5rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mc-chip {
+    scroll-snap-align: start;
   }
 }

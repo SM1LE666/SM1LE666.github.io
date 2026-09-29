@@ -484,6 +484,12 @@ if (typeof window !== "undefined") {
             chipsEl
               .querySelectorAll(".mc-chip")
               .forEach((c) => c.classList.toggle("active", c === chip));
+            // на мобильных подкручиваем ленту, чтобы выбранный чип был виден
+            chip.scrollIntoView({
+              behavior: "smooth",
+              inline: "center",
+              block: "nearest",
+            });
 
             const requestId = (this.filterRequestId =
               (this.filterRequestId || 0) + 1);
