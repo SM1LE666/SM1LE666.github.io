@@ -3956,7 +3956,6 @@ h1::after {
 
   .mc-filter {
     justify-content: flex-start;
-    overflow-x: auto;
     padding-bottom: 0.4rem;
     scrollbar-width: none;
     scroll-snap-type: x proximity;
