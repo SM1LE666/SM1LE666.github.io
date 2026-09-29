@@ -46,30 +46,57 @@ if (typeof window !== "undefined") {
   function buildMatchItemHtml(match) {
     if (match.result === "Error") {
       return `
-        <div class="match-item error">
-          <div class="match-header"><span class="match-date">Error loading match</span></div>
-          <div class="match-error">Failed to load match data</div>
+        <div class="mc-card mc-error">
+          <div class="mc-info">
+            <span class="mc-map">Error loading match</span>
+            <span class="mc-date">Failed to load match data</span>
+          </div>
         </div>`;
     }
 
     const resultClass = match.result.toLowerCase();
     const matchUrl = buildMatchUrl(match.matchId);
+    const mapKey = SidebarManager.normalizeMapKey(match.map);
+    const mapName = /^de_/i.test(match.map)
+      ? match.map.replace(/^de_/i, "").replace(/^./, (c) => c.toUpperCase())
+      : match.map;
+
+    const kills = Number(match.kills) || 0;
+    const deaths = Number(match.deaths) || 0;
+    const kd = deaths > 0 ? kills / deaths : kills;
+
+    const stats = [
+      { label: "Kills", value: kills },
+      { label: "Deaths", value: deaths },
+      { label: "Assists", value: Number(match.assists) || 0 },
+      { label: "HS", value: `${match.headshots}%` },
+      {
+        label: "K/D",
+        value: formatKdRatio(kills, deaths),
+        cls: kd >= 1 ? "good" : "bad",
+      },
+      { label: "MVP", value: Number(match.mvps) || 0 },
+    ];
 
     return `
-      <div class="match-item ${resultClass}" ${
+      <div class="mc-card ${resultClass}" data-map="${mapKey}" ${
         matchUrl ? `onclick="window.open('${matchUrl}', '_blank')"` : ""
       }>
-        <span class="match-date">${match.date}</span>
-        <span class="match-result">${match.result.toUpperCase()}</span>
-        <span class="match-map">${match.map}</span>
-        <span class="match-score">${match.score}</span>
-        <div class="player-stats">
-          <div class="stat-item"><i class="fas fa-skull"></i><span>${match.kills}</span></div>
-          <div class="stat-item"><i class="fas fa-skull-crossbones"></i><span>${match.deaths}</span></div>
-          <div class="stat-item"><i class="fas fa-handshake"></i><span>${match.assists}</span></div>
-          <div class="stat-item"><i class="fas fa-percentage"></i><span>${match.headshots}%</span></div>
-          <div class="stat-item"><i class="fas fa-chart-line"></i><span>${formatKdRatio(match.kills, match.deaths)}</span></div>
-          <div class="stat-item"><i class="fas fa-star"></i><span>${match.mvps}</span></div>
+        <div class="mc-info">
+          <span class="mc-map">${mapName}</span>
+          <span class="mc-date"><i class="fas fa-calendar-alt"></i>${match.date}</span>
+        </div>
+        <div class="mc-outcome">
+          <span class="mc-result">${match.result.toUpperCase()}</span>
+          <span class="mc-score">${match.score}</span>
+        </div>
+        <div class="mc-stats">
+          ${stats
+            .map(
+              (s) =>
+                `<div class="mc-stat ${s.cls || ""}"><span class="mc-stat-value">${s.value}</span><span class="mc-stat-label">${s.label}</span></div>`,
+            )
+            .join("")}
         </div>
       </div>`;
   }
@@ -428,57 +455,75 @@ if (typeof window !== "undefined") {
             );
           }
 
-          const selectHtml = `
-            <div class="map-filter-container">
-              <label class="map-filter-label">Map:
-                <select id="mapFilterSelect">
-                  <option value="">All maps</option>
-                  ${this.availableMapOptions.map((o) => `<option value="${o.key}">${o.name} (${o.count})</option>`).join("")}
-                </select>
-              </label>
+          const chipsHtml = `
+            <div class="mc-filter">
+              <button type="button" class="mc-chip active" data-map-filter="">
+                <span class="mc-chip-name">All maps</span>
+                <span class="mc-chip-count">${this.totalMatches}</span>
+              </button>
+              ${this.availableMapOptions
+                .map(
+                  (o) => `
+              <button type="button" class="mc-chip" data-map-filter="${o.key}" data-map="${o.key}">
+                <span class="mc-chip-name">${o.name}</span>
+                <span class="mc-chip-count">${o.count}</span>
+              </button>`,
+                )
+                .join("")}
             </div>`;
 
-          statsContainer.querySelector(".map-filter-container")?.remove();
-          statsContainer.insertAdjacentHTML("beforeend", selectHtml);
+          statsContainer.querySelector(".mc-filter")?.remove();
+          statsContainer.insertAdjacentHTML("beforeend", chipsHtml);
+          const chipsEl = statsContainer.querySelector(".mc-filter");
+          if (typeof applyMapCardBackgrounds === "function")
+            applyMapCardBackgrounds(chipsEl);
 
-          document
-            .getElementById("mapFilterSelect")
-            ?.addEventListener("change", async (e) => {
-              this.currentMapFilter = e.target.value || null;
-              if (this.currentMapFilter) {
-                const selectedMapOption = this.availableMapOptions.find(
-                  (opt) => opt.key === this.currentMapFilter,
-                );
-                this.renderMatchesLoadingIndicator();
-                await this.ensureMatchesLoadedForMap(
-                  this.currentMapFilter,
-                  this.matchesLimit,
-                  selectedMapOption?.count || 0,
-                );
-                const filteredMatches = this.getFilteredMatches();
-                const matchesToDisplay = filteredMatches.slice(
-                  0,
-                  this.matchesLimit,
-                );
-                this.displayedMatchesCount = matchesToDisplay.length;
-                this.displayMatchHistory(matchesToDisplay, true);
-              } else {
-                const visibleCount =
-                  this.unfilteredDisplayedCount > 0
-                    ? this.unfilteredDisplayedCount
-                    : this.matchesLimit;
-                await this.ensureMatchesLoadedRange(0, visibleCount);
-                this.displayedMatchesCount = Math.min(
-                  visibleCount,
-                  this.currentMatches.length,
-                );
-                this.unfilteredDisplayedCount = this.displayedMatchesCount;
-                this.displayMatchHistory(
-                  this.currentMatches.slice(0, this.displayedMatchesCount),
-                  true,
-                );
-              }
-            });
+          chipsEl.addEventListener("click", async (e) => {
+            const chip = e.target.closest(".mc-chip");
+            if (!chip || chip.classList.contains("active")) return;
+            chipsEl
+              .querySelectorAll(".mc-chip")
+              .forEach((c) => c.classList.toggle("active", c === chip));
+
+            const requestId = (this.filterRequestId =
+              (this.filterRequestId || 0) + 1);
+            this.currentMapFilter = chip.dataset.mapFilter || null;
+
+            if (this.currentMapFilter) {
+              const selectedMapOption = this.availableMapOptions.find(
+                (opt) => opt.key === this.currentMapFilter,
+              );
+              this.renderMatchesLoadingIndicator();
+              await this.ensureMatchesLoadedForMap(
+                this.currentMapFilter,
+                this.matchesLimit,
+                selectedMapOption?.count || 0,
+              );
+              if (requestId !== this.filterRequestId) return;
+              const matchesToDisplay = this.getFilteredMatches().slice(
+                0,
+                this.matchesLimit,
+              );
+              this.displayedMatchesCount = matchesToDisplay.length;
+              this.displayMatchHistory(matchesToDisplay, true);
+            } else {
+              const visibleCount =
+                this.unfilteredDisplayedCount > 0
+                  ? this.unfilteredDisplayedCount
+                  : this.matchesLimit;
+              await this.ensureMatchesLoadedRange(0, visibleCount);
+              if (requestId !== this.filterRequestId) return;
+              this.displayedMatchesCount = Math.min(
+                visibleCount,
+                this.currentMatches.length,
+              );
+              this.unfilteredDisplayedCount = this.displayedMatchesCount;
+              this.displayMatchHistory(
+                this.currentMatches.slice(0, this.displayedMatchesCount),
+                true,
+              );
+            }
+          });
 
           this.displayMatchHistory(
             this.currentMatches.slice(0, this.matchesLimit),
@@ -824,7 +869,7 @@ if (typeof window !== "undefined") {
                 <span>Compare</span>
               </div>
               <div class="compare-form">
-                <input type="text" id="compareInput" class="compare-input" placeholder="Enter player nickname or profile URL" autocomplete="off" spellcheck="false" />
+                <input type="text" id="compareInput" class="compare-input" placeholder="Steam-ссылка или ник на Faceit" autocomplete="off" spellcheck="false" />
                 <button type="button" id="compareBtn" class="compare-btn"><i class="fas fa-search"></i> Compare</button>
               </div>
               <div class="compare-status" id="compareStatus"></div>
@@ -850,40 +895,28 @@ if (typeof window !== "undefined") {
             String(s ?? "").replace(
               /[&<>"']/g,
               (c) =>
-                ({
-                  "&": "&amp;",
-                  "<": "&lt;",
-                  ">": "&gt;",
-                  '"': "&quot;",
-                  "'": "&#39;",
-                })[c],
+                ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
             );
 
           const runCompare = async () => {
             const currentProfile = window.currentPlayerProfile;
             const currentPlayer = window.currentPlayerData;
             if (!currentProfile || !currentPlayer?.player_id) {
-              setStatus(
-                "error",
-                "No data available for the current player to compare.",
-              );
+              setStatus("error", "Нет данных текущего игрока для сравнения.");
               return;
             }
 
             // 1. Проверка ввода
             const raw = compareInput.value.trim();
             if (!raw) {
-              setStatus(
-                "error",
-                "Enter a valid Faceit nickname, Steam link, or Faceit profile URL to compare.",
-              );
+              setStatus("error", "Введите ссылку на Steam-профиль или ник Faceit.");
               return;
             }
 
             compareBtn.disabled = true;
             compareInput.disabled = true;
             compareOutput.innerHTML = "";
-            setStatus("loading", "Waiting for Faceit API response...");
+            setStatus("loading", "Проверяем профиль...");
 
             try {
               // 2. Находим игрока Faceit (Steam-ссылка / ник / ссылка на Faceit)
@@ -891,9 +924,7 @@ if (typeof window !== "undefined") {
               try {
                 if (window.AppPlayerResolve?.isSteamInput(raw)) {
                   opponentPlayer =
-                    await window.AppPlayerResolve.resolveFaceitPlayerFromSteam(
-                      raw,
-                    );
+                    await window.AppPlayerResolve.resolveFaceitPlayerFromSteam(raw);
                   if (!opponentPlayer?.games && opponentPlayer?.nickname) {
                     opponentPlayer = await window.FaceitAPI.getPlayerData(
                       opponentPlayer.nickname,
@@ -904,56 +935,32 @@ if (typeof window !== "undefined") {
                 }
               } catch (err) {
                 if (/^Error API: 404/.test(err.message)) {
-                  throw new Error("Player not found on Faceit.");
+                  throw new Error("Игрок не найден на Faceit.");
                 }
                 throw err;
               }
 
               // 3. Проверка валидности профиля
-              if (!opponentPlayer?.player_id)
-                throw new Error("Profile data is incomplete or invalid.");
-              if (!opponentPlayer.games?.cs2)
-                throw new Error(
-                  "This player does not have CS2 stats on Faceit.",
-                );
+              if (!opponentPlayer?.player_id) throw new Error("Профиль игрока недоступен.");
+              if (!opponentPlayer.games?.cs2) throw new Error("У этого игрока нет профиля CS2 на Faceit.");
               if (opponentPlayer.player_id === currentPlayer.player_id) {
-                throw new Error(
-                  "Input player is the same as the current player.",
-                );
+                throw new Error("Это тот же игрок, которого вы уже смотрите.");
               }
 
               let statsData;
               try {
-                statsData = await window.FaceitAPI.getStatsData(
-                  opponentPlayer.player_id,
-                  "cs2",
-                );
+                statsData = await window.FaceitAPI.getStatsData(opponentPlayer.player_id, "cs2");
               } catch {
-                throw new Error(
-                  "Failed to retrieve stats data for the opponent player.",
-                );
+                throw new Error("Не удалось загрузить статистику игрока.");
               }
               const lifetime = statsData?.lifetime || {};
               const segments = statsData?.segments || [];
-              const avgStats = window.FaceitAPI.calculateAvgStats(
-                lifetime,
-                segments,
-                "cs2",
-              );
-              if (!avgStats.totalMatches)
-                throw new Error("This player has no CS2 matches to compare.");
+              const avgStats = window.FaceitAPI.calculateAvgStats(lifetime, segments, "cs2");
+              if (!avgStats.totalMatches) throw new Error("У игрока нет сыгранных матчей CS2 для сравнения.");
 
               const [currentElo, opponentElo] = await Promise.all([
-                window.FaceitAPI.getCurrentElo(
-                  currentPlayer.player_id,
-                  "cs2",
-                  currentPlayer.games?.cs2?.faceit_elo,
-                ),
-                window.FaceitAPI.getCurrentElo(
-                  opponentPlayer.player_id,
-                  "cs2",
-                  opponentPlayer.games?.cs2?.faceit_elo,
-                ),
+                window.FaceitAPI.getCurrentElo(currentPlayer.player_id, "cs2", currentPlayer.games?.cs2?.faceit_elo),
+                window.FaceitAPI.getCurrentElo(opponentPlayer.player_id, "cs2", opponentPlayer.games?.cs2?.faceit_elo),
               ]);
 
               // Профиль соперника в том же формате, что и window.currentPlayerProfile
@@ -977,7 +984,7 @@ if (typeof window !== "undefined") {
                   a: Number(currentProfile.avgStats?.totalMatches) || 0,
                   b: avgStats.totalMatches,
                   fmt: fmtInt,
-                  countInScore: false,
+                  countInScore: false, // опыт, а не уровень игры
                 },
                 {
                   label: "ELO",
@@ -1066,7 +1073,7 @@ if (typeof window !== "undefined") {
                   <div class="compare-rows">${hltvRowsHtml}</div>
                 </div>`;
 
-              setStatus("ok", `Player: ${esc(opponentPlayer.nickname)}`);
+              setStatus("ok", `Профиль найден: ${esc(opponentPlayer.nickname)}`);
 
               // двойной rAF, чтобы полосы анимировались от краёв
               const result = compareOutput.querySelector(".compare-result");
@@ -1075,13 +1082,7 @@ if (typeof window !== "undefined") {
               );
             } catch (error) {
               if (compareOutput.isConnected) {
-                setStatus(
-                  "error",
-                  esc(
-                    error.message ||
-                      "An error occurred while comparing players.",
-                  ),
-                );
+                setStatus("error", esc(error.message || "Не удалось выполнить сравнение."));
               }
             } finally {
               compareBtn.disabled = false;
@@ -1131,29 +1132,40 @@ if (typeof window !== "undefined") {
         : this.totalMatches || this.allHistoryItems.length;
 
       if (matches.length < totalFiltered) {
+        const shownPct = Math.round((matches.length / totalFiltered) * 100);
+        const nextCount = Math.min(
+          this.matchesLimit,
+          totalFiltered - matches.length,
+        );
         matchHistoryContainer += `
-          <div class="show-more-container">
-            <button class="show-more-btn" style="font-family: 'Orbitron', sans-serif;" onclick="sidebarManager.loadMoreMatches()">
-              <i class="fas fa-chevron-down"></i> Show More (${totalFiltered - matches.length})
+          <div class="mc-more">
+            <div class="mc-more-info">
+              <span>Showing <b>${matches.length}</b> of <b>${totalFiltered}</b></span>
+              <div class="mc-more-track"><div class="mc-more-fill" style="width: ${shownPct}%"></div></div>
+            </div>
+            <button type="button" class="mc-more-btn" onclick="sidebarManager.loadMoreMatches()">
+              <i class="fas fa-chevron-down"></i> Show More (+${nextCount})
             </button>
           </div>`;
       }
 
       wrapper.innerHTML = matchHistoryContainer;
+      if (typeof applyMapCardBackgrounds === "function")
+        applyMapCardBackgrounds(wrapper);
     }
 
     async loadMoreMatches() {
       if (this.isLoadingMore) return;
       this.isLoadingMore = true;
 
-      const showMoreContainer = document.querySelector(".show-more-container");
+      const showMoreContainer = document.querySelector(".mc-more");
       if (showMoreContainer) {
         showMoreContainer.innerHTML = `<div class="loading-indicator small"><i class="fas fa-spinner fa-spin"></i>Processing matches...</div>`;
       }
 
       try {
         const currentlyDisplayedCount =
-          document.querySelectorAll(".match-item").length;
+          document.querySelectorAll(".mc-card").length;
         const newTotalDisplayed = currentlyDisplayedCount + this.matchesLimit;
 
         if (this.currentMapFilter) {
@@ -1264,6 +1276,8 @@ if (typeof window !== "undefined") {
           <h3>${recordLabelMap[recordType] || ""}</h3>
           <div class="match-history">${rankedMatches.map(({ match }) => buildMatchItemHtml(match)).join("")}</div>
         </div>`;
+      if (typeof applyMapCardBackgrounds === "function")
+        applyMapCardBackgrounds(recordDisplay);
     }
 
     toggleMobileSidebar() {

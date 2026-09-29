@@ -330,7 +330,7 @@
   function applyMapCardBackgrounds(container) {
     if (!container) return;
 
-    const mapCards = container.querySelectorAll(".map-card");
+    const mapCards = container.querySelectorAll(".map-card, .mc-card, .mc-chip[data-map]");
     const assetBaseUrl = (() => {
       const basePath = window.location.pathname.replace(/\/player\/.*$/, "/");
       const normalizedBase = basePath.endsWith("/") ? basePath : `${basePath}/`;
