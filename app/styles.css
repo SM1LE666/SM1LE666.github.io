@@ -2995,7 +2995,6 @@ h1::after {
 
 .metrics-card-header .icon-accent {
   color: #ff5500;
-  filter: drop-shadow(0 0 6px rgba(255, 85, 0, 0.6));
 }
 
 .metrics-grid {

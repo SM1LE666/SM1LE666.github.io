@@ -861,31 +861,11 @@ if (typeof window !== "undefined") {
               return;
             }
 
-            // 1. Разбор ввода
+            // 1. Проверка ввода
             const raw = compareInput.value.trim();
-            let type = "nickname";
-            let value = raw;
             if (!raw) {
               setStatus("error", "Введите ссылку на Steam-профиль или ник Faceit.");
               return;
-            }
-            if (/steamcommunity\.com/i.test(raw)) {
-              const m = raw.match(/steamcommunity\.com\/(?:profiles\/(\d{17})|id\/([A-Za-z0-9_-]{2,32}))/i);
-              if (!m) {
-                setStatus("error", "Некорректная ссылка на Steam-профиль.");
-                return;
-              }
-              type = m[1] ? "steam64" : "vanity";
-              value = m[1] || m[2];
-            } else if (/^\d{17}$/.test(raw)) {
-              type = "steam64";
-            } else {
-              const faceitUrl = raw.match(/faceit\.com\/[a-z-]+\/players\/([^/?#\s]+)/i);
-              value = faceitUrl ? decodeURIComponent(faceitUrl[1]) : raw;
-              if (!/^[A-Za-z0-9_.-]{3,12}$/.test(value)) {
-                setStatus("error", "Ник Faceit: 3–12 символов (буквы, цифры, _ . -), либо ссылка на Steam.");
-                return;
-              }
             }
 
             compareBtn.disabled = true;
@@ -894,46 +874,50 @@ if (typeof window !== "undefined") {
             setStatus("loading", "Проверяем профиль...");
 
             try {
-              // 2. Проверка валидности профиля
-              const response = await fetch(
-                `/api/server?action=compare-player&type=${type}&value=${encodeURIComponent(value)}`,
-                { headers: { Accept: "application/json" } },
-              );
-              if (response.status === 404) {
-                throw new Error(
-                  type === "nickname"
-                    ? "Игрок с таким ником на Faceit не найден."
-                    : "Для этого Steam-профиля не найден аккаунт Faceit (CS2).",
-                );
+              // 2. Находим игрока Faceit (Steam-ссылка / ник / ссылка на Faceit)
+              let opponentPlayer;
+              try {
+                if (window.AppPlayerResolve?.isSteamInput(raw)) {
+                  opponentPlayer =
+                    await window.AppPlayerResolve.resolveFaceitPlayerFromSteam(raw);
+                  if (!opponentPlayer?.games && opponentPlayer?.nickname) {
+                    opponentPlayer = await window.FaceitAPI.getPlayerData(
+                      opponentPlayer.nickname,
+                    );
+                  }
+                } else {
+                  opponentPlayer = await window.FaceitAPI.getPlayerData(raw);
+                }
+              } catch (err) {
+                if (/^Error API: 404/.test(err.message)) {
+                  throw new Error("Игрок не найден на Faceit.");
+                }
+                throw err;
               }
-              if (!response.ok) throw new Error(`Ошибка сервера (${response.status}).`);
 
-              const opponent = await response.json();
-              if (!opponent?.player?.player_id) throw new Error("Профиль игрока недоступен.");
-              if (!opponent.player.games?.cs2) throw new Error("У этого игрока нет профиля CS2 на Faceit.");
-              if (opponent.player.player_id === currentPlayer.player_id) {
+              // 3. Проверка валидности профиля
+              if (!opponentPlayer?.player_id) throw new Error("Профиль игрока недоступен.");
+              if (!opponentPlayer.games?.cs2) throw new Error("У этого игрока нет профиля CS2 на Faceit.");
+              if (opponentPlayer.player_id === currentPlayer.player_id) {
                 throw new Error("Это тот же игрок, которого вы уже смотрите.");
               }
 
-              const lifetime = opponent.stats?.lifetime || {};
-              const allMaps = window.FaceitAPI?.getAllMapsStats?.(opponent.stats?.segments || []) || [];
-              const totalMatches = parseInt(lifetime["Matches"], 10) || 0;
-              if (!totalMatches) throw new Error("У игрока нет сыгранных матчей CS2 для сравнения.");
+              let statsData;
+              try {
+                statsData = await window.FaceitAPI.getStatsData(opponentPlayer.player_id, "cs2");
+              } catch {
+                throw new Error("Не удалось загрузить статистику игрока.");
+              }
+              const lifetime = statsData?.lifetime || {};
+              const segments = statsData?.segments || [];
+              const avgStats = window.FaceitAPI.calculateAvgStats(lifetime, segments, "cs2");
+              if (!avgStats.totalMatches) throw new Error("У игрока нет сыгранных матчей CS2 для сравнения.");
 
-              // Собираем профиль соперника в том же формате, что и window.currentPlayerProfile
-              const mapMatches = allMaps.reduce((s, m) => s + (Number(m.matches) || 0), 0);
-              const avgKills = mapMatches
-                ? allMaps.reduce((s, m) => s + (parseFloat(m.avgKills) || 0) * (Number(m.matches) || 0), 0) / mapMatches
-                : 0;
+              // Профиль соперника в том же формате, что и window.currentPlayerProfile
               const opponentProfile = {
+                avgStats,
                 lifetime,
-                allMaps,
-                avgStats: {
-                  totalMatches,
-                  avgKills: avgKills.toFixed(1),
-                  avgHs: lifetime["Average Headshots %"],
-                  kd: lifetime["Average K/D Ratio"],
-                },
+                allMaps: window.FaceitAPI.getAllMapsStats(segments),
               };
 
               // Пользователь мог уйти с вкладки, пока шёл запрос
@@ -988,12 +972,12 @@ if (typeof window !== "undefined") {
                       <span>:</span>
                       <span class="${winsB > winsA ? "lead" : ""}">${winsB}</span>
                     </div>
-                    ${chip(opponent.player, "right")}
+                    ${chip(opponentPlayer, "right")}
                   </div>
                   <div class="compare-rows">${rows}</div>
                 </div>`;
 
-              setStatus("ok", `Профиль найден: ${esc(opponent.player.nickname)}`);
+              setStatus("ok", `Профиль найден: ${esc(opponentPlayer.nickname)}`);
 
               // двойной rAF, чтобы полосы анимировались от краёв
               const result = compareOutput.querySelector(".compare-result");
