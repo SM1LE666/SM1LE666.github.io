@@ -1833,13 +1833,11 @@ h1 {
 }
 
 .cookie-btn.primary {
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-glow));
-  color: #fff;
+  color: var(--primary-color);
   border-color: rgba(255, 85, 0, 0.35);
 }
 
 .cookie-btn.primary:hover {
-  background: linear-gradient(135deg, var(--primary-hover), #cc4400);
   box-shadow: 0 6px 15px rgba(255, 85, 0, 0.35);
 }
 
