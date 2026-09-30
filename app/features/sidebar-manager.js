@@ -224,7 +224,7 @@ if (typeof window !== "undefined") {
       window.addEventListener("load", () => {
         setTimeout(() => {
           if (getCookieConsent() === null) openCookieModal();
-        }, 2000);
+        }, 500);
       });
     }
 
@@ -901,7 +901,13 @@ if (typeof window !== "undefined") {
             String(s ?? "").replace(
               /[&<>"']/g,
               (c) =>
-                ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+                ({
+                  "&": "&amp;",
+                  "<": "&lt;",
+                  ">": "&gt;",
+                  '"': "&quot;",
+                  "'": "&#39;",
+                })[c],
             );
 
           const runCompare = async () => {
@@ -915,7 +921,10 @@ if (typeof window !== "undefined") {
             // 1. Проверка ввода
             const raw = compareInput.value.trim();
             if (!raw) {
-              setStatus("error", "Введите ссылку на Steam-профиль или ник Faceit.");
+              setStatus(
+                "error",
+                "Введите ссылку на Steam-профиль или ник Faceit.",
+              );
               return;
             }
 
@@ -930,7 +939,9 @@ if (typeof window !== "undefined") {
               try {
                 if (window.AppPlayerResolve?.isSteamInput(raw)) {
                   opponentPlayer =
-                    await window.AppPlayerResolve.resolveFaceitPlayerFromSteam(raw);
+                    await window.AppPlayerResolve.resolveFaceitPlayerFromSteam(
+                      raw,
+                    );
                   if (!opponentPlayer?.games && opponentPlayer?.nickname) {
                     opponentPlayer = await window.FaceitAPI.getPlayerData(
                       opponentPlayer.nickname,
@@ -947,26 +958,46 @@ if (typeof window !== "undefined") {
               }
 
               // 3. Проверка валидности профиля
-              if (!opponentPlayer?.player_id) throw new Error("Профиль игрока недоступен.");
-              if (!opponentPlayer.games?.cs2) throw new Error("У этого игрока нет профиля CS2 на Faceit.");
+              if (!opponentPlayer?.player_id)
+                throw new Error("Профиль игрока недоступен.");
+              if (!opponentPlayer.games?.cs2)
+                throw new Error("У этого игрока нет профиля CS2 на Faceit.");
               if (opponentPlayer.player_id === currentPlayer.player_id) {
                 throw new Error("Это тот же игрок, которого вы уже смотрите.");
               }
 
               let statsData;
               try {
-                statsData = await window.FaceitAPI.getStatsData(opponentPlayer.player_id, "cs2");
+                statsData = await window.FaceitAPI.getStatsData(
+                  opponentPlayer.player_id,
+                  "cs2",
+                );
               } catch {
                 throw new Error("Не удалось загрузить статистику игрока.");
               }
               const lifetime = statsData?.lifetime || {};
               const segments = statsData?.segments || [];
-              const avgStats = window.FaceitAPI.calculateAvgStats(lifetime, segments, "cs2");
-              if (!avgStats.totalMatches) throw new Error("У игрока нет сыгранных матчей CS2 для сравнения.");
+              const avgStats = window.FaceitAPI.calculateAvgStats(
+                lifetime,
+                segments,
+                "cs2",
+              );
+              if (!avgStats.totalMatches)
+                throw new Error(
+                  "У игрока нет сыгранных матчей CS2 для сравнения.",
+                );
 
               const [currentElo, opponentElo] = await Promise.all([
-                window.FaceitAPI.getCurrentElo(currentPlayer.player_id, "cs2", currentPlayer.games?.cs2?.faceit_elo),
-                window.FaceitAPI.getCurrentElo(opponentPlayer.player_id, "cs2", opponentPlayer.games?.cs2?.faceit_elo),
+                window.FaceitAPI.getCurrentElo(
+                  currentPlayer.player_id,
+                  "cs2",
+                  currentPlayer.games?.cs2?.faceit_elo,
+                ),
+                window.FaceitAPI.getCurrentElo(
+                  opponentPlayer.player_id,
+                  "cs2",
+                  opponentPlayer.games?.cs2?.faceit_elo,
+                ),
               ]);
 
               // Профиль соперника в том же формате, что и window.currentPlayerProfile
@@ -1079,7 +1110,10 @@ if (typeof window !== "undefined") {
                   <div class="compare-rows">${hltvRowsHtml}</div>
                 </div>`;
 
-              setStatus("ok", `Профиль найден: ${esc(opponentPlayer.nickname)}`);
+              setStatus(
+                "ok",
+                `Профиль найден: ${esc(opponentPlayer.nickname)}`,
+              );
 
               // двойной rAF, чтобы полосы анимировались от краёв
               const result = compareOutput.querySelector(".compare-result");
@@ -1088,7 +1122,10 @@ if (typeof window !== "undefined") {
               );
             } catch (error) {
               if (compareOutput.isConnected) {
-                setStatus("error", esc(error.message || "Не удалось выполнить сравнение."));
+                setStatus(
+                  "error",
+                  esc(error.message || "Не удалось выполнить сравнение."),
+                );
               }
             } finally {
               compareBtn.disabled = false;
