@@ -80,7 +80,7 @@
       media="print"
       onload="this.media = 'all'"
     />
-    <link rel="stylesheet" href="/app/styles.css?v=1.18" />
+    <link rel="stylesheet" href="/app/styles.css?v=1.22" />
     <noscript>
       <link
         rel="stylesheet"
@@ -102,14 +102,12 @@
     <link rel="manifest" href="/assets/site.webmanifest" />
   </head>
   <body>
-    <!-- Мобильная шторка - ТОЛЬКО для навигации по статистике игрока -->
     <div id="mobileSidebarDrawer" class="mobile-sidebar-drawer mobile-only">
       <div class="drawer-header" id="drawerHeader">
         <div class="drawer-handle"></div>
         <span class="drawer-title">Player Statistics</span>
       </div>
       <div class="drawer-content">
-        <!-- Кнопка назад в главное меню -->
         <div class="drawer-item back-button" data-action="back">
           <i class="fas fa-arrow-left"></i>
           <span>Main Menu</span>
@@ -137,16 +135,13 @@
       </div>
     </div>
 
-    <!-- Sidebar - только для десктопа -->
     <aside id="sidebar" class="sidebar desktop-only">
       <div class="sidebar-content">
-        <!-- Кнопка назад в главное меню -->
         <div class="sidebar-item back-button" data-action="back">
           <i class="fas fa-arrow-left"></i>
           <span>Back</span>
         </div>
 
-        <!-- Разделитель -->
         <div class="sidebar-divider"></div>
 
         <div class="sidebar-item active" data-view="overview">
@@ -172,28 +167,18 @@
       </div>
     </aside>
 
-    <!-- Mobile overlay -->
     <div id="mobileOverlay" class="mobile-overlay"></div>
 
     <header id="header">
       <div class="header-content">
         <h1><i class="fas fa-chart-bar"></i> FACEIT Analyze</h1>
-        <button
-          id="aimTrainerBtn"
-          class="header-btn aim-trainer-btn desktop-only"
-          title="Aim Trainer"
-        >
-          <i class="fas fa-crosshairs"></i><span>Aim Trainer</span>
-        </button>
       </div>
 
-      <!-- Game's modal -->
       <div id="aimTrainerModal" class="modal">
         <div class="modal-content aim-modal-content">
           <span class="close-btn" id="closeAimTrainer">&times;</span>
           <h2><i class="fas fa-crosshairs"></i>Aim Trainer</h2>
 
-          <!-- Game stats -->
           <div class="aim-stats">
             <div class="stat-box">Time: <span id="aimTimer">0.0</span>s</div>
             <div class="stat-box">
@@ -204,7 +189,6 @@
             </div>
           </div>
 
-          <!-- Gaming field -->
           <div id="aimArena" class="aim-arena">
             <div id="aimStartScreen" class="aim-overlay">
               <button id="startAimGameBtn" class="primary-btn">
@@ -232,19 +216,47 @@
           <input
             type="text"
             id="nickname"
+            aria-label="Player nickname or profile URL"
             placeholder="Enter player nickname or profile URL"
           />
           <button id="searchButton">
             <i class="fas fa-chart-pie"></i> ANALYZE
           </button>
-          <button id="reactionTestBtn" class="footer-btn">
+        </div>
+        <div class="tools-row">
+          <button
+            id="reactionTestBtn"
+            class="footer-btn tool-chip"
+            type="button"
+          >
             <i class="fas fa-bolt"></i> Reaction Test
           </button>
+          <button
+            id="aimTrainerBtn"
+            class="header-btn aim-trainer-btn tool-chip desktop-only"
+            type="button"
+            title="Aim Trainer"
+          >
+            <i class="fas fa-crosshairs"></i><span>Aim Trainer</span>
+          </button>
+          <a
+            class="tool-chip"
+            href="https://steamcommunity.com/sharedfiles/filedetails/?id=3414293949"
+            target="_blank"
+            rel="noopener"
+          >
+            <i class="fas fa-tachometer-alt"></i> FPS Guide
+          </a>
         </div>
       </section>
 
       <section class="pro-grid">
-        <div class="pro-card">
+        <div
+          class="pro-card"
+          role="button"
+          tabindex="0"
+          aria-label="Analyze donk"
+        >
           <div class="pro-card-header">
             <h3 class="pro-name">donk</h3>
           </div>
@@ -259,7 +271,12 @@
             />
           </div>
         </div>
-        <div class="pro-card">
+        <div
+          class="pro-card"
+          role="button"
+          tabindex="0"
+          aria-label="Analyze m0NESY"
+        >
           <div class="pro-card-header">
             <h3 class="pro-name">m0NESY</h3>
           </div>
@@ -269,10 +286,17 @@
               alt="m0NESY"
               src="/images/pros/m0nesy.webp"
               fetchpriority="high"
+              width="143"
+              height="149"
             />
           </div>
         </div>
-        <div class="pro-card">
+        <div
+          class="pro-card"
+          role="button"
+          tabindex="0"
+          aria-label="Analyze s1mple"
+        >
           <div class="pro-card-header">
             <h3 class="pro-name">s1mple</h3>
           </div>
@@ -287,7 +311,12 @@
             />
           </div>
         </div>
-        <div class="pro-card">
+        <div
+          class="pro-card"
+          role="button"
+          tabindex="0"
+          aria-label="Analyze ZywOo"
+        >
           <div class="pro-card-header">
             <h3 class="pro-name">ZywOo</h3>
           </div>
@@ -307,23 +336,12 @@
       <section id="results" style="display: none">
         <h2><i class="fas fa-search"></i> Player Statistics</h2>
         <div id="output">Enter a nickname to see results.</div>
-        <div class="player-stats" id="playerStats">
-          <!-- Stat cards will be generated here by JavaScript -->
-        </div>
+        <div class="player-stats" id="playerStats"></div>
       </section>
     </main>
 
     <footer id="footer">
       <div class="footer-content">
-        <div class="fps-guide-btn">
-          <a
-            href="https://steamcommunity.com/sharedfiles/filedetails/?id=3414293949"
-            target="_blank"
-            class="footer-btn guide-btn"
-          >
-            Getting FPS<i class="fas fa-tachometer-alt"></i>
-          </a>
-        </div>
         <div class="footer-buttons">
           <button class="footer-btn support-btn">
             <i class="fas fa-heart"></i> Support Us
@@ -336,7 +354,6 @@
       </div>
     </footer>
 
-    <!-- Cookie Consent Modal -->
     <div id="cookieModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
@@ -357,7 +374,6 @@
       </div>
     </div>
 
-    <!-- Floating cookie settings button -->
     <button
       id="cookieFab"
       class="cookie-fab"
@@ -368,7 +384,6 @@
       <i class="fas fa-cookie-bite" aria-hidden="true"></i>
     </button>
 
-    <!-- Support Modal -->
     <div id="supportModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
@@ -399,7 +414,6 @@
       </div>
     </div>
 
-    <!-- Contact Modal -->
     <div id="contactModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
@@ -461,7 +475,6 @@
       </div>
     </div>
 
-    <!-- Reaction Test Modal -->
     <div id="reactionTestModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
@@ -520,22 +533,28 @@
         </div>
       </div>
     </div>
-    <!-- Базовые состояния и роутер -->
     <script src="/app/core.js?v=1.0" defer></script>
 
-    <!-- Сервисы API и аналитика -->
     <script src="/app/services/faceit.js?v=1.4" defer></script>
     <script src="/app/features/analytics.js?v=1.3" defer></script>
     <script src="/app/features/player-resolve.js?v=1.3" defer></script>
 
-    <!-- Модули интерфейса и рендеринга -->
     <script src="/app/features/modals.js?v=1.3" defer></script>
     <script src="/app/features/rendering.js?v=1.11" defer></script>
     <script src="/app/features/sidebar-manager.js?v=1.18" defer></script>
     <script src="/app/features/ui-events.js?v=1.4" defer></script>
     <script src="/app/features/metrics-modal.js?v=1.4" defer></script>
 
-    <!-- Главный логический скрипт -->
     <script src="/app/script.js?v=1.10" defer></script>
+    <script>
+      document.querySelectorAll(".pro-card").forEach(function (card) {
+        card.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            card.click();
+          }
+        });
+      });
+    </script>
   </body>
 </html>
