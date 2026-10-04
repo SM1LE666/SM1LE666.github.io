@@ -55,6 +55,68 @@
     }
   }
 
+  // ---- Clutching -------------------------------------------------------
+  // Калибровочные константы: уровень «среднего» игрока, которому соответствует 50 баллов.
+  // Подбираются по реальным данным (см. комментарий в computeClutchScore).
+  const CLUTCH_REF_WEIGHTED = 1.5; // взвешенные клатчи за матч (1v1×1 … 1v5×5)
+  const CLUTCH_REF_TOTAL = 0.9; // выигранные клатчи за матч, когда нет разбивки по 1vX
+  const CLUTCH_FULL_CONFIDENCE_MATCHES = 30; // при меньшем числе матчей оценка сжимается к 50
+  const CLUTCH_KEYS = [
+    "Total 1v1 Wins",
+    "Total 1v2 Wins",
+    "Total 1v3 Wins",
+    "Total 1v4 Wins",
+    "Total 1v5 Wins",
+  ];
+
+  // Оценка клатчей 0 - 100.
+  //  - считается на МАТЧ, а не за всю карьеру, поэтому не зависит от числа сыгранных игр;
+  //  - 1v2...1v5 весят больше, чем 1v1 (вес = число соперников);
+  //  - шкала плавная: 50 баллов = референсный уровень, 75 = вдвое выше, 87.5 = втрое выше,
+  //    поэтому 100 практически недостижимо и топ-игроки различимы;
+  //  - не зависит от винрейта и K/D (они уже учтены в других метриках);
+  //  - при малой выборке оценка стягивается к 50.
+  function computeClutchScore({ lifetime, allMaps, matches, rawKd }) {
+    // Разбивка по 1vX из lifetime
+    let weighted = 0;
+    let lifetimeTotal = 0;
+    CLUTCH_KEYS.forEach((key, i) => {
+      const v = parseInt(lifetime?.[key], 10);
+      if (!isNaN(v) && v > 0) {
+        weighted += v * (i + 1);
+        lifetimeTotal += v;
+      }
+    });
+
+    // Общее число клатчей по картам (без разбивки)
+    const mapsTotal = Array.isArray(allMaps)
+      ? allMaps.reduce((sum, m) => sum + (parseInt(m.clutches, 10) || 0), 0)
+      : 0;
+
+    let perMatchValue = null;
+    let reference = CLUTCH_REF_WEIGHTED;
+
+    if (matches > 0 && weighted > 0) {
+      perMatchValue = weighted / matches;
+    } else if (matches > 0 && Math.max(mapsTotal, lifetimeTotal) > 0) {
+      perMatchValue = Math.max(mapsTotal, lifetimeTotal) / matches;
+      reference = CLUTCH_REF_TOTAL;
+    }
+
+    // Данных по клатчам нет: нейтральная оценка от K/D (без «пола» в 20 и без потолка в 100)
+    if (perMatchValue === null) {
+      const kd = isNaN(rawKd) ? 1 : rawKd;
+      return Math.min(Math.max(Math.round(50 + (kd - 1) * 40), 15), 85);
+    }
+
+    const ratio = perMatchValue / reference;
+    const raw = 100 * (1 - Math.pow(2, -ratio));
+    const confidence = Math.min(1, matches / CLUTCH_FULL_CONFIDENCE_MATCHES);
+    const shrunk = 50 + (raw - 50) * confidence;
+
+    return Math.min(Math.max(Math.round(shrunk), 0), 100);
+  }
+
   // Расчёт 7 HLTV-метрик (0 - 100). Используется в Overview и в Compare.
   function computeHltvMetrics(profile) {
     // Профиль может прийти в двух форматах:
@@ -91,52 +153,22 @@
     );
     const rawAvgKills = parseFloat(avgStats?.avgKills || 0);
 
-    // 2. Агрегируем данные по картам (ADR, клатчи)
+    // 2. Агрегируем данные по картам (ADR)
     let totalAdr = 0;
-    let totalClutches = 0;
     if (Array.isArray(allMaps) && allMaps.length > 0) {
       totalAdr =
         allMaps.reduce((sum, m) => sum + (parseFloat(m.adr) || 0), 0) /
         allMaps.length;
-      totalClutches = allMaps.reduce(
-        (sum, m) => sum + (parseInt(m.clutches, 10) || 0),
-        0,
-      );
     }
     const adrVal = totalAdr > 0 ? totalAdr : 75;
 
-    // 2. Сбор клатчей из глобального объекта lifetime или расчет на основе матчей
-    const clutchKeys = [
-      "Total 1v1 Wins",
-      "Total 1v2 Wins",
-      "Total 1v3 Wins",
-      "Total 1v4 Wins",
-      "Total 1v5 Wins",
-    ];
-
-    if (lifetime && typeof lifetime === "object") {
-      const lifetimeClutches = clutchKeys.reduce((sum, key) => {
-        const val = parseInt(lifetime[key], 10);
-        return sum + (!isNaN(val) && val >= 0 ? val : 0);
-      }, 0);
-
-      totalClutches = Math.max(totalClutches, lifetimeClutches);
-    }
-
-    const matches = avgStats?.totalMatches || 100;
-    const effectiveClutches =
-      totalClutches > 0
-        ? totalClutches
-        : Math.round(matches * (rawWinRate / 100) * 0.15);
-
-    // Оценка для шкалы прогресс-бара (0 - 100)
-    const clutchingScore = Math.min(
-      Math.max(
-        Math.round(rawWinRate * 0.5 + rawKd * 25 + effectiveClutches * 1.5),
-        20,
-      ),
-      100,
-    );
+    // Clutching: см. computeClutchScore
+    const clutchingScore = computeClutchScore({
+      lifetime,
+      allMaps,
+      matches: avgStats?.totalMatches || 0,
+      rawKd,
+    });
 
     // 3. Формулы HLTV-метрик (0 - 100)
     // Firepower: урон + K/D + хедшоты
@@ -197,7 +229,7 @@
       { label: "Opening", displayValue: `${opening}`, score: opening },
       {
         label: "Clutching",
-        displayValue: `${clutchingScore}`, // Теперь показывает оценку от 0 до 100
+        displayValue: `${clutchingScore}`,
         score: clutchingScore,
       },
       { label: "Sniping", displayValue: `${sniping}`, score: sniping },
