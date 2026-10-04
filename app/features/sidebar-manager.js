@@ -7,6 +7,150 @@ if (typeof window !== "undefined") {
     return {};
   }
 
+  // Кастомный выпадающий список поверх нативного <select>.
+  // Нативный select остаётся в DOM (скрыт) и получает событие "change",
+  // поэтому остальная логика (showRecord) не меняется.
+  function enhanceSelect(select, iconMap = {}) {
+    if (!select || select.dataset.enhanced === "1") return;
+    select.dataset.enhanced = "1";
+
+    const options = Array.from(select.options);
+    if (!options.length) return;
+
+    const mk = (tag, cls, text) => {
+      const el = document.createElement(tag);
+      if (cls) el.className = cls;
+      if (text != null) el.textContent = text;
+      return el;
+    };
+    const icon = (value) => {
+      const i = mk("i", `fas ${iconMap[value] || "fa-circle"} rf-icon`);
+      i.setAttribute("aria-hidden", "true");
+      return i;
+    };
+
+    const root = mk("div", "rf-dropdown");
+    const trigger = mk("button", "rf-trigger");
+    trigger.type = "button";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+
+    const triggerMain = mk("span", "rf-trigger-main");
+    const label = mk("span", "rf-label");
+    const chevron = mk("i", "fas fa-chevron-down rf-chevron");
+    chevron.setAttribute("aria-hidden", "true");
+    trigger.append(triggerMain, chevron);
+
+    const menu = mk("ul", "rf-menu");
+    menu.setAttribute("role", "listbox");
+
+    const items = options.map((opt, idx) => {
+      const li = mk("li", "rf-option");
+      li.setAttribute("role", "option");
+      li.dataset.index = String(idx);
+      const check = mk("i", "fas fa-check rf-check");
+      check.setAttribute("aria-hidden", "true");
+      li.append(icon(opt.value), mk("span", "rf-text", opt.textContent), check);
+      menu.appendChild(li);
+      return li;
+    });
+
+    select.parentNode.insertBefore(root, select);
+    root.append(trigger, menu, select);
+    select.classList.add("rf-native");
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden", "true");
+
+    let activeIndex = select.selectedIndex >= 0 ? select.selectedIndex : 0;
+
+    const syncSelected = () => {
+      const sel = select.selectedIndex >= 0 ? select.selectedIndex : 0;
+      items.forEach((li, i) =>
+        li.setAttribute("aria-selected", i === sel ? "true" : "false"),
+      );
+      triggerMain.replaceChildren(icon(options[sel].value), label);
+      label.textContent = options[sel].textContent;
+    };
+
+    const setActive = (idx) => {
+      activeIndex = (idx + items.length) % items.length;
+      items.forEach((li, i) => li.classList.toggle("active", i === activeIndex));
+      items[activeIndex].scrollIntoView({ block: "nearest" });
+    };
+
+    const isOpen = () => root.classList.contains("open");
+    const open = () => {
+      root.classList.add("open");
+      trigger.setAttribute("aria-expanded", "true");
+      setActive(select.selectedIndex >= 0 ? select.selectedIndex : 0);
+    };
+    const close = (focusTrigger = false) => {
+      root.classList.remove("open");
+      trigger.setAttribute("aria-expanded", "false");
+      items.forEach((li) => li.classList.remove("active"));
+      if (focusTrigger) trigger.focus();
+    };
+    const choose = (idx) => {
+      const changed = select.selectedIndex !== idx;
+      select.selectedIndex = idx;
+      syncSelected();
+      close(true);
+      if (changed) select.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+
+    trigger.addEventListener("click", () => (isOpen() ? close() : open()));
+
+    items.forEach((li, i) => {
+      li.addEventListener("mousedown", (e) => e.preventDefault());
+      li.addEventListener("mouseenter", () => setActive(i));
+      li.addEventListener("click", () => choose(i));
+    });
+
+    root.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowDown":
+        case "ArrowUp": {
+          e.preventDefault();
+          if (!isOpen()) return open();
+          setActive(activeIndex + (e.key === "ArrowDown" ? 1 : -1));
+          break;
+        }
+        case "Home":
+        case "End":
+          if (!isOpen()) return;
+          e.preventDefault();
+          setActive(e.key === "Home" ? 0 : items.length - 1);
+          break;
+        case "Enter":
+        case " ":
+          if (!isOpen()) return; // кнопка сама откроет меню по click
+          e.preventDefault();
+          choose(activeIndex);
+          break;
+        case "Escape":
+          if (isOpen()) {
+            e.preventDefault();
+            close(true);
+          }
+          break;
+        case "Tab":
+          if (isOpen()) close();
+          break;
+      }
+    });
+
+    const onOutside = (e) => {
+      if (!root.isConnected) {
+        document.removeEventListener("pointerdown", onOutside);
+        return;
+      }
+      if (!root.contains(e.target)) close();
+    };
+    document.addEventListener("pointerdown", onOutside);
+
+    syncSelected();
+  }
+
   function extractFallbackMatch(
     infoData,
     playerId,
@@ -776,11 +920,18 @@ if (typeof window !== "undefined") {
               <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading records...</div>
             </div>`;
 
-          document
-            .getElementById("recordFilterSelect")
-            ?.addEventListener("change", (e) => {
-              this.showRecord(e.target.value);
-            });
+          const recordSelect = document.getElementById("recordFilterSelect");
+          recordSelect?.addEventListener("change", (e) => {
+            this.showRecord(e.target.value);
+          });
+          enhanceSelect(recordSelect, {
+            mostKills: "fa-crosshairs",
+            mostAssists: "fa-hands-helping",
+            highestKD: "fa-chart-line",
+            highestKDDifference: "fa-balance-scale",
+            mostMVPs: "fa-star",
+            highestHeadshotPct: "fa-skull",
+          });
           this.showRecord("mostKills");
           break;
 
