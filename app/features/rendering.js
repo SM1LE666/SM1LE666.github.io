@@ -119,10 +119,6 @@
 
   // Расчёт 7 HLTV-метрик (0 - 100). Используется в Overview и в Compare.
   function computeHltvMetrics(profile) {
-    // Профиль может прийти в двух форматах:
-    //  - «плоский»: { avgStats, lifetime, allMaps } (так собирается профиль соперника в Compare)
-    //  - «сырой»: { avgStats, statsData: { lifetime, segments } } (window.currentPlayerProfile)
-    // Нормализуем оба, чтобы метрики в Overview и Compare считались одинаково.
     const avgStats = profile?.avgStats;
     const lifetime = profile?.lifetime || profile?.statsData?.lifetime || {};
     const allMaps =
@@ -362,7 +358,9 @@
   function applyMapCardBackgrounds(container) {
     if (!container) return;
 
-    const mapCards = container.querySelectorAll(".map-card, .mc-card, .mc-chip[data-map]");
+    const mapCards = container.querySelectorAll(
+      ".map-card, .mc-card, .mc-chip[data-map]",
+    );
     const assetBaseUrl = (() => {
       const basePath = window.location.pathname.replace(/\/player\/.*$/, "/");
       const normalizedBase = basePath.endsWith("/") ? basePath : `${basePath}/`;
