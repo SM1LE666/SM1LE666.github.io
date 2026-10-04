@@ -1,5 +1,4 @@
 (function () {
-  const aimBtn = document.getElementById("aimTrainerBtn");
   const closeAimModal = document.getElementById("closeAimTrainer");
   const aimArena = document.getElementById("aimArena");
   const startBtn = document.getElementById("startAimGameBtn");
@@ -22,16 +21,6 @@
   let isPlaying = false;
   const MAX_TARGETS = 30;
   const TARGET_RADIUS = 18;
-
-  // Обработчик клика по кнопке открытия (работает с первого раза через SPA-маршрутизатор)
-  if (aimBtn) {
-    aimBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (typeof window.openModalByRoute === "function") {
-        window.openModalByRoute("aim-trainer", true);
-      }
-    });
-  }
 
   // Обработчик закрытия
   if (closeAimModal) {

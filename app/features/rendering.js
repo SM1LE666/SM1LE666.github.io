@@ -57,11 +57,24 @@
 
   // Расчёт 7 HLTV-метрик (0 - 100). Используется в Overview и в Compare.
   function computeHltvMetrics(profile) {
-    const {
-      avgStats,
-      lifetime = {},
-      allMaps = [],
-    } = profile || {};
+    // Профиль может прийти в двух форматах:
+    //  - «плоский»: { avgStats, lifetime, allMaps } (так собирается профиль соперника в Compare)
+    //  - «сырой»: { avgStats, statsData: { lifetime, segments } } (window.currentPlayerProfile)
+    // Нормализуем оба, чтобы метрики в Overview и Compare считались одинаково.
+    const avgStats = profile?.avgStats;
+    const lifetime = profile?.lifetime || profile?.statsData?.lifetime || {};
+    const allMaps =
+      (Array.isArray(profile?.allMaps) && profile.allMaps.length
+        ? profile.allMaps
+        : window.FaceitAPI?.getAllMapsStats?.(
+            profile?.statsData?.segments || [],
+          )) || [];
+
+    if (!Object.keys(lifetime).length) {
+      console.warn(
+        "computeHltvMetrics: lifetime-статистика пуста, метрики будут посчитаны по запасным значениям",
+      );
+    }
 
     // 1. Извлекаем базовые показатели
     let rawWinRate = parseFloat(lifetime["Win Rate %"]);
@@ -156,19 +169,6 @@
     const opening = Math.min(
       Math.max(
         Math.round((rawWinRate / 100) * 50 + (rawAvgKills / 25) * 50),
-        0,
-      ),
-      100,
-    );
-
-    // Clutching: выигрыши ситуаций 1vX
-    const clutching = Math.min(
-      Math.max(
-        Math.round(
-          totalClutches > 0
-            ? Math.min(totalClutches * 8, 100)
-            : rawWinRate * 0.8,
-        ),
         0,
       ),
       100,

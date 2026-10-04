@@ -1010,6 +1010,7 @@ if (typeof window !== "undefined") {
               // Профиль соперника в том же формате, что и window.currentPlayerProfile
               const opponentProfile = {
                 avgStats,
+                statsData,
                 lifetime,
                 allMaps: window.FaceitAPI.getAllMapsStats(segments),
               };

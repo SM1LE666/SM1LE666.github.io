@@ -174,39 +174,6 @@
         <h1><i class="fas fa-chart-bar"></i> FACEIT Analyze</h1>
       </div>
 
-      <div id="aimTrainerModal" class="modal">
-        <div class="modal-content aim-modal-content">
-          <span class="close-btn" id="closeAimTrainer">&times;</span>
-          <h2><i class="fas fa-crosshairs"></i>Aim Trainer</h2>
-
-          <div class="aim-stats">
-            <div class="stat-box">Time: <span id="aimTimer">0.0</span>s</div>
-            <div class="stat-box">
-              Targets: <span id="aimTargetsCount">0</span>/30
-            </div>
-            <div class="stat-box">
-              Accuracy: <span id="aimAccuracy">100</span>%
-            </div>
-          </div>
-
-          <div id="aimArena" class="aim-arena">
-            <div id="aimStartScreen" class="aim-overlay">
-              <button id="startAimGameBtn" class="primary-btn">
-                Start Game
-              </button>
-            </div>
-            <div id="aimResultScreen" class="aim-overlay hidden">
-              <h3>Results</h3>
-              <p>Time: <strong id="resTime">0</strong>s</p>
-              <p>Accuracy: <strong id="resAccuracy">0</strong>%</p>
-              <p>Grade: <strong id="resGrade" class="grade-badge">-</strong></p>
-              <button id="restartAimGameBtn" class="primary-btn">
-                Try Again
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </header>
 
     <main id="mainContent">
@@ -359,6 +326,40 @@
         <p>© 2026 FACEIT Analyze | Advanced Stats for FACEIT Players</p>
       </div>
     </footer>
+
+    <div id="aimTrainerModal" class="modal">
+      <div class="modal-content aim-modal-content">
+        <span class="close-btn" id="closeAimTrainer">&times;</span>
+        <h2><i class="fas fa-crosshairs"></i>Aim Trainer</h2>
+
+        <div class="aim-stats">
+          <div class="stat-box">Time: <span id="aimTimer">0.0</span>s</div>
+          <div class="stat-box">
+            Targets: <span id="aimTargetsCount">0</span>/30
+          </div>
+          <div class="stat-box">
+            Accuracy: <span id="aimAccuracy">100</span>%
+          </div>
+        </div>
+
+        <div id="aimArena" class="aim-arena">
+          <div id="aimStartScreen" class="aim-overlay">
+            <button id="startAimGameBtn" class="primary-btn">
+              Start Game
+            </button>
+          </div>
+          <div id="aimResultScreen" class="aim-overlay hidden">
+            <h3>Results</h3>
+            <p>Time: <strong id="resTime">0</strong>s</p>
+            <p>Accuracy: <strong id="resAccuracy">0</strong>%</p>
+            <p>Grade: <strong id="resGrade" class="grade-badge">-</strong></p>
+            <button id="restartAimGameBtn" class="primary-btn">
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div id="cookieModal" class="modal">
       <div class="modal-content">
