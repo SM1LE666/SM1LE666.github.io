@@ -309,7 +309,14 @@ function goBackToMain(updateUrl = true) {
   window.currentPlayerData = null;
   syncStateFromApp();
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  // scrollTo требует актуальной раскладки, а DOM только что изменён (display, class),
+  // поэтому прямой вызов вызывает принудительную компоновку (forced reflow).
+  // Двойной rAF: первый кадр сам пересчитывает layout, второй уже скроллит по чистой раскладке.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
   if (updateUrl) updateUrlForPlayer(null);
 }
 

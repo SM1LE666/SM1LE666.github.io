@@ -396,7 +396,7 @@
 
     if (!window.minigameLoaded) {
       const script = document.createElement("script");
-      script.src = "/app/features/minigame.js?v=1.3";
+      script.src = "/app/features/minigame.js?v=1.4";
       script.onload = () => {
         window.minigameLoaded = true;
         if (typeof window.openModalByRoute === "function") {
