@@ -875,7 +875,7 @@ if (typeof window !== "undefined") {
                 <span>Compare</span>
               </div>
               <div class="compare-form">
-                <input type="text" id="compareInput" class="compare-input" placeholder="Steam-ссылка или ник на Faceit" autocomplete="off" spellcheck="false" />
+                <input type="text" id="compareInput" class="compare-input" placeholder="Steam URL or FACEIT Nickname" autocomplete="off" spellcheck="false" />
                 <button type="button" id="compareBtn" class="compare-btn"><i class="fas fa-search"></i> Compare</button>
               </div>
               <div class="compare-status" id="compareStatus"></div>
@@ -914,7 +914,10 @@ if (typeof window !== "undefined") {
             const currentProfile = window.currentPlayerProfile;
             const currentPlayer = window.currentPlayerData;
             if (!currentProfile || !currentPlayer?.player_id) {
-              setStatus("error", "Нет данных текущего игрока для сравнения.");
+              setStatus(
+                "error",
+                "No data available for the current player to compare.",
+              );
               return;
             }
 
@@ -923,7 +926,7 @@ if (typeof window !== "undefined") {
             if (!raw) {
               setStatus(
                 "error",
-                "Введите ссылку на Steam-профиль или ник Faceit.",
+                "Please enter a Steam URL or FACEIT Nickname.",
               );
               return;
             }
@@ -931,7 +934,7 @@ if (typeof window !== "undefined") {
             compareBtn.disabled = true;
             compareInput.disabled = true;
             compareOutput.innerHTML = "";
-            setStatus("loading", "Проверяем профиль...");
+            setStatus("loading", "Checking profile...");
 
             try {
               // 2. Находим игрока Faceit (Steam-ссылка / ник / ссылка на Faceit)
@@ -952,18 +955,22 @@ if (typeof window !== "undefined") {
                 }
               } catch (err) {
                 if (/^Error API: 404/.test(err.message)) {
-                  throw new Error("Игрок не найден на Faceit.");
+                  throw new Error("Player not found on Faceit.");
                 }
                 throw err;
               }
 
               // 3. Проверка валидности профиля
               if (!opponentPlayer?.player_id)
-                throw new Error("Профиль игрока недоступен.");
+                throw new Error("Proflile data is incomplete or invalid.");
               if (!opponentPlayer.games?.cs2)
-                throw new Error("У этого игрока нет профиля CS2 на Faceit.");
+                throw new Error(
+                  "This player does not have CS2 stats on Faceit.",
+                );
               if (opponentPlayer.player_id === currentPlayer.player_id) {
-                throw new Error("Это тот же игрок, которого вы уже смотрите.");
+                throw new Error(
+                  "This is the same player as the current profile.",
+                );
               }
 
               let statsData;
@@ -1112,7 +1119,7 @@ if (typeof window !== "undefined") {
 
               setStatus(
                 "ok",
-                `Профиль найден: ${esc(opponentPlayer.nickname)}`,
+                `Player was found: ${esc(opponentPlayer.nickname)}`,
               );
 
               // двойной rAF, чтобы полосы анимировались от краёв

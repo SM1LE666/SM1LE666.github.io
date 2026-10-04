@@ -304,7 +304,7 @@ h2 {
   margin-top: 0;
   color: var(--primary-color);
   text-shadow: 0 0 5px rgba(255, 85, 0, 0.3);
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   margin-bottom: 1.1rem;
   display: flex;
   align-items: center;
@@ -454,11 +454,9 @@ input[type="text"]:focus {
 }
 
 .player-info h2 {
-  font-size: 2.05rem;
   margin-bottom: 0.6rem;
   color: var(--primary-color);
   text-shadow: 0 0 10px rgba(255, 85, 0, 0.4);
-  font-family: "Orbitron", sans-serif;
 }
 
 .player-info p {
@@ -1972,11 +1970,6 @@ h1::after {
     height: 115px;
   }
 
-  .player-info h2 {
-    font-size: 2.05rem;
-    margin-bottom: 0.6rem;
-  }
-
   .player-info p {
     font-size: 1.1rem;
     margin: 0.35rem 0;
@@ -1984,7 +1977,6 @@ h1::after {
   }
 
   .stats-box h3 {
-    font-size: 1.05rem;
     margin-bottom: 0.9rem;
     padding-bottom: 0.7rem;
   }
@@ -2095,7 +2087,7 @@ h1::after {
   background: rgba(20, 20, 20, 0.55) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-radius: 15px;
+  border-radius: 18px;
   padding: 0 !important;
   overflow: hidden !important;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
@@ -3667,11 +3659,6 @@ body:not(.profile-active) footer {
   z-index: 1;
 }
 
-body:not(.profile-active) header {
-  padding-top: 0.8rem;
-  padding-bottom: 0.8rem;
-}
-
 body:not(.profile-active)::before {
   content: "";
   position: fixed;
@@ -3692,12 +3679,11 @@ body:not(.profile-active)::before {
 
 #search {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 85, 0, 0.25);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   background: rgba(20, 20, 20, 0.55);
   transition: all 0.3s ease;
-  max-width: 1100px;
+  max-width: 1200px;
   margin-bottom: 1.6rem;
   padding: 1.5rem 2rem 0 2rem;
 }
