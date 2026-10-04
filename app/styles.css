@@ -3801,6 +3801,7 @@ body:not(.profile-active)::before {
   max-width: 1200px;
   margin-bottom: 1.6rem;
   padding: 1.5rem 2rem 0 2rem;
+  border: 1px solid rgba(255, 85, 0, 0.32);
 }
 
 #search h2 {
