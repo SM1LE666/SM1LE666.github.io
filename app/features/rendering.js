@@ -320,6 +320,13 @@
       </div>
     `;
 
+    // Средняя разница убийств и смертей за матч
+    const diffValue =
+      parseFloat(avgStats.avgKills) - parseFloat(avgStats.avgDeaths);
+    const killDeathDiff = Number.isNaN(diffValue)
+      ? "-"
+      : `${diffValue > 0 ? "+" : ""}${diffValue.toFixed(1)}`;
+
     const mapAttr = (map) =>
       map ? ` data-map="${normalizeMapKey(map.name)}"` : "";
 
@@ -330,6 +337,7 @@
         <h3><i class="fas fa-chart-line"></i> Average Statistics</h3>
         <p class="stat-row">${formatStatRow(`Avg. Kills: ${avgStats.avgKills}`)}</p>
         <p class="stat-row">${formatStatRow(`Avg. Deaths: ${avgStats.avgDeaths}`)}</p>
+        <p class="stat-row">${formatStatRow(`Avg. Diff: ${killDeathDiff}`)}</p>
         <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
         <p class="stat-row">${formatStatRow(`Headshots: ${avgStats.avgHs}%`)}</p>
       </div>
