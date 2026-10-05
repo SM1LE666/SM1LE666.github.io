@@ -7,9 +7,6 @@ if (typeof window !== "undefined") {
     return {};
   }
 
-  // Кастомный выпадающий список поверх нативного <select>.
-  // Нативный select остаётся в DOM (скрыт) и получает событие "change",
-  // поэтому остальная логика (showRecord) не меняется.
   function enhanceSelect(select, iconMap = {}) {
     if (!select || select.dataset.enhanced === "1") return;
     select.dataset.enhanced = "1";
@@ -74,7 +71,9 @@ if (typeof window !== "undefined") {
 
     const setActive = (idx) => {
       activeIndex = (idx + items.length) % items.length;
-      items.forEach((li, i) => li.classList.toggle("active", i === activeIndex));
+      items.forEach((li, i) =>
+        li.classList.toggle("active", i === activeIndex),
+      );
       items[activeIndex].scrollIntoView({ block: "nearest" });
     };
 
@@ -123,7 +122,7 @@ if (typeof window !== "undefined") {
           break;
         case "Enter":
         case " ":
-          if (!isOpen()) return; // кнопка сама откроет меню по click
+          if (!isOpen()) return;
           e.preventDefault();
           choose(activeIndex);
           break;
@@ -209,6 +208,8 @@ if (typeof window !== "undefined") {
     const deaths = Number(match.deaths) || 0;
     const kd = deaths > 0 ? kills / deaths : kills;
 
+    const kastDisplay = match.kast != null ? `${match.kast}%` : "N/A";
+
     const stats = [
       { label: "Kills", value: kills },
       { label: "Deaths", value: deaths },
@@ -219,7 +220,7 @@ if (typeof window !== "undefined") {
         value: formatKdRatio(kills, deaths),
         cls: kd >= 1 ? "good" : "bad",
       },
-      { label: "MVP", value: Number(match.mvps) || 0 },
+      { label: "KAST", value: kastDisplay },
     ];
 
     return `
@@ -511,7 +512,6 @@ if (typeof window !== "undefined") {
               success = true;
               consecutiveErrors = 0;
 
-              // Если получили меньше pageSize, значит это реально конец истории
               if (data.items.length < pageSize) {
                 break;
               }
@@ -527,7 +527,6 @@ if (typeof window !== "undefined") {
           }
 
           if (!success) {
-            // Прерываем только если это первая страница, иначе работаем с тем, что качнули
             if (pageCount === 0)
               throw new Error("Failed to load match history");
             break;
@@ -628,7 +627,6 @@ if (typeof window !== "undefined") {
             chipsEl
               .querySelectorAll(".mc-chip")
               .forEach((c) => c.classList.toggle("active", c === chip));
-            // на мобильных подкручиваем ленту, чтобы выбранный чип был виден
             chip.scrollIntoView({
               behavior: "smooth",
               inline: "center",
@@ -750,6 +748,12 @@ if (typeof window !== "undefined") {
         const kills = Number(safePlayerStats.Kills) || 0;
         const headshots = Number(safePlayerStats.Headshots) || 0;
 
+        const rawKast =
+          safePlayerStats.KAST ||
+          safePlayerStats["KAST %"] ||
+          safePlayerStats["KAST"];
+        const parsedKast = parseFloat(rawKast);
+
         return {
           matchId: match.match_id || "Unknown Match ID",
           totalMatchNumber: totalMatches - index,
@@ -765,6 +769,7 @@ if (typeof window !== "undefined") {
           headshots: kills > 0 ? Math.round((headshots / kills) * 100) : 0,
           kdRatio: safePlayerStats["K/D Ratio"] || 0,
           mvps: safePlayerStats.MVPs || 0,
+          kast: !isNaN(parsedKast) ? parsedKast : null,
           result: safePlayerStats.Result === "1" ? "WIN" : "LOSS",
         };
       } catch (error) {
@@ -781,6 +786,7 @@ if (typeof window !== "undefined") {
           headshots: 0,
           kdRatio: 0,
           mvps: 0,
+          kast: null,
           result: "Error",
         };
       }
@@ -912,7 +918,7 @@ if (typeof window !== "undefined") {
                 <option value="mostAssists">Most Assists</option>
                 <option value="highestKD">Highest K/D</option>
                 <option value="highestKDDifference">Highest K/D Difference</option>
-                <option value="mostMVPs">Most MVPs</option>
+                <option value="highestKAST">Highest KAST%</option>
                 <option value="highestHeadshotPct">Highest HS%</option>
               </select>
             </div>
@@ -929,7 +935,7 @@ if (typeof window !== "undefined") {
             mostAssists: "fa-hands-helping",
             highestKD: "fa-chart-line",
             highestKDDifference: "fa-balance-scale",
-            mostMVPs: "fa-star",
+            highestKAST: "fa-shield-alt",
             highestHeadshotPct: "fa-skull",
           });
           this.showRecord("mostKills");
@@ -1072,7 +1078,6 @@ if (typeof window !== "undefined") {
               return;
             }
 
-            // 1. Проверка ввода
             const raw = compareInput.value.trim();
             if (!raw) {
               setStatus(
@@ -1088,7 +1093,6 @@ if (typeof window !== "undefined") {
             setStatus("loading", "Checking profile...");
 
             try {
-              // 2. Находим игрока Faceit (Steam-ссылка / ник / ссылка на Faceit)
               let opponentPlayer;
               try {
                 if (window.AppPlayerResolve?.isSteamInput(raw)) {
@@ -1111,7 +1115,6 @@ if (typeof window !== "undefined") {
                 throw err;
               }
 
-              // 3. Проверка валидности профиля
               if (!opponentPlayer?.player_id)
                 throw new Error("Proflile data is incomplete or invalid.");
               if (!opponentPlayer.games?.cs2)
@@ -1158,7 +1161,6 @@ if (typeof window !== "undefined") {
                 ),
               ]);
 
-              // Профиль соперника в том же формате, что и window.currentPlayerProfile
               const opponentProfile = {
                 avgStats,
                 statsData,
@@ -1166,10 +1168,8 @@ if (typeof window !== "undefined") {
                 allMaps: window.FaceitAPI.getAllMapsStats(segments),
               };
 
-              // Пользователь мог уйти с вкладки, пока шёл запрос
               if (!compareOutput.isConnected) return;
 
-              // 4. Сравнение: Faceit-показатели + метрики из metrics-grid
               const metricsA = window.computeHltvMetrics(currentProfile);
               const metricsB = window.computeHltvMetrics(opponentProfile);
               const fmtInt = (v) => window.FaceitAPI.formatNumber(v);
@@ -1180,7 +1180,7 @@ if (typeof window !== "undefined") {
                   a: Number(currentProfile.avgStats?.totalMatches) || 0,
                   b: avgStats.totalMatches,
                   fmt: fmtInt,
-                  countInScore: false, // опыт, а не уровень игры
+                  countInScore: false,
                 },
                 {
                   label: "ELO",
@@ -1274,7 +1274,6 @@ if (typeof window !== "undefined") {
                 `Player was found: ${esc(opponentPlayer.nickname)}`,
               );
 
-              // двойной rAF, чтобы полосы анимировались от краёв
               const result = compareOutput.querySelector(".compare-result");
               requestAnimationFrame(() =>
                 requestAnimationFrame(() => result?.classList.add("animate")),
@@ -1427,7 +1426,7 @@ if (typeof window !== "undefined") {
         mostAssists: "Most Assists",
         highestKD: "Highest K/D",
         highestKDDifference: "Highest K/D Diff",
-        mostMVPs: "Most MVPs",
+        highestKAST: "Highest KAST%",
         highestHeadshotPct: "Highest HS%",
       };
 
@@ -1448,8 +1447,8 @@ if (typeof window !== "undefined") {
             case "highestKDDifference":
               value = Number(match.kills) - Number(match.deaths);
               break;
-            case "mostMVPs":
-              value = Number(match.mvps);
+            case "highestKAST":
+              value = match.kast != null ? Number(match.kast) : null;
               break;
             case "highestHeadshotPct":
               value =
