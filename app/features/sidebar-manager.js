@@ -748,55 +748,52 @@ if (typeof window !== "undefined") {
         const kills = Number(safePlayerStats.Kills) || 0;
         const headshots = Number(safePlayerStats.Headshots) || 0;
 
-        let parsedKast = null;
+        const rawKast =
+          safePlayerStats.KAST ||
+          safePlayerStats["KAST %"] ||
+          safePlayerStats["KAST Percentage"] ||
+          safePlayerStats.kast;
 
-        // 1. Проверяем, есть ли готовое значение в строке/числе
-        const directKast =
-          safePlayerStats.KAST ??
-          safePlayerStats["KAST %"] ??
-          safePlayerStats["KAST"] ??
-          safePlayerStats["KAST Percentage"];
-        if (directKast != null && directKast !== "") {
-          parsedKast = parseFloat(directKast);
-        }
+        let parsedKast = parseFloat(rawKast);
 
-        // 2. Если прямого поля нет, рассчитываем KAST на основе сыгранных раундов
-        // KAST = % раундов, где был (Kill + Assist + Surviving/Not death)
-        if (isNaN(parsedKast) || parsedKast === null) {
-          const kills = Number(safePlayerStats.Kills) || 0;
-          const assists = Number(safePlayerStats.Assists) || 0;
-          const deaths = Number(safePlayerStats.Deaths) || 0;
+        // 2. Если API не вернул KAST, считаем вручную через K / A / D и раунды
+        if (isNaN(parsedKast)) {
+          const kills = parseFloat(safePlayerStats.Kills) || 0;
+          const assists = parseFloat(safePlayerStats.Assists) || 0;
+          const deaths = parseFloat(safePlayerStats.Deaths) || 0;
 
-          // Парсим общее количество раундов из счета матча (например, "13 - 11" -> 24 раунда)
+          // Безопасно достаем общее количество раундов
           let totalRounds = 0;
-          if (statsData?.score) {
-            const scoreParts = statsData.score
-              .split("-")
-              .map((s) => parseInt(s.trim(), 10));
-            if (
-              scoreParts.length === 2 &&
-              !isNaN(scoreParts[0]) &&
-              !isNaN(scoreParts[1])
-            ) {
-              totalRounds = scoreParts[0] + scoreParts[1];
+
+          // Проверяем прямые поля раундов из API FACEIT
+          if (safePlayerStats.Rounds) {
+            totalRounds = parseFloat(safePlayerStats.Rounds);
+          } else if (statsData?.score) {
+            // Если счет передается строкой (например "13 / 11" или "13-11")
+            const scores = statsData.score.match(/\d+/g);
+            if (scores && scores.length >= 2) {
+              totalRounds = parseInt(scores[0], 10) + parseInt(scores[1], 10);
             }
           }
 
+          // Расчет KAST: (Kills + Assists + Survived_Rounds) / Total_Rounds
           if (totalRounds > 0) {
-            // Выживание (Survive) = Всего раундов - Смерти
             const survivedRounds = Math.max(0, totalRounds - deaths);
-
-            // Приблизительное количество активных раундов (K + A + S)
-            // Ограничиваем сверху количеством раундов (так как в 1 раунде может быть и K, и A)
-            const estimatedKastRounds = Math.min(
+            // Раунды с полезным действием не могут превышать общее число раундов
+            const activeRounds = Math.min(
               totalRounds,
               kills + assists + survivedRounds,
             );
 
-            parsedKast =
-              Math.round((estimatedKastRounds / totalRounds) * 100 * 10) / 10;
+            parsedKast = (activeRounds / totalRounds) * 100;
           }
         }
+
+        // 3. Форматируем итоговый результат
+        const kastDisplay =
+          !isNaN(parsedKast) && parsedKast !== null
+            ? `${parsedKast.toFixed(1)}%`
+            : "N/A";
 
         return {
           matchId: match.match_id || "Unknown Match ID",
@@ -814,6 +811,7 @@ if (typeof window !== "undefined") {
           kdRatio: safePlayerStats["K/D Ratio"] || 0,
           mvps: safePlayerStats.MVPs || 0,
           kast: !isNaN(parsedKast) ? parsedKast : null,
+          kastDisplay,
           result: safePlayerStats.Result === "1" ? "WIN" : "LOSS",
         };
       } catch (error) {
@@ -1384,12 +1382,8 @@ if (typeof window !== "undefined") {
         );
         matchHistoryContainer += `
           <div class="mc-more">
-            <div class="mc-more-info">
-              <span>Showing <b>${matches.length}</b> of <b>${totalFiltered}</b></span>
-              <div class="mc-more-track"><div class="mc-more-fill" style="width: ${shownPct}%"></div></div>
-            </div>
             <button type="button" class="mc-more-btn" onclick="sidebarManager.loadMoreMatches()">
-              <i class="fas fa-chevron-down"></i> Show More (+${nextCount})
+              <i class="fas fa-chevron-down"></i> Show More
             </button>
           </div>`;
       }
