@@ -59,7 +59,9 @@
   }
 
   // Пороги уровней FACEIT CS2 (минимальный ELO каждого уровня)
-  const FACEIT_LEVEL_MIN_ELO = [100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001];
+  const FACEIT_LEVEL_MIN_ELO = [
+    100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001,
+  ];
 
   function getEloProgress(elo) {
     const value = Number(elo) || 0;
@@ -76,7 +78,10 @@
 
     const from = FACEIT_LEVEL_MIN_ELO[idx];
     const to = FACEIT_LEVEL_MIN_ELO[idx + 1];
-    const pct = Math.min(Math.max(Math.round(((value - from) / (to - from)) * 100), 0), 100);
+    const pct = Math.min(
+      Math.max(Math.round(((value - from) / (to - from)) * 100), 0),
+      100,
+    );
     return { pct, text: `${formatNumber(to - value)} ELO to Level ${idx + 2}` };
   }
 
@@ -387,7 +392,11 @@
 
     const winRateText = lifetime["Win Rate %"] || "0";
     const highlights = [
-      { icon: "fa-gamepad", label: "Matches", value: formatNumber(avgStats.totalMatches) },
+      {
+        icon: "fa-gamepad",
+        label: "Matches",
+        value: formatNumber(avgStats.totalMatches),
+      },
       {
         icon: "fa-trophy",
         label: "Win Rate",
@@ -423,8 +432,6 @@
           <p>Country: ${countryName}${flagImg}</p>
           <a class="faceit-link" href="https://www.faceit.com/en/players/${encodeURIComponent(playerData.nickname)}" target="_blank" rel="noopener noreferrer" title="Open FACEIT profile">
             <img src="/assets/faceit.svg" alt="" />
-            <span>FACEIT Profile</span>
-            <i class="fas fa-external-link-alt"></i>
           </a>
         </div>
         <div class="player-highlights">${highlightsHtml}

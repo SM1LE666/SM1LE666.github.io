@@ -561,26 +561,10 @@ input[type="text"]:focus {
   transform: translateY(-1px);
 }
 
-.player-info .faceit-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
 .player-info .faceit-link img {
   width: 20px;
   height: 20px;
   object-fit: contain;
-}
-
-.player-info .faceit-link i {
-  font-size: 0.65rem;
-  opacity: 0.8;
 }
 
 .level-indicator {
