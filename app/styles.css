@@ -1151,6 +1151,11 @@ footer {
   .player-highlights {
     width: 100%;
     margin-left: 0;
+    justify-content: center;
+  }
+
+  .how-to-improve {
+    justify-content: center;
   }
 
   .elo-progress {
@@ -2810,9 +2815,6 @@ h1::after {
   margin: 0 0 0 auto;
   padding: 0.35rem 0.85rem;
   font-size: 0.7rem;
-  font-family: "Orbitron", sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.5px;
   text-transform: uppercase;
   color: #ff5500;
   background: rgba(255, 85, 0, 0.08);
