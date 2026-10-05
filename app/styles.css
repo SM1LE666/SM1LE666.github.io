@@ -2131,6 +2131,11 @@ h1::after {
   transform: scale(1.08) translateY(1px) !important;
 }
 
+/* запас высоты, чтобы выпадающее меню фильтра не обрезалось контейнером */
+.record-display {
+  min-height: 300px;
+}
+
 .record-filters {
   display: flex;
   justify-content: center;

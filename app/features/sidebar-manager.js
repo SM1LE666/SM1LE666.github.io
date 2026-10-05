@@ -908,7 +908,7 @@ if (typeof window !== "undefined") {
           playerCard.style.display = "block";
           statsContainer.style.display = "block";
           statsContainer.innerHTML = `
-            <div class="record-filters">
+            <div class="record-filters" style="display: none">
               <select id="recordFilterSelect">
                 <option value="mostKills">Most Kills</option>
                 <option value="mostAssists">Most Assists</option>
@@ -1399,7 +1399,18 @@ if (typeof window !== "undefined") {
       }
     }
 
+    // Фильтры скрыты, пока не загрузится первый список рекордов,
+    // чтобы они появлялись одновременно с record-display (а не раньше, когда контейнер ещё низкий).
     async showRecord(recordType) {
+      try {
+        await this.renderRecordContent(recordType);
+      } finally {
+        const filters = document.querySelector(".record-filters");
+        if (filters) filters.style.display = "";
+      }
+    }
+
+    async renderRecordContent(recordType) {
       const recordDisplay = document.querySelector(".record-display");
       if (!recordDisplay) return;
 
