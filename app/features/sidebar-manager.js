@@ -756,43 +756,40 @@ if (typeof window !== "undefined") {
 
         let parsedKast = parseFloat(rawKast);
 
-        // 2. Если API не вернул KAST, считаем вручную через K / A / D и раунды
+        // Если API не вернул готовый KAST, делаем математически корректную оценку:
         if (isNaN(parsedKast)) {
           const kills = parseFloat(safePlayerStats.Kills) || 0;
           const assists = parseFloat(safePlayerStats.Assists) || 0;
           const deaths = parseFloat(safePlayerStats.Deaths) || 0;
 
-          // Безопасно достаем общее количество раундов
           let totalRounds = 0;
 
-          // Проверяем прямые поля раундов из API FACEIT
           if (safePlayerStats.Rounds) {
             totalRounds = parseFloat(safePlayerStats.Rounds);
           } else if (statsData?.score) {
-            // Если счет передается строкой (например "13 / 11" или "13-11")
             const scores = statsData.score.match(/\d+/g);
             if (scores && scores.length >= 2) {
               totalRounds = parseInt(scores[0], 10) + parseInt(scores[1], 10);
             }
           }
 
-          // Расчет KAST: (Kills + Assists + Survived_Rounds) / Total_Rounds
           if (totalRounds > 0) {
+            // Раунды, где игрок выжил
             const survivedRounds = Math.max(0, totalRounds - deaths);
-            // Раунды с полезным действием не могут превышать общее число раундов
-            const activeRounds = Math.min(
+
+            // Оцениваем количество уникальных KAST-раундов.
+            const estimatedContributionRounds = Math.min(
               totalRounds,
-              kills + assists + survivedRounds,
+              survivedRounds + (kills + assists) * 0.7,
             );
 
-            parsedKast = (activeRounds / totalRounds) * 100;
+            parsedKast = (estimatedContributionRounds / totalRounds) * 100;
           }
         }
 
-        // 3. Форматируем итоговый результат
         const kastDisplay =
           !isNaN(parsedKast) && parsedKast !== null
-            ? `${parsedKast.toFixed(1)}%`
+            ? `${Math.round(parsedKast)}%`
             : "N/A";
 
         return {
