@@ -748,11 +748,55 @@ if (typeof window !== "undefined") {
         const kills = Number(safePlayerStats.Kills) || 0;
         const headshots = Number(safePlayerStats.Headshots) || 0;
 
-        const rawKast =
-          safePlayerStats.KAST ||
-          safePlayerStats["KAST %"] ||
-          safePlayerStats["KAST"];
-        const parsedKast = parseFloat(rawKast);
+        let parsedKast = null;
+
+        // 1. Проверяем, есть ли готовое значение в строке/числе
+        const directKast =
+          safePlayerStats.KAST ??
+          safePlayerStats["KAST %"] ??
+          safePlayerStats["KAST"] ??
+          safePlayerStats["KAST Percentage"];
+        if (directKast != null && directKast !== "") {
+          parsedKast = parseFloat(directKast);
+        }
+
+        // 2. Если прямого поля нет, рассчитываем KAST на основе сыгранных раундов
+        // KAST = % раундов, где был (Kill + Assist + Surviving/Not death)
+        if (isNaN(parsedKast) || parsedKast === null) {
+          const kills = Number(safePlayerStats.Kills) || 0;
+          const assists = Number(safePlayerStats.Assists) || 0;
+          const deaths = Number(safePlayerStats.Deaths) || 0;
+
+          // Парсим общее количество раундов из счета матча (например, "13 - 11" -> 24 раунда)
+          let totalRounds = 0;
+          if (statsData?.score) {
+            const scoreParts = statsData.score
+              .split("-")
+              .map((s) => parseInt(s.trim(), 10));
+            if (
+              scoreParts.length === 2 &&
+              !isNaN(scoreParts[0]) &&
+              !isNaN(scoreParts[1])
+            ) {
+              totalRounds = scoreParts[0] + scoreParts[1];
+            }
+          }
+
+          if (totalRounds > 0) {
+            // Выживание (Survive) = Всего раундов - Смерти
+            const survivedRounds = Math.max(0, totalRounds - deaths);
+
+            // Приблизительное количество активных раундов (K + A + S)
+            // Ограничиваем сверху количеством раундов (так как в 1 раунде может быть и K, и A)
+            const estimatedKastRounds = Math.min(
+              totalRounds,
+              kills + assists + survivedRounds,
+            );
+
+            parsedKast =
+              Math.round((estimatedKastRounds / totalRounds) * 100 * 10) / 10;
+          }
+        }
 
         return {
           matchId: match.match_id || "Unknown Match ID",
