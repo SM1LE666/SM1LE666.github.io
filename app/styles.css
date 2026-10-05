@@ -1167,7 +1167,8 @@ footer {
     justify-content: center;
   }
 
-  .metrics-card-header .how-to-improve {
+  .metrics-card-header .how-to-improve,
+  .player-info a.faceit-link {
     margin: 0 auto;
   }
 
