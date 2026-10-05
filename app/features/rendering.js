@@ -14,23 +14,70 @@
     return `<span class="stat-row-label">${label}</span><span class="stat-row-value">${value}</span>`;
   }
 
+  // Цвет рейтинга винрейта (те же пороги, что на вкладке Maps)
+  function winRateClass(winRate) {
+    if (winRate < 40) return "wr-poor";
+    if (winRate < 55) return "wr-avg";
+    return "wr-good";
+  }
+
+  // "de_Nuke" / "Dust 2" -> "nuke" / "dust_2": ключ для фона карты
+  function normalizeMapKey(name) {
+    return String(name || "")
+      .trim()
+      .toLowerCase()
+      .replace(/^de_/, "")
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, "");
+  }
+
   function renderMapBox(map) {
     if (!map) return `<p>Not enough data</p>`;
+    const winRate = Number(map.winRate) || 0;
 
     return `
       <p class="stat-row">${formatStatRow(`Map: ${map.name}`)}</p>
       <p class="stat-row">${formatStatRow(`Matches: ${map.matches}`)}</p>
-      <p class="stat-row">${formatStatRow(`Win Rate: ${map.winRate.toFixed(1)}%`)}</p>
+      <p class="stat-row"><span class="stat-row-label">Win Rate:</span><span class="stat-row-value ${winRateClass(winRate)}">${winRate.toFixed(1)}%</span></p>
       <p class="stat-row">${formatStatRow(`K/D: ${map.kd.toFixed(2)}`)}</p>
       <p class="stat-row">${formatStatRow(`Headshots: ${map.hs.toFixed(1)}%`)}</p>
     `;
   }
 
-  // Оценка диапазона 0 - 100
+  // Оценка HLTV-метрики 0 - 100: четыре уровня
   function getScoreRating(value) {
-    if (value <= 33) return { text: "Poor", class: "poor" };
-    if (value <= 67) return { text: "Okay", class: "okay" };
-    return { text: "Good", class: "good" };
+    if (value < 40) return { text: "Weak", class: "poor" };
+    if (value < 60) return { text: "Average", class: "okay" };
+    if (value < 80) return { text: "Good", class: "good" };
+    return { text: "Elite", class: "elite" };
+  }
+
+  // Плавный цвет от красного (0) к зелёному (100)
+  function getScoreColor(value) {
+    const v = Math.min(Math.max(Number(value) || 0, 0), 100);
+    return `hsl(${Math.round(v * 1.25)} 85% 52%)`;
+  }
+
+  // Пороги уровней FACEIT CS2 (минимальный ELO каждого уровня)
+  const FACEIT_LEVEL_MIN_ELO = [100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001];
+
+  function getEloProgress(elo) {
+    const value = Number(elo) || 0;
+    if (value <= 0) return null;
+
+    let idx = 0;
+    FACEIT_LEVEL_MIN_ELO.forEach((min, i) => {
+      if (value >= min) idx = i;
+    });
+
+    if (idx === FACEIT_LEVEL_MIN_ELO.length - 1) {
+      return { pct: 100, text: "Max level reached" };
+    }
+
+    const from = FACEIT_LEVEL_MIN_ELO[idx];
+    const to = FACEIT_LEVEL_MIN_ELO[idx + 1];
+    const pct = Math.min(Math.max(Math.round(((value - from) / (to - from)) * 100), 0), 100);
+    return { pct, text: `${formatNumber(to - value)} ELO to Level ${idx + 2}` };
   }
 
   // Нормализатор метрик под шкалу 0-100%
@@ -238,12 +285,7 @@
   function renderOverviewStats(container) {
     if (!container || !window.currentPlayerProfile) return;
 
-    const {
-      avgStats,
-      mapAnalysis,
-      lifetime = {},
-      allMaps = [],
-    } = window.currentPlayerProfile;
+    const { avgStats, mapAnalysis } = window.currentPlayerProfile;
 
     const metrics = computeHltvMetrics(window.currentPlayerProfile);
 
@@ -252,13 +294,14 @@
         <div class="metrics-card-header">
           <i class="fas fa-chart-bar"></i>
           <span>HLTV Performance Profile</span>
+          <p class="how-to-improve"><i class="fas fa-lightbulb"></i> How to improve?</p>
         </div>
         <div class="metrics-grid">
           ${metrics
             .map((m) => {
               const rating = getScoreRating(m.score);
               return `
-              <div class="metric-item metric-item-${rating.class}">
+              <div class="metric-item metric-item-${rating.class}" style="--m-color: ${getScoreColor(m.score)};">
                 <div class="metric-item-top">
                   <span class="metric-label">${m.label}</span>
                   <span class="metric-badge badge-${rating.class}">${rating.text}</span>
@@ -267,40 +310,43 @@
                   <span class="metric-value">${m.displayValue}</span>
                 </div>
                 <div class="metric-progress-track">
-                  <div class="metric-progress-fill fill-${rating.class}" style="width: ${m.score}%;"></div>
+                  <div class="metric-progress-fill" style="width: ${m.score}%;"></div>
                 </div>
               </div>
             `;
             })
             .join("")}
-            <p class="how-to-improve">How to improve?</p>
         </div>
       </div>
     `;
+
+    const mapAttr = (map) =>
+      map ? ` data-map="${normalizeMapKey(map.name)}"` : "";
 
     container.innerHTML = `
     ${metricsCardHtml}
     <div class="stats-grid">
       <div class="stats-box slide-in-animation">
         <h3><i class="fas fa-chart-line"></i> Average Statistics</h3>
-        <p class="stat-row">${formatStatRow(`Matches: ${formatNumber(avgStats.totalMatches)}`)}</p>
         <p class="stat-row">${formatStatRow(`Avg. Kills: ${avgStats.avgKills}`)}</p>
         <p class="stat-row">${formatStatRow(`Avg. Deaths: ${avgStats.avgDeaths}`)}</p>
         <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
         <p class="stat-row">${formatStatRow(`Headshots: ${avgStats.avgHs}%`)}</p>
       </div>
 
-      <div class="stats-box slide-in-animation">
+      <div class="stats-box slide-in-animation"${mapAttr(mapAnalysis.bestMap)}>
         <h3><i class="fas fa-map"></i> Best Map</h3>
         ${renderMapBox(mapAnalysis.bestMap)}
       </div>
 
-      <div class="stats-box slide-in-animation">
+      <div class="stats-box slide-in-animation"${mapAttr(mapAnalysis.worstMap)}>
         <h3><i class="fas fa-map-marked-alt"></i> Worst Map</h3>
         ${renderMapBox(mapAnalysis.worstMap)}
       </div>
     </div>
     `;
+
+    applyMapCardBackgrounds(container);
   }
 
   function renderPlayerCard(
@@ -323,6 +369,37 @@
       ? `<img src="https://flagcdn.com/24x18/${countryCode}.png" alt="${countryName}" style="vertical-align: middle; margin-left: 6px; border-radius: 2px; box-shadow: 0 0 4px rgba(0,0,0,0.4); width: 25px; margin-bottom: 3px;" />`
       : "";
 
+    const eloProgress = getEloProgress(currentElo);
+    const eloProgressHtml = eloProgress
+      ? `<div class="elo-progress">
+            <div class="elo-progress-bar"><div class="elo-progress-fill" style="width: ${eloProgress.pct}%;"></div></div>
+            <span class="elo-progress-text">${eloProgress.text}</span>
+          </div>`
+      : "";
+
+    const winRateText = lifetime["Win Rate %"] || "0";
+    const highlights = [
+      { icon: "fa-gamepad", label: "Matches", value: formatNumber(avgStats.totalMatches) },
+      {
+        icon: "fa-trophy",
+        label: "Win Rate",
+        value: `${winRateText}%`,
+        cls: winRateClass(parseFloat(winRateText) || 0),
+      },
+      { icon: "fa-crosshairs", label: "K/D", value: avgStats.kd },
+      { icon: "fa-bullseye", label: "Headshots", value: `${avgStats.avgHs}%` },
+    ];
+    const highlightsHtml = highlights
+      .map(
+        (h) => `
+          <div class="highlight-tile">
+            <i class="fas ${h.icon}"></i>
+            <span class="highlight-value ${h.cls || ""}">${h.value}</span>
+            <span class="highlight-label">${h.label}</span>
+          </div>`,
+      )
+      .join("");
+
     return `
     <div class="player-card fade-in-animation">
       <div class="player-header">
@@ -333,21 +410,16 @@
         </div>
         <div class="player-info">
           <h2>${playerData.nickname}</h2>
-          <p style="
-    font-size: 19px;
-    font-weight: bold;">${levelValue} ${formatNumber(currentElo)} ELO</p>
+          <p class="player-elo">${levelValue} ${formatNumber(currentElo)} ELO</p>
+          ${eloProgressHtml}
           <p>Country: ${countryName}${flagImg}</p>
-          <p>Matches: ${formatNumber(avgStats.totalMatches)}</p>
-          <p>Win Rate: ${lifetime["Win Rate %"] || "0"}%</p>
-          <img
-            src="/assets/faceit.svg"
-            alt="FACEIT Profile"
-            title="FACEIT Profile"
-            onclick="window.open('https://www.faceit.com/en/players/${playerData.nickname}', '_blank')"
-            style="cursor: pointer; width: 45px; height: 45px; margin-top: 5px; border-radius: 8px; border: 2px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s; object-fit: contain;"
-            onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 10px var(--primary-color)';"
-            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"
-          />
+          <a class="faceit-link" href="https://www.faceit.com/en/players/${encodeURIComponent(playerData.nickname)}" target="_blank" rel="noopener noreferrer" title="Open FACEIT profile">
+            <img src="/assets/faceit.svg" alt="" />
+            <span>FACEIT Profile</span>
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+        <div class="player-highlights">${highlightsHtml}
         </div>
       </div>
       <div class="stats-container"></div>
@@ -359,7 +431,7 @@
     if (!container) return;
 
     const mapCards = container.querySelectorAll(
-      ".map-card, .mc-card, .mc-chip[data-map]",
+      ".map-card, .mc-card, .mc-chip[data-map], .stats-box[data-map]",
     );
     const assetBaseUrl = (() => {
       const basePath = window.location.pathname.replace(/\/player\/.*$/, "/");

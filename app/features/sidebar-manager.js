@@ -264,6 +264,7 @@ if (typeof window !== "undefined") {
       this.isLoadingMore = false;
       this.totalMatches = 0;
       this.allHistoryItems = [];
+      this.historyPlayerId = null; // игрок, для которого загружена allHistoryItems
       this.orderedMatches = [];
       this.displayedMatchesCount = 0;
       this.unfilteredDisplayedCount = 0;
@@ -399,6 +400,22 @@ if (typeof window !== "undefined") {
       }
     }
 
+    // Сбрасывает всё, что относится к ранее открытому игроку
+    resetPlayerData() {
+      this.currentMatches = [];
+      this.allHistoryItems = [];
+      this.historyPlayerId = null;
+      this.orderedMatches = [];
+      this.availableMapOptions = [];
+      this.mapScanOffsets = {};
+      this.currentMapFilter = null;
+      this.totalMatches = 0;
+      this.displayedMatchesCount = 0;
+      this.unfilteredDisplayedCount = 0;
+      this.isLoadingMore = false;
+      this.originalStatsHTML = null;
+    }
+
     hideForPlayerProfile() {
       if (!this.isPlayerProfileActive) return;
       const nicknameInput = document.getElementById("nickname");
@@ -407,6 +424,7 @@ if (typeof window !== "undefined") {
       }
 
       this.isPlayerProfileActive = false;
+      this.resetPlayerData();
       document.querySelector(".pro-grid")?.style.setProperty("display", "flex");
 
       this.sidebar.classList.remove("player-profile-active", "slide-in");
@@ -457,6 +475,7 @@ if (typeof window !== "undefined") {
         this.currentMapFilter = null;
         this.currentMatches = [];
         this.allHistoryItems = [];
+        this.historyPlayerId = null;
         this.orderedMatches = [];
         this.availableMapOptions = [];
         this.mapScanOffsets = {};
@@ -546,8 +565,12 @@ if (typeof window !== "undefined") {
           return;
         }
 
+        // Пока грузилась история, пользователь мог открыть другого игрока
+        if (window.currentPlayerData?.player_id !== playerId) return;
+
         this.totalMatches = totalHistory || allHistoryItems.length;
         this.allHistoryItems = allHistoryItems;
+        this.historyPlayerId = playerId;
         this.orderedMatches = new Array(allHistoryItems.length).fill(null);
 
         const mapCounts = {};
@@ -1416,8 +1439,17 @@ if (typeof window !== "undefined") {
 
       recordDisplay.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading records...</div>`;
 
-      if (!this.allHistoryItems?.length) await this.showMatchesStats(false);
-      if (!this.allHistoryItems?.length) {
+      const currentPlayerId = window.currentPlayerData?.player_id;
+      if (
+        !this.allHistoryItems?.length ||
+        this.historyPlayerId !== currentPlayerId
+      ) {
+        await this.showMatchesStats(false);
+      }
+      if (
+        !this.allHistoryItems?.length ||
+        this.historyPlayerId !== window.currentPlayerData?.player_id
+      ) {
         recordDisplay.innerHTML = `<p>Not enough data to display records.</p>`;
         return;
       }

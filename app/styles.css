@@ -176,12 +176,12 @@ button:active {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.2rem 0.8rem;
-  margin: 0.3rem 0.6rem;
+  padding: 1rem 0.8rem;
+  margin: 0.25rem 0.6rem;
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.82);
   text-decoration: none;
   border: 1px solid transparent;
   position: relative;
@@ -202,11 +202,13 @@ button:active {
   );
   color: var(--primary-color);
   border-color: rgba(255, 85, 0, 0.4);
-  box-shadow: 0 0 15px rgba(255, 85, 0, 0.2);
+  box-shadow:
+    inset 3px 0 0 var(--primary-color),
+    0 0 15px rgba(255, 85, 0, 0.2);
 }
 
 .sidebar-item i {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   margin-bottom: 0.4rem;
   transition:
     transform 0.3s ease,
@@ -219,8 +221,8 @@ button:active {
 }
 
 .sidebar-item span {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -450,6 +452,83 @@ input[type="text"]:focus {
 
 .player-info {
   flex: 1;
+  min-width: 0;
+}
+
+.player-elo {
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.elo-progress {
+  width: 100%;
+  max-width: 260px;
+  margin: 0.1rem 0 0.7rem;
+}
+
+.elo-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.elo-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-glow));
+  box-shadow: 0 0 8px rgba(255, 85, 0, 0.6);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.elo-progress-text {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #a0a0a0;
+}
+
+.player-highlights {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 0.8rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.highlight-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 85, 0, 0.25);
+  border-radius: 12px;
+}
+
+.highlight-tile i {
+  color: var(--primary-color);
+  font-size: 1rem;
+}
+
+.highlight-value {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--value-color, #fff);
+}
+
+.highlight-label {
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #a0a0a0;
 }
 
 .player-info h2 {
@@ -480,6 +559,28 @@ input[type="text"]:focus {
 .player-info a:hover {
   background: rgba(255, 85, 0, 0.2);
   transform: translateY(-1px);
+}
+
+.player-info .faceit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.player-info .faceit-link img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.player-info .faceit-link i {
+  font-size: 0.65rem;
+  opacity: 0.8;
 }
 
 .level-indicator {
@@ -1061,6 +1162,15 @@ footer {
     gap: 1rem !important;
     padding: 1.3rem;
     margin-bottom: 1.2rem;
+  }
+
+  .player-highlights {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .elo-progress {
+    margin: 0.1rem auto 0.7rem;
   }
 
   .player-avatar img {
@@ -2002,7 +2112,7 @@ h1::after {
   }
 
   .stats-box p.stat-row .stat-row-value {
-    color: var(--primary-color);
+    color: var(--value-color, #fff);
     font-weight: 700;
     margin-left: auto;
     white-space: nowrap;
@@ -2043,7 +2153,7 @@ h1::after {
   }
 
   .stats-box p.stat-row .stat-row-value {
-    color: var(--primary-color);
+    color: var(--value-color, #fff);
     font-weight: 700;
     margin-left: auto;
     white-space: nowrap;
@@ -2456,6 +2566,7 @@ h1::after {
   align-items: center;
   gap: 0.6rem;
   font-family: "Orbitron", sans-serif;
+  flex-wrap: wrap;
   font-size: 1.05rem;
   font-weight: 700;
   color: #ff5500;
@@ -2478,6 +2589,7 @@ h1::after {
 }
 
 .metric-item {
+  --m-color: #ff5500;
   background: rgba(26, 26, 26, 0.7);
   border-radius: 8px;
   padding: 0.8rem 0.7rem;
@@ -2534,24 +2646,15 @@ h1::after {
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  color: var(--m-color);
+  background: color-mix(in srgb, var(--m-color) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--m-color) 35%, transparent);
 }
 
-.badge-poor {
-  background: rgba(255, 68, 68, 0.15);
-  color: #ff4444;
-  border: 1px solid rgba(255, 68, 68, 0.3);
-}
-
-.badge-okay {
-  background: rgba(255, 170, 0, 0.15);
-  color: #ffaa00;
-  border: 1px solid rgba(255, 170, 0, 0.3);
-}
-
-.badge-good {
-  background: rgba(0, 230, 118, 0.15);
-  color: #00e676;
-  border: 1px solid rgba(0, 230, 118, 0.3);
+.badge-elite {
+  color: #0a0a0a;
+  background: var(--m-color);
+  box-shadow: 0 0 8px var(--m-color);
 }
 
 .metric-progress-track {
@@ -2566,22 +2669,13 @@ h1::after {
 .metric-progress-fill {
   height: 100%;
   border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--m-color) 65%, #000),
+    var(--m-color)
+  );
+  box-shadow: 0 0 6px color-mix(in srgb, var(--m-color) 55%, transparent);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fill-poor {
-  background: linear-gradient(90deg, #ff4444, #ff6b6b);
-  box-shadow: 0 0 6px rgba(255, 68, 68, 0.5);
-}
-
-.fill-okay {
-  background: linear-gradient(90deg, #ff8800, #ffaa00);
-  box-shadow: 0 0 6px rgba(255, 170, 0, 0.5);
-}
-
-.fill-good {
-  background: linear-gradient(90deg, #00c853, #00e676);
-  box-shadow: 0 0 6px rgba(0, 230, 118, 0.5);
 }
 
 .metrics-modal-overlay {
@@ -2729,19 +2823,28 @@ h1::after {
 }
 
 .how-to-improve {
-  grid-column: 1 / -1;
-  font-size: 0.95rem;
-  color: #ff5500;
+  margin: 0 0 0 auto;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.7rem;
   font-family: "Orbitron", sans-serif;
-  font-weight: bold;
-  margin-top: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #ff5500;
+  background: rgba(255, 85, 0, 0.08);
+  border: 1px solid rgba(255, 85, 0, 0.4);
+  border-radius: 999px;
   cursor: pointer;
   text-wrap: nowrap;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .how-to-improve:hover {
-  cursor: pointer;
-  text-shadow: 0 4px 12px rgba(255, 85, 0, 0.15);
+  background: rgba(255, 85, 0, 0.2);
+  box-shadow: 0 0 12px rgba(255, 85, 0, 0.3);
   transform: translateY(-1px);
 }
 
@@ -2875,6 +2978,26 @@ h1::after {
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
+}
+
+/* Best / Worst Map: фон карты и цветной винрейт */
+.stats-box.has-map-bg {
+  background:
+    linear-gradient(180deg, rgba(15, 15, 15, 0.72), rgba(10, 10, 10, 0.93)),
+    var(--map-bg-url) center / cover no-repeat,
+    #141414;
+}
+
+.wr-good {
+  --value-color: #4caf50;
+}
+
+.wr-avg {
+  --value-color: #ff9800;
+}
+
+.wr-poor {
+  --value-color: #f44336;
 }
 
 #custom-error-banner {
