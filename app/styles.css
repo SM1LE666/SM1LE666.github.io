@@ -3631,7 +3631,6 @@ h1::after {
   margin-top: 1rem;
   padding: 1rem;
   border-radius: 14px;
-  border: 1px dashed rgba(255, 85, 0, 0.3);
   background: rgba(20, 20, 20, 0.45);
   box-sizing: border-box;
 }
