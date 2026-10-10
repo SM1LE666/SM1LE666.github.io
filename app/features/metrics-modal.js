@@ -97,18 +97,12 @@
 
     bindGlobalEvents() {
       document.addEventListener("click", (e) => {
+        // Только сама кнопка (или её дочерние элементы, например иконка)
         const trigger = e.target.closest(".how-to-improve");
-        if (
-          trigger ||
-          (e.target.textContent &&
-            e.target.textContent
-              .trim()
-              .toLowerCase()
-              .includes("how to improve"))
-        ) {
-          e.preventDefault();
-          this.open();
-        }
+        if (!trigger) return;
+
+        e.preventDefault();
+        this.open();
       });
     }
 
