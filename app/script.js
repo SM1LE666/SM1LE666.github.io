@@ -21,6 +21,23 @@ function syncStateFromApp() {
   appState.lastHandledPath = lastHandledPath;
 }
 
+// CSS профиля игрока подгружается отдельно (на главной он не нужен)
+const PROFILE_STYLES_URL = "/app/styles.profile.min.css?v=1.0";
+let profileStylesPromise = null;
+
+function loadProfileStyles() {
+  if (profileStylesPromise) return profileStylesPromise;
+  profileStylesPromise = new Promise((resolve) => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = PROFILE_STYLES_URL;
+    link.onload = () => resolve(true);
+    link.onerror = () => resolve(false);
+    document.head.appendChild(link);
+  });
+  return profileStylesPromise;
+}
+
 function updateUrlForPlayer(nickname) {
   const path = window.AppRouter
     ? window.AppRouter.buildPlayerUrl(nickname)
@@ -85,6 +102,12 @@ async function init() {
     sidebarManager = new ManagerClass();
     window.sidebarManager = sidebarManager;
   }
+
+  // Профиль открывается сразу по ссылке /player/... или после фокуса на поиске
+  if (/^\/player\//i.test(window.location.pathname)) loadProfileStyles();
+  document
+    .getElementById("nickname")
+    ?.addEventListener("focus", loadProfileStyles, { once: true });
 
   window.AppUIEvents.initializeEventListeners();
   window.addEventListener(
@@ -164,6 +187,8 @@ async function analyzePlayer() {
   const playerStatsContainer = document.getElementById("playerStats");
   const faceitService = window.FaceitAPI;
 
+  const profileStylesReady = loadProfileStyles();
+
   if (!playerStats) playerStats = playerStatsContainer;
   if (output) output.textContent = `Getting data for ${nickname}...`;
 
@@ -229,6 +254,9 @@ async function analyzePlayer() {
     });
 
     if (output) output.style.display = "none";
+
+    // Стили профиля должны быть загружены до отрисовки карточки
+    await profileStylesReady;
 
     playerStatsContainer.innerHTML = window.AppRendering.renderPlayerCard(
       playerData,
@@ -394,6 +422,7 @@ function debounce(func, wait) {
 }
 
 window.updateUrlForPlayer = updateUrlForPlayer;
+window.loadProfileStyles = loadProfileStyles;
 window.analyzePlayer = analyzePlayer;
 window.searchPlayer = searchPlayer;
 window.goBackToMain = goBackToMain;
