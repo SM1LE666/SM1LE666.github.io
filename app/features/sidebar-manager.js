@@ -543,7 +543,7 @@ if (typeof window < "u") {
             <div class="mc-filter">
               <button type="button" class="mc-chip active" data-map-filter="">
                 <span class="mc-chip-name">All maps</span>
-                <span class="mc-chip-count">${avgStats.totalMatches}</span>
+                <span class="mc-chip-count">${availableMapOptions.length}</span>
               </button>
               ${this.availableMapOptions
                 .map(
