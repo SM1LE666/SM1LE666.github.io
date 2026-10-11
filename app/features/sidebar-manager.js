@@ -483,7 +483,7 @@ if (typeof window < "u") {
           return;
         }
         if (window.currentPlayerData?.player_id !== playerId) return;
-        ((this.totalMatches = totalHistory || allHistoryItems.length),
+        ((this.totalMatches = Math.max(totalHistory, allHistoryItems.length)),
           (this.allHistoryItems = allHistoryItems),
           (this.historyPlayerId = playerId),
           (this.orderedMatches = new Array(allHistoryItems.length).fill(null)));
@@ -543,7 +543,7 @@ if (typeof window < "u") {
             <div class="mc-filter">
               <button type="button" class="mc-chip active" data-map-filter="">
                 <span class="mc-chip-name">All maps</span>
-                <span class="mc-chip-count">${availableMapOptions.length}</span>
+                <span class="mc-chip-count">${this.totalMatches}</span>
               </button>
               ${this.availableMapOptions
                 .map(
