@@ -1456,10 +1456,10 @@ if (typeof window === "undefined") {
                 (this.mobileDrawer.style.display = "none"))));
     }
   }
-  window.SidebarManager = SidebarManager;
   window.AppPlayerResolve = {
     isSteamInput,
     resolveFaceitPlayerFromSteam,
     checkFaceitAPI,
   };
+  window.SidebarManager = SidebarManager;
 }
