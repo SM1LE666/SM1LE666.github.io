@@ -55,7 +55,7 @@ window.AppPlayerResolve = {
   resolveFaceitPlayerFromSteam,
   checkFaceitAPI,
 };
-if (typeof window === "undefined") {
+if (typeof window === "u") {
   let extractPlayerStats2 = function (teams, playerId) {
       for (const team of teams || []) {
         const player = (team.players || []).find(
