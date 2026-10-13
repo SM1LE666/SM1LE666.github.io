@@ -277,13 +277,6 @@
       </div>`;
     };
 
-  var extractPlayerStats = extractPlayerStats2,
-    enhanceSelect = enhanceSelect2,
-    extractFallbackMatch = extractFallbackMatch2,
-    buildMatchUrl = buildMatchUrl2,
-    formatKdRatio = formatKdRatio2,
-    buildMatchItemHtml = buildMatchItemHtml2;
-
   class SidebarManager {
     constructor() {
       ((this.sidebar = document.getElementById("sidebar")),
