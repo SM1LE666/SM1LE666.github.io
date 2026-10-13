@@ -50,6 +50,11 @@ function checkFaceitAPI() {
   console.log("FaceitAPI успешно загружен и готов к работе");
   return true;
 }
+window.AppPlayerResolve = {
+  isSteamInput,
+  resolveFaceitPlayerFromSteam,
+  checkFaceitAPI,
+};
 if (typeof window === "undefined") {
   let extractPlayerStats2 = function (teams, playerId) {
       for (const team of teams || []) {
@@ -1456,10 +1461,5 @@ if (typeof window === "undefined") {
                 (this.mobileDrawer.style.display = "none"))));
     }
   }
-  window.AppPlayerResolve = {
-    isSteamInput,
-    resolveFaceitPlayerFromSteam,
-    checkFaceitAPI,
-  };
   window.SidebarManager = SidebarManager;
 }
