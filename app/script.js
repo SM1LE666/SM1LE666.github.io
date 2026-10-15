@@ -22,7 +22,7 @@ function syncStateFromApp() {
 }
 
 // CSS профиля игрока подгружается отдельно (на главной он не нужен)
-const PROFILE_STYLES_URL = "/app/styles.profile.css?v=1.1";
+const PROFILE_STYLES_URL = "/app/styles.profile.css?v=1.3";
 let profileStylesPromise = null;
 
 function loadProfileStyles() {
