@@ -274,6 +274,42 @@ body.sidebar-open main {
   body.profile-active .pro-grid {
     display: none !important;
   }
+  .metrics-modal-overlay {
+    padding: max(12px, env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+  }
+  .metrics-modal {
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    border-radius: 14px;
+  }
+  .metrics-modal-header {
+    padding: 12px 14px;
+  }
+  .metrics-modal-header h3 {
+    font-size: 16px;
+  }
+  .metrics-modal-body {
+    padding: 12px 14px;
+  }
+  .metrics-list-item {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  .metric-detail-content {
+    font-size: 12px;
+    line-height: 1.55;
+    letter-spacing: 0.5px;
+  }
+  .metric-detail-content .metric-lead {
+    padding: 28px 12px 12px 14px;
+    font-size: 12px;
+  }
 }
 @media (min-width: 769px) and (max-width: 1024px) {
   .player-header {

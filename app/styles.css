@@ -709,8 +709,6 @@ footer {
     height: auto !important;
     display: block !important;
   }
-}
-@media (max-width: 768px) {
   .mobile-menu-toggle {
     display: block;
     opacity: 0;
@@ -790,6 +788,16 @@ footer {
     padding-top: 0.8rem !important;
     margin-top: 0.2rem !important;
     justify-items: center;
+  }
+  html {
+    font-size: 15px;
+  }
+  .cookie-actions {
+    flex-direction: column;
+  }
+  .modal-content {
+    height: auto;
+    align-self: flex-start;
   }
 }
 .header-content {
@@ -1112,18 +1120,6 @@ h1 {
   display: flex;
   order: 5;
   gap: 0.7rem;
-}
-@media (max-width: 768px) {
-  html {
-    font-size: 15px;
-  }
-  .cookie-actions {
-    flex-direction: column;
-  }
-  .modal-content {
-    height: auto;
-    align-self: flex-start;
-  }
 }
 h1:after {
   content: "";
