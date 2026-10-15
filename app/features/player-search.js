@@ -6,7 +6,7 @@
     // Эндпоинт бэкенда (см. api/search-players.js)
     searchEndpoint: "/api/search-players",
     // Куда класть SVG уровней: /assets/levels/level-1.svg ... level-10.svg
-    levelIconPath: (level) => `/assets/levels/level-${level}.svg`,
+    levelIconPath: (level) => `/images/levels/lvl${level}.svg`,
     fallbackAvatar: "/assets/favicon.svg",
     // CSS секции подгружается лениво, только когда она нужна
     cssUrl: "/app/styles.picker.css?v=1.1",
@@ -42,7 +42,9 @@
   // Точное совпадение выше, затем «начинается с», затем «содержит»,
   // внутри группы — по уровню (больше выше), затем по длине ника
   function sortPlayers(players, query) {
-    const q = String(query || "").trim().toLowerCase();
+    const q = String(query || "")
+      .trim()
+      .toLowerCase();
     const rank = (nick) => {
       const n = nick.toLowerCase();
       if (n === q) return 0;
