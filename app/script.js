@@ -359,6 +359,7 @@ function goBackToMain(updateUrl = true) {
     playerStatsContainer.style.display = "none";
   }
   if (resultsSection) resultsSection.style.display = "none";
+  if (proGrid) proGrid.style.display = "";
   if (searchSection) searchSection.style.display = "block";
   if (output) {
     output.style.display = "none";

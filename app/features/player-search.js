@@ -9,7 +9,7 @@
     levelIconPath: (level) => `/assets/levels/level-${level}.svg`,
     fallbackAvatar: "/assets/favicon.svg",
     // CSS секции подгружается лениво, только когда она нужна
-    cssUrl: "/app/styles.picker.css?v=1.0",
+    cssUrl: "/app/styles.picker.css?v=1.1",
     maxPlayers: 12,
     requestTimeoutMs: 8000,
   };
@@ -269,10 +269,12 @@
 
     section.append(head, list);
     section.hidden = false;
+    document.body.classList.add("picker-open");
     section.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
   function hide() {
+    document.body.classList.remove("picker-open");
     if (!sectionEl) return;
     sectionEl.hidden = true;
     sectionEl.textContent = "";

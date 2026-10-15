@@ -19,6 +19,26 @@ body.profile-active #playerPicker {
   display: none !important;
 }
 
+/* Пока открыт список игроков — прячем pro-карточки и не даём секциям сжиматься */
+body.picker-open .pro-grid {
+  display: none !important;
+}
+
+body.picker-open:not(.profile-active) {
+  height: auto !important;
+  min-height: 100vh;
+}
+
+body.picker-open:not(.profile-active) main {
+  flex: 0 0 auto !important;
+  min-height: auto !important;
+}
+
+body.picker-open #search,
+#playerPicker {
+  flex-shrink: 0;
+}
+
 .pp-head {
   display: flex;
   align-items: flex-start;
