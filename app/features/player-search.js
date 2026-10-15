@@ -5,16 +5,21 @@
   const CONFIG = {
     // Эндпоинт бэкенда (см. api/search-players.js)
     searchEndpoint: "/api/search-players",
+    // SVG уровней: /images/levels/lvl1.svg ... lvl10.svg
     levelIconPath: (level) => `/images/levels/lvl${level}.svg`,
     fallbackAvatar: "/assets/favicon.svg",
     // CSS секции подгружается лениво, только когда она нужна
-    cssUrl: "/app/styles.picker.css?v=1.1",
+    cssUrl: "/app/styles.picker.css?v=1.2",
     maxPlayers: 12,
     requestTimeoutMs: 8000,
+    // Сколько профилей одновременно запрашивать, чтобы узнать уровни
+    levelConcurrency: 4,
   };
 
   let stylesPromise = null;
   let sectionEl = null;
+  let renderToken = 0;
+  const levelCache = new Map(); // nickname(lowercase) -> level (1..10, 0 = нет уровня)
 
   function loadStyles() {
     if (stylesPromise) return stylesPromise;
@@ -41,9 +46,7 @@
   // Точное совпадение выше, затем «начинается с», затем «содержит»,
   // внутри группы — по уровню (больше выше), затем по длине ника
   function sortPlayers(players, query) {
-    const q = String(query || "")
-      .trim()
-      .toLowerCase();
+    const q = String(query || "").trim().toLowerCase();
     const rank = (nick) => {
       const n = nick.toLowerCase();
       if (n === q) return 0;
@@ -61,16 +64,13 @@
   }
 
   // Ответ FACEIT search/players -> компактный объект для карточки
+  // (skill_level в поиске FACEIT всегда "0", поэтому уровень подгружаем отдельно)
   function normalizePlayer(item) {
-    const cs2 = Array.isArray(item?.games)
-      ? item.games.find((g) => g.name === "cs2")
-      : item?.games?.cs2;
-    const level = Number.parseInt(cs2?.skill_level, 10);
     return {
       playerId: item?.player_id || "",
       nickname: item?.nickname || "",
       avatar: item?.avatar || "",
-      level: level >= 1 && level <= 10 ? level : 0,
+      level: null,
     };
   }
 
@@ -128,9 +128,17 @@
   }
 
   function buildLevel(player) {
-    const level = Number(player.level) || 0;
     const wrap = document.createElement("span");
     wrap.className = "pp-level";
+
+    // уровень ещё загружается — показываем заглушку
+    if (player.level == null) {
+      wrap.classList.add("is-loading");
+      wrap.setAttribute("aria-hidden", "true");
+      return wrap;
+    }
+
+    const level = Number(player.level) || 0;
     wrap.title = level ? `Level ${level}` : "No level";
 
     const fallback = () => {
@@ -156,6 +164,41 @@
     img.addEventListener("error", fallback, { once: true });
     wrap.appendChild(img);
     return wrap;
+  }
+
+  async function fetchLevel(nickname) {
+    const key = nickname.toLowerCase();
+    if (levelCache.has(key)) return levelCache.get(key);
+    try {
+      const data = await window.FaceitAPI.getPlayerData(nickname);
+      const n = Number.parseInt(data?.games?.cs2?.skill_level, 10);
+      const level = n >= 1 && n <= 10 ? n : 0;
+      levelCache.set(key, level);
+      return level;
+    } catch (error) {
+      return 0; // не кэшируем сбой — при следующем поиске попробуем снова
+    }
+  }
+
+  async function hydrateLevels(players, cards, token) {
+    const api = window.FaceitAPI;
+    let next = 0;
+
+    const worker = async () => {
+      while (next < players.length) {
+        const i = next++;
+        const level =
+          typeof api?.getPlayerData === "function"
+            ? await fetchLevel(players[i].nickname)
+            : 0;
+        if (token !== renderToken) return; // список закрыли или обновили
+        players[i].level = level;
+        cards[i]?.querySelector(".pp-level")?.replaceWith(buildLevel(players[i]));
+      }
+    };
+
+    const count = Math.min(CONFIG.levelConcurrency, players.length);
+    await Promise.all(Array.from({ length: count }, worker));
   }
 
   function playerHref(nickname) {
@@ -264,6 +307,12 @@
 
     head.append(titleBox, close);
 
+    const token = ++renderToken;
+    players.forEach((p) => {
+      const cached = levelCache.get(p.nickname.toLowerCase());
+      p.level = cached === undefined ? null : cached;
+    });
+
     const list = document.createElement("ul");
     list.className = "pp-grid";
     players.forEach((p, i) => list.appendChild(buildCard(p, i)));
@@ -272,9 +321,13 @@
     section.hidden = false;
     document.body.classList.add("picker-open");
     section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    const cards = Array.from(list.querySelectorAll("a.pp-card"));
+    hydrateLevels(players, cards, token);
   }
 
   function hide() {
+    renderToken++;
     document.body.classList.remove("picker-open");
     if (!sectionEl) return;
     sectionEl.hidden = true;

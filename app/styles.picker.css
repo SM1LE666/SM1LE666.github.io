@@ -190,6 +190,16 @@ body.picker-open #search,
   height: 38px;
 }
 
+.pp-level.is-loading:after {
+  content: "";
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 85, 0, 0.25);
+  border-top-color: var(--primary-color, #ff5500);
+  animation: ppSpin 0.8s linear infinite;
+}
+
 .pp-level-fallback {
   padding: 0.25rem 0.45rem;
   border-radius: 8px;
@@ -210,6 +220,12 @@ body.picker-open #search,
   }
 }
 
+@keyframes ppSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes ppCardIn {
   from {
     opacity: 0;
@@ -219,7 +235,8 @@ body.picker-open #search,
 
 @media (prefers-reduced-motion: reduce) {
   #playerPicker,
-  .pp-card {
+  .pp-card,
+  .pp-level.is-loading:after {
     animation: none;
     transition: none;
   }
