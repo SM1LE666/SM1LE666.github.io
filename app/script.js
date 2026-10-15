@@ -22,7 +22,7 @@ function syncStateFromApp() {
 }
 
 // CSS профиля игрока подгружается отдельно (на главной он не нужен)
-const PROFILE_STYLES_URL = "/app/styles.profile.css?v=1.1";
+const PROFILE_STYLES_URL = "/app/styles.profile.css?v=1.0";
 let profileStylesPromise = null;
 
 function loadProfileStyles() {
@@ -79,7 +79,7 @@ async function handleUrlChange() {
     if (nicknameInput) nicknameInput.value = nickname;
     try {
       await new Promise((resolve) => setTimeout(resolve, 50));
-      await searchPlayer(nickname, false);
+      await searchPlayer(nickname, false, { skipPicker: true });
     } catch (error) {
       console.error("Ошибка при загрузке профиля:", error);
       alert(`Ошибка: ${error.message}`);
@@ -176,7 +176,7 @@ function showPlayerResults() {
   document.body.classList.add("profile-active");
 }
 
-async function analyzePlayer() {
+async function analyzePlayer(options = {}) {
   const nickname = document.getElementById("nickname")?.value?.trim();
   if (!nickname) {
     alert("Please enter a nickname or profile URL.");
@@ -188,6 +188,7 @@ async function analyzePlayer() {
   const faceitService = window.FaceitAPI;
 
   const profileStylesReady = loadProfileStyles();
+  if (!options.skipPicker) window.AppPlayerSearch?.hide();
 
   if (!playerStats) playerStats = playerStatsContainer;
   if (output) output.textContent = `Getting data for ${nickname}...`;
@@ -202,7 +203,37 @@ async function analyzePlayer() {
       playerData =
         await window.AppPlayerResolve.resolveFaceitPlayerFromSteam(nickname);
     } else {
-      playerData = await faceitService.getPlayerData(nickname);
+      let lookupError = null;
+      try {
+        playerData = await faceitService.getPlayerData(nickname);
+      } catch (error) {
+        lookupError = error;
+      }
+
+      // Точного совпадения нет — ищем игроков с похожим ником
+      if (!playerData?.player_id) {
+        const search = window.AppPlayerSearch;
+        const notFound = lookupError || new Error("Player not found");
+        if (options.skipPicker || !search?.isNicknameQuery(nickname)) {
+          throw notFound;
+        }
+
+        const candidates = await search.findPlayers(nickname);
+        if (candidates.length === 0) throw notFound;
+
+        if (candidates.length === 1) {
+          playerData = await faceitService.getPlayerData(
+            candidates[0].nickname,
+          );
+        } else {
+          window.trackEvent("analyze_multiple_candidates", {
+            searched: nickname,
+            count: candidates.length,
+          });
+          await search.show(candidates, nickname);
+          return "picker";
+        }
+      }
     }
 
     window.currentPlayerData = playerData;
@@ -271,6 +302,7 @@ async function analyzePlayer() {
       playerStatsContainer.querySelector(".stats-container");
 
     showPlayerResults();
+    window.AppPlayerSearch?.hide();
     if (statsContainer) {
       window.AppRendering.renderOverviewStats(statsContainer);
     }
@@ -293,7 +325,11 @@ async function analyzePlayer() {
   }
 }
 
-async function searchPlayer(nicknameParam = null, updateUrl = true) {
+async function searchPlayer(
+  nicknameParam = null,
+  updateUrl = true,
+  options = {},
+) {
   const nicknameInput = document.getElementById("nickname");
   const nickname = nicknameParam
     ? nicknameParam.trim()
@@ -302,7 +338,8 @@ async function searchPlayer(nicknameParam = null, updateUrl = true) {
   if (!nickname) return;
   if (nicknameParam && nicknameInput) nicknameInput.value = nickname;
 
-  await analyzePlayer();
+  const status = await analyzePlayer(options);
+  if (status === "picker") return;
 
   if (updateUrl) {
     updateUrlForPlayer(window.currentPlayerData?.nickname || nickname);
@@ -330,6 +367,7 @@ function goBackToMain(updateUrl = true) {
   if (nicknameInput) nicknameInput.value = "";
 
   document.body.classList.remove("profile-active");
+  window.AppPlayerSearch?.hide();
   sidebarManager?.hideForPlayerProfile();
 
   currentPlayerProfile = null;
@@ -337,6 +375,9 @@ function goBackToMain(updateUrl = true) {
   window.currentPlayerData = null;
   syncStateFromApp();
 
+  // scrollTo требует актуальной раскладки, а DOM только что изменён (display, class),
+  // поэтому прямой вызов вызывает принудительную компоновку (forced reflow).
+  // Двойной rAF: первый кадр сам пересчитывает layout, второй уже скроллит по чистой раскладке.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0, behavior: "smooth" });

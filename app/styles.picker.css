@@ -1,0 +1,223 @@
+/* Секция выбора игрока (подгружается лениво из player-search.js) */
+#playerPicker {
+  max-width: 1200px;
+  margin-bottom: 1.6rem;
+  padding: 1.5rem 2rem;
+  background: #1414148c;
+  border: 1px solid rgba(255, 85, 0, 0.32);
+  box-shadow: 0 8px 32px #00000073;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  animation: ppFadeIn 0.35s ease backwards;
+}
+
+#playerPicker[hidden] {
+  display: none;
+}
+
+body.profile-active #playerPicker {
+  display: none !important;
+}
+
+.pp-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.pp-head h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.4rem;
+}
+
+.pp-sub {
+  margin: 0;
+  color: #ffffffa6;
+  font-size: 0.85rem;
+  letter-spacing: 0.4px;
+}
+
+.pp-query {
+  color: var(--primary-color, #ff5500);
+  font-family: var(--font-accent, "Orbitron", sans-serif);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.pp-close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+}
+
+.pp-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.9rem;
+}
+
+.pp-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.8rem 1rem 0.8rem 1.2rem;
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  color: #fff;
+  background:
+    radial-gradient(100% 100% at 50% 0%, #ff55000d, #12121299), #141414;
+  border: 1px solid rgba(255, 85, 0, 0.25);
+  box-shadow: 0 4px 14px #00000059;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  animation: ppCardIn 0.4s ease backwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+.pp-card:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary-color, #ff5500);
+  box-shadow: 0 0 12px var(--primary-color, #ff5500);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.pp-card:hover,
+.pp-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--primary-color, #ff5500);
+  box-shadow:
+    0 10px 24px #00000080,
+    0 0 18px #ff550059;
+}
+
+.pp-card:hover:before,
+.pp-card:focus-visible:before {
+  opacity: 1;
+}
+
+.pp-card:focus-visible {
+  outline: 2px solid var(--primary-color, #ff5500);
+  outline-offset: 3px;
+}
+
+.pp-card[aria-busy="true"] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.pp-avatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1a1a1a;
+  border: 2px solid rgba(255, 85, 0, 0.6);
+  box-shadow: 0 0 12px #ff55004d;
+}
+
+.pp-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pp-name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-accent, "Orbitron", sans-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pp-level {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+}
+
+.pp-level img {
+  display: block;
+  width: 38px;
+  height: 38px;
+}
+
+.pp-level-fallback {
+  padding: 0.25rem 0.45rem;
+  border-radius: 8px;
+  background: #ff55001a;
+  border: 1px solid rgba(255, 85, 0, 0.4);
+  color: var(--primary-color, #ff5500);
+  font-family: var(--font-accent, "Orbitron", sans-serif);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+}
+
+@keyframes ppFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes ppCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #playerPicker,
+  .pp-card {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 768px) {
+  #playerPicker {
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    text-align: left;
+  }
+
+  .pp-head h2 {
+    font-size: 1.15rem;
+  }
+
+  .pp-grid {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+}
