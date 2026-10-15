@@ -5,7 +5,6 @@
   const CONFIG = {
     // Эндпоинт бэкенда (см. api/search-players.js)
     searchEndpoint: "/api/search-players",
-    // Куда класть SVG уровней: /assets/levels/level-1.svg ... level-10.svg
     levelIconPath: (level) => `/images/levels/lvl${level}.svg`,
     fallbackAvatar: "/assets/favicon.svg",
     // CSS секции подгружается лениво, только когда она нужна
