@@ -57,7 +57,7 @@
       "destination": "/assets/logooo.webp"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api|sitemap\\.xml|robots\\.xml|robots\\.txt|llms\\.txt|ai-catalog\\.json|assets|favicon).*)",
       "destination": "/"
     }
   ],
