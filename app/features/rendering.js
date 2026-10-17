@@ -14,6 +14,12 @@
     return `<span class="stat-row-label">${label}</span><span class="stat-row-value">${value}</span>`;
   }
 
+  // Строка статистики. translate="no" задан здесь один раз: автоперевод браузера
+  // (Google Translate и др.) не должен менять подписи и значения в .stat-row
+  function statRow(innerHtml) {
+    return `<p class="stat-row" translate="no">${innerHtml}</p>`;
+  }
+
   // Цвет рейтинга винрейта (те же пороги, что на вкладке Maps)
   function winRateClass(winRate) {
     if (winRate < 40) return "wr-poor";
@@ -36,11 +42,11 @@
     const winRate = Number(map.winRate) || 0;
 
     return `
-      <p class="stat-row">${formatStatRow(`Map: ${map.name}`)}</p>
-      <p class="stat-row">${formatStatRow(`Matches: ${map.matches}`)}</p>
-      <p class="stat-row"><span class="stat-row-label">Win Rate:</span><span class="stat-row-value ${winRateClass(winRate)}">${winRate.toFixed(1)}%</span></p>
-      <p class="stat-row">${formatStatRow(`K/D: ${map.kd.toFixed(2)}`)}</p>
-      <p class="stat-row">${formatStatRow(`Headshots: ${map.hs.toFixed(1)}%`)}</p>
+      ${statRow(formatStatRow(`Map: ${map.name}`))}
+      ${statRow(formatStatRow(`Matches: ${map.matches}`))}
+      ${statRow(`<span class="stat-row-label">Win Rate:</span><span class="stat-row-value ${winRateClass(winRate)}">${winRate.toFixed(1)}%</span>`)}
+      ${statRow(formatStatRow(`K/D: ${map.kd.toFixed(2)}`))}
+      ${statRow(formatStatRow(`Headshots: ${map.hs.toFixed(1)}%`))}
     `;
   }
 
@@ -335,11 +341,11 @@
     <div class="stats-grid">
       <div class="stats-box slide-in-animation">
         <h3><i class="fas fa-chart-line"></i> Average Statistics</h3>
-        <p class="stat-row">${formatStatRow(`Avg. Kills: ${avgStats.avgKills}`)}</p>
-        <p class="stat-row">${formatStatRow(`Avg. Deaths: ${avgStats.avgDeaths}`)}</p>
-        <p class="stat-row">${formatStatRow(`Avg. Diff: ${killDeathDiff}`)}</p>
-        <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
-        <p class="stat-row">${formatStatRow(`Headshots: ${avgStats.avgHs}%`)}</p>
+        ${statRow(formatStatRow(`Avg. Kills: ${avgStats.avgKills}`))}
+        ${statRow(formatStatRow(`Avg. Deaths: ${avgStats.avgDeaths}`))}
+        ${statRow(formatStatRow(`Avg. Diff: ${killDeathDiff}`))}
+        ${statRow(formatStatRow(`K/D: ${avgStats.kd}`))}
+        ${statRow(formatStatRow(`Headshots: ${avgStats.avgHs}%`))}
       </div>
 
       <div class="stats-box slide-in-animation"${mapAttr(mapAnalysis.bestMap)}>

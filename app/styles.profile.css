@@ -192,7 +192,6 @@ body.sidebar-open main {
 .stats-box h3 {
   margin: 0 0 1.5rem;
   color: var(--primary-color);
-  font-size: 1.2rem;
   text-align: center;
   border-bottom: 2px solid rgba(255, 85, 0, 0.4);
   padding-bottom: 1rem;
@@ -268,7 +267,6 @@ body.sidebar-open main {
     margin: 0.4rem 0;
   }
   .stats-box h3 {
-    font-size: 1.13rem;
     margin-bottom: 1rem;
   }
   body.profile-active .pro-grid {
@@ -649,6 +647,7 @@ body.sidebar-open main {
     width: 100%;
     max-width: 320px;
     margin: 0 auto;
+    font-size: 0.95rem !important;
   }
   .stats-box p.stat-row {
     display: flex !important;
@@ -656,7 +655,6 @@ body.sidebar-open main {
     justify-content: space-between !important;
     gap: 0.75rem !important;
     margin: 0.35rem 0 !important;
-    font-size: 0.9rem !important;
     line-height: 1.32 !important;
   }
   .stats-box p.stat-row .stat-row-label {
@@ -1183,6 +1181,7 @@ body.sidebar-open main {
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
+  font-size: 1.1rem;
 }
 .stats-box.has-map-bg {
   background:
