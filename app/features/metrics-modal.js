@@ -1,7 +1,8 @@
 (function () {
   // ───────────── Хелперы для ссылок ─────────────
   const STEAM = "https://steamcommunity.com";
-  const NEW_TAB = 'target="_blank" rel="noopener noreferrer"';
+  // translate="no": автоперевод браузера не должен менять названия карт и сервисов
+  const NEW_TAB = 'target="_blank" rel="noopener noreferrer" translate="no"';
 
   // Карта из Steam Workshop по ID
   const workshopMap = (id, label) =>
@@ -288,14 +289,9 @@
     showListView() {
       this.currentView = "list";
 
-      // Получаем текущие метрики со страницы
-      const metricLabels = Array.from(
-        document.querySelectorAll(".metrics-grid .metric-label"),
-      ).map((el) => el.textContent.trim());
-
-      // Если метрики еще не отрендерены, используем ключи по умолчанию
-      const listToRender =
-        metricLabels.length > 0 ? metricLabels : Object.keys(METRICS_DETAILS);
+      // Ключи берём из METRICS_DETAILS, а не из текста на странице: при автопереводе
+      // (Google Translate) подписи метрик меняются, и поиск по ним ломается
+      const listToRender = Object.keys(METRICS_DETAILS);
 
       this.modal.innerHTML = `
         <div class="metrics-modal-header">

@@ -9,7 +9,7 @@
     levelIconPath: (level) => `/images/levels/lvl${level}.svg`,
     fallbackAvatar: "/assets/favicon.svg",
     // CSS секции подгружается лениво, только когда она нужна
-    cssUrl: "/app/styles.picker.css?v=1.3",
+    cssUrl: "/app/styles.picker.css?v=1.2",
     maxPlayers: 12,
     requestTimeoutMs: 8000,
     // Сколько профилей одновременно запрашивать, чтобы узнать уровни
@@ -46,9 +46,7 @@
   // Точное совпадение выше, затем «начинается с», затем «содержит»,
   // внутри группы — по уровню (больше выше), затем по длине ника
   function sortPlayers(players, query) {
-    const q = String(query || "")
-      .trim()
-      .toLowerCase();
+    const q = String(query || "").trim().toLowerCase();
     const rank = (nick) => {
       const n = nick.toLowerCase();
       if (n === q) return 0;
@@ -195,9 +193,7 @@
             : 0;
         if (token !== renderToken) return; // список закрыли или обновили
         players[i].level = level;
-        cards[i]
-          ?.querySelector(".pp-level")
-          ?.replaceWith(buildLevel(players[i]));
+        cards[i]?.querySelector(".pp-level")?.replaceWith(buildLevel(players[i]));
       }
     };
 
@@ -223,6 +219,7 @@
 
     const name = document.createElement("span");
     name.className = "pp-name";
+    name.setAttribute("translate", "no");
     name.textContent = player.nickname;
     name.title = player.nickname;
 
@@ -297,6 +294,7 @@
     sub.className = "pp-sub";
     const q = document.createElement("span");
     q.className = "pp-query";
+    q.setAttribute("translate", "no");
     q.textContent = String(query).trim();
     sub.append("Matches for ", q, " — choose the right profile");
     titleBox.append(h2, sub);
