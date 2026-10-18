@@ -140,7 +140,7 @@
       ? points.filter((p) => p.elo !== null)
       : points.filter((p) => p.win !== null);
     if (series.length < 2) {
-      return `<p class="trends-empty">Not enough matches to draw a chart.</p>`;
+      return { html: `<p class="trends-empty">Not enough matches to draw a chart.</p>`, points: [] };
     }
 
     let values;
@@ -196,13 +196,21 @@
       marks = `<line class="tc-zero" x1="${L}" x2="${W - R}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}"></line>`;
     }
 
+    const points_ = series.map((p, i) => ({
+      x: x(i),
+      y: y(values[i]),
+      t: p.t,
+      win: p.win,
+      value: values[i],
+      delta: useElo && i > 0 ? values[i] - values[i - 1] : null,
+    }));
+
     const showDots = series.length <= (narrow ? 80 : 150);
     const dots = showDots
-      ? series
+      ? points_
           .map((p, i) => {
             const cls = p.win === null ? "tc-dot" : p.win ? "tc-dot tc-dot-w" : "tc-dot tc-dot-l";
-            const text = `${fmtDate(p.t)}${p.win === null ? "" : p.win ? " - Win" : " - Loss"}${useElo ? ` - ${p.elo} ELO` : ` - net ${values[i] > 0 ? "+" : ""}${values[i]}`}`;
-            return `<circle class="${cls}" cx="${x(i).toFixed(1)}" cy="${y(values[i]).toFixed(1)}" r="3.2"><title>${text}</title></circle>`;
+            return `<circle class="${cls}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.2"></circle>`;
           })
           .join("")
       : "";
@@ -219,19 +227,125 @@
       )
       .join("");
 
+    const html = `
+      <div class="trend-chart-wrap">
+        <svg class="trend-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${useElo ? "ELO over the selected matches" : "Net wins over the selected matches"}">
+          <defs>
+            <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ff5500" stop-opacity="0.35"></stop>
+              <stop offset="100%" stop-color="#ff5500" stop-opacity="0"></stop>
+            </linearGradient>
+          </defs>
+          ${ticks}${marks}
+          <path class="tc-area" d="${area}"></path>
+          <path class="tc-line" d="${line}"></path>
+          ${dots}
+          <line class="tc-hover-line" x1="0" x2="0" y1="${T}" y2="${H - B}"></line>
+          <circle class="tc-hover-dot" cx="0" cy="0" r="6"></circle>
+          ${xLabels}
+        </svg>
+        <div class="trend-tip" role="status"></div>
+      </div>`;
+
+    return { html, points: points_, geom: { W, H, L, R, T, B, useElo } };
+  }
+
+  // ---------- своя подсказка при наведении ----------
+
+  const fmtDateTime = (t) =>
+    new Date(t).toLocaleString(undefined, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  function tipHtml(p, index, total, useElo) {
+    const badge =
+      p.win === null
+        ? ""
+        : `<span class="trend-tip-badge ${p.win ? "win" : "loss"}">${p.win ? "Win" : "Loss"}</span>`;
+    const valueLabel = useElo ? `${p.value} ELO` : `Net ${p.value > 0 ? "+" : ""}${p.value}`;
+    const delta =
+      p.delta === null || p.delta === 0
+        ? ""
+        : `<span class="trend-tip-delta ${p.delta > 0 ? "up" : "down"}">${p.delta > 0 ? "+" : ""}${p.delta}</span>`;
     return `
-      <svg class="trend-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${useElo ? "ELO over the selected matches" : "Net wins over the selected matches"}">
-        <defs>
-          <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#ff5500" stop-opacity="0.35"></stop>
-            <stop offset="100%" stop-color="#ff5500" stop-opacity="0"></stop>
-          </linearGradient>
-        </defs>
-        ${ticks}${marks}
-        <path class="tc-area" d="${area}"></path>
-        <path class="tc-line" d="${line}"></path>
-        ${dots}${xLabels}
-      </svg>`;
+      <div class="trend-tip-date">${fmtDateTime(p.t)}</div>
+      <div class="trend-tip-main">${badge}<span class="trend-tip-value">${valueLabel}</span>${delta}</div>
+      <div class="trend-tip-meta">Match ${index + 1} of ${total}</div>`;
+  }
+
+  // Наведение работает по всей ширине графика: подсказка привязывается к ближайшей точке
+  function bindChartHover(container, chart) {
+    if (!chart.points.length) return;
+    const wrap = container.querySelector(".trend-chart-wrap");
+    const svg = wrap?.querySelector(".trend-chart");
+    const tip = wrap?.querySelector(".trend-tip");
+    const line = svg?.querySelector(".tc-hover-line");
+    const dot = svg?.querySelector(".tc-hover-dot");
+    if (!wrap || !svg || !tip || !line || !dot) return;
+
+    const { W, L, R, useElo } = chart.geom;
+    const points = chart.points;
+    const step = (W - L - R) / (points.length - 1);
+
+    const hide = () => {
+      tip.classList.remove("show");
+      line.classList.remove("show");
+      dot.classList.remove("show");
+    };
+
+    const show = (event) => {
+      const rect = svg.getBoundingClientRect();
+      if (!rect.width) return;
+      const scale = rect.width / W;
+      const index = Math.min(
+        Math.max(Math.round(((event.clientX - rect.left) / scale - L) / step), 0),
+        points.length - 1,
+      );
+      const p = points[index];
+
+      line.setAttribute("x1", p.x.toFixed(1));
+      line.setAttribute("x2", p.x.toFixed(1));
+      dot.setAttribute("cx", p.x.toFixed(1));
+      dot.setAttribute("cy", p.y.toFixed(1));
+      dot.setAttribute(
+        "class",
+        `tc-hover-dot show${p.win === null ? "" : p.win ? " win" : " loss"}`,
+      );
+      line.classList.add("show");
+
+      tip.innerHTML = tipHtml(p, index, points.length, useElo);
+      tip.classList.add("show");
+
+      const wrapRect = wrap.getBoundingClientRect();
+      const px = p.x * scale + (rect.left - wrapRect.left);
+      const py = p.y * scale + (rect.top - wrapRect.top);
+      const tipW = tip.offsetWidth;
+      const tipH = tip.offsetHeight;
+      const left = Math.min(Math.max(px - tipW / 2, 4), Math.max(wrapRect.width - tipW - 4, 4));
+      const above = py - tipH - 16 >= 0;
+      tip.style.left = `${left}px`;
+      tip.style.top = `${above ? py - tipH - 16 : py + 18}px`;
+    };
+
+    svg.addEventListener("pointermove", show);
+    svg.addEventListener("pointerdown", show);
+    svg.addEventListener("pointerleave", (event) => {
+      if (event.pointerType !== "touch") hide(); // на телефоне подсказка остаётся до следующего касания
+    });
+    svg.addEventListener("pointercancel", hide);
+
+    const onOutside = (event) => {
+      if (!wrap.isConnected) {
+        document.removeEventListener("pointerdown", onOutside);
+        return;
+      }
+      if (!wrap.contains(event.target)) hide();
+    };
+    document.addEventListener("pointerdown", onOutside);
   }
 
   function renderStats(summary, useElo) {
@@ -413,6 +527,7 @@
       const size = RANGES[rangeIndex].size;
       const slice = Number.isFinite(size) ? points.slice(-size) : points;
       const summary = summarize(slice, useElo);
+      const chart = renderChart(slice, useElo, narrow, container.clientWidth - 32);
 
       const chips = RANGES.map(
         (r, i) =>
@@ -434,7 +549,7 @@
             <div class="trends-ranges">${chips}</div>
           </div>
           <div class="trends-stats">${renderStats(summary, useElo)}</div>
-          ${renderChart(slice, useElo, narrow, container.clientWidth - 32)}
+          ${chart.html}
           ${note}${unknown}
         </div>
         <div class="trends-card">
@@ -444,6 +559,8 @@
           </div>
           ${renderHeatmap(points, narrow ? 4 : 3)}
         </div>`);
+
+      bindChartHover(container, chart);
 
       container.querySelectorAll(".trends-range").forEach((btn) => {
         btn.addEventListener("click", () => {
