@@ -290,7 +290,7 @@
   function renderOverviewStats(container) {
     if (!container || !window.currentPlayerProfile) return;
 
-    const { avgStats, mapAnalysis } = window.currentPlayerProfile;
+    const { avgStats, mapAnalysis, playerData } = window.currentPlayerProfile;
 
     const metrics = computeHltvMetrics(window.currentPlayerProfile);
 
@@ -335,10 +335,18 @@
     const mapAttr = (map) =>
       map ? ` data-map="${normalizeMapKey(map.name)}"` : "";
 
+    // Крупная иконка уровня FACEIT — фон блока Average Statistics (нет уровня — нет иконки)
+    const faceitLevel = Number(playerData?.games?.cs2?.skill_level);
+    const levelWatermark =
+      faceitLevel >= 1 && faceitLevel <= 10
+        ? `<img class="stats-level-watermark" src="/images/levels/lvl${faceitLevel}.svg" alt="" aria-hidden="true" width="170" height="170" decoding="async" />`
+        : "";
+
     container.innerHTML = `
     ${metricsCardHtml}
     <div class="stats-grid">
-      <div class="stats-box slide-in-animation">
+      <div class="stats-box stats-box-level slide-in-animation">
+        ${levelWatermark}
         <h3><i class="fas fa-chart-line"></i> Average Statistics</h3>
         ${statRow(formatStatRow(`Avg. Kills: ${avgStats.avgKills}`))}
         ${statRow(formatStatRow(`Avg. Deaths: ${avgStats.avgDeaths}`))}

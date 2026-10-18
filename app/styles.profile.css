@@ -2164,3 +2164,40 @@ body.sidebar-open main {
   color: #ff7b00;
   text-decoration-style: solid;
 }
+
+/* ===== Average Statistics: иконка уровня FACEIT как водяной знак ===== */
+.stats-box-level {
+  isolation: isolate; /* водяной знак (z-index: -1) остаётся внутри блока, под текстом */
+}
+
+.stats-level-watermark {
+  position: absolute;
+  right: -14px;
+  bottom: -18px;
+  z-index: -1;
+  width: clamp(120px, 52%, 170px);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  opacity: 0.16;
+  filter: saturate(0.85);
+  pointer-events: none;
+  user-select: none;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.stats-box-level:hover .stats-level-watermark {
+  opacity: 0.26;
+  transform: scale(1.04) rotate(-3deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stats-level-watermark {
+    transition: none;
+  }
+  .stats-box-level:hover .stats-level-watermark {
+    transform: none;
+  }
+}
