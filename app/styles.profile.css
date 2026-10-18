@@ -2165,15 +2165,13 @@ body.sidebar-open main {
   text-decoration-style: solid;
 }
 
-/* ===== Average Statistics: иконка уровня FACEIT как водяной знак ===== */
 .stats-box-level {
-  isolation: isolate; /* водяной знак (z-index: -1) остаётся внутри блока, под текстом */
+  isolation: isolate;
 }
 
 .stats-level-watermark {
   position: absolute;
-  right: -14px;
-  bottom: -18px;
+  align-self: center;
   z-index: -1;
   width: clamp(120px, 52%, 170px);
   height: auto;
