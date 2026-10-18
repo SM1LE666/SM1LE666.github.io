@@ -3,7 +3,6 @@
     const formatter = window.FaceitAPI?.formatNumber?.bind(window.FaceitAPI);
     return formatter ? formatter(value) : String(value);
   }
-
   function formatStatRow(text) {
     const idx = text.indexOf(":");
     if (idx === -1) {
@@ -13,14 +12,9 @@
     const value = text.slice(idx + 1).trim();
     return `<span class="stat-row-label">${label}</span><span class="stat-row-value">${value}</span>`;
   }
-
-  // Строка статистики. translate="no" задан здесь один раз: автоперевод браузера
-  // (Google Translate и др.) не должен менять подписи и значения в .stat-row
   function statRow(innerHtml) {
     return `<p class="stat-row" translate="no">${innerHtml}</p>`;
   }
-
-  // Цвет рейтинга винрейта (те же пороги, что на вкладке Maps)
   function winRateClass(winRate) {
     if (winRate < 40) return "wr-poor";
     if (winRate < 55) return "wr-avg";
@@ -65,7 +59,9 @@
   }
 
   // Пороги уровней FACEIT CS2 (минимальный ELO каждого уровня)
-  const FACEIT_LEVEL_MIN_ELO = [100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001];
+  const FACEIT_LEVEL_MIN_ELO = [
+    100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001,
+  ];
 
   function getEloProgress(elo) {
     const value = Number(elo) || 0;
@@ -82,7 +78,10 @@
 
     const from = FACEIT_LEVEL_MIN_ELO[idx];
     const to = FACEIT_LEVEL_MIN_ELO[idx + 1];
-    const pct = Math.min(Math.max(Math.round(((value - from) / (to - from)) * 100), 0), 100);
+    const pct = Math.min(
+      Math.max(Math.round(((value - from) / (to - from)) * 100), 0),
+      100,
+    );
     return { pct, text: `${formatNumber(to - value)} ELO to Level ${idx + 2}` };
   }
 
@@ -393,7 +392,11 @@
 
     const winRateText = lifetime["Win Rate %"] || "0";
     const highlights = [
-      { icon: "fa-gamepad", label: "Matches", value: formatNumber(avgStats.totalMatches) },
+      {
+        icon: "fa-gamepad",
+        label: "Matches",
+        value: formatNumber(avgStats.totalMatches),
+      },
       {
         icon: "fa-trophy",
         label: "Win Rate",
@@ -482,7 +485,7 @@
 
     if (!window.minigameLoaded) {
       const script = document.createElement("script");
-      script.src = "/app/features/minigame.js?v=1.4";
+      script.src = "/app/features/minigame.js?v=1.5";
       script.onload = () => {
         window.minigameLoaded = true;
         if (typeof window.openModalByRoute === "function") {
