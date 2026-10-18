@@ -22,7 +22,7 @@ function syncStateFromApp() {
 }
 
 // CSS профиля игрока подгружается отдельно (на главной он не нужен)
-const PROFILE_STYLES_URL = "/app/styles.profile.css?v=1.5";
+const PROFILE_STYLES_URL = "/app/styles.profile.css?v=1.1";
 let profileStylesPromise = null;
 
 function loadProfileStyles() {
@@ -36,6 +36,192 @@ function loadProfileStyles() {
     document.head.appendChild(link);
   });
   return profileStylesPromise;
+}
+
+// ---------- Выбор игрока, когда ник совпадает у нескольких людей ----------
+const PICKER_MIN_QUERY = 3; // с какой длины ника искать похожих
+const PICKER_LIMIT = 20; // сколько игроков показывать максимум
+// true: если среди найденных есть точное совпадение ника, сразу открывать его профиль
+const PICKER_AUTO_OPEN_EXACT_MATCH = false;
+let pickerRequestId = 0;
+
+function looksLikeNickname(value) {
+  if (!value || value.length < PICKER_MIN_QUERY) return false;
+  if (/[/:\\]/.test(value)) return false; // ссылка на профиль
+  if (window.AppPlayerResolve?.isSteamInput(value)) return false; // Steam ID / ссылка
+  return true;
+}
+
+async function fetchPlayerCandidates(nickname) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
+  try {
+    const response = await fetch(
+      `/api/search?nickname=${encodeURIComponent(nickname)}&limit=${PICKER_LIMIT}`,
+      { headers: { Accept: "application/json" }, signal: controller.signal },
+    );
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data?.items)
+      ? data.items.filter((p) => p && p.nickname)
+      : [];
+  } catch {
+    return []; // поиск недоступен: работаем как раньше, по точному нику
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Точное совпадение, затем ники, начинающиеся с запроса, затем остальные; при равенстве выше уровень
+function rankCandidates(items, query) {
+  const q = query.toLowerCase();
+  const score = (p) => {
+    const n = p.nickname.toLowerCase();
+    return n === q ? 0 : n.startsWith(q) ? 1 : 2;
+  };
+  return [...items].sort(
+    (a, b) =>
+      score(a) - score(b) || (Number(b.level) || 0) - (Number(a.level) || 0),
+  );
+}
+
+function buildPickerCard(player, index, isExact) {
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = "picker-card";
+  card.style.setProperty("--i", String(index));
+  card.setAttribute("aria-label", `Analyze ${player.nickname}`);
+
+  if (isExact) {
+    const badge = document.createElement("span");
+    badge.className = "picker-badge";
+    badge.textContent = "Exact";
+    card.appendChild(badge);
+  }
+
+  const avatar = document.createElement("img");
+  avatar.className = "picker-avatar";
+  avatar.alt = "";
+  avatar.loading = "lazy";
+  avatar.decoding = "async";
+  avatar.src = player.avatar || "/assets/favicon.svg";
+  avatar.onerror = () => {
+    avatar.onerror = null;
+    avatar.src = "/assets/favicon.svg";
+  };
+
+  const nick = document.createElement("span");
+  nick.className = "picker-nick";
+  nick.textContent = player.nickname;
+  nick.title = player.nickname;
+
+  const level = document.createElement("div");
+  level.className = "picker-level";
+  const levelNumber = Number(player.level);
+  if (levelNumber >= 1 && levelNumber <= 10) {
+    const icon = document.createElement("img");
+    icon.src = `/images/levels/lvl${levelNumber}.svg`;
+    icon.alt = "";
+    icon.width = 30;
+    icon.height = 30;
+    const label = document.createElement("span");
+    label.textContent = `Level ${levelNumber}`;
+    level.append(icon, label);
+  } else {
+    level.textContent = "No level";
+  }
+
+  card.append(avatar, nick, level);
+  card.addEventListener("click", () => selectPickerPlayer(player.nickname));
+  return card;
+}
+
+function showPlayerPicker(items, query) {
+  const section = document.getElementById("playerPicker");
+  const list = document.getElementById("playerPickerList");
+  if (!section || !list) return false;
+
+  const lowerQuery = query.toLowerCase();
+  list.replaceChildren(
+    ...items.map((player, index) =>
+      buildPickerCard(player, index, player.nickname.toLowerCase() === lowerQuery),
+    ),
+  );
+
+  const title = document.getElementById("playerPickerTitle");
+  if (title) title.textContent = `${items.length} players found`;
+  const hint = document.getElementById("playerPickerHint");
+  if (hint) {
+    hint.textContent =
+      `Several players match "${query}". Choose who you want to analyze.` +
+      (items.length >= PICKER_LIMIT
+        ? ` Showing the first ${PICKER_LIMIT}, type more of the nickname to narrow it down.`
+        : "");
+  }
+
+  section.hidden = false;
+  document.body.classList.add("picker-open");
+  section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  return true;
+}
+
+function hidePlayerPicker() {
+  const section = document.getElementById("playerPicker");
+  if (section) section.hidden = true;
+  document.body.classList.remove("picker-open");
+}
+
+function selectPickerPlayer(nickname) {
+  hidePlayerPicker();
+  const nicknameInput = document.getElementById("nickname");
+  if (nicknameInput) nicknameInput.value = nickname;
+  window.trackEvent?.("picker_select", { nickname });
+  searchPlayer(nickname, true);
+}
+
+async function searchPlayerInteractive() {
+  const nicknameInput = document.getElementById("nickname");
+  const nickname = nicknameInput?.value?.trim() || "";
+  hidePlayerPicker();
+
+  if (!looksLikeNickname(nickname)) return searchPlayer(null, true);
+
+  const searchButton = document.getElementById("searchButton");
+  const requestId = ++pickerRequestId;
+  if (searchButton) {
+    searchButton.disabled = true;
+    searchButton.setAttribute("aria-busy", "true");
+  }
+
+  let candidates = [];
+  try {
+    candidates = await fetchPlayerCandidates(nickname);
+  } finally {
+    if (searchButton) {
+      searchButton.disabled = false;
+      searchButton.removeAttribute("aria-busy");
+    }
+  }
+  if (requestId !== pickerRequestId) return; // запущен более новый поиск
+
+  window.trackEvent?.("search_candidates", {
+    query: nickname,
+    count: candidates.length,
+  });
+
+  if (candidates.length === 0) return searchPlayer(null, true);
+
+  const ranked = rankCandidates(candidates, nickname);
+  if (ranked.length === 1) return searchPlayer(ranked[0].nickname, true);
+
+  const exact = ranked.find(
+    (p) => p.nickname.toLowerCase() === nickname.toLowerCase(),
+  );
+  if (exact && PICKER_AUTO_OPEN_EXACT_MATCH) {
+    return searchPlayer(exact.nickname, true);
+  }
+
+  if (!showPlayerPicker(ranked, nickname)) return searchPlayer(null, true);
 }
 
 function updateUrlForPlayer(nickname) {
@@ -79,7 +265,7 @@ async function handleUrlChange() {
     if (nicknameInput) nicknameInput.value = nickname;
     try {
       await new Promise((resolve) => setTimeout(resolve, 50));
-      await searchPlayer(nickname, false, { skipPicker: true });
+      await searchPlayer(nickname, false);
     } catch (error) {
       console.error("Ошибка при загрузке профиля:", error);
       alert(`Ошибка: ${error.message}`);
@@ -108,6 +294,13 @@ async function init() {
   document
     .getElementById("nickname")
     ?.addEventListener("focus", loadProfileStyles, { once: true });
+
+  document
+    .getElementById("playerPickerClose")
+    ?.addEventListener("click", hidePlayerPicker);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") hidePlayerPicker();
+  });
 
   window.AppUIEvents.initializeEventListeners();
   window.addEventListener(
@@ -169,6 +362,7 @@ function showAnalyzeError(errorText, output) {
 }
 
 function showPlayerResults() {
+  hidePlayerPicker();
   const resultsSection = document.getElementById("results");
   const proGrid = document.querySelector(".pro-grid");
   if (resultsSection) resultsSection.style.display = "block";
@@ -176,7 +370,7 @@ function showPlayerResults() {
   document.body.classList.add("profile-active");
 }
 
-async function analyzePlayer(options = {}) {
+async function analyzePlayer() {
   const nickname = document.getElementById("nickname")?.value?.trim();
   if (!nickname) {
     alert("Please enter a nickname or profile URL.");
@@ -188,7 +382,6 @@ async function analyzePlayer(options = {}) {
   const faceitService = window.FaceitAPI;
 
   const profileStylesReady = loadProfileStyles();
-  if (!options.skipPicker) window.AppPlayerSearch?.hide();
 
   if (!playerStats) playerStats = playerStatsContainer;
   if (output) output.textContent = `Getting data for ${nickname}...`;
@@ -203,37 +396,7 @@ async function analyzePlayer(options = {}) {
       playerData =
         await window.AppPlayerResolve.resolveFaceitPlayerFromSteam(nickname);
     } else {
-      let lookupError = null;
-      try {
-        playerData = await faceitService.getPlayerData(nickname);
-      } catch (error) {
-        lookupError = error;
-      }
-
-      // Точного совпадения нет — ищем игроков с похожим ником
-      if (!playerData?.player_id) {
-        const search = window.AppPlayerSearch;
-        const notFound = lookupError || new Error("Player not found");
-        if (options.skipPicker || !search?.isNicknameQuery(nickname)) {
-          throw notFound;
-        }
-
-        const candidates = await search.findPlayers(nickname);
-        if (candidates.length === 0) throw notFound;
-
-        if (candidates.length === 1) {
-          playerData = await faceitService.getPlayerData(
-            candidates[0].nickname,
-          );
-        } else {
-          window.trackEvent("analyze_multiple_candidates", {
-            searched: nickname,
-            count: candidates.length,
-          });
-          await search.show(candidates, nickname);
-          return "picker";
-        }
-      }
+      playerData = await faceitService.getPlayerData(nickname);
     }
 
     window.currentPlayerData = playerData;
@@ -302,7 +465,6 @@ async function analyzePlayer(options = {}) {
       playerStatsContainer.querySelector(".stats-container");
 
     showPlayerResults();
-    window.AppPlayerSearch?.hide();
     if (statsContainer) {
       window.AppRendering.renderOverviewStats(statsContainer);
     }
@@ -325,11 +487,7 @@ async function analyzePlayer(options = {}) {
   }
 }
 
-async function searchPlayer(
-  nicknameParam = null,
-  updateUrl = true,
-  options = {},
-) {
+async function searchPlayer(nicknameParam = null, updateUrl = true) {
   const nicknameInput = document.getElementById("nickname");
   const nickname = nicknameParam
     ? nicknameParam.trim()
@@ -338,8 +496,7 @@ async function searchPlayer(
   if (!nickname) return;
   if (nicknameParam && nicknameInput) nicknameInput.value = nickname;
 
-  const status = await analyzePlayer(options);
-  if (status === "picker") return;
+  await analyzePlayer();
 
   if (updateUrl) {
     updateUrlForPlayer(window.currentPlayerData?.nickname || nickname);
@@ -347,6 +504,7 @@ async function searchPlayer(
 }
 
 function goBackToMain(updateUrl = true) {
+  hidePlayerPicker();
   const output = document.getElementById("output");
   const playerStatsContainer = document.getElementById("playerStats");
   const resultsSection = document.getElementById("results");
@@ -359,7 +517,6 @@ function goBackToMain(updateUrl = true) {
     playerStatsContainer.style.display = "none";
   }
   if (resultsSection) resultsSection.style.display = "none";
-  if (proGrid) proGrid.style.display = "";
   if (searchSection) searchSection.style.display = "block";
   if (output) {
     output.style.display = "none";
@@ -368,7 +525,6 @@ function goBackToMain(updateUrl = true) {
   if (nicknameInput) nicknameInput.value = "";
 
   document.body.classList.remove("profile-active");
-  window.AppPlayerSearch?.hide();
   sidebarManager?.hideForPlayerProfile();
 
   currentPlayerProfile = null;
@@ -462,6 +618,7 @@ function debounce(func, wait) {
 
 window.updateUrlForPlayer = updateUrlForPlayer;
 window.loadProfileStyles = loadProfileStyles;
+window.searchPlayerInteractive = searchPlayerInteractive;
 window.analyzePlayer = analyzePlayer;
 window.searchPlayer = searchPlayer;
 window.goBackToMain = goBackToMain;
