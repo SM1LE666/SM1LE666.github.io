@@ -22,7 +22,7 @@ function syncStateFromApp() {
 }
 
 // CSS профиля игрока подгружается отдельно (на главной он не нужен)
-const PROFILE_STYLES_URL = "/app/styles.profile.css?v=1.2";
+const PROFILE_STYLES_URL = "/app/styles.profile.css?v=1.3";
 let profileStylesPromise = null;
 
 function loadProfileStyles() {
@@ -144,7 +144,11 @@ function showPlayerPicker(items, query) {
   const lowerQuery = query.toLowerCase();
   list.replaceChildren(
     ...items.map((player, index) =>
-      buildPickerCard(player, index, player.nickname.toLowerCase() === lowerQuery),
+      buildPickerCard(
+        player,
+        index,
+        player.nickname.toLowerCase() === lowerQuery,
+      ),
     ),
   );
 

@@ -11,7 +11,9 @@
   const DEFAULT_RANGE = 1;
 
   // Минимальный ELO каждого уровня FACEIT CS2 (как в rendering.js)
-  const LEVEL_MIN_ELO = [100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001];
+  const LEVEL_MIN_ELO = [
+    100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001,
+  ];
 
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const NARROW_WIDTH = 560; // уже этой ширины контейнера используем компактную раскладку
@@ -74,7 +76,7 @@
   // ---------- форматирование ----------
 
   const fmtDate = (t) =>
-    new Date(t).toLocaleDateString(undefined, {
+    new Date(t).toLocaleDateString("en-US", {
       day: "numeric",
       month: "short",
       year: "2-digit",
@@ -95,7 +97,9 @@
   function summarize(points, useElo) {
     const known = points.filter((p) => p.win !== null);
     const wins = known.filter((p) => p.win).length;
-    const winRate = known.length ? Math.round((wins / known.length) * 100) : null;
+    const winRate = known.length
+      ? Math.round((wins / known.length) * 100)
+      : null;
 
     let current = { type: "-", count: 0 };
     for (let i = known.length - 1; i >= 0; i--) {
@@ -140,7 +144,10 @@
       ? points.filter((p) => p.elo !== null)
       : points.filter((p) => p.win !== null);
     if (series.length < 2) {
-      return { html: `<p class="trends-empty">Not enough matches to draw a chart.</p>`, points: [] };
+      return {
+        html: `<p class="trends-empty">Not enough matches to draw a chart.</p>`,
+        points: [],
+      };
     }
 
     let values;
@@ -173,7 +180,9 @@
     const x = (i) => L + (i * innerW) / (series.length - 1);
     const y = (v) => T + innerH * (1 - (v - yMin) / (yMax - yMin));
 
-    const line = values.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+    const line = values
+      .map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`)
+      .join(" ");
     const area = `${line} L${x(series.length - 1).toFixed(1)} ${H - B} L${L} ${H - B} Z`;
 
     const ticks = niceTicks(yMin, yMax, 4)
@@ -209,7 +218,12 @@
     const dots = showDots
       ? points_
           .map((p, i) => {
-            const cls = p.win === null ? "tc-dot" : p.win ? "tc-dot tc-dot-w" : "tc-dot tc-dot-l";
+            const cls =
+              p.win === null
+                ? "tc-dot"
+                : p.win
+                  ? "tc-dot tc-dot-w"
+                  : "tc-dot tc-dot-l";
             return `<circle class="${cls}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.2"></circle>`;
           })
           .join("")
@@ -253,7 +267,7 @@
   // ---------- своя подсказка при наведении ----------
 
   const fmtDateTime = (t) =>
-    new Date(t).toLocaleString(undefined, {
+    new Date(t).toLocaleString("en-US", {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -266,7 +280,9 @@
       p.win === null
         ? ""
         : `<span class="trend-tip-badge ${p.win ? "win" : "loss"}">${p.win ? "Win" : "Loss"}</span>`;
-    const valueLabel = useElo ? `${p.value} ELO` : `Net ${p.value > 0 ? "+" : ""}${p.value}`;
+    const valueLabel = useElo
+      ? `${p.value} ELO`
+      : `Net ${p.value > 0 ? "+" : ""}${p.value}`;
     const delta =
       p.delta === null || p.delta === 0
         ? ""
@@ -302,7 +318,10 @@
       if (!rect.width) return;
       const scale = rect.width / W;
       const index = Math.min(
-        Math.max(Math.round(((event.clientX - rect.left) / scale - L) / step), 0),
+        Math.max(
+          Math.round(((event.clientX - rect.left) / scale - L) / step),
+          0,
+        ),
         points.length - 1,
       );
       const p = points[index];
@@ -325,7 +344,10 @@
       const py = p.y * scale + (rect.top - wrapRect.top);
       const tipW = tip.offsetWidth;
       const tipH = tip.offsetHeight;
-      const left = Math.min(Math.max(px - tipW / 2, 4), Math.max(wrapRect.width - tipW - 4, 4));
+      const left = Math.min(
+        Math.max(px - tipW / 2, 4),
+        Math.max(wrapRect.width - tipW - 4, 4),
+      );
       const above = py - tipH - 16 >= 0;
       tip.style.left = `${left}px`;
       tip.style.top = `${above ? py - tipH - 16 : py + 18}px`;
@@ -334,7 +356,7 @@
     svg.addEventListener("pointermove", show);
     svg.addEventListener("pointerdown", show);
     svg.addEventListener("pointerleave", (event) => {
-      if (event.pointerType !== "touch") hide(); // на телефоне подсказка остаётся до следующего касания
+      if (event.pointerType !== "touch") hide();
     });
     svg.addEventListener("pointercancel", hide);
 
@@ -351,14 +373,31 @@
   function renderStats(summary, useElo) {
     const signed = (n) => (n > 0 ? `+${n}` : String(n));
     const rateClass =
-      summary.winRate === null ? "" : summary.winRate < 40 ? "wr-poor" : summary.winRate < 55 ? "wr-avg" : "wr-good";
+      summary.winRate === null
+        ? ""
+        : summary.winRate < 40
+          ? "wr-poor"
+          : summary.winRate < 55
+            ? "wr-avg"
+            : "wr-good";
     const streak =
-      summary.current.count > 0 ? `${summary.current.type}${summary.current.count}` : "-";
-    const streakClass = summary.current.type === "W" ? "wr-good" : summary.current.type === "L" ? "wr-poor" : "";
+      summary.current.count > 0
+        ? `${summary.current.type}${summary.current.count}`
+        : "-";
+    const streakClass =
+      summary.current.type === "W"
+        ? "wr-good"
+        : summary.current.type === "L"
+          ? "wr-poor"
+          : "";
 
     const tiles = [
       { value: summary.matches, label: "Matches" },
-      { value: summary.winRate === null ? "-" : `${summary.winRate}%`, label: "Win rate", cls: rateClass },
+      {
+        value: summary.winRate === null ? "-" : `${summary.winRate}%`,
+        label: "Win rate",
+        cls: rateClass,
+      },
       { value: streak, label: "Current streak", cls: streakClass },
       { value: summary.bestStreak, label: "Best win streak" },
     ];
@@ -409,7 +448,10 @@
   }
 
   function aggregate(cells) {
-    return cells.reduce((acc, c) => ({ n: acc.n + c.n, w: acc.w + c.w }), { n: 0, w: 0 });
+    return cells.reduce((acc, c) => ({ n: acc.n + c.n, w: acc.w + c.w }), {
+      n: 0,
+      w: 0,
+    });
   }
 
   function renderInsights(grid, hours) {
@@ -422,25 +464,40 @@
     const pick = (list, min, best) => {
       const ok = list.filter((e) => e.n >= min);
       if (!ok.length) return null;
-      return ok.reduce((a, b) => (best ? (rate(b) > rate(a) ? b : a) : rate(b) < rate(a) ? b : a));
+      return ok.reduce((a, b) =>
+        best ? (rate(b) > rate(a) ? b : a) : rate(b) < rate(a) ? b : a,
+      );
     };
     const busiest = [...slots].sort((a, b) => b.n - a.n)[0];
 
     const describe = (e) =>
-      e ? `<b>${e.label}</b><span>${Math.round(rate(e) * 100)}% win rate - ${e.n} matches</span>` : `<b>-</b><span>Not enough matches yet</span>`;
+      e
+        ? `<b>${e.label}</b><span>${Math.round(rate(e) * 100)}% win rate - ${e.n} matches</span>`
+        : `<b>-</b><span>Not enough matches yet</span>`;
 
     const cards = [
-      { title: "Best time", body: describe(pick(slots, MIN_SLOT_MATCHES, true)) },
-      { title: "Worst time", body: describe(pick(slots, MIN_SLOT_MATCHES, false)) },
+      {
+        title: "Best time",
+        body: describe(pick(slots, MIN_SLOT_MATCHES, true)),
+      },
+      {
+        title: "Worst time",
+        body: describe(pick(slots, MIN_SLOT_MATCHES, false)),
+      },
       { title: "Best day", body: describe(pick(days, MIN_DAY_MATCHES, true)) },
       {
         title: "Most active",
-        body: busiest && busiest.n ? `<b>${busiest.label}</b><span>${busiest.n} matches</span>` : `<b>-</b><span>No data</span>`,
+        body:
+          busiest && busiest.n
+            ? `<b>${busiest.label}</b><span>${busiest.n} matches</span>`
+            : `<b>-</b><span>No data</span>`,
       },
     ];
 
     return cards
-      .map((c) => `<div class="trends-insight"><em>${c.title}</em>${c.body}</div>`)
+      .map(
+        (c) => `<div class="trends-insight"><em>${c.title}</em>${c.body}</div>`,
+      )
       .join("");
   }
 
@@ -452,7 +509,10 @@
     }
 
     const maxN = Math.max(...grid.flat().map((c) => c.n), 1);
-    const head = Array.from({ length: slotCount }, (_, s) => `<div class="heat-head">${slotLabel(s, hours)}</div>`).join("");
+    const head = Array.from(
+      { length: slotCount },
+      (_, s) => `<div class="heat-head">${slotLabel(s, hours)}</div>`,
+    ).join("");
 
     const rows = DAYS.map((day, d) => {
       const cells = grid[d]
@@ -506,11 +566,18 @@
     }
 
     // пользователь успел сменить вкладку или игрока
-    if (token !== renderToken || !container.isConnected || manager.currentView !== "trends") return;
+    if (
+      token !== renderToken ||
+      !container.isConnected ||
+      manager.currentView !== "trends"
+    )
+      return;
 
     const points = buildPoints(items, playerId);
     if (!points.length) {
-      container.innerHTML = shell(`<p class="api-error-text">No match history available for this player.</p>`);
+      container.innerHTML = shell(
+        `<p class="api-error-text">No match history available for this player.</p>`,
+      );
       return;
     }
 
@@ -519,7 +586,8 @@
     const useElo = withElo >= 10 && withElo >= points.length * 0.6;
 
     let rangeIndex = DEFAULT_RANGE;
-    const isNarrow = () => container.clientWidth > 0 && container.clientWidth < NARROW_WIDTH;
+    const isNarrow = () =>
+      container.clientWidth > 0 && container.clientWidth < NARROW_WIDTH;
     let narrow = isNarrow();
 
     const draw = () => {
@@ -527,7 +595,12 @@
       const size = RANGES[rangeIndex].size;
       const slice = Number.isFinite(size) ? points.slice(-size) : points;
       const summary = summarize(slice, useElo);
-      const chart = renderChart(slice, useElo, narrow, container.clientWidth - 32);
+      const chart = renderChart(
+        slice,
+        useElo,
+        narrow,
+        container.clientWidth - 32,
+      );
 
       const chips = RANGES.map(
         (r, i) =>
@@ -537,9 +610,10 @@
       const note = useElo
         ? ""
         : `<p class="trends-note">Per-match ELO is not available in the match history, so the chart shows net wins (wins minus losses).</p>`;
-      const unknown = known < points.length
-        ? `<p class="trends-note">${points.length - known} matches without a known result are skipped.</p>`
-        : "";
+      const unknown =
+        known < points.length
+          ? `<p class="trends-note">${points.length - known} matches without a known result are skipped.</p>`
+          : "";
 
       container.innerHTML = shell(`
         <div class="trends-card">
