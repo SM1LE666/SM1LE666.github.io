@@ -156,7 +156,7 @@ body.sidebar-open main {
   border-radius: 10px;
 }
 .player-info a:hover {
-  background: #f503;
+  border-color: var(--primary-color);
   transform: translateY(-1px);
 }
 .player-info .faceit-link {
@@ -1738,7 +1738,6 @@ body.sidebar-open main {
   gap: 0.7rem;
   margin-bottom: 1rem;
   font-family: Orbitron, sans-serif;
-  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;

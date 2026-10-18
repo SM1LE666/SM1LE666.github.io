@@ -103,7 +103,7 @@
 
     let current = { type: "-", count: 0 };
     for (let i = known.length - 1; i >= 0; i--) {
-      const type = known[i].win ? "W" : "L";
+      const type = known[i].win ? "+" : "-";
       if (current.count === 0) current = { type, count: 1 };
       else if (current.type === type) current.count++;
       else break;
