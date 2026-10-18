@@ -1865,7 +1865,6 @@ body.sidebar-open main {
   color: #8a8a8a;
 }
 .heat-scroll {
-  overflow-x: auto;
   padding-bottom: 0.3rem;
 }
 .heat {
