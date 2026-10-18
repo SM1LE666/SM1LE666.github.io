@@ -2082,3 +2082,85 @@ body.sidebar-open main {
 .trend-tip-delta.down {
   color: #f44336;
 }
+
+/* ===== How to improve: длинные тексты, прокрутка, заголовки, блок metric-lead ===== */
+.metrics-modal {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.metrics-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #ff5500 #1a1a1a;
+}
+
+.metrics-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.metrics-modal-body::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.metrics-modal-body::-webkit-scrollbar-thumb {
+  background: #ff5500;
+  border-radius: 3px;
+}
+
+.metric-detail-content {
+  color: #e6e6e6;
+}
+
+.metric-detail-content .metric-lead {
+  position: relative;
+  margin: 0 0 6px;
+  padding: 30px 14px 14px 16px;
+  border: 1px solid rgba(255, 85, 0, 0.28);
+  border-left: 3px solid #f50;
+  border-radius: 10px;
+  background:
+    radial-gradient(100% 100% at 50% 0%, #ff55001a, #12121299), #141414;
+  box-shadow:
+    0 4px 14px #00000059,
+    inset 0 0 18px #ff55000d;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.metric-detail-content .metric-lead:before {
+  content: "What it shows";
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #f50;
+}
+
+.metric-detail-content h4 {
+  margin: 16px 0 8px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #f50;
+}
+
+.metric-detail-content a {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.metric-detail-content a:hover {
+  color: #ff7b00;
+  text-decoration-style: solid;
+}

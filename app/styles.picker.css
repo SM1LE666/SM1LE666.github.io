@@ -19,7 +19,6 @@ body.profile-active #playerPicker {
   display: none !important;
 }
 
-/* Пока открыт список игроков — прячем pro-карточки и не даём секциям сжиматься */
 body.picker-open .pro-grid {
   display: none !important;
 }
