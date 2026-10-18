@@ -5,11 +5,9 @@
   const restartBtn = document.getElementById("restartAimGameBtn");
   const startScreen = document.getElementById("aimStartScreen");
   const resultScreen = document.getElementById("aimResultScreen");
-
   const timerEl = document.getElementById("aimTimer");
   const targetsCountEl = document.getElementById("aimTargetsCount");
   const accuracyEl = document.getElementById("aimAccuracy");
-
   const resTimeEl = document.getElementById("resTime");
   const resAccuracyEl = document.getElementById("resAccuracy");
   const resGradeEl = document.getElementById("resGrade");
@@ -21,8 +19,6 @@
   let isPlaying = false;
   const MAX_TARGETS = 30;
   const TARGET_RADIUS = 18;
-
-  // Обработчик закрытия
   if (closeAimModal) {
     closeAimModal.addEventListener("click", (e) => {
       e.preventDefault();
@@ -31,96 +27,73 @@
       }
     });
   }
-
   if (startBtn) startBtn.addEventListener("click", startGame);
   if (restartBtn) restartBtn.addEventListener("click", startGame);
-
   function startGame() {
     score = 0;
     totalClicks = 0;
     isPlaying = true;
-
     if (startScreen) startScreen.classList.add("hidden");
     if (resultScreen) resultScreen.classList.add("hidden");
-
     updateStatsUI();
     clearTargets();
-
     startTime = performance.now();
     timerInterval = setInterval(updateTimer, 50);
-
     spawnTarget();
   }
-
   function updateTimer() {
     const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
     if (timerEl) timerEl.textContent = elapsed;
   }
-
   if (aimArena) {
     aimArena.addEventListener("click", (e) => {
       if (!isPlaying) return;
       if (e.target.closest(".aim-overlay")) return;
-
       totalClicks++;
-
       if (e.target.classList.contains("aim-target")) {
         score++;
         e.target.remove();
-
         if (score >= MAX_TARGETS) {
           endGame();
         } else {
           spawnTarget();
         }
       }
-
       updateStatsUI();
     });
   }
-
   function spawnTarget() {
     clearTargets();
-
     if (!aimArena) return;
     const target = document.createElement("div");
     target.classList.add("aim-target");
-
     const arenaWidth = aimArena.clientWidth;
     const arenaHeight = aimArena.clientHeight;
-
     const x =
       Math.random() * (arenaWidth - TARGET_RADIUS * 4) + TARGET_RADIUS * 2;
     const y =
       Math.random() * (arenaHeight - TARGET_RADIUS * 4) + TARGET_RADIUS * 2;
-
     target.style.left = `${x}px`;
     target.style.top = `${y}px`;
-
     aimArena.appendChild(target);
   }
-
   function clearTargets() {
     if (!aimArena) return;
     const existingTargets = aimArena.querySelectorAll(".aim-target");
     existingTargets.forEach((t) => t.remove());
   }
-
   function updateStatsUI() {
     if (targetsCountEl) targetsCountEl.textContent = score;
     const accuracy =
       totalClicks > 0 ? Math.round((score / totalClicks) * 100) : 100;
     if (accuracyEl) accuracyEl.textContent = accuracy;
   }
-
   function endGame() {
     isPlaying = false;
     clearInterval(timerInterval);
     clearTargets();
-
     const elapsedTime = ((performance.now() - startTime) / 1000).toFixed(2);
     const accuracy = Math.round((score / totalClicks) * 100);
-
     if (resTimeEl) resTimeEl.textContent = elapsedTime;
     if (resAccuracyEl) resAccuracyEl.textContent = accuracy;
     if (resGradeEl)
@@ -131,13 +104,11 @@
 
     if (resultScreen) resultScreen.classList.remove("hidden");
   }
-
   function stopGame() {
     isPlaying = false;
     clearInterval(timerInterval);
     clearTargets();
   }
-
   function resetGameUI() {
     stopGame();
     if (startScreen) startScreen.classList.remove("hidden");
@@ -146,17 +117,16 @@
     if (targetsCountEl) targetsCountEl.textContent = "0";
     if (accuracyEl) accuracyEl.textContent = "100";
   }
-
   function calculateGrade(accuracy, time) {
     if (accuracy >= 98 && time < 18) return "S+ (S1mple's Level!!)";
     if (accuracy >= 95 && time < 22) return "S (Pro Player!)";
-    if (accuracy >= 90 && time < 28) return "A (FACEIT Level 10)";
-    if (accuracy >= 75 && time < 35) return "B (Gold Nova)";
+    if (accuracy >= 90 && time < 30) return "A (FACEIT Level 10)";
+    if (accuracy >= 75 && time < 40) return "B (Gold Nova)";
+    if (accuracy >= 60) return "C+ (Silver Elite)";
     if (accuracy >= 50) return "C (Silver)";
-    return "D (Needs Practice)";
+    if (accuracy >= 35) return "D (Newbie)";
+    return "F (Bro, you need to practice more!)";
   }
-
-  // Экспортируем методы для связи со script.js
   window.resetAimGameUI = resetGameUI;
   window.stopAimGame = stopGame;
 })();
