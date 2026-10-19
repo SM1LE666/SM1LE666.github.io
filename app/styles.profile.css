@@ -2166,13 +2166,17 @@ body.sidebar-open main {
 }
 
 .stats-box-level {
+  position: relative;
+  overflow: hidden;
   isolation: isolate;
 }
 
 .stats-level-watermark {
   position: absolute;
-  align-self: center;
-  z-index: -1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
   width: clamp(120px, 52%, 170px);
   height: auto;
   aspect-ratio: 1;
@@ -2188,7 +2192,12 @@ body.sidebar-open main {
 
 .stats-box-level:hover .stats-level-watermark {
   opacity: 0.26;
-  transform: scale(1.04) rotate(-3deg);
+  transform: translate(-50%, -50%) scale(1.04) rotate(-3deg);
+}
+
+.stats-box-level > * {
+  position: relative;
+  z-index: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
