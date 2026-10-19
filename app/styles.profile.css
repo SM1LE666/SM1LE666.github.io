@@ -2199,3 +2199,7 @@ body.sidebar-open main {
     transform: none;
   }
 }
+.loading-indicator,
+.loading-indicator small {
+  font-family: "ORbitron", sans-serif;
+}
