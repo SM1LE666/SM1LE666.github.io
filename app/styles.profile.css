@@ -2187,16 +2187,10 @@ body.sidebar-open main {
     opacity 0.3s ease,
     transform 0.3s ease;
 }
-
 .stats-box-level:hover .stats-level-watermark {
   opacity: 0.26;
   transform: translate(-50%, -50%) scale(1.04) rotate(-3deg);
 }
-
-.stats-box-level > * {
-  z-index: 1;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .stats-level-watermark {
     transition: none;
