@@ -296,7 +296,7 @@
   }
 
   const fmtDateTime = (t) =>
-    new Date(t).toLocaleString(undefined, {
+    new Date(t).toLocaleString("en-US", {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -311,7 +311,7 @@
         : `<span class="trend-tip-badge ${p.win ? "win" : "loss"}">${p.win ? "Win" : "Loss"}</span>`;
 
     // Добавляем иконку уровня FACEIT прямо в тултип рядом с ELO
-    const lvlIcon = renderLevelIcon(p.value, 16);
+    const lvlIcon = renderLevelIcon(p.value, 25);
     const valueLabel = `ELO: ${Math.round(p.value)} ${lvlIcon}`;
 
     const delta =
