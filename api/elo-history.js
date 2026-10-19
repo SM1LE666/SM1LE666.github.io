@@ -5,7 +5,7 @@
 const PAGE_SIZE = 100;
 const MAX_PAGES = 5; // Ограничиваем до 5 страниц (500 матчей), чтобы снизить шанс таймаута
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const playerId = String(req.query?.playerId || "").trim();
   if (!/^[0-9a-f-]{36}$/i.test(playerId)) {
     return res.status(400).json({ error: "Invalid playerId" });
@@ -60,9 +60,8 @@ export default async function handler(req, res) {
     console.error("Elo history non-critical error:", error);
   }
 
-  // КРИТИЧЕСКИ ВАЖНО: Всегда возвращаем статус 200 и то, что успели собрать (или пустой массив).
-  // Это позволит фронтенду в trends.js не ломаться, а автоматически переключиться на график Net Wins (баланс побед),
-  // если внутренний API FACEIT временно недоступен.
+  // Всегда возвращаем статус 200 и собранные данные (или пустой массив),
+  // чтобы фронтенд в trends.js не ломался.
   res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=900");
   return res.status(200).json({ items });
-}
+};
