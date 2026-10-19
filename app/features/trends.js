@@ -23,7 +23,7 @@
     return Math.min(Math.max(lvl, 1), 10);
   }
 
-  function renderLevelIcon(elo, size = 18) {
+  function renderLevelIcon(elo, size = 25) {
     const lvl = getFaceitLevel(elo);
     return `<img src="${LEVEL_ICON_PATH(lvl)}" alt="Lvl ${lvl}" width="${size}" height="${size}" style="vertical-align: middle; display: inline-block; object-fit: contain;" />`;
   }
