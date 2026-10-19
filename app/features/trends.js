@@ -406,9 +406,9 @@
         ? `${summary.current.type}${summary.current.count}`
         : "-";
     const streakClass =
-      summary.current.type === "+"
+      summary.current.type === "W"
         ? "wr-good"
-        : summary.current.type === "-"
+        : summary.current.type === "L"
           ? "wr-poor"
           : "";
 
