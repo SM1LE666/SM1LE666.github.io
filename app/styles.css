@@ -1144,6 +1144,11 @@ h1:after {
     border: 2px solid rgba(255, 85, 0, 0.3);
     max-width: 1350px;
   }
+  .stats-box {
+    height: 260px;
+    min-height: 260px;
+    font-variant-numeric: tabular-nums;
+  }
 }
 @media (max-width: 768px) {
   #drawerHeader .drawer-title {

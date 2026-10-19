@@ -1133,6 +1133,7 @@ body.sidebar-open main {
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+  align-items: stretch;
 }
 .stats-box {
   background:
@@ -1148,7 +1149,6 @@ body.sidebar-open main {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  height: auto;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
@@ -2166,10 +2166,9 @@ body.sidebar-open main {
 }
 
 .stats-box-level {
-  position: relative;
-  overflow: hidden;
   isolation: isolate;
 }
+
 .stats-level-watermark {
   position: absolute;
   top: 50%;
