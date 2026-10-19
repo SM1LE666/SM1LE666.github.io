@@ -1,7 +1,4 @@
 (function () {
-  // Вкладка Trends: график формы (ELO или баланс побед) и тепловая карта.
-  // Если эндпоинт /api/elo-history недоступен, ELO рассчитывается автоматически на основе исходов матчей.
-
   const RANGES = [
     { label: "Last 50", size: 50 },
     { label: "Last 100", size: 100 },
@@ -10,10 +7,26 @@
   ];
   const DEFAULT_RANGE = 1;
 
-  // Минимальный ELO каждого уровня FACEIT CS2
   const LEVEL_MIN_ELO = [
     100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001,
   ];
+
+  // Настройте путь к SVG-иконкам уровней под ваш проект
+  const LEVEL_ICON_PATH = (level) => `/images/levels/lvl${level}.svg`;
+
+  function getFaceitLevel(elo) {
+    const val = Number(elo) || 0;
+    let lvl = 1;
+    LEVEL_MIN_ELO.forEach((min, i) => {
+      if (val >= min) lvl = i + 1;
+    });
+    return Math.min(Math.max(lvl, 1), 10);
+  }
+
+  function renderLevelIcon(elo, size = 18) {
+    const lvl = getFaceitLevel(elo);
+    return `<img src="${LEVEL_ICON_PATH(lvl)}" alt="Lvl ${lvl}" width="${size}" height="${size}" style="vertical-align: middle; display: inline-block; object-fit: contain;" />`;
+  }
 
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const NARROW_WIDTH = 560;
@@ -23,7 +36,6 @@
   let renderToken = 0;
   const eloCache = {};
 
-  // Загрузка реальной истории ELO через бэкенд
   async function loadEloMap(playerId) {
     if (eloCache[playerId]) return eloCache[playerId];
     const map = new Map();
@@ -44,9 +56,7 @@
           }
         }
       }
-    } catch {
-      /* если бэкенд упал, сработает клиентский фоллбек */
-    }
+    } catch {}
     if (map.size) eloCache[playerId] = map;
     return map;
   }
@@ -77,7 +87,6 @@
     return winner === "faction1" ? inFirst : inSecond;
   }
 
-  // Создание точек и фоллбек-расчет ELO, если реальные данные недоступны
   function buildPoints(items, playerId, eloMap, baseElo) {
     const rawPoints = items
       .map((item) => ({
@@ -87,21 +96,18 @@
         elo: readElo(item) ?? eloMap?.get(String(item?.match_id)) ?? null,
       }))
       .filter((p) => Number.isFinite(p.t) && p.t > 0)
-      .sort((a, b) => a.t - b.t); // от старых к новым
+      .sort((a, b) => a.t - b.t);
 
-    // Если у нас совсем нет ELO по матчам, но есть базовый ELO игрока из профиля — вычисляем ретроспективно
     const missingEloCount = rawPoints.filter(
       (p) => p.elo === null && p.win !== null,
     ).length;
     if (missingEloCount > 0 && Number.isFinite(baseElo) && baseElo > 0) {
       let currentRunningElo = baseElo;
-      // Идем с конца (от самых свежих матчей к старым) и вычисляем ELO назад
       for (let i = rawPoints.length - 1; i >= 0; i--) {
         const p = rawPoints[i];
         if (p.elo === null) {
           p.elo = currentRunningElo;
         }
-        // Шаг изменения ELO (обычно победа +25, поражение -25)
         if (p.win !== null) {
           currentRunningElo += p.win ? -25 : 25;
         }
@@ -167,8 +173,6 @@
         result.eloChange = withElo[withElo.length - 1].elo - withElo[0].elo;
         result.peak = Math.max(...withElo.map((p) => p.elo));
       }
-    } else {
-      result.net = wins - (known.length - wins);
     }
     return result;
   }
@@ -184,9 +188,7 @@
   }
 
   function renderChart(points, useElo, narrow, width) {
-    const series = points.filter((p) =>
-      useElo ? p.elo !== null : p.win !== null,
-    );
+    const series = points.filter((p) => p.elo !== null);
     if (series.length < 2) {
       return {
         html: `<p class="trends-empty">Not enough matches to draw a chart.</p>`,
@@ -194,13 +196,7 @@
       };
     }
 
-    const values = useElo
-      ? series.map((p) => p.elo)
-      : (() => {
-          let net = 0;
-          return series.map((p) => (net += p.win ? 1 : -1));
-        })();
-
+    const values = series.map((p) => p.elo);
     const W = narrow ? Math.max(300, width) : 800;
     const H = narrow ? 230 : 260;
     const L = narrow ? 40 : 52;
@@ -210,12 +206,8 @@
     const innerW = W - L - R;
     const innerH = H - T - B;
 
-    let min = Math.min(...values);
-    let max = Math.max(...values);
-    if (!useElo) {
-      min = Math.min(min, 0);
-      max = Math.max(max, 0);
-    }
+    const min = Math.min(...values);
+    const max = Math.max(...values);
     const span = max - min || 10;
     const yMin = min - span * 0.12;
     const yMax = max + span * 0.12;
@@ -237,16 +229,12 @@
       .join("");
 
     let marks = "";
-    if (useElo) {
-      LEVEL_MIN_ELO.forEach((minElo, i) => {
-        if (i === 0 || minElo <= yMin || minElo >= yMax) return;
-        marks += `
-          <line class="tc-level" x1="${L}" x2="${W - R}" y1="${y(minElo).toFixed(1)}" y2="${y(minElo).toFixed(1)}"></line>
-          <text class="tc-level-label" x="${W - R + 5}" y="${(y(minElo) + 3).toFixed(1)}" text-anchor="start">LVL ${i + 1}</text>`;
-      });
-    } else {
-      marks = `<line class="tc-zero" x1="${L}" x2="${W - R}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}"></line>`;
-    }
+    LEVEL_MIN_ELO.forEach((minElo, i) => {
+      if (minElo <= yMin || minElo >= yMax) return;
+      marks += `
+        <line class="tc-level" x1="${L}" x2="${W - R}" y1="${y(minElo).toFixed(1)}" y2="${y(minElo).toFixed(1)}"></line>
+        <text class="tc-level-label" x="${W - R + 5}" y="${(y(minElo) + 3).toFixed(1)}" text-anchor="start">LVL ${i + 1}</text>`;
+    });
 
     const points_ = series.map((p, i) => ({
       x: x(i),
@@ -254,7 +242,7 @@
       t: p.t,
       win: p.win,
       value: values[i],
-      delta: useElo && i > 0 ? values[i] - values[i - 1] : null,
+      delta: i > 0 ? values[i] - values[i - 1] : null,
     }));
 
     const showDots = series.length <= (narrow ? 80 : 150);
@@ -304,7 +292,7 @@
         <div class="trend-tip" role="status"></div>
       </div>`;
 
-    return { html, points: points_, geom: { W, H, L, R, T, B, useElo } };
+    return { html, points: points_, geom: { W, H, L, R, T, B } };
   }
 
   const fmtDateTime = (t) =>
@@ -316,14 +304,16 @@
       minute: "2-digit",
     });
 
-  function tipHtml(p, index, total, useElo) {
+  function tipHtml(p, index, total) {
     const badge =
       p.win === null
         ? ""
         : `<span class="trend-tip-badge ${p.win ? "win" : "loss"}">${p.win ? "Win" : "Loss"}</span>`;
-    const valueLabel = useElo
-      ? `ELO: ${Math.round(p.value)}`
-      : `Net ${p.value > 0 ? "+" : ""}${p.value}`;
+
+    // Добавляем иконку уровня FACEIT прямо в тултип рядом с ELO
+    const lvlIcon = renderLevelIcon(p.value, 16);
+    const valueLabel = `ELO: ${Math.round(p.value)} ${lvlIcon}`;
+
     const delta =
       p.delta === null || p.delta === 0
         ? ""
@@ -343,7 +333,7 @@
     const dot = svg?.querySelector(".tc-hover-dot");
     if (!wrap || !svg || !tip || !line || !dot) return;
 
-    const { W, L, R, useElo } = chart.geom;
+    const { W, L, R } = chart.geom;
     const points = chart.points;
     const step = (W - L - R) / (points.length - 1 || 1);
 
@@ -376,7 +366,7 @@
       );
       line.classList.add("show");
 
-      tip.innerHTML = tipHtml(p, index, points.length, useElo);
+      tip.innerHTML = tipHtml(p, index, points.length);
       tip.classList.add("show");
 
       const wrapRect = wrap.getBoundingClientRect();
@@ -401,7 +391,7 @@
     svg.addEventListener("pointercancel", hide);
   }
 
-  function renderStats(summary, useElo) {
+  function renderStats(summary) {
     const signed = (n) => (n > 0 ? `+${n}` : String(n));
     const rateClass =
       summary.winRate === null
@@ -432,7 +422,7 @@
       { value: streak, label: "Current streak", cls: streakClass },
       { value: summary.bestStreak, label: "Best win streak" },
     ];
-    if (useElo && summary.eloChange !== undefined) {
+    if (summary.eloChange !== undefined) {
       tiles.push({
         value: signed(summary.eloChange),
         label: "ELO change",
@@ -594,7 +584,6 @@
     )
       return;
 
-    // Извлекаем базовое ELO игрока из текущего профиля FACEIT
     const baseElo = Number(
       playerData?.games?.cs2?.faceit_elo ||
         window.currentPlayerProfile?.currentElo ||
@@ -620,11 +609,10 @@
       const size = RANGES[rangeIndex].size;
       const slice = Number.isFinite(size) ? points.slice(-size) : points;
 
-      const useElo = true; // Всегда отображаем ELO-тренд благодаря клиентскому фоллбеку
-      const summary = summarize(slice, useElo);
+      const summary = summarize(slice, true);
       const chart = renderChart(
         slice,
-        useElo,
+        true,
         narrow,
         container.clientWidth - 32,
       );
@@ -646,7 +634,7 @@
             <span>ELO trend</span>
             <div class="trends-ranges">${chips}</div>
           </div>
-          <div class="trends-stats">${renderStats(summary, useElo)}</div>
+          <div class="trends-stats">${renderStats(summary)}</div>
           ${chart.html}
           ${unknown}
         </div>

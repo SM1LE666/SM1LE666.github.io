@@ -1,9 +1,5 @@
-// /api/elo-history?playerId=<faceit player_id>
-// Возвращает ELO игрока после каждого сыгранного матча CS2:
-//   { items: [{ matchId, date, elo }] }
-
 const PAGE_SIZE = 100;
-const MAX_PAGES = 5; // Ограничиваем до 5 страниц (500 матчей), чтобы снизить шанс таймаута
+const MAX_PAGES = 5;
 
 module.exports = async function handler(req, res) {
   const playerId = String(req.query?.playerId || "").trim();
@@ -27,18 +23,19 @@ module.exports = async function handler(req, res) {
           },
         });
       } catch (netErr) {
-        break; // При сетевой ошибке прерываем цикл, но не падаем
+        break;
       }
 
+      // Если FACEIT упал или вернул ошибку, просто прерываем цикл и отдаем то, что успели собрать, со статусом 200
       if (!upstream || !upstream.ok) {
-        break; // Если FACEIT вернул 403, 429 или 500, просто прекращаем сбор
+        break;
       }
 
       let data;
       try {
         data = await upstream.json();
       } catch (jsonErr) {
-        break; // Если пришел невалидный JSON или HTML заглушка
+        break;
       }
 
       const list = Array.isArray(data)
@@ -60,8 +57,7 @@ module.exports = async function handler(req, res) {
     console.error("Elo history non-critical error:", error);
   }
 
-  // Всегда возвращаем статус 200 и собранные данные (или пустой массив),
-  // чтобы фронтенд в trends.js не ломался.
+  // Всегда отдаем 200 OK, чтобы консоль браузера не забивалась красными ошибками 500
   res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=900");
   return res.status(200).json({ items });
 };
