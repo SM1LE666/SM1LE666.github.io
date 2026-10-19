@@ -3,9 +3,9 @@
 //   { items: [{ matchId, date, elo }] }
 
 const PAGE_SIZE = 100;
-const MAX_PAGES = 15;
+const MAX_PAGES = 5; // Ограничиваем до 5 страниц (500 матчей), чтобы снизить шанс таймаута
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   const playerId = String(req.query?.playerId || "").trim();
   if (!/^[0-9a-f-]{36}$/i.test(playerId)) {
     return res.status(400).json({ error: "Invalid playerId" });
@@ -14,37 +14,31 @@ module.exports = async function handler(req, res) {
   const items = [];
   try {
     for (let page = 0; page < MAX_PAGES; page++) {
-      const url =
-        `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2` +
-        `?page=${page}&size=${PAGE_SIZE}`;
+      const url = `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2?page=${page}&size=${PAGE_SIZE}`;
 
       let upstream;
       try {
         upstream = await fetch(url, {
           headers: {
             Accept: "application/json",
-            "User-Agent": "Mozilla/5.0 (compatible; FaceitAnalyze/1.0)",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            Referer: "https://www.faceit.com/",
           },
         });
-      } catch (fetchErr) {
-        // Ошибка сети или таймаут отдельного запроса страницы
-        break;
+      } catch (netErr) {
+        break; // При сетевой ошибке прерываем цикл, но не падаем
       }
 
       if (!upstream || !upstream.ok) {
-        if (page === 0) {
-          // Если первая страница упала, возвращаем пустой список (200),
-          // чтобы фронтенд корректно переключился на Net Wins вместо 500 ошибки.
-          return res.status(200).json({ items: [] });
-        }
-        break;
+        break; // Если FACEIT вернул 403, 429 или 500, просто прекращаем сбор
       }
 
       let data;
       try {
         data = await upstream.json();
       } catch (jsonErr) {
-        break; // Если FACEIT отдавал HTML капчу или битый JSON
+        break; // Если пришел невалидный JSON или HTML заглушка
       }
 
       const list = Array.isArray(data)
@@ -63,10 +57,12 @@ module.exports = async function handler(req, res) {
       if (list.length < PAGE_SIZE) break;
     }
   } catch (error) {
-    // Глобальная страховка от любых падений
-    console.error("Elo history fetch error:", error);
+    console.error("Elo history non-critical error:", error);
   }
 
+  // КРИТИЧЕСКИ ВАЖНО: Всегда возвращаем статус 200 и то, что успели собрать (или пустой массив).
+  // Это позволит фронтенду в trends.js не ломаться, а автоматически переключиться на график Net Wins (баланс побед),
+  // если внутренний API FACEIT временно недоступен.
   res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=900");
   return res.status(200).json({ items });
-};
+}
