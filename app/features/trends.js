@@ -128,7 +128,7 @@
   }
 
   const fmtDate = (t) =>
-    new Date(t).toLocaleDateString(undefined, {
+    new Date(t).toLocaleDateString("en-US", {
       day: "numeric",
       month: "short",
       year: "2-digit",
@@ -406,9 +406,9 @@
         ? `${summary.current.type}${summary.current.count}`
         : "-";
     const streakClass =
-      summary.current.type === "W"
+      summary.current.type === "+"
         ? "wr-good"
-        : summary.current.type === "L"
+        : summary.current.type === "-"
           ? "wr-poor"
           : "";
 
