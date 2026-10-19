@@ -2194,7 +2194,6 @@ body.sidebar-open main {
 }
 
 .stats-box-level > * {
-  position: relative;
   z-index: 1;
 }
 
