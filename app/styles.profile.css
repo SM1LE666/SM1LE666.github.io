@@ -558,6 +558,11 @@ body.sidebar-open main {
     font-size: 0.85rem;
   }
 }
+@media (min-width: 769px) {
+  .mobile-sidebar-drawer {
+    display: none !important;
+  }
+}
 @media (min-width: 1025px) {
   .player-card {
     padding: 1.6rem;
@@ -2103,6 +2108,12 @@ body.sidebar-open main {
   visibility: hidden;
   transform: translateY(100%);
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  display: none;
 }
 .mobile-sidebar-drawer:before {
   content: "";
@@ -2271,6 +2282,9 @@ body.sidebar-open main {
 }
 .drawer-item.active i {
   color: var(--primary-color);
+}
+.back-button {
+  border-bottom: 1px solid rgba(255, 85, 0, 0.2);
 }
 .drawer-item.back-button {
   flex-direction: row;
