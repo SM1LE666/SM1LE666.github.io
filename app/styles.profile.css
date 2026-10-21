@@ -14,6 +14,19 @@
 .sidebar.player-profile-active.slide-in {
   animation: sidebarSlideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
+.sidebar-content::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: #ff550080;
+  border-radius: 2px;
+}
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: #f50c;
+}
 @keyframes sidebarSlideIn {
   0% {
     transform: translate(-100%);
