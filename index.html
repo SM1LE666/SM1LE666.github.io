@@ -57,6 +57,44 @@
         margin: 0;
         padding: 0;
       }
+      html,
+      body {
+        height: 100%;
+        font-family: var(--font-main);
+        background:
+          radial-gradient(
+            circle at 10% 15%,
+            rgba(255, 85, 0, 0.15) 0%,
+            transparent 45%
+          ),
+          radial-gradient(
+            circle at 90% 85%,
+            rgba(255, 85, 0, 0.12) 0%,
+            transparent 50%
+          ),
+          linear-gradient(135deg, #0a0a0a, #141414 40%, #1f140a, #0a0a0a);
+        background-attachment: fixed;
+        color: var(--text-color);
+        line-height: 1.6;
+        position: relative;
+        overflow-x: hidden;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+      }
+      h1,
+      h2,
+      h3,
+      button,
+      input[type="text"],
+      .sidebar-item span,
+      .stat-box,
+      #custom-error-banner {
+        font-family: var(--font-accent);
+      }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -75,7 +113,6 @@
       onload="this.media = 'all'"
     />
     <style>
-      /*! Font Awesome Free 7.3.1 (subset) - https://fontawesome.com/license/free */
       .fa,
       .fa-brands,
       .fa-classic,
@@ -322,7 +359,7 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="/app/styles.css?v=1.6" />
+    <link rel="stylesheet" href="/app/styles.css?v=1.7" />
     <noscript>
       <link
         rel="stylesheet"
