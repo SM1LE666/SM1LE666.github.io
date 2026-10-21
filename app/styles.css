@@ -765,6 +765,63 @@ h1 {
     justify-items: center;
   }
 }
+@media (min-width: 769px) {
+  .mobile-sidebar-drawer {
+    display: none !important;
+  }
+}
+.back-button {
+  border-bottom: 1px solid rgba(255, 85, 0, 0.2);
+}
+@media (max-width: 768px) {
+  main {
+    height: auto !important;
+    min-height: auto !important;
+    flex: none !important;
+    width: 100%;
+    max-width: none;
+    display: block !important;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.3rem 0.3rem 0rem;
+  }
+  section {
+    text-align: center;
+    margin: 0 auto 1rem;
+    width: calc(100% - 1rem);
+    max-width: 350px;
+    padding: 1rem;
+  }
+  h2 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    justify-content: center;
+  }
+  .search-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+  input[type="text"] {
+    min-width: auto;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  #output {
+    text-align: center;
+    margin: 0 auto 1.5rem;
+    width: 100%;
+  }
+  .maps-table {
+    font-size: 0.8rem;
+  }
+  .maps-table th,
+  .maps-table td {
+    padding: 0.5rem;
+  }
+}
 .player-stats {
   align-items: center;
   width: auto;
@@ -779,6 +836,90 @@ h1 {
     background: #1414148c;
     border: 2px solid rgba(255, 85, 0, 0.3);
     max-width: 1350px;
+  }
+}
+@media (max-width: 768px) {
+  header,
+  .header-content {
+    overflow: visible !important;
+    padding: 0.75rem 0 !important;
+  }
+  .header-content {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 1rem;
+    min-height: 44px;
+  }
+}
+.pro-card {
+  background: #1414148c !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 18px;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px #0006;
+  border: 1px solid rgba(255, 85, 0, 0.2);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  position: relative;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+.pro-card:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #f50, #ff7b00);
+  border-radius: 12px 12px 0 0;
+  z-index: 2;
+}
+.pro-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow:
+    0 12px 30px #0009,
+    0 0 20px #ff550059 !important;
+  border-color: var(--primary-color) !important;
+}
+.pro-card-photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center bottom;
+  transition: transform 0.4s ease;
+}
+.pro-card:hover .pro-card-photo {
+  transform: scale(1.08) translateY(1px) !important;
+}
+@media (max-width: 768px) {
+  .pro-card-photo,
+  .pro-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    transform: translateY(1px);
+  }
+  .desktop-only {
+    display: none !important;
+  }
+  h1:after {
+    bottom: -6px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin-left: 0.8rem;
+  }
+  .footer-content {
+    padding: 0 15px 15px;
   }
 }
 .stats-container {
@@ -1486,4 +1627,12 @@ body.picker-open main > section {
   .player-picker .picker-card {
     padding: 1.1rem 0.5rem 0.9rem;
   }
+}
+.mobile-sidebar-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  display: none;
 }
