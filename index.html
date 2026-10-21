@@ -95,6 +95,35 @@
       #custom-error-banner {
         font-family: var(--font-accent);
       }
+      button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: #ff55001a;
+        border: 1px solid rgba(255, 85, 0, 0.3);
+        border-radius: var(--border-radius);
+        color: var(--primary-color);
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px #0000001a;
+      }
+      button:hover {
+        background: #f503;
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px #ff55004d;
+        color: #fff;
+      }
+      button:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px #f503;
+      }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -359,7 +388,7 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="/app/styles.css?v=1.7" />
+    <link rel="stylesheet" href="/app/styles.css?v=1.8" />
     <noscript>
       <link
         rel="stylesheet"

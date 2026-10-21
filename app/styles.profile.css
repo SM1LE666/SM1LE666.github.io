@@ -2108,7 +2108,6 @@ body.sidebar-open main {
   pointer-events: none;
 }
 .mobile-sidebar-drawer.visible {
-  display: block;
   opacity: 1;
   visibility: visible;
   transform: translateY(
