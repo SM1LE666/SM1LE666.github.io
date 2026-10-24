@@ -53,10 +53,18 @@ export default async function handler(req, res) {
       if (!info.rawSample) info.rawSample = list.slice(0, 2); // как выглядит ответ FACEIT
 
       for (const match of list) {
-        const elo = Number(match.elo ?? match.elo_after ?? match.eloAfter);
-        const matchId = match.matchId || match.match_id;
+        // Формат ответа FACEIT (проверен на реальных данных): matchId и date лежат на верхнем уровне,
+        // elo - ELO ПОСЛЕ матча, elo_delta - изменение за матч (elo - elo_delta = ELO до матча).
+        const elo = Number(match.elo);
+        const matchId = match.matchId;
         if (!matchId || !Number.isFinite(elo) || elo <= 0) continue;
-        items.push({ matchId, date: Number(match.date) || null, elo });
+        const delta = Number(match.elo_delta);
+        items.push({
+          matchId,
+          date: Number(match.date) || null,
+          elo,
+          delta: Number.isFinite(delta) ? delta : null,
+        });
       }
 
       if (list.length < PAGE_SIZE) break;
