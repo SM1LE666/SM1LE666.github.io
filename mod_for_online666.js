@@ -20076,7 +20076,7 @@
     var manifest = {
       type: "video",
       version: mod_version,
-      name: "123 " + mod_version,
+      name: "123 ",
       description: Lampa.Lang.translate("online_mod_watch"),
       component: "123",
       onContextMenu: function onContextMenu(object) {
