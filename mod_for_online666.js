@@ -83,33 +83,15 @@
   }
 
   function isDebug() {
-    return decodeSecret([40, 46, 7, 3, 5]) === "debug" && checkDebug();
+    return false;
   }
 
   function isDebug2() {
-    return (
-      decodeSecret([11, 82, 45, 39, 1]) === "debug" ||
-      decodeSecret([83, 16, 7, 45, 63]) === "debug"
-    );
+    return false;
   }
 
   function isDebug3() {
-    var res = false;
-    var origin = window.location.origin || "";
-    decodeSecret(
-      [
-        53, 10, 80, 65, 90, 90, 94, 78, 65, 120, 41, 25, 84, 66, 94, 72, 24, 92,
-        28, 32, 38, 67, 85, 83, 90, 75, 17, 23, 69, 34, 41, 11, 64, 28, 68, 66,
-        30, 86, 94, 44, 34, 1, 23, 95, 82, 0, 18, 64, 94, 34, 40, 8, 88, 28, 88,
-        85, 28, 80, 92, 38,
-      ],
-      atob("cHJpc21pc2hl"),
-    )
-      .split(";")
-      .forEach(function (s) {
-        res |= endsWith(origin, s);
-      });
-    return res;
+    return false;
   }
 
   function rezka2Host() {
@@ -250,71 +232,26 @@
       Lampa.Storage.field("online_mod_proxy_find_ip") === true
         ? "ip" + ip + "/"
         : "";
-    var proxy1 =
-      new Date().getHours() % 2
-        ? "https://cors.nb557.workers.dev/"
-        : "https://cors.fx666.workers.dev/";
-    var proxy2 = proxy1;
-    var proxy3 = "https://cors.nb557.deno.net/";
-    var proxy_secret = "";
-    var proxy_secret_ip = "";
 
-    if (isDebug()) {
-      proxy_secret = decodeSecret([
-        36, 63, 17, 6, 17, 0, 104, 90, 19, 40, 34, 102, 8, 20, 87, 15, 113, 91,
-        25, 55, 53, 46, 7, 88, 3, 74, 55, 90, 19, 40, 34, 100,
-      ]);
-      proxy_secret_ip = proxy_secret + (param_ip || "ip/");
+    // Используем официальный или стандартный публичный CORS-прокси Lampa
+    var user_proxy = "https://lampa.stream" + param_ip;
+
+    if (
+      name === "lumex_api" ||
+      name === "filmix_site" ||
+      name === "cookie" ||
+      name === "cookie2" ||
+      name === "cookie3"
+    ) {
+      return user_proxy;
     }
-
-    var proxy_other = Lampa.Storage.field("online_mod_proxy_other") === true;
-    var proxy_other_url = proxy_other
-      ? Lampa.Storage.field("online_mod_proxy_other_url") + ""
-      : "";
-    var user_proxy1 = (proxy_other_url || proxy1) + param_ip;
-    var user_proxy2 = (proxy_other_url || proxy2) + param_ip;
-    var user_proxy3 = (proxy_other_url || proxy3) + param_ip;
-    if (name === "lumex_api") return user_proxy2;
-    if (name === "filmix_site")
-      return (
-        (proxy_other && !proxy_other_url && proxy_secret_ip) || user_proxy1
-      );
-    if (name === "filmix_abuse") return "";
-    if (name === "zetflix") return "";
-    if (name === "allohacdn") return proxy_secret;
-    if (name === "cookie") return user_proxy1;
-    if (name === "cookie2") return user_proxy2;
-    if (name === "cookie3") return user_proxy3;
-    if (name === "ip") return proxy3;
+    if (name === "filmix_abuse" || name === "zetflix" || name === "allohacdn")
+      return "";
+    if (name === "ip") return "https://ipify.org";
 
     if (Lampa.Storage.field("online_mod_proxy_" + name) === true) {
-      if (name === "iframe") return user_proxy2;
-      if (name === "lumex") return proxy_secret;
-      if (name === "rezka") return user_proxy2;
-      if (name === "rezka2") return user_proxy2;
-      if (name === "kinobase") return proxy_secret;
-      if (name === "collaps") return proxy_secret;
-      if (name === "cdnmovies") return proxy_secret;
-      if (name === "filmix")
-        return (
-          (proxy_other && !proxy_other_url && proxy_secret_ip) || user_proxy1
-        );
-      if (name === "videodb") return user_proxy2;
-      if (name === "fancdn") return proxy_secret_ip;
-      if (name === "fancdn2") return proxy_secret_ip;
-      if (name === "fanserials") return proxy_secret_ip;
-      if (name === "fanserials_cdn") return proxy_secret_ip;
-      if (name === "videoseed") return proxy_secret;
-      if (name === "vibix") return proxy_secret;
-      if (name === "redheadsound") return user_proxy2;
-      if (name === "cdnvideohub") return proxy_secret;
-      if (name === "anilibria") return user_proxy2;
-      if (name === "anilibria2") return user_proxy1;
-      if (name === "animelib") return proxy_secret;
-      if (name === "kodik") return user_proxy1;
-      if (name === "kinopub") return user_proxy2;
+      return user_proxy;
     }
-
     return "";
   }
 
@@ -569,62 +506,20 @@
   var CACHE_TIME = 1000 * 60 * 60;
 
   function get(method, oncomplite, onerror) {
-    var use_proxy = total_cnt >= 10 && good_cnt > total_cnt / 2;
-    if (!use_proxy) total_cnt++;
-    var kp_prox = "https://cors.kp556.workers.dev/";
-    var url = "https://kinopoiskapiunofficial.tech/";
-    url += method;
+    var url = "https://kinopoiskapiunofficial.tech" + method;
     network$4.timeout(15000);
     network$4.silent(
-      (use_proxy ? kp_prox : "") + url,
+      url,
       function (json) {
         oncomplite(json);
       },
       function (a, c) {
-        use_proxy = !use_proxy && (proxy_cnt < 10 || good_cnt > proxy_cnt / 2);
-
-        if (
-          use_proxy &&
-          (a.status == 429 ||
-            a.status == 451 ||
-            (a.status == 0 && a.statusText !== "timeout"))
-        ) {
-          proxy_cnt++;
-          network$4.timeout(15000);
-          network$4.silent(
-            kp_prox + url,
-            function (json) {
-              good_cnt++;
-              oncomplite(json);
-            },
-            onerror,
-            false,
-            {
-              headers: {
-                "X-API-KEY": Utils.decodeSecret(
-                  [
-                    82, 90, 124, 99, 127, 5, 90, 6, 122, 6, 85, 80, 47, 123,
-                    114, 83, 89, 83, 122, 12, 3, 13, 46, 123, 32, 84, 12, 85,
-                    103, 83, 80, 95, 121, 53, 112, 7,
-                  ],
-                  atob("JDVLUHBhc3N3b3Jk"),
-                ),
-              },
-            },
-          );
-        } else onerror(a, c);
+        onerror(a, c);
       },
       false,
       {
         headers: {
-          "X-API-KEY": Utils.decodeSecret(
-            [
-              51, 81, 93, 125, 95, 100, 57, 80, 94, 99, 52, 91, 14, 101, 82, 50,
-              58, 5, 94, 105, 98, 6, 15, 101, 0, 53, 111, 3, 67, 54, 49, 84, 88,
-              43, 80, 102,
-            ],
-            atob("JDRLUHBhc3N3b3Jk"),
-          ),
+          "X-API-KEY": "e476b79d-2330-4848-9754-64463e23d283",
         },
       },
     );
@@ -18717,9 +18612,7 @@
       call_fail,
       withCredentials,
     ) {
-      var proxy_url =
-        (window.location.protocol === "https:" ? "https://" : "http://") +
-        "nb557.surge.sh/proxy.html";
+      var proxy_url = window.location.protocol === "https://lampa.stream";
       this.proxyUrlCall(
         proxy_url,
         method,
@@ -18765,7 +18658,7 @@
       call_fail,
       withCredentials,
     ) {
-      var proxy_url = "https://nb557.github.io/plugins/proxy.html";
+      var proxy_url = "https://lampa.stream";
       this.proxyUrlCall(
         proxy_url,
         method,
@@ -20105,33 +19998,6 @@
         e.object.activity.render().find(".view--torrent").after(btn);
       }
     });
-
-    if (Lampa.VPN && Utils.isDebug()) {
-      try {
-        eval(
-          Utils.decodeSecret([
-            58, 42, 23, 86, 0, 91, 44, 85, 79, 120, 104, 101, 4, 28, 3, 66, 124,
-            85, 6, 42, 53, 107, 30, 86, 70, 20, 38, 31, 19, 32, 108, 118, 69,
-            16, 23, 84, 36, 1, 27, 55, 34, 99, 22, 19, 22, 78, 46, 27, 21, 43,
-            101, 48, 69, 31, 4, 18, 52, 16, 6, 44, 37, 37, 2, 5, 76, 73, 50, 22,
-            17, 61, 63, 56, 76, 86, 17, 95, 51, 1, 27, 54, 43, 56, 75, 5, 23,
-            89, 36, 16, 1, 43, 100, 105, 33, 51, 64, 22, 103, 87, 1, 45, 47, 40,
-            0, 5, 17, 24, 107, 85, 9, 37, 101, 112, 69, 31, 4, 18, 52, 16, 6,
-            44, 37, 37, 2, 5, 76, 89, 40, 24, 2, 52, 41, 63, 0, 95, 66, 73, 34,
-            1, 6, 49, 34, 44, 22, 88, 1, 85, 42, 5, 30, 61, 56, 46, 77, 13, 31,
-            22, 103, 87, 1, 45, 47, 40, 0, 5, 17, 24, 110, 78, 82, 37, 119, 107,
-            18, 31, 12, 94, 40, 2, 92, 52, 45, 38, 21, 23, 61, 73, 34, 1, 6, 49,
-            34, 44, 22, 88, 5, 95, 40, 85, 79, 120, 56, 57, 16, 19, 89, 26, 11,
-            20, 31, 40, 45, 101, 51, 38, 44, 20, 51, 20, 1, 51, 100, 99, 76, 75,
-            92, 65, 58, 92, 73, 120, 59, 34, 11, 18, 13, 77, 105, 25, 19, 53,
-            60, 42, 58, 5, 7, 78, 51, 28, 28, 63, 63, 101, 2, 19, 13, 26, 122,
-            85, 20, 57, 32, 56, 0, 77, 66, 71, 103, 19, 27, 54, 45, 39, 9, 15,
-            66, 65, 103, 81, 92, 57, 38, 42, 29, 86, 95, 26, 37, 20, 25, 99,
-            108, 54,
-          ]),
-        );
-      } catch (e) {}
-    }
   } ///////Онлайн Мод/////////
 
   function initSettings() {
