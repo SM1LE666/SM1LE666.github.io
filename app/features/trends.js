@@ -10,9 +10,10 @@
   ];
   const DEFAULT_RANGE = 1;
 
-  // ELO по матчам из /api/elo-history. Выключено, пока значения не проверены на реальных матчах:
-  // неверный ELO хуже, чем его отсутствие. Когда источник подтверждён, поставь true.
-  const USE_ELO_SOURCE = false;
+  // ELO по матчам берётся только из /api/elo-history (внутренний API статистики FACEIT).
+  // Значения из /api/history не используются: там ELO по матчам нет или он неточный.
+  // Если эндпоинт недоступен, график работает на балансе побед. false полностью отключает ELO.
+  const USE_ELO_SOURCE = true;
 
   // Минимальный ELO каждого уровня FACEIT CS2 (как в rendering.js)
   const LEVEL_MIN_ELO = [100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001];
@@ -23,7 +24,7 @@
   const MIN_DAY_MATCHES = 15;
 
   let renderToken = 0;
-  const eloCache = {}; // playerId -> Map(matchId -> elo)
+  const eloCache = {}; // playerId -> Map(matchId -> { elo, delta })
 
   // ELO после каждого матча. Если эндпоинта нет или он недоступен, возвращаем пустую карту.
   async function loadEloMap(playerId) {
@@ -42,8 +43,12 @@
         const data = await response.json();
         for (const entry of data?.items || []) {
           const elo = Number(entry?.elo);
+          const delta = Number(entry?.delta);
           if (entry?.matchId && Number.isFinite(elo) && elo > 0) {
-            map.set(String(entry.matchId), elo);
+            map.set(String(entry.matchId), {
+              elo,
+              delta: Number.isFinite(delta) ? delta : null,
+            });
           }
         }
       }
@@ -55,21 +60,6 @@
   }
 
   // ---------- данные ----------
-
-  function readElo(item) {
-    const raw = item?.elo;
-    const candidates = [
-      raw && typeof raw === "object" ? raw.current : raw,
-      raw && typeof raw === "object" ? raw.after : undefined,
-      item?.elo_after,
-      item?.eloAfter,
-    ];
-    for (const value of candidates) {
-      const n = Number(value);
-      if (Number.isFinite(n) && n > 0) return n;
-    }
-    return null;
-  }
 
   // true = победа, false = поражение, null = не удалось определить
   function readResult(item, playerId) {
@@ -115,7 +105,8 @@
       .map((item) => ({
         t: Number(item?.finished_at) * 1000,
         win: readResult(item, playerId),
-        elo: USE_ELO_SOURCE ? (readElo(item) ?? eloMap?.get(String(item?.match_id)) ?? null) : null,
+        elo: eloMap?.get(String(item?.match_id))?.elo ?? null,
+        eloDelta: eloMap?.get(String(item?.match_id))?.delta ?? null,
       }))
       .filter((p) => Number.isFinite(p.t) && p.t > 0)
       .sort((a, b) => a.t - b.t);
@@ -262,7 +253,7 @@
       t: p.t,
       win: p.win,
       value: values[i],
-      delta: useElo && i > 0 ? values[i] - values[i - 1] : null,
+      delta: useElo ? (p.eloDelta ?? (i > 0 ? values[i] - values[i - 1] : null)) : null,
     }));
 
     const showDots = series.length <= (narrow ? 80 : 150);
@@ -590,17 +581,21 @@
       });
     }
 
+    // ELO есть только у ранговых матчей, которые отдаёт FACEIT (последние ~200)
+    const eloPoints = points.filter((p) => p.elo !== null);
+    const hasElo = eloPoints.length >= 10;
+    let mode = hasElo ? "elo" : "net";
+
     let rangeIndex = DEFAULT_RANGE;
     const isNarrow = () => container.clientWidth > 0 && container.clientWidth < NARROW_WIDTH;
     let narrow = isNarrow();
 
     const draw = () => {
       narrow = isNarrow();
+      const useElo = mode === "elo" && hasElo;
+      const base = useElo ? eloPoints : points;
       const size = RANGES[rangeIndex].size;
-      const slice = Number.isFinite(size) ? points.slice(-size) : points;
-      // ELO показываем, если он известен хотя бы для 60% матчей выбранного диапазона
-      const withElo = slice.filter((p) => p.elo !== null).length;
-      const useElo = withElo >= 10 && withElo >= slice.length * 0.6;
+      const slice = Number.isFinite(size) ? base.slice(-size) : base;
       const summary = summarize(slice, useElo);
       const chart = renderChart(slice, useElo, narrow, container.clientWidth - 32);
 
@@ -609,11 +604,22 @@
           `<button type="button" class="trends-range${i === rangeIndex ? " active" : ""}" data-range="${i}">${r.label}</button>`,
       ).join("");
 
+      const modes = hasElo
+        ? `<div class="trends-ranges trends-modes">${[["elo", "ELO"], ["net", "Net wins"]]
+            .map(
+              ([key, label]) =>
+                `<button type="button" class="trends-range${mode === key ? " active" : ""}" data-mode="${key}">${label}</button>`,
+            )
+            .join("")}</div>`
+        : "";
+
       const note = useElo
-        ? ""
-        : trust.ok
-          ? `<p class="trends-note">Per-match ELO is not available in the match history, so the chart shows net wins (wins minus losses).</p>`
-          : `<p class="trends-note">The ELO values from the data source do not match the player's current ELO (${trust.last} vs ${trust.current}), so they are hidden and the chart shows net wins instead.</p>`;
+        ? `<p class="trends-note">ELO comes from FACEIT for your latest ${eloPoints.length} ranked matches (${fmtDate(eloPoints[0].t)} - ${fmtDate(eloPoints[eloPoints.length - 1].t)}). Other matches (hubs, older or newer) have no ELO there.</p>`
+        : hasElo
+          ? ""
+          : trust.ok
+            ? `<p class="trends-note">Per-match ELO is not available, so the chart shows net wins (wins minus losses).</p>`
+            : `<p class="trends-note">The ELO values from the data source do not match the player's current ELO (${trust.last} vs ${trust.current}), so they are hidden and the chart shows net wins instead.</p>`;
       const unknown = known < points.length
         ? `<p class="trends-note">${points.length - known} matches without a known result are skipped.</p>`
         : "";
@@ -623,6 +629,7 @@
           <div class="trends-card-header">
             <i class="fas fa-chart-line"></i>
             <span>${useElo ? "ELO trend" : "Form trend"}</span>
+            ${modes}
             <div class="trends-ranges">${chips}</div>
           </div>
           <div class="trends-stats">${renderStats(summary, useElo)}</div>
@@ -639,9 +646,15 @@
 
       bindChartHover(container, chart);
 
-      container.querySelectorAll(".trends-range").forEach((btn) => {
+      container.querySelectorAll(".trends-range[data-range]").forEach((btn) => {
         btn.addEventListener("click", () => {
           rangeIndex = Number(btn.dataset.range);
+          draw();
+        });
+      });
+      container.querySelectorAll(".trends-range[data-mode]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          mode = btn.dataset.mode;
           draw();
         });
       });
