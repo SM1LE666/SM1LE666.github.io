@@ -15,6 +15,15 @@
   // Если эндпоинт недоступен, график работает на балансе побед. false полностью отключает ELO.
   const USE_ELO_SOURCE = true;
 
+  // Если реальный ELO по матчам недоступен (FACEIT закрывает внутренний API для серверов),
+  // график строится по оценке: от текущего ELO игрока идём назад по матчам и на каждом
+  // прибавляем/отнимаем ESTIMATED_ELO_STEP за победу/поражение. Это тренд, а не точные значения.
+  const USE_ESTIMATED_ELO = true;
+  const ESTIMATED_ELO_STEP = 25; // обычный набор/потеря ELO за ранговый матч (реально 15-35)
+  const MIN_ELO_POINTS = 10; // минимум точек, чтобы показывать ELO-график
+  // Матчи этих типов не меняют ELO ранговой очереди, в оценку они не попадают
+  const NON_RANKED_TYPES = new Set(["hub", "championship", "tournament"]);
+
   // Минимальный ELO каждого уровня FACEIT CS2 (как в rendering.js)
   const LEVEL_MIN_ELO = [100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001];
 
@@ -126,9 +135,31 @@
         win: readResult(item, playerId),
         elo: eloMap?.get(String(item?.match_id))?.elo ?? null,
         eloDelta: eloMap?.get(String(item?.match_id))?.delta ?? null,
+        ranked: !NON_RANKED_TYPES.has(String(item?.competition_type || "").toLowerCase()),
       }))
       .filter((p) => Number.isFinite(p.t) && p.t > 0)
       .sort((a, b) => a.t - b.t);
+  }
+
+  // Оценка ELO по результатам: последний матч = текущий ELO, дальше идём назад.
+  // Возвращает число матчей, для которых получена оценка.
+  function applyEstimatedElo(points, currentElo) {
+    let elo = currentElo;
+    let count = 0;
+    for (let i = points.length - 1; i >= 0; i--) {
+      const p = points[i];
+      if (!p.ranked || p.win === null) {
+        p.elo = null;
+        p.eloDelta = null;
+        continue;
+      }
+      const delta = p.win ? ESTIMATED_ELO_STEP : -ESTIMATED_ELO_STEP;
+      p.elo = Math.max(100, Math.round(elo));
+      p.eloDelta = delta;
+      elo -= delta;
+      count++;
+    }
+    return count;
   }
 
   async function ensureHistory(manager, playerId) {
@@ -205,7 +236,7 @@
     return ticks;
   }
 
-  function renderChart(points, useElo, narrow, width) {
+  function renderChart(points, useElo, narrow, width, estimated = false) {
     const series = useElo
       ? points.filter((p) => p.elo !== null)
       : points.filter((p) => p.win !== null);
@@ -299,7 +330,7 @@
 
     const html = `
       <div class="trend-chart-wrap">
-        <svg class="trend-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${useElo ? "ELO over the selected matches" : "Net wins over the selected matches"}">
+        <svg class="trend-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${useElo ? (estimated ? "Estimated ELO over the selected matches" : "ELO over the selected matches") : "Net wins over the selected matches"}">
           <defs>
             <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#ff5500" stop-opacity="0.35"></stop>
@@ -317,7 +348,7 @@
         <div class="trend-tip" role="status"></div>
       </div>`;
 
-    return { html, points: points_, geom: { W, H, L, R, T, B, useElo } };
+    return { html, points: points_, geom: { W, H, L, R, T, B, useElo, estimated } };
   }
 
   // ---------- своя подсказка при наведении ----------
@@ -331,20 +362,21 @@
       minute: "2-digit",
     });
 
-  function tipHtml(p, index, total, useElo) {
+  function tipHtml(p, index, total, useElo, estimated = false) {
     const badge =
       p.win === null
         ? ""
         : `<span class="trend-tip-badge ${p.win ? "win" : "loss"}">${p.win ? "Win" : "Loss"}</span>`;
-    const valueLabel = useElo ? `${p.value} ELO` : `Net ${p.value > 0 ? "+" : ""}${p.value}`;
+    const approx = estimated ? "~" : "";
+    const valueLabel = useElo ? `${approx}${p.value} ELO` : `Net ${p.value > 0 ? "+" : ""}${p.value}`;
     const delta =
       p.delta === null || p.delta === 0
         ? ""
-        : `<span class="trend-tip-delta ${p.delta > 0 ? "up" : "down"}">${p.delta > 0 ? "+" : ""}${p.delta}</span>`;
+        : `<span class="trend-tip-delta ${p.delta > 0 ? "up" : "down"}">${approx}${p.delta > 0 ? "+" : ""}${p.delta}</span>`;
     return `
       <div class="trend-tip-date">${fmtDateTime(p.t)}</div>
       <div class="trend-tip-main">${badge}<span class="trend-tip-value">${valueLabel}</span>${delta}</div>
-      <div class="trend-tip-meta">${useElo ? "ELO after the match - " : ""}Match ${index + 1} of ${total}</div>`;
+      <div class="trend-tip-meta">${useElo ? (estimated ? "Estimated ELO after the match - " : "ELO after the match - ") : ""}Match ${index + 1} of ${total}</div>`;
   }
 
   // Наведение работает по всей ширине графика: подсказка привязывается к ближайшей точке
@@ -357,7 +389,7 @@
     const dot = svg?.querySelector(".tc-hover-dot");
     if (!wrap || !svg || !tip || !line || !dot) return;
 
-    const { W, L, R, useElo } = chart.geom;
+    const { W, L, R, useElo, estimated } = chart.geom;
     const points = chart.points;
     const step = (W - L - R) / (points.length - 1);
 
@@ -387,7 +419,7 @@
       );
       line.classList.add("show");
 
-      tip.innerHTML = tipHtml(p, index, points.length, useElo);
+      tip.innerHTML = tipHtml(p, index, points.length, useElo, estimated);
       tip.classList.add("show");
 
       const wrapRect = wrap.getBoundingClientRect();
@@ -418,7 +450,7 @@
     document.addEventListener("pointerdown", onOutside);
   }
 
-  function renderStats(summary, useElo) {
+  function renderStats(summary, useElo, estimated = false) {
     const signed = (n) => (n > 0 ? `+${n}` : String(n));
     const rateClass =
       summary.winRate === null ? "" : summary.winRate < 40 ? "wr-poor" : summary.winRate < 55 ? "wr-avg" : "wr-good";
@@ -435,10 +467,10 @@
     if (useElo && summary.eloChange !== undefined) {
       tiles.push({
         value: signed(summary.eloChange),
-        label: "ELO change",
+        label: estimated ? "ELO change (est.)" : "ELO change",
         cls: summary.eloChange >= 0 ? "wr-good" : "wr-poor",
       });
-      tiles.push({ value: summary.peak, label: "Peak ELO" });
+      tiles.push({ value: summary.peak, label: estimated ? "Peak ELO (est.)" : "Peak ELO" });
     } else if (!useElo) {
       tiles.push({
         value: signed(summary.net),
@@ -605,8 +637,27 @@
     }
 
     // ELO есть только у ранговых матчей, которые отдаёт FACEIT (последние ~200)
-    const eloPoints = points.filter((p) => p.elo !== null);
-    const hasElo = eloPoints.length >= 10;
+    let eloPoints = points.filter((p) => p.elo !== null);
+
+    // реального ELO нет — строим оценку от текущего ELO игрока и результатов матчей
+    let estimated = false;
+    if (eloPoints.length < MIN_ELO_POINTS && USE_ESTIMATED_ELO) {
+      const currentElo = Number(
+        window.currentPlayerProfile?.currentElo ??
+          window.currentPlayerData?.games?.cs2?.faceit_elo,
+      );
+      if (currentElo > 0 && applyEstimatedElo(points, currentElo) >= MIN_ELO_POINTS) {
+        estimated = true;
+        eloPoints = points.filter((p) => p.elo !== null);
+      } else {
+        points.forEach((p) => {
+          p.elo = null;
+          p.eloDelta = null;
+        });
+        eloPoints = [];
+      }
+    }
+    const hasElo = eloPoints.length >= MIN_ELO_POINTS;
     let mode = hasElo ? "elo" : "net";
 
     let rangeIndex = DEFAULT_RANGE;
@@ -620,7 +671,7 @@
       const size = RANGES[rangeIndex].size;
       const slice = Number.isFinite(size) ? base.slice(-size) : base;
       const summary = summarize(slice, useElo);
-      const chart = renderChart(slice, useElo, narrow, container.clientWidth - 32);
+      const chart = renderChart(slice, useElo, narrow, container.clientWidth - 32, estimated);
 
       const chips = RANGES.map(
         (r, i) =>
@@ -636,7 +687,10 @@
             .join("")}</div>`
         : "";
 
-      const note = useElo
+      const estimatedNote = `<p class="trends-note">Estimated ELO: FACEIT does not share per-match ELO with third-party sites, so this curve is rebuilt from the current ELO (${window.currentPlayerProfile?.currentElo ?? window.currentPlayerData?.games?.cs2?.faceit_elo}) and your match results, assuming about ±${ESTIMATED_ELO_STEP} ELO per ranked match. Real changes vary, so read it as a trend, not exact values.${points.length - eloPoints.length > 0 ? ` ${points.length - eloPoints.length} matches (hubs, tournaments or unknown results) are not counted.` : ""}</p>`;
+      const note = useElo && estimated
+        ? estimatedNote
+        : useElo
         ? `<p class="trends-note">ELO comes from FACEIT for your latest ${eloPoints.length} ranked matches (${fmtDate(eloPoints[0].t)} - ${fmtDate(eloPoints[eloPoints.length - 1].t)}). Other matches (hubs, older or newer) have no ELO there.</p>`
         : hasElo
           ? ""
@@ -651,11 +705,11 @@
         <div class="trends-card">
           <div class="trends-card-header">
             <i class="fas fa-chart-line"></i>
-            <span>${useElo ? "ELO trend" : "Form trend"}</span>
+            <span>${useElo ? (estimated ? "ELO trend (estimated)" : "ELO trend") : "Form trend"}</span>
             ${modes}
             <div class="trends-ranges">${chips}</div>
           </div>
-          <div class="trends-stats">${renderStats(summary, useElo)}</div>
+          <div class="trends-stats">${renderStats(summary, useElo, estimated)}</div>
           ${chart.html}
           ${note}${unknown}
         </div>
