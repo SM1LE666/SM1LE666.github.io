@@ -26,37 +26,85 @@
   let renderToken = 0;
   const eloCache = {}; // playerId -> Map(matchId -> { elo, delta })
 
-  // ELO после каждого матча. Если эндпоинта нет или он недоступен, возвращаем пустую карту.
-  async function loadEloMap(playerId) {
-    if (!USE_ELO_SOURCE) return new Map();
-    if (eloCache[playerId]) return eloCache[playerId];
-    const map = new Map();
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 20000);
-      const response = await fetch(
-        `/api/elo-history?playerId=${encodeURIComponent(playerId)}`,
-        { headers: { Accept: "application/json" }, signal: controller.signal },
-      );
-      clearTimeout(timer);
-      if (response.ok) {
-        const data = await response.json();
-        for (const entry of data?.items || []) {
-          const elo = Number(entry?.elo);
-          const delta = Number(entry?.delta);
-          if (entry?.matchId && Number.isFinite(elo) && elo > 0) {
-            map.set(String(entry.matchId), {
-              elo,
-              delta: Number.isFinite(delta) ? delta : null,
-            });
-          }
-        }
-      }
-    } catch {
-      /* нет данных: график покажет баланс побед */
+  // Прямой адрес внутреннего API FACEIT (запрос идёт из браузера пользователя).
+  // Переопределяется window.APP_ELO_DIRECT_BASE (нужно только для тестов).
+  const directBase = () => window.APP_ELO_DIRECT_BASE || "https://api.faceit.com";
+
+  function addEntry(map, entry) {
+    const elo = Number(entry?.elo);
+    const delta = Number(entry?.delta ?? entry?.elo_delta);
+    const matchId = entry?.matchId;
+    if (matchId && Number.isFinite(elo) && elo > 0) {
+      map.set(String(matchId), { elo, delta: Number.isFinite(delta) ? delta : null });
     }
-    if (map.size) eloCache[playerId] = map; // пустой результат не кешируем
+  }
+
+  async function fetchWithTimeout(url, ms) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+    try {
+      return await fetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  // Вариант 1: наша серверная функция
+  async function eloFromServer(playerId) {
+    const response = await fetchWithTimeout(
+      `/api/elo-history?playerId=${encodeURIComponent(playerId)}`,
+      15000,
+    );
+    if (!response.ok) throw new Error(`server HTTP ${response.status}`);
+    const data = await response.json();
+    const map = new Map();
+    for (const entry of data?.items || []) addEntry(map, entry);
+    if (!map.size) throw new Error("server returned no ELO");
     return map;
+  }
+
+  // Вариант 2: прямой запрос к FACEIT из браузера (работает, если FACEIT разрешает CORS)
+  async function eloFromBrowser(playerId) {
+    const map = new Map();
+    for (let page = 0; page < 5; page++) {
+      const response = await fetchWithTimeout(
+        `${directBase()}/stats/v1/stats/time/users/${encodeURIComponent(playerId)}/games/cs2?page=${page}&size=100`,
+        15000,
+      );
+      if (!response.ok) throw new Error(`browser HTTP ${response.status}`);
+      const data = await response.json();
+      const list = Array.isArray(data) ? data : data?.items || [];
+      for (const entry of list) addEntry(map, { matchId: entry?.matchId, elo: entry?.elo, delta: entry?.elo_delta });
+      if (list.length < 100) break;
+    }
+    if (!map.size) throw new Error("browser returned no ELO");
+    return map;
+  }
+
+  // ELO после каждого матча: берём первый успешный источник. Результат: { map, diag }.
+  async function loadEloMap(playerId) {
+    if (!USE_ELO_SOURCE) return { map: new Map(), diag: "disabled" };
+    if (eloCache[playerId]) return { map: eloCache[playerId], diag: "cached" };
+
+    const problems = [];
+    const attempt = (name, task) =>
+      task(playerId).catch((error) => {
+        const reason = error?.name === "AbortError" ? "timeout" : error?.message || "failed";
+        problems.push(`${name}: ${reason}`);
+        throw error;
+      });
+
+    try {
+      const map = await Promise.any([
+        attempt("server", eloFromServer),
+        attempt("browser", eloFromBrowser),
+      ]);
+      eloCache[playerId] = map;
+      return { map, diag: "ok" };
+    } catch {
+      console.warn("[Trends] ELO source unavailable:", problems);
+      return { map: new Map(), diag: problems.join("; ") || "unavailable" };
+    }
   }
 
   // ---------- данные ----------
@@ -552,11 +600,15 @@
     // история матчей и ELO по матчам грузятся параллельно
     let items = [];
     let eloMap = new Map();
+    let eloDiag = "";
     try {
-      [items, eloMap] = await Promise.all([
+      let eloResult;
+      [items, eloResult] = await Promise.all([
         ensureHistory(manager, playerId),
         loadEloMap(playerId),
       ]);
+      eloMap = eloResult.map;
+      eloDiag = eloResult.diag;
     } catch (error) {
       items = [];
     }
@@ -618,7 +670,7 @@
         : hasElo
           ? ""
           : trust.ok
-            ? `<p class="trends-note">Per-match ELO is not available, so the chart shows net wins (wins minus losses).</p>`
+            ? `<p class="trends-note">Per-match ELO could not be loaded${eloDiag && eloDiag !== "disabled" ? ` (${eloDiag})` : ""}, so the chart shows net wins (wins minus losses).</p>`
             : `<p class="trends-note">The ELO values from the data source do not match the player's current ELO (${trust.last} vs ${trust.current}), so they are hidden and the chart shows net wins instead.</p>`;
       const unknown = known < points.length
         ? `<p class="trends-note">${points.length - known} matches without a known result are skipped.</p>`
