@@ -2,13 +2,6 @@
 // Возвращает ELO игрока после каждого сыгранного матча CS2:
 //   { items: [{ matchId, date, elo }] }   (date - время матча в миллисекундах)
 //
-// ВНИМАНИЕ: официальный FACEIT Data API не отдаёт ELO по матчам, поэтому здесь используется
-// внутренний (недокументированный) API статистики по времени api.faceit.com. Он может
-// измениться или ограничить запросы. Если эндпоинт вернёт ошибку или пустой список,
-// сайт продолжит работать: график просто покажет баланс побед вместо ELO.
-
-// FACEIT закрывает этот API для запросов без браузерных заголовков (CORS в браузере тоже запрещён),
-// поэтому с сервера запрос идёт «как с сайта faceit.com».
 const BROWSER_HEADERS = {
   Accept: "application/json, text/plain, */*",
   "Accept-Language": "en-US,en;q=0.9",
@@ -21,10 +14,6 @@ const BROWSER_HEADERS = {
 const PAGE_SIZE = 100;
 const MAX_PAGES = 15; // до 1500 матчей; запросы идут последовательно, чтобы уложиться в лимит времени функции
 
-// Если в твоём проекте функции пишутся через module.exports (CommonJS), замени строку ниже на:
-//   module.exports = async function handler(req, res) {
-// и убери точку с запятой в самом конце файла вместе с закрывающей скобкой. Ошибка
-// "module is not defined" или "Unexpected token export" в логах означает неверный формат.
 export default async function handler(req, res) {
   const playerId = String(req.query?.playerId || "").trim();
   if (!/^[0-9a-f-]{36}$/i.test(playerId)) {
@@ -46,7 +35,9 @@ export default async function handler(req, res) {
       if (!upstream.ok) {
         if (page === 0) {
           // upstreamStatus показывает, что ответил FACEIT (например, 403 = запрос отклонён)
-          const snippet = debug ? (await upstream.text().catch(() => "")).slice(0, 200) : undefined;
+          const snippet = debug
+            ? (await upstream.text().catch(() => "")).slice(0, 200)
+            : undefined;
           return res.status(502).json({
             error: "ELO history unavailable",
             upstreamStatus: upstream.status,
@@ -91,7 +82,9 @@ export default async function handler(req, res) {
   if (debug) {
     // ?debug=1: показать сырые данные и ничего не кешировать
     res.setHeader("Cache-Control", "no-store");
-    return res.status(200).json({ items: items.slice(0, 5), total: items.length, debug: info });
+    return res
+      .status(200)
+      .json({ items: items.slice(0, 5), total: items.length, debug: info });
   }
 
   res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=900");
