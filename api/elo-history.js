@@ -7,6 +7,17 @@
 // измениться или ограничить запросы. Если эндпоинт вернёт ошибку или пустой список,
 // сайт продолжит работать: график просто покажет баланс побед вместо ELO.
 
+// FACEIT закрывает этот API для запросов без браузерных заголовков (CORS в браузере тоже запрещён),
+// поэтому с сервера запрос идёт «как с сайта faceit.com».
+const BROWSER_HEADERS = {
+  Accept: "application/json, text/plain, */*",
+  "Accept-Language": "en-US,en;q=0.9",
+  Origin: "https://www.faceit.com",
+  Referer: "https://www.faceit.com/",
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+};
+
 const PAGE_SIZE = 100;
 const MAX_PAGES = 15; // до 1500 матчей; запросы идут последовательно, чтобы уложиться в лимит времени функции
 
@@ -29,19 +40,18 @@ export default async function handler(req, res) {
         `https://api.faceit.com/stats/v1/stats/time/users/${playerId}/games/cs2` +
         `?page=${page}&size=${PAGE_SIZE}`;
 
-      const upstream = await fetch(url, {
-        headers: {
-          Accept: "application/json",
-          "User-Agent": "Mozilla/5.0 (compatible; FaceitAnalyze/1.0)",
-        },
-      });
+      const upstream = await fetch(url, { headers: BROWSER_HEADERS });
 
       info.upstreamStatus = upstream.status;
       if (!upstream.ok) {
         if (page === 0) {
-          return res
-            .status(502)
-            .json({ error: "ELO history unavailable", ...(debug && { debug: info }) });
+          // upstreamStatus показывает, что ответил FACEIT (например, 403 = запрос отклонён)
+          const snippet = debug ? (await upstream.text().catch(() => "")).slice(0, 200) : undefined;
+          return res.status(502).json({
+            error: "ELO history unavailable",
+            upstreamStatus: upstream.status,
+            ...(debug && { debug: info, bodySnippet: snippet }),
+          });
         }
         break; // отдаём то, что успели получить
       }
@@ -71,7 +81,10 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     if (!items.length) {
-      return res.status(502).json({ error: "ELO history unavailable" });
+      return res.status(502).json({
+        error: "ELO history unavailable",
+        message: String(error?.message || error).slice(0, 120),
+      });
     }
   }
 
