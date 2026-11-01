@@ -124,84 +124,237 @@
         transform: translateY(0);
         box-shadow: 0 2px 6px #f503;
       }
-      #cookieModal {
+      /* ───── Cookie consent ───── */
+      .cookie-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.7);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+        animation: cookieFade 0.25s ease;
+      }
+
+      .cookie-modal[hidden] {
         display: none;
       }
+
+      .cookie-modal__card {
+        position: relative;
+        width: 100%;
+        max-width: 460px;
+        padding: 28px 28px 24px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 85, 0, 0.32);
+        background:
+          radial-gradient(100% 100% at 50% 0%, #ff55001a, #12121299), #141414;
+        box-shadow:
+          0 20px 50px #000000b3,
+          0 0 30px #ff55001f;
+        color: #fff;
+        outline: none;
+        animation: cookieRise 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      .cookie-modal__card h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 12px;
+        padding-right: 32px;
+        font-size: 1.35rem;
+        color: var(--primary-color, #ff5500);
+      }
+
+      .cookie-modal__card p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #ffffffcc;
+      }
+
+      .cookie-modal__close {
+        all: unset;
+        box-sizing: border-box;
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        line-height: 1;
+        color: #ffffffb3;
+        cursor: pointer;
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+      }
+
+      .cookie-modal__close:hover {
+        background: #ff550026;
+        color: #fff;
+      }
+
       .cookie-actions {
         display: flex;
-        gap: 1rem;
-        margin-top: 1.25rem;
+        gap: 12px;
+        margin-top: 22px;
       }
+
+      /* обе кнопки одного размера и веса: отказ так же заметен, как согласие */
       .cookie-btn {
+        all: unset;
+        box-sizing: border-box;
         flex: 1;
-        padding: 0.9rem 1.25rem;
-        border-radius: var(--border-radius);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        border: 1px solid rgba(255, 85, 0, 0.25);
-      }
-      .cookie-btn.primary {
-        color: var(--primary-color);
-        border-color: #ff550059;
-      }
-      .cookie-btn.primary:hover {
-        box-shadow: 0 6px 15px #ff550059;
-      }
-      .cookie-btn.secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 16px;
+        border-radius: var(--border-radius, 12px);
+        border: 1px solid #ffffff2e;
         background: #ffffff0f;
         color: #ffffffe6;
-        border-color: #ffffff2e;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-align: center;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          box-shadow 0.2s ease,
+          color 0.2s ease;
       }
-      .cookie-btn.secondary:hover {
+
+      .cookie-btn:hover {
         background: #ff550014;
         border-color: #ff550059;
         color: #fff;
       }
+
+      .cookie-btn.primary {
+        background: #ff55001f;
+        border-color: #ff550080;
+        color: var(--primary-color, #ff5500);
+      }
+
+      .cookie-btn.primary:hover {
+        background: #ff550038;
+        color: #fff;
+        box-shadow: 0 6px 15px #ff550059;
+      }
+
+      .cookie-btn:focus-visible,
+      .cookie-modal__close:focus-visible,
+      .cookie-fab:focus-visible {
+        outline: 2px solid var(--primary-color, #ff5500);
+        outline-offset: 3px;
+      }
+
       .cookie-fab {
         position: fixed;
         right: 30px;
         bottom: 5%;
+        z-index: 2500;
         width: 55px;
         height: 55px;
-        border-radius: 999px;
+        padding: 0;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        z-index: 2500;
-        background: #ff550024;
+        border-radius: 50%;
         border: 1px solid rgba(255, 85, 0, 0.32);
-        color: var(--primary-color);
+        background: #ff550024;
+        color: var(--primary-color, #ff5500);
         box-shadow:
           0 10px 24px #00000073,
           0 0 14px #ff55002e;
+        -webkit-backdrop-filter: blur(8px);
         backdrop-filter: blur(8px);
         cursor: pointer;
-        padding: 0;
+        transition:
+          transform 0.2s ease,
+          background 0.2s ease,
+          color 0.2s ease,
+          box-shadow 0.2s ease;
       }
+
+      .cookie-fab[hidden] {
+        display: none;
+      }
+
       .cookie-fab i {
         font-size: 1.25rem;
       }
+
       .cookie-fab:hover {
-        background: #ff550038;
-        border-color: var(--primary-color);
         transform: translateY(-2px);
+        background: #ff550038;
+        border-color: var(--primary-color, #ff5500);
         color: #fff;
         box-shadow:
           0 14px 30px #0000008c,
           0 0 22px #ff550059;
       }
+
       .cookie-fab:active {
         transform: translateY(0);
       }
-      .cookie-fab:focus {
-        outline: none;
+
+      @keyframes cookieFade {
+        from {
+          opacity: 0;
+        }
       }
-      .cookie-fab:focus-visible {
-        box-shadow:
-          0 0 0 3px #ff550059,
-          0 14px 30px #0000008c,
-          0 0 22px #ff550059;
+
+      @keyframes cookieRise {
+        from {
+          opacity: 0;
+          transform: translateY(16px) scale(0.98);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .cookie-modal {
+          align-items: flex-end;
+          padding: 0;
+        }
+
+        .cookie-modal__card {
+          max-width: none;
+          padding: 22px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+          border-radius: 18px 18px 0 0;
+          border-bottom: 0;
+        }
+
+        .cookie-actions {
+          flex-direction: column-reverse;
+        }
+
+        .cookie-fab {
+          right: 12px;
+          bottom: 12px;
+          width: 50px;
+          height: 50px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .cookie-modal,
+        .cookie-modal__card {
+          animation: none;
+        }
       }
       @media (max-width: 480px) {
         .search-container {
@@ -223,12 +376,6 @@
         }
         .stats-container {
           justify-items: center;
-        }
-        .cookie-fab {
-          right: 12px;
-          bottom: 12px;
-          width: 50px;
-          height: 50px;
         }
         .footer-buttons {
           flex-direction: row !important;
@@ -283,7 +430,7 @@
         pointer-events: none;
       }
     </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link
@@ -866,32 +1013,53 @@
       </div>
     </div>
 
-    <div id="cookieModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2><i class="fas fa-cookie-bite"></i> Cookie Settings</h2>
-        <p>
+    <div
+      id="cookieModal"
+      class="cookie-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cookieTitle"
+      aria-describedby="cookieText"
+      hidden
+    >
+      <div class="cookie-modal__card" tabindex="-1">
+        <button
+          type="button"
+          class="cookie-modal__close"
+          id="cookieCloseBtn"
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        <h2 id="cookieTitle">
+          <i class="fas fa-cookie-bite" aria-hidden="true"></i> Cookie Settings
+        </h2>
+        <p id="cookieText">
           We use cookies/local storage to make the site work and to collect
           anonymous analytics. You can accept or reject analytics.
         </p>
-
         <div class="cookie-actions">
-          <button id="cookieRejectBtn" class="cookie-btn secondary">
-            <i class="fas fa-times"></i> Reject analytics
+          <button
+            type="button"
+            id="cookieRejectBtn"
+            class="cookie-btn secondary"
+          >
+            <i class="fas fa-times" aria-hidden="true"></i> Reject analytics
           </button>
-          <button id="cookieAcceptBtn" class="cookie-btn primary">
-            <i class="fas fa-check"></i> Accept analytics
+          <button type="button" id="cookieAcceptBtn" class="cookie-btn primary">
+            <i class="fas fa-check" aria-hidden="true"></i> Accept analytics
           </button>
         </div>
       </div>
     </div>
 
     <button
+      type="button"
       id="cookieFab"
       class="cookie-fab"
-      type="button"
       aria-label="Cookie settings"
       title="Cookie settings"
+      hidden
     >
       <i class="fas fa-cookie-bite" aria-hidden="true"></i>
     </button>
