@@ -3,6 +3,7 @@
     const formatter = window.FaceitAPI?.formatNumber?.bind(window.FaceitAPI);
     return formatter ? formatter(value) : String(value);
   }
+
   function formatStatRow(text) {
     const idx = text.indexOf(":");
     if (idx === -1) {
@@ -12,9 +13,8 @@
     const value = text.slice(idx + 1).trim();
     return `<span class="stat-row-label">${label}</span><span class="stat-row-value">${value}</span>`;
   }
-  function statRow(innerHtml) {
-    return `<p class="stat-row" translate="no">${innerHtml}</p>`;
-  }
+
+  // Цвет рейтинга винрейта (те же пороги, что на вкладке Maps)
   function winRateClass(winRate) {
     if (winRate < 40) return "wr-poor";
     if (winRate < 55) return "wr-avg";
@@ -36,11 +36,11 @@
     const winRate = Number(map.winRate) || 0;
 
     return `
-      ${statRow(formatStatRow(`Map: ${map.name}`))}
-      ${statRow(formatStatRow(`Matches: ${map.matches}`))}
-      ${statRow(`<span class="stat-row-label">Win Rate:</span><span class="stat-row-value ${winRateClass(winRate)}">${winRate.toFixed(1)}%</span>`)}
-      ${statRow(formatStatRow(`K/D: ${map.kd.toFixed(2)}`))}
-      ${statRow(formatStatRow(`Headshots: ${map.hs.toFixed(1)}%`))}
+      <p class="stat-row">${formatStatRow(`Map: ${map.name}`)}</p>
+      <p class="stat-row">${formatStatRow(`Matches: ${map.matches}`)}</p>
+      <p class="stat-row"><span class="stat-row-label">Win Rate:</span><span class="stat-row-value ${winRateClass(winRate)}">${winRate.toFixed(1)}%</span></p>
+      <p class="stat-row">${formatStatRow(`K/D: ${map.kd.toFixed(2)}`)}</p>
+      <p class="stat-row">${formatStatRow(`Headshots: ${map.hs.toFixed(1)}%`)}</p>
     `;
   }
 
@@ -59,9 +59,7 @@
   }
 
   // Пороги уровней FACEIT CS2 (минимальный ELO каждого уровня)
-  const FACEIT_LEVEL_MIN_ELO = [
-    100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001,
-  ];
+  const FACEIT_LEVEL_MIN_ELO = [100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001];
 
   function getEloProgress(elo) {
     const value = Number(elo) || 0;
@@ -78,10 +76,7 @@
 
     const from = FACEIT_LEVEL_MIN_ELO[idx];
     const to = FACEIT_LEVEL_MIN_ELO[idx + 1];
-    const pct = Math.min(
-      Math.max(Math.round(((value - from) / (to - from)) * 100), 0),
-      100,
-    );
+    const pct = Math.min(Math.max(Math.round(((value - from) / (to - from)) * 100), 0), 100);
     return { pct, text: `${formatNumber(to - value)} ELO to Level ${idx + 2}` };
   }
 
@@ -290,7 +285,7 @@
   function renderOverviewStats(container) {
     if (!container || !window.currentPlayerProfile) return;
 
-    const { avgStats, mapAnalysis, playerData } = window.currentPlayerProfile;
+    const { avgStats, mapAnalysis } = window.currentPlayerProfile;
 
     const metrics = computeHltvMetrics(window.currentPlayerProfile);
 
@@ -338,13 +333,13 @@
     container.innerHTML = `
     ${metricsCardHtml}
     <div class="stats-grid">
-      <div class="stats-box stats-box-level slide-in-animation">
+      <div class="stats-box slide-in-animation">
         <h3><i class="fas fa-chart-line"></i> Average Statistics</h3>
-        ${statRow(formatStatRow(`Avg. Kills: ${avgStats.avgKills}`))}
-        ${statRow(formatStatRow(`Avg. Deaths: ${avgStats.avgDeaths}`))}
-        ${statRow(formatStatRow(`Avg. Diff: ${killDeathDiff}`))}
-        ${statRow(formatStatRow(`K/D: ${avgStats.kd}`))}
-        ${statRow(formatStatRow(`Headshots: ${avgStats.avgHs}%`))}
+        <p class="stat-row">${formatStatRow(`Avg. Kills: ${avgStats.avgKills}`)}</p>
+        <p class="stat-row">${formatStatRow(`Avg. Deaths: ${avgStats.avgDeaths}`)}</p>
+        <p class="stat-row">${formatStatRow(`Avg. Diff: ${killDeathDiff}`)}</p>
+        <p class="stat-row">${formatStatRow(`K/D: ${avgStats.kd}`)}</p>
+        <p class="stat-row">${formatStatRow(`Headshots: ${avgStats.avgHs}%`)}</p>
       </div>
 
       <div class="stats-box slide-in-animation"${mapAttr(mapAnalysis.bestMap)}>
@@ -371,9 +366,9 @@
   ) {
     const faceitLevel = playerData.games?.cs2?.skill_level;
 
-    const levelValue = faceitLevel
-      ? `<img src="/images/levels/lvl${faceitLevel}.svg" alt="Level ${faceitLevel}" style="width: 35px; height: 35px; object-fit: contain; vertical-align: middle;" />`
-      : "N/A";
+    const levelImg = faceitLevel
+      ? `<img class="player-level" src="/images/levels/lvl${faceitLevel}.svg" alt="Level ${faceitLevel}" />`
+      : "";
 
     const countryCode = playerData.country
       ? playerData.country.toLowerCase()
@@ -392,11 +387,7 @@
 
     const winRateText = lifetime["Win Rate %"] || "0";
     const highlights = [
-      {
-        icon: "fa-gamepad",
-        label: "Matches",
-        value: formatNumber(avgStats.totalMatches),
-      },
+      { icon: "fa-gamepad", label: "Matches", value: formatNumber(avgStats.totalMatches) },
       {
         icon: "fa-trophy",
         label: "Win Rate",
@@ -427,14 +418,20 @@
         </div>
         <div class="player-info">
           <h2>${playerData.nickname}</h2>
-          <p class="player-elo">${levelValue} ${formatNumber(currentElo)} ELO</p>
-          ${eloProgressHtml}
           <p>Country: ${countryName}${flagImg}</p>
           <a class="faceit-link" href="https://www.faceit.com/en/players/${encodeURIComponent(playerData.nickname)}" target="_blank" rel="noopener noreferrer" title="Open FACEIT profile">
             <img src="/assets/faceit.svg" alt="" />
             <span>FACEIT Profile</span>
             <i class="fas fa-external-link-alt"></i>
           </a>
+        </div>
+        <div class="player-rating">
+          <div class="player-rating-main">
+            ${levelImg}
+            <span class="player-rating-value">${formatNumber(currentElo)}</span>
+            <span class="player-rating-unit">ELO</span>
+          </div>
+          ${eloProgressHtml}
         </div>
         <div class="player-highlights">${highlightsHtml}
         </div>
@@ -485,7 +482,7 @@
 
     if (!window.minigameLoaded) {
       const script = document.createElement("script");
-      script.src = "/app/features/minigame.js?v=1.5";
+      script.src = "/app/features/minigame.js?v=1.4";
       script.onload = () => {
         window.minigameLoaded = true;
         if (typeof window.openModalByRoute === "function") {
