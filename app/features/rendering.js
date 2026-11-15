@@ -202,6 +202,7 @@ function computeHltvMetrics(profile) {
     });
 
     // 1. Firepower (Огневая мощь): фокус на ADR, K/D и чистом импакте
+    // Снижаем зависимость от HS%, поднимаем вес ADR и K/D
     const firepower = Math.min(
       Math.max(
         Math.round((adrVal / 110) * 45 + (rawKd / 1.6) * 40 + (rawHs / 100) * 15),
