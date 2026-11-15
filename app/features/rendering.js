@@ -164,8 +164,7 @@
     return Math.min(Math.max(Math.round(shrunk), 0), 100);
   }
 
-  // Расчёт 7 HLTV-метрик (0 - 100). Используется в Overview и в Compare.
-  function computeHltvMetrics(profile) {
+function computeHltvMetrics(profile) {
     const avgStats = profile?.avgStats;
     const lifetime = profile?.lifetime || profile?.statsData?.lifetime || {};
     const allMaps =
@@ -175,37 +174,26 @@
             profile?.statsData?.segments || [],
           )) || [];
 
-    if (!Object.keys(lifetime).length) {
-      console.warn(
-        "computeHltvMetrics: lifetime-статистика пуста, метрики будут посчитаны по запасным значениям",
-      );
-    }
-
-    // 1. Извлекаем базовые показатели
+    // Базовые показатели
     let rawWinRate = parseFloat(lifetime["Win Rate %"]);
     if (isNaN(rawWinRate) || rawWinRate === 0) {
       const wins = parseInt(lifetime["Wins"] || "0", 10);
       const totalMatches = avgStats?.totalMatches || 0;
       rawWinRate = totalMatches > 0 ? (wins / totalMatches) * 100 : 50;
     }
-    const rawHs = parseFloat(
-      lifetime["Average Headshots %"] || avgStats?.avgHs || 0,
-    );
-    const rawKd = parseFloat(
-      lifetime["Average K/D Ratio"] || avgStats?.kd || 0,
-    );
+    const rawHs = parseFloat(lifetime["Average Headshots %"] || avgStats?.avgHs || 0);
+    const rawKd = parseFloat(lifetime["Average K/D Ratio"] || avgStats?.kd || 0);
     const rawAvgKills = parseFloat(avgStats?.avgKills || 0);
+    const rawAvgDeaths = parseFloat(avgStats?.avgDeaths || 1);
 
-    // 2. Агрегируем данные по картам (ADR)
+    // ADR по картам
     let totalAdr = 0;
     if (Array.isArray(allMaps) && allMaps.length > 0) {
-      totalAdr =
-        allMaps.reduce((sum, m) => sum + (parseFloat(m.adr) || 0), 0) /
-        allMaps.length;
+      totalAdr = allMaps.reduce((sum, m) => sum + (parseFloat(m.adr) || 0), 0) / allMaps.length;
     }
     const adrVal = totalAdr > 0 ? totalAdr : 75;
 
-    // Clutching: см. computeClutchScore
+    // Клатчи (используем существующую качественную функцию)
     const clutchingScore = computeClutchScore({
       lifetime,
       allMaps,
@@ -213,73 +201,68 @@
       rawKd,
     });
 
-    // 3. Формулы HLTV-метрик (0 - 100)
-    // Firepower: урон + K/D + хедшоты
+    // 1. Firepower (Огневая мощь): фокус на ADR, K/D и чистом импакте
     const firepower = Math.min(
       Math.max(
-        Math.round(
-          (adrVal / 100) * 40 + (rawKd / 2.0) * 40 + (rawHs / 100) * 20,
-        ),
-        0,
+        Math.round((adrVal / 110) * 45 + (rawKd / 1.6) * 40 + (rawHs / 100) * 15),
+        0
       ),
-      100,
+      100
     );
 
-    // Entrying / Opening: агрессивные фраги (KPR) и процент побед
+    // 2. Entrying (Энтри-агрессия): способность открывать раунды (основана на KPR / avgKills и выживаемости)
+    const survivalRate = Math.max(0, 1 - (rawAvgDeaths / Math.max(rawAvgKills, 1)));
     const entrying = Math.min(
       Math.max(
-        Math.round((rawAvgKills / 25) * 60 + (rawWinRate / 100) * 40),
-        0,
+        Math.round((rawAvgKills / 22) * 60 + survivalRate * 40),
+        0
       ),
-      100,
+      100
     );
 
-    // Trading: стабильность размёна на основе K/D и сбалансированности смертей
+    // 3. Trading (Размёны): оценивается через соотношение K/D и стабильность смертей (низкое число смертей при высоком вкладе)
+    const deathStab = Math.max(0, 100 - (rawAvgDeaths / 20) * 50);
     const trading = Math.min(
-      Math.max(Math.round((rawKd / 1.5) * 70 + (rawWinRate / 100) * 30), 0),
-      100,
+      Math.max(
+        Math.round((rawKd / 1.5) * 60 + deathStab * 0.4),
+        0
+      ),
+      100
     );
 
-    // Opening: первоначальные дуэли на картах
+    // 4. Opening (Первые дуэли): Оценка темпа игры и инициативы (завязана на частоту убийств и общий импакт)
     const opening = Math.min(
       Math.max(
-        Math.round((rawWinRate / 100) * 50 + (rawAvgKills / 25) * 50),
-        0,
+        Math.round((rawAvgKills / 24) * 70 + (rawWinRate / 100) * 30),
+        0
       ),
-      100,
+      100
     );
 
-    // Sniping: оцениваем по выживаемости и K/D (при высоком K/D / низком HS%)
-    const snipingBonus = rawHs < 40 ? 15 : 0;
-    const sniping = Math.min(
-      Math.max(
-        Math.round((rawKd / 1.8) * 65 + snipingBonus + (rawWinRate / 100) * 20),
-        0,
-      ),
-      100,
-    );
+    // 5. Sniping (Снайпинг): Устранение ложной эвристики по HS%. 
+    // Если нет прямых данных об оружии, оцениваем по комбинации высокого K/D и умеренного/низкого HS с поправкой на ADR.
+    const isLikelyAwp = rawHs < 38 && rawKd > 1.05;
+    const snipingBase = isLikelyAwp ? (rawKd / 1.5) * 70 + 30 : (rawKd / 2.0) * 40;
+    const sniping = Math.min(Math.max(Math.round(snipingBase), 0), 100);
 
-    // Utility: влияние гранат на основе общего ADR и кастомной нормы
+    // 6. Utility (Полезность гранат): Оценка поддержки команды на базе ADR с поправкой на стабильность
     const utility = Math.min(
-      Math.max(Math.round((adrVal / 90) * 70 + (rawWinRate / 100) * 30), 0),
-      100,
+      Math.max(
+        Math.round((adrVal / 95) * 80 + (rawWinRate / 100) * 20),
+        0
+      ),
+      100
     );
 
-    const metrics = [
+    return [
       { label: "Firepower", displayValue: `${firepower}`, score: firepower },
       { label: "Entrying", displayValue: `${entrying}`, score: entrying },
       { label: "Trading", displayValue: `${trading}`, score: trading },
       { label: "Opening", displayValue: `${opening}`, score: opening },
-      {
-        label: "Clutching",
-        displayValue: `${clutchingScore}`,
-        score: clutchingScore,
-      },
+      { label: "Clutching", displayValue: `${clutchingScore}`, score: clutchingScore },
       { label: "Sniping", displayValue: `${sniping}`, score: sniping },
       { label: "Utility", displayValue: `${utility}`, score: utility },
     ];
-
-    return metrics;
   }
 
   function renderOverviewStats(container) {
