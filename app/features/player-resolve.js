@@ -9,12 +9,18 @@
   }
 
   async function resolveFaceitPlayerFromSteam(steamInput) {
-    const cleanInput = String(steamInput).trim();
+    let cleanInput = String(steamInput).trim();
+
+    // Исправление для числовых ID, ошибочно переданных через /id/...
+    const idMatch = cleanInput.match(/\/steamcommunity\.com\/id\/(\d+)\/?$/i);
+    if (idMatch && idMatch[1]) {
+      // Превращаем кривую ссылку /id/12345 в корректную /profiles/12345
+      cleanInput = `https://steamcommunity.com/profiles/${idMatch[1]}`;
+    }
+
     const url = `/api/faceit-by-steam?steam=${encodeURIComponent(cleanInput)}`;
-    
     const r = await fetch(url, { headers: { Accept: "application/json" } });
     const data = await r.json().catch(() => null);
-    
     if (!r.ok) {
       throw new Error(data?.error || `Steam resolve failed (${r.status})`);
     }
