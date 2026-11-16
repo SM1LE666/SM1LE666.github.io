@@ -76,14 +76,24 @@ async function resolveVanityToSteamId64(vanity) {
   const data = await r.json().catch(() => null);
 
   const steamid = data?.response?.steamid;
-  if (!steamid) {
-    const err = new Error("Unable to resolve Steam vanity URL");
-    // @ts-ignore
-    err.statusCode = 404;
-    throw err;
+  if (steamid) {
+    return String(steamid);
   }
 
-  return String(steamid);
+  const profileResponse = await fetch(
+    `https://steamcommunity.com/id/${encodeURIComponent(vanity)}?xml=1`,
+    { headers: { Accept: "application/xml, text/xml" } },
+  );
+  const profileXml = await profileResponse.text();
+  const profileSteamId = profileXml.match(/<steamID64>(\d{17})<\/steamID64>/)?.[1];
+  if (profileResponse.ok && profileSteamId) {
+    return profileSteamId;
+  }
+
+  const err = new Error("Unable to resolve Steam vanity URL");
+  // @ts-ignore
+  err.statusCode = 404;
+  throw err;
 }
 
 async function fetchFaceitPlayerBySteamId64(steamid64) {
