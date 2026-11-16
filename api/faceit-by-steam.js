@@ -6,8 +6,16 @@ function extractSteamId64FromInput(input) {
   if (!input) return { steamid64: null, vanity: null };
   const raw = String(input).trim();
 
-  // steamid64 directly (must be 17 digits)
-  if (/^\d{17}$/.test(raw)) return { steamid64: raw, vanity: null };
+  // 1. Прямой 17-значный SteamID64
+  if (/^\d{17}$/.test(raw)) {
+    return { steamid64: raw, vanity: null };
+  }
+
+  // 2. Короткий AccountID (до 10 цифр) -> конвертируем в SteamID64
+  if (/^\d{1,10}$/.test(raw)) {
+    const steam64 = (BigInt(raw) + STEAMID64_BASE).toString();
+    return { steamid64: steam64, vanity: null };
+  }
 
   // Try parse URL
   try {
@@ -23,6 +31,8 @@ function extractSteamId64FromInput(input) {
     if (parts[0] === "id" && (parts[1] || "")) {
       return { steamid64: null, vanity: parts[1] };
     }
+
+    // fallthrough: maybe user pasted something else
   } catch {
     // not a URL
   }
@@ -70,9 +80,8 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
     throw err;
   }
 
-  const cleanId = String(steamid64).trim();
-  const url = `https://open.faceit.com/data/v4/players?game=cs2&game_player_id=${encodeURIComponent(
-    cleanId
+  const url = `https://faceit.com{encodeURIComponent(
+    steamid64
   )}`;
 
   const r = await fetch(url, {
