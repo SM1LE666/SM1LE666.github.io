@@ -2,36 +2,59 @@
 // Input: ?steam=<steam profile url | steamid64 | vanity>
 // Output: Faceit player JSON (or 404)
 
+const STEAMID64_BASE = 76561197960265728n;
+
 function extractSteamId64FromInput(input) {
   if (!input) return { steamid64: null, vanity: null };
-  const raw = String(input).trim();
+  let raw = String(input).trim();
 
-  // steamid64 directly
-  if (/^\d{17}$/.test(raw)) return { steamid64: raw, vanity: null };
-
-  // Try parse URL
-  try {
-    const url = new URL(raw);
-    const parts = url.pathname.split("/").filter(Boolean);
-
-    // /profiles/<steamid64>
-    if (parts[0] === "profiles" && /^\d{17}$/.test(parts[1] || "")) {
-      return { steamid64: parts[1], vanity: null };
-    }
-
-    // /id/<vanity>
-    if (parts[0] === "id" && (parts[1] || "")) {
-      return { steamid64: null, vanity: parts[1] };
-    }
-
-    // fallthrough: maybe user pasted something else
-  } catch {
-    // not a URL
+  // 1. Прямой 17-значный SteamID64
+  if (/^\d{17}$/.test(raw)) {
+    return { steamid64: raw, vanity: null };
   }
 
-  // Treat as vanity (steamcommunity.com/id/<vanity> without full url)
-  if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw))
+  // 2. Короткий AccountID (до 10 цифр) -> конвертируем в SteamID64
+  if (/^\d{1,10}$/.test(raw)) {
+    const steam64 = (BigInt(raw) + STEAMID64_BASE).toString();
+    return { steamid64: steam64, vanity: null };
+  }
+
+  // 3. Добавляем протокол, если пользователь вставил ссылку без https://
+  let urlToParse = raw;
+  if (/^(www\.)?steamcommunity\.com\//i.test(urlToParse)) {
+    urlToParse = `https://${urlToParse}`;
+  }
+
+  // 4. Парсим URL
+  try {
+    const url = new URL(urlToParse);
+    if (url.hostname.endsWith("steamcommunity.com")) {
+      const parts = url.pathname.split("/").filter(Boolean);
+
+      // /profiles/<id>
+      if (parts[0] === "profiles" && parts[1]) {
+        if (/^\d{17}$/.test(parts[1])) {
+          return { steamid64: parts[1], vanity: null };
+        }
+        if (/^\d{1,10}$/.test(parts[1])) {
+          const steam64 = (BigInt(parts[1]) + STEAMID64_BASE).toString();
+          return { steamid64: steam64, vanity: null };
+        }
+      }
+
+      // /id/<vanity>
+      if (parts[0] === "id" && parts[1]) {
+        return { steamid64: null, vanity: parts[1] };
+      }
+    }
+  } catch {
+    // Не является валидным URL, идем дальше
+  }
+
+  // 5. Просто никнейм (vanity) без ссылки
+  if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw)) {
     return { steamid64: null, vanity: raw };
+  }
 
   return { steamid64: null, vanity: null };
 }
@@ -40,40 +63,44 @@ async function resolveVanityToSteamId64(vanity) {
   const key = process.env.STEAM_WEB_API_KEY;
   if (!key) {
     const err = new Error("STEAM_WEB_API_KEY is not set");
-    // @ts-ignore
     err.statusCode = 500;
     throw err;
   }
 
-  const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${encodeURIComponent(
+  const url = `https://steampowered.com{encodeURIComponent(
     key
   )}&vanityurl=${encodeURIComponent(vanity)}`;
 
   const r = await fetch(url, { headers: { Accept: "application/json" } });
-  const data = await r.json().catch(() => null);
+  
+  if (!r.ok) {
+    const err = new Error(`Steam API HTTP error: ${r.status}`);
+    err.statusCode = r.status === 403 ? 500 : 502;
+    throw err;
+  }
 
-  const steamid = data?.response?.steamid;
-  if (!steamid) {
-    const err = new Error("Unable to resolve Steam vanity URL");
-    // @ts-ignore
+  const data = await r.json().catch(() => null);
+  const response = data?.response;
+
+  if (!response || response.success !== 1 || !response.steamid) {
+    const reason = response?.message || "No match";
+    const err = new Error(`Unable to resolve Steam vanity URL "${vanity}" (${reason})`);
     err.statusCode = 404;
     throw err;
   }
 
-  return String(steamid);
+  return String(response.steamid);
 }
 
 async function fetchFaceitPlayerBySteamId64(steamid64) {
   const apiKey = process.env.FACEIT_API_KEY;
   if (!apiKey) {
     const err = new Error("FACEIT_API_KEY is not set");
-    // @ts-ignore
     err.statusCode = 500;
     throw err;
   }
 
-  // FACEIT: find player by game + game_player_id
-  const url = `https://open.faceit.com/data/v4/players?game=cs2&game_player_id=${encodeURIComponent(
+  const url = `https://faceit.com{encodeURIComponent(
     steamid64
   )}`;
 
@@ -87,7 +114,6 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
   const text = await r.text();
   if (!r.ok) {
     const err = new Error(text || `FACEIT API error ${r.status}`);
-    // @ts-ignore
     err.statusCode = r.status;
     throw err;
   }
