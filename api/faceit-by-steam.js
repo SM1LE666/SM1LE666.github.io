@@ -2,6 +2,8 @@
 // Input: ?steam=<steam profile url | steamid64 | vanity>
 // Output: Faceit player JSON (or 404)
 
+const STEAMID64_BASE = 76561197960265728n;
+
 function extractSteamId64FromInput(input) {
   if (!input) return { steamid64: null, vanity: null };
   const raw = String(input).trim();
@@ -19,12 +21,25 @@ function extractSteamId64FromInput(input) {
 
   // Try parse URL
   try {
-    const url = new URL(raw);
+    const url = new URL(
+      /^(?:www\.)?steamcommunity\.com\//i.test(raw)
+        ? `https://${raw}`
+        : raw,
+    );
+    if (!url.hostname.endsWith("steamcommunity.com")) {
+      return { steamid64: null, vanity: null };
+    }
     const parts = url.pathname.split("/").filter(Boolean);
 
     // /profiles/<steamid64>
     if (parts[0] === "profiles" && /^\d{17}$/.test(parts[1] || "")) {
       return { steamid64: parts[1], vanity: null };
+    }
+    if (parts[0] === "profiles" && /^\d{1,10}$/.test(parts[1] || "")) {
+      return {
+        steamid64: (BigInt(parts[1]) + STEAMID64_BASE).toString(),
+        vanity: null,
+      };
     }
 
     // /id/<vanity>
@@ -80,8 +95,9 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
     throw err;
   }
 
-  const url = `https://faceit.com{encodeURIComponent(
-    steamid64
+  const cleanId = String(steamid64).trim();
+  const url = `https://open.faceit.com/data/v4/players?game=cs2&game_player_id=${encodeURIComponent(
+    cleanId
   )}`;
 
   const r = await fetch(url, {
