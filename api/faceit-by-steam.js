@@ -22,23 +22,25 @@ function extractSteamId64FromInput(input) {
     const url = new URL(urlToParse);
     if (url.hostname.endsWith("steamcommunity.com")) {
       const parts = url.pathname.split("/").filter(Boolean);
+      const section = parts[0];
+      const value = parts[1];
 
-      if (parts[0] === "profiles" && parts[1]) {
-        if (/^\d{17}$/.test(parts[1])) {
-          return { steamid64: parts[1], vanity: null };
+      if (section === "profiles" && value) {
+        if (/^\d{17}$/.test(value)) {
+          return { steamid64: value, vanity: null };
         }
-        if (/^\d{1,10}$/.test(parts[1])) {
-          const steam64 = (BigInt(parts[1]) + STEAMID64_BASE).toString();
+        if (/^\d{1,10}$/.test(value)) {
+          const steam64 = (BigInt(value) + STEAMID64_BASE).toString();
           return { steamid64: steam64, vanity: null };
         }
       }
 
-      if (parts[0] === "id" && parts[1]) {
-        return { steamid64: null, vanity: parts[1] };
+      if (section === "id" && value) {
+        return { steamid64: null, vanity: value };
       }
     }
   } catch {
-    // Игнорируем ошибку, если это не URL
+    // Не является валидным URL
   }
 
   if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw)) {
@@ -127,8 +129,20 @@ export default async function handler(req, res) {
 
     const { steamid64, vanity } = extractSteamId64FromInput(input);
 
-    const resolvedSteamId64 =
-      steamid64 || (vanity ? await resolveVanityToSteamId64(vanity) : null);
+    let resolvedSteamId64 = steamid64;
+
+    if (!resolvedSteamId64 && vanity) {
+      try {
+        resolvedSteamId64 = await resolveVanityToSteamId64(vanity);
+      } catch (vanityErr) {
+        if (/^\d{1,10}$/.test(vanity)) {
+          resolvedSteamId64 = (BigInt(vanity) + STEAMID64_BASE).toString();
+        } else {
+          throw vanityErr;
+        }
+      }
+    }
+
     if (!resolvedSteamId64) {
       res.status(400).json({ ok: false, error: "Unable to parse Steam input" });
       return;
