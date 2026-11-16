@@ -1,9 +1,12 @@
 (function () {
+  const STEAMID64_BASE = 76561197960265728n;
+
   function isSteamInput(value) {
     if (!value) return false;
     const v = String(value).trim();
     if (!v) return false;
-    if (/^\d{17}$/.test(v)) return true;
+    // Разрешаем 17-цифровые ID, короткие AccountID (от 1 до 10 цифр) или ссылки Steam
+    if (/^\d{1,10}$/.test(v) || /^\d{17}$/.test(v)) return true;
     if (/steamcommunity\.com\/(id|profiles)\//i.test(v)) return true;
     return false;
   }
@@ -11,11 +14,22 @@
   async function resolveFaceitPlayerFromSteam(steamInput) {
     let cleanInput = String(steamInput).trim();
 
-    // Исправление для числовых ID, ошибочно переданных через /id/...
-    const idMatch = cleanInput.match(/\/steamcommunity\.com\/id\/(\d+)\/?$/i);
-    if (idMatch && idMatch[1]) {
-      // Превращаем кривую ссылку /id/12345 в корректную /profiles/12345
-      cleanInput = `https://steamcommunity.com/profiles/${idMatch[1]}`;
+    // 1. Если ввели просто короткое число (AccountID), переводим в 17-значный SteamID64
+    if (/^\d{1,10}$/.test(cleanInput)) {
+      cleanInput = (BigInt(cleanInput) + STEAMID64_BASE).toString();
+    }
+
+    // 2. Если это ссылка /profiles/ЧИСЛО
+    const profileMatch = cleanInput.match(/steamcommunity\.com\/profiles\/(\d+)\/?$/i);
+    if (profileMatch) {
+      const id = profileMatch[1];
+      if (id.length <= 10) {
+        // Автоматически конвертируем короткий ID в SteamID64 и обновляем ссылку
+        const steam64 = (BigInt(id) + STEAMID64_BASE).toString();
+        cleanInput = `https://steamcommunity.com{steam64}`;
+      } else if (id.length !== 17) {
+        throw new Error(`Invalid SteamID64: "${id}" must be 17 digits long.`);
+      }
     }
 
     const url = `/api/faceit-by-steam?steam=${encodeURIComponent(cleanInput)}`;
@@ -36,27 +50,6 @@
       console.error("FaceitAPI не загружен!");
       return false;
     }
-
-    const requiredMethods = [
-      "getPlayerData",
-      "getStatsData",
-      "getCurrentElo",
-      "getCountryName",
-      "calculateAvgStats",
-      "analyzeMaps",
-      "formatNumber",
-    ];
-
-    const missingMethods = requiredMethods.filter(
-      (method) => typeof window.FaceitAPI[method] !== "function",
-    );
-
-    if (missingMethods.length > 0) {
-      console.error("Отсутствуют методы FaceitAPI:", missingMethods);
-      return false;
-    }
-
-    console.log("FaceitAPI успешно загружен и готов к работе");
     return true;
   }
 
