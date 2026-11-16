@@ -22,8 +22,8 @@ function extractSteamId64FromInput(input) {
     const url = new URL(urlToParse);
     if (url.hostname.endsWith("steamcommunity.com")) {
       const parts = url.pathname.split("/").filter(Boolean);
-      const section = parts[0];
-      const value = parts[1];
+      const section = parts.shift();
+      const value = parts.shift();
 
       if (section === "profiles" && value) {
         if (/^\d{17}$/.test(value)) {
@@ -50,6 +50,19 @@ function extractSteamId64FromInput(input) {
   return { steamid64: null, vanity: null };
 }
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (err) {
+    const causeMsg = err?.cause?.message || err?.cause?.code || err?.message || "Unknown network error";
+    throw new Error("Network request failed: " + causeMsg);
+  } finally {
+    clearTimeout(id);
+  }
+}
+
 async function resolveVanityToSteamId64(vanity) {
   const key = process.env.STEAM_WEB_API_KEY;
   if (!key) {
@@ -61,7 +74,7 @@ async function resolveVanityToSteamId64(vanity) {
   const baseUrl = "https://steampowered.com";
   const url = baseUrl + "?key=" + encodeURIComponent(key) + "&vanityurl=" + encodeURIComponent(vanity);
 
-  const r = await fetch(url, { headers: { Accept: "application/json" } });
+  const r = await fetchWithTimeout(url, { headers: { Accept: "application/json" } });
 
   if (!r.ok) {
     const err = new Error("Steam API HTTP error: " + r.status);
@@ -92,7 +105,7 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
 
   const url = "https://faceit.com" + encodeURIComponent(steamid64);
 
-  const r = await fetch(url, {
+  const r = await fetchWithTimeout(url, {
     headers: {
       Accept: "application/json",
       Authorization: "Bearer " + apiKey,
