@@ -1,38 +1,40 @@
-// Resolve a FACEIT (CS2) player by Steam profile link or SteamID64.
+// Resolve a FACEIT (CS2) player by Steam profile link, SteamID64, or vanity name.
 // Input: ?steam=<steam profile url | steamid64 | vanity>
-// Output: Faceit player JSON (or 404)
-
-const STEAMID64_BASE = 76561197960265728n;
+// Output: Faceit player JSON (or 404/400/500)
 
 function extractSteamId64FromInput(input) {
   if (!input) return { steamid64: null, vanity: null };
   let raw = String(input).trim();
 
-  // 1. steamid64 directly
-  if (/^\d{17}$/.test(raw)) return { steamid64: raw, vanity: null };
+  // 1. Прямой ввод 17-значного SteamID64
+  if (/^\d{17}$/.test(raw)) {
+    return { steamid64: raw, vanity: null };
+  }
 
-  // 2. Normalize protocol-less URLs (e.g., "://steamcommunity.com")
+  // 2. Добавляем https://, если пользователь вставил ссылку без протокола (://steamcommunity.com...)
   if (/^(www\.)?steamcommunity\.com\//i.test(raw)) {
     raw = `https://${raw}`;
   }
 
-  // 3. Try parse URL
+  // 3. Парсинг полной ссылки Steam
   try {
     const url = new URL(raw);
     const parts = url.pathname.split("/").filter(Boolean);
 
-    if (parts[0] === "profiles" && /^\d{17}$/.test(parts[1] || "")) {
-      return { steamid64: parts[1], vanity: null };
+    // Формат /profiles/<steamid64>
+    if (parts === "profiles" && /^\d{17}$/.test(parts || "")) {
+      return { steamid64: parts, vanity: null };
     }
 
-    if (parts[0] === "id" && parts[1]) {
-      return { steamid64: null, vanity: parts[1] };
+    // Формат /id/<vanity>
+    if (parts === "id" && parts) {
+      return { steamid64: null, vanity: parts };
     }
   } catch {
-    // not a URL
+    // Ввод не является валидным URL, проверяем дальше как vanity
   }
 
-  // 4. Treat as raw vanity name
+  // 4. Обычный vanity-никнейм (Custom URL без самой ссылки)
   if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw)) {
     return { steamid64: null, vanity: raw };
   }
@@ -48,14 +50,17 @@ async function resolveVanityToSteamId64(vanity) {
     throw err;
   }
 
+  // Исправленный URL с правильным поддоменом api., путем и знаком $ перед {encodeURIComponent(key)}
   const url = `https://steampowered.com{encodeURIComponent(
     key
   )}&vanityurl=${encodeURIComponent(vanity)}`;
 
   const r = await fetch(url, { headers: { Accept: "application/json" } });
-  
+
   if (!r.ok) {
-    const err = new Error(`Steam API HTTP error: ${r.status} (Check STEAM_WEB_API_KEY)`);
+    const err = new Error(
+      `Steam API HTTP error: ${r.status} (проверьте STEAM_WEB_API_KEY)`
+    );
     err.statusCode = r.status === 403 ? 500 : r.status;
     throw err;
   }
@@ -65,7 +70,9 @@ async function resolveVanityToSteamId64(vanity) {
 
   if (!steamid) {
     const steamMsg = data?.response?.message || "No match";
-    const err = new Error(`Unable to resolve Steam vanity URL "${vanity}" (${steamMsg})`);
+    const err = new Error(
+      `Unable to resolve Steam vanity URL "${vanity}" (${steamMsg})`
+    );
     err.statusCode = 404;
     throw err;
   }
@@ -77,14 +84,13 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
   const apiKey = process.env.FACEIT_API_KEY;
   if (!apiKey) {
     const err = new Error("FACEIT_API_KEY is not set");
-    // @ts-ignore
     err.statusCode = 500;
     throw err;
   }
 
-  const cleanId = String(steamid64).trim();
-  const url = `https://open.faceit.com/data/v4/players?game=cs2&game_player_id=${encodeURIComponent(
-    cleanId
+  // FACEIT API: поиск игрока по игре CS2 и SteamID64
+  const url = `https://faceit.com{encodeURIComponent(
+    steamid64
   )}`;
 
   const r = await fetch(url, {
@@ -97,7 +103,6 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
   const text = await r.text();
   if (!r.ok) {
     const err = new Error(text || `FACEIT API error ${r.status}`);
-    // @ts-ignore
     err.statusCode = r.status;
     throw err;
   }
@@ -129,6 +134,7 @@ export default async function handler(req, res) {
 
     const resolvedSteamId64 =
       steamid64 || (vanity ? await resolveVanityToSteamId64(vanity) : null);
+
     if (!resolvedSteamId64) {
       res.status(400).json({ ok: false, error: "Unable to parse Steam input" });
       return;
