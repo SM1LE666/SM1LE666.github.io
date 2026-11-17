@@ -65,11 +65,12 @@ async function resolveVanityToSteamId64(vanity) {
       },
     });
   } catch (networkErr) {
-    const err = new Error("Steam community network error: " + networkErr.message);
+    const err = new Error("Steam community network error on URL [" + url + "]: " + networkErr.message);
     err.cause = networkErr.cause;
     err.statusCode = 502;
     throw err;
   }
+
 
   if (!r.ok) {
     const err = new Error("Steam community HTTP error: " + r.status);
