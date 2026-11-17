@@ -22,14 +22,14 @@ function extractSteamId64FromInput(input) {
     const parts = url.pathname.split("/").filter(Boolean);
 
     // Format: /profiles/<steamid64>
-    if (parts[0] === "profiles" && /^\d{17}$/.test(parts[1] || "")) {
-      return { steamid64: parts[1], vanity: null };
-    }
+    if (parts.at(0) === "profiles" && /^\d{17}$/.test(parts.at(1) || "")) {
+  return { steamid64: parts.at(1), vanity: null };
+}
 
-    // Format: /id/<vanity>
-    if (parts[0] === "id" && parts[1]) {
-      return { steamid64: null, vanity: parts[1] };
-    }
+if (parts.at(0) === "id" && parts.at(1)) {
+  return { steamid64: null, vanity: parts.at(1) };
+}
+  
   } catch {
     // Not a valid URL, fall through to vanity check
   }
@@ -50,9 +50,11 @@ async function resolveVanityToSteamId64(vanity) {
     throw err;
   }
 
-  const url = `https://steampowered.com{encodeURIComponent(
-    key
-  )}&vanityurl=${encodeURIComponent(vanity)}`;
+const url =
+  "https://steampowered.com" +
+  encodeURIComponent(key) +
+  "&vanityurl=" +
+  encodeURIComponent(vanity);
 
   const r = await fetch(url, { headers: { Accept: "application/json" } });
 
