@@ -50,10 +50,11 @@ function extractSteamId64FromInput(input) {
 }
 
 async function resolveVanityToSteamId64(vanity) {
-  const url =
-    "https://://steamcommunity.com" +
+   const url =
+    "https://steamcommunity.com" +
     encodeURIComponent(vanity) +
     "/?xml=1";
+
 
   let r;
   try {
