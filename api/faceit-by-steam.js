@@ -2,29 +2,23 @@ function extractSteamId64FromInput(input) {
   if (!input) return { steamid64: null, vanity: null };
   let raw = String(input).trim();
 
+  // 1. Прямой 17-значный SteamID64
   if (/^\d{17}$/.test(raw)) {
     return { steamid64: raw, vanity: null };
   }
 
-  if (/^(www\.)?steamcommunity\.com\//i.test(raw)) {
-    raw = "https://" + raw;
+  // 2. Убираем протокол и домен вручную через регулярное выражение (без new URL)
+  const profileMatch = raw.match(/steamcommunity\.com\/profiles\/(\d{17})/i);
+  if (profileMatch && profileMatch.at(1)) {
+    return { steamid64: profileMatch.at(1), vanity: null };
   }
 
-  try {
-    const url = new URL(raw);
-    const parts = url.pathname.split("/").filter(Boolean);
-
-    if (parts.at(0) === "profiles" && /^\d{17}$/.test(parts.at(1) || "")) {
-      return { steamid64: parts.at(1), vanity: null };
-    }
-
-    if (parts.at(0) === "id" && parts.at(1)) {
-      return { steamid64: null, vanity: parts.at(1) };
-    }
-  } catch {
-    // Не URL
+  const vanityMatch = raw.match(/steamcommunity\.com\/id\/([^/?#]+)/i);
+  if (vanityMatch && vanityMatch.at(1)) {
+    return { steamid64: null, vanity: vanityMatch.at(1) };
   }
 
+  // 3. Обычный vanity-никнейм
   if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw)) {
     return { steamid64: null, vanity: raw };
   }
@@ -40,29 +34,19 @@ async function resolveVanityToSteamId64(vanity) {
     throw err;
   }
 
-  // Собираем путь по частям через join("/"), чтобы ничего не потерялось при вставке
-  const baseUrl = [
-    "https:/",
-    "://steampowered.com",
-    "ISteamUser",
-    "ResolveVanityURL",
-    "v1",
-    "",
-  ].join("/");
-
-  const apiUrl = new URL(baseUrl);
-  apiUrl.searchParams.set("key", key);
-  apiUrl.searchParams.set("vanityurl", vanity);
+  const proto = "https:" + "/" + "/";
+  const host = "://steampowered.com";
+  const path = "/" + "ISteamUser" + "/" + "ResolveVanityURL" + "/" + "v1" + "/";
+  const query = "?key=" + encodeURIComponent(key) + "&vanityurl=" + encodeURIComponent(vanity);
+  const fullUrl = proto + host + path + query;
 
   let r;
   try {
-    r = await fetch(apiUrl.toString(), {
+    r = await fetch(fullUrl, {
       headers: { Accept: "application/json" },
     });
   } catch (networkErr) {
-    const err = new Error(
-      "Steam network error on [" + apiUrl.origin + apiUrl.pathname + "]: " + networkErr.message
-    );
+    const err = new Error("Steam network error: " + networkErr.message);
     err.cause = networkErr.cause;
     err.statusCode = 502;
     throw err;
@@ -95,31 +79,22 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
     throw err;
   }
 
-  // Собираем путь FACEIT по частям через join("/")
-  const baseUrl = [
-    "https:/",
-    "://faceit.com",
-    "data",
-    "v4",
-    "players",
-  ].join("/");
-
-  const apiUrl = new URL(baseUrl);
-  apiUrl.searchParams.set("game", "cs2");
-  apiUrl.searchParams.set("game_player_id", steamid64);
+  const proto = "https:" + "/" + "/";
+  const host = "://faceit.com";
+  const path = "/" + "data" + "/" + "v4" + "/" + "players";
+  const query = "?game=cs2&game_player_id=" + encodeURIComponent(steamid64);
+  const fullUrl = proto + host + path + query;
 
   let r;
   try {
-    r = await fetch(apiUrl.toString(), {
+    r = await fetch(fullUrl, {
       headers: {
         Accept: "application/json",
         Authorization: "Bearer " + apiKey,
       },
     });
   } catch (networkErr) {
-    const err = new Error(
-      "FACEIT network error on [" + apiUrl.toString() + "]: " + networkErr.message
-    );
+    const err = new Error("FACEIT network error: " + networkErr.message);
     err.cause = networkErr.cause;
     err.statusCode = 502;
     throw err;
