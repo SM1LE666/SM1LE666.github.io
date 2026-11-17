@@ -6,55 +6,36 @@ const STEAMID64_BASE = 76561197960265728n;
 
 function extractSteamId64FromInput(input) {
   if (!input) return { steamid64: null, vanity: null };
-  const raw = String(input).trim();
+  let raw = String(input).trim();
 
-  // 1. Прямой 17-значный SteamID64
-  if (/^\d{17}$/.test(raw)) {
-    return { steamid64: raw, vanity: null };
+  // 1. steamid64 directly
+  if (/^\d{17}$/.test(raw)) return { steamid64: raw, vanity: null };
+
+  // 2. Normalize protocol-less URLs (e.g., "://steamcommunity.com")
+  if (/^(www\.)?steamcommunity\.com\//i.test(raw)) {
+    raw = `https://${raw}`;
   }
 
-  // 2. Короткий AccountID (до 10 цифр) -> конвертируем в SteamID64
-  if (/^\d{1,10}$/.test(raw)) {
-    const steam64 = (BigInt(raw) + STEAMID64_BASE).toString();
-    return { steamid64: steam64, vanity: null };
-  }
-
-  // Try parse URL
+  // 3. Try parse URL
   try {
-    const url = new URL(
-      /^(?:www\.)?steamcommunity\.com\//i.test(raw)
-        ? `https://${raw}`
-        : raw,
-    );
-    if (!url.hostname.endsWith("steamcommunity.com")) {
-      return { steamid64: null, vanity: null };
-    }
+    const url = new URL(raw);
     const parts = url.pathname.split("/").filter(Boolean);
 
-    // /profiles/<steamid64>
     if (parts[0] === "profiles" && /^\d{17}$/.test(parts[1] || "")) {
       return { steamid64: parts[1], vanity: null };
     }
-    if (parts[0] === "profiles" && /^\d{1,10}$/.test(parts[1] || "")) {
-      return {
-        steamid64: (BigInt(parts[1]) + STEAMID64_BASE).toString(),
-        vanity: null,
-      };
-    }
 
-    // /id/<vanity>
-    if (parts[0] === "id" && (parts[1] || "")) {
+    if (parts[0] === "id" && parts[1]) {
       return { steamid64: null, vanity: parts[1] };
     }
-
-    // fallthrough: maybe user pasted something else
   } catch {
     // not a URL
   }
 
-  // Treat as vanity (steamcommunity.com/id/<vanity> without full url)
-  if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw))
+  // 4. Treat as raw vanity name
+  if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw)) {
     return { steamid64: null, vanity: raw };
+  }
 
   return { steamid64: null, vanity: null };
 }
@@ -63,37 +44,33 @@ async function resolveVanityToSteamId64(vanity) {
   const key = process.env.STEAM_WEB_API_KEY;
   if (!key) {
     const err = new Error("STEAM_WEB_API_KEY is not set");
-    // @ts-ignore
     err.statusCode = 500;
     throw err;
   }
 
-  const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${encodeURIComponent(
+  const url = `https://steampowered.com{encodeURIComponent(
     key
   )}&vanityurl=${encodeURIComponent(vanity)}`;
 
   const r = await fetch(url, { headers: { Accept: "application/json" } });
+  
+  if (!r.ok) {
+    const err = new Error(`Steam API HTTP error: ${r.status} (Check STEAM_WEB_API_KEY)`);
+    err.statusCode = r.status === 403 ? 500 : r.status;
+    throw err;
+  }
+
   const data = await r.json().catch(() => null);
-
   const steamid = data?.response?.steamid;
-  if (steamid) {
-    return String(steamid);
+
+  if (!steamid) {
+    const steamMsg = data?.response?.message || "No match";
+    const err = new Error(`Unable to resolve Steam vanity URL "${vanity}" (${steamMsg})`);
+    err.statusCode = 404;
+    throw err;
   }
 
-  const profileResponse = await fetch(
-    `https://steamcommunity.com/id/${encodeURIComponent(vanity)}?xml=1`,
-    { headers: { Accept: "application/xml, text/xml" } },
-  );
-  const profileXml = await profileResponse.text();
-  const profileSteamId = profileXml.match(/<steamID64>(\d{17})<\/steamID64>/)?.[1];
-  if (profileResponse.ok && profileSteamId) {
-    return profileSteamId;
-  }
-
-  const err = new Error("Unable to resolve Steam vanity URL");
-  // @ts-ignore
-  err.statusCode = 404;
-  throw err;
+  return String(steamid);
 }
 
 async function fetchFaceitPlayerBySteamId64(steamid64) {
