@@ -6,35 +6,35 @@ function extractSteamId64FromInput(input) {
   if (!input) return { steamid64: null, vanity: null };
   let raw = String(input).trim();
 
-  // 1. Прямой ввод 17-значного SteamID64
+  // 1. Direct 17-digit SteamID64
   if (/^\d{17}$/.test(raw)) {
     return { steamid64: raw, vanity: null };
   }
 
-  // 2. Добавляем https://, если пользователь вставил ссылку без протокола (://steamcommunity.com...)
+  // 2. Add https:// if user pasted a link without protocol (e.g., ://steamcommunity.com...)
   if (/^(www\.)?steamcommunity\.com\//i.test(raw)) {
     raw = `https://${raw}`;
   }
 
-  // 3. Парсинг полной ссылки Steam
+  // 3. Parse full Steam URL
   try {
     const url = new URL(raw);
     const parts = url.pathname.split("/").filter(Boolean);
 
-    // Формат /profiles/<steamid64>
-    if (parts === "profiles" && /^\d{17}$/.test(parts || "")) {
-      return { steamid64: parts, vanity: null };
+    // Format: /profiles/<steamid64>
+    if (parts[0] === "profiles" && /^\d{17}$/.test(parts[1] || "")) {
+      return { steamid64: parts[1], vanity: null };
     }
 
-    // Формат /id/<vanity>
-    if (parts === "id" && parts) {
-      return { steamid64: null, vanity: parts };
+    // Format: /id/<vanity>
+    if (parts[0] === "id" && parts[1]) {
+      return { steamid64: null, vanity: parts[1] };
     }
   } catch {
-    // Ввод не является валидным URL, проверяем дальше как vanity
+    // Not a valid URL, fall through to vanity check
   }
 
-  // 4. Обычный vanity-никнейм (Custom URL без самой ссылки)
+  // 4. Raw vanity name (Custom URL without the full link)
   if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw)) {
     return { steamid64: null, vanity: raw };
   }
@@ -50,7 +50,6 @@ async function resolveVanityToSteamId64(vanity) {
     throw err;
   }
 
-  // Исправленный URL с правильным поддоменом api., путем и знаком $ перед {encodeURIComponent(key)}
   const url = `https://steampowered.com{encodeURIComponent(
     key
   )}&vanityurl=${encodeURIComponent(vanity)}`;
@@ -59,7 +58,7 @@ async function resolveVanityToSteamId64(vanity) {
 
   if (!r.ok) {
     const err = new Error(
-      `Steam API HTTP error: ${r.status} (проверьте STEAM_WEB_API_KEY)`
+      `Steam API HTTP error: ${r.status} (check STEAM_WEB_API_KEY)`
     );
     err.statusCode = r.status === 403 ? 500 : r.status;
     throw err;
@@ -88,7 +87,6 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
     throw err;
   }
 
-  // FACEIT API: поиск игрока по игре CS2 и SteamID64
   const url = `https://faceit.com{encodeURIComponent(
     steamid64
   )}`;
