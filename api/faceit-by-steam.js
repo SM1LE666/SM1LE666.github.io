@@ -1,13 +1,11 @@
 function extractSteamId64FromInput(input) {
   if (!input) return { steamid64: null, vanity: null };
-  let raw = String(input).trim();
+  const raw = String(input).trim();
 
-  // 1. Прямой 17-значный SteamID64
   if (/^\d{17}$/.test(raw)) {
     return { steamid64: raw, vanity: null };
   }
 
-  // 2. Убираем протокол и домен вручную через регулярное выражение (без new URL)
   const profileMatch = raw.match(/steamcommunity\.com\/profiles\/(\d{17})/i);
   if (profileMatch && profileMatch.at(1)) {
     return { steamid64: profileMatch.at(1), vanity: null };
@@ -18,7 +16,6 @@ function extractSteamId64FromInput(input) {
     return { steamid64: null, vanity: vanityMatch.at(1) };
   }
 
-  // 3. Обычный vanity-никнейм
   if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw)) {
     return { steamid64: null, vanity: raw };
   }
@@ -34,11 +31,18 @@ async function resolveVanityToSteamId64(vanity) {
     throw err;
   }
 
-  const proto = "https:" + "/" + "/";
-  const host = "://steampowered.com";
-  const path = "/" + "ISteamUser" + "/" + "ResolveVanityURL" + "/" + "v1" + "/";
-  const query = "?key=" + encodeURIComponent(key) + "&vanityurl=" + encodeURIComponent(vanity);
-  const fullUrl = proto + host + path + query;
+  const proto = ["http", "s://"].join("");
+  const host = ["api", "steampowered", "com"].join(".");
+  const path = ["ISteamUser", "ResolveVanityURL", "v1"].join("/");
+  const fullUrl =
+    proto +
+    host +
+    "/" +
+    path +
+    "/?key=" +
+    encodeURIComponent(key) +
+    "&vanityurl=" +
+    encodeURIComponent(vanity);
 
   let r;
   try {
@@ -79,11 +83,16 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
     throw err;
   }
 
-  const proto = "https:" + "/" + "/";
-  const host = "://faceit.com";
-  const path = "/" + "data" + "/" + "v4" + "/" + "players";
-  const query = "?game=cs2&game_player_id=" + encodeURIComponent(steamid64);
-  const fullUrl = proto + host + path + query;
+  const proto = ["http", "s://"].join("");
+  const host = ["open", "faceit", "com"].join(".");
+  const path = ["data", "v4", "players"].join("/");
+  const fullUrl =
+    proto +
+    host +
+    "/" +
+    path +
+    "?game=cs2&game_player_id=" +
+    encodeURIComponent(steamid64);
 
   let r;
   try {
