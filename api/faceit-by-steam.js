@@ -1,40 +1,30 @@
-// Resolve a FACEIT (CS2) player by Steam profile link, SteamID64, or vanity name.
-// Input: ?steam=<steam profile url | steamid64 | vanity>
-// Output: Faceit player JSON (or 404/400/500)
-
 function extractSteamId64FromInput(input) {
   if (!input) return { steamid64: null, vanity: null };
   let raw = String(input).trim();
 
-  // 1. Direct 17-digit SteamID64
   if (/^\d{17}$/.test(raw)) {
     return { steamid64: raw, vanity: null };
   }
 
-  // 2. Add https:// if user pasted a link without protocol (e.g., ://steamcommunity.com...)
   if (/^(www\.)?steamcommunity\.com\//i.test(raw)) {
-    raw = `https://${raw}`;
+    raw = "https://" + raw;
   }
 
-  // 3. Parse full Steam URL
   try {
     const url = new URL(raw);
     const parts = url.pathname.split("/").filter(Boolean);
 
-    // Format: /profiles/<steamid64>
     if (parts.at(0) === "profiles" && /^\d{17}$/.test(parts.at(1) || "")) {
-  return { steamid64: parts.at(1), vanity: null };
-}
+      return { steamid64: parts.at(1), vanity: null };
+    }
 
-if (parts.at(0) === "id" && parts.at(1)) {
-  return { steamid64: null, vanity: parts.at(1) };
-}
-  
+    if (parts.at(0) === "id" && parts.at(1)) {
+      return { steamid64: null, vanity: parts.at(1) };
+    }
   } catch {
-    // Not a valid URL, fall through to vanity check
+    // Not a URL
   }
 
-  // 4. Raw vanity name (Custom URL without the full link)
   if (/^[a-zA-Z0-9_-]{2,64}$/.test(raw)) {
     return { steamid64: null, vanity: raw };
   }
@@ -50,18 +40,24 @@ async function resolveVanityToSteamId64(vanity) {
     throw err;
   }
 
-const url =
-  "https://steampowered.com" +
-  encodeURIComponent(key) +
-  "&vanityurl=" +
-  encodeURIComponent(vanity);
+  const url =
+    "https://steampowered.com" +
+    encodeURIComponent(key) +
+    "&vanityurl=" +
+    encodeURIComponent(vanity);
 
-  const r = await fetch(url, { headers: { Accept: "application/json" } });
+  let r;
+  try {
+    r = await fetch(url, { headers: { Accept: "application/json" } });
+  } catch (networkErr) {
+    const err = new Error("Steam API network error: " + networkErr.message);
+    err.cause = networkErr.cause;
+    err.statusCode = 502;
+    throw err;
+  }
 
   if (!r.ok) {
-    const err = new Error(
-      `Steam API HTTP error: ${r.status} (check STEAM_WEB_API_KEY)`
-    );
+    const err = new Error("Steam API HTTP error: " + r.status);
     err.statusCode = r.status === 403 ? 500 : r.status;
     throw err;
   }
@@ -72,7 +68,7 @@ const url =
   if (!steamid) {
     const steamMsg = data?.response?.message || "No match";
     const err = new Error(
-      `Unable to resolve Steam vanity URL "${vanity}" (${steamMsg})`
+      'Unable to resolve Steam vanity URL "' + vanity + '" (' + steamMsg + ")"
     );
     err.statusCode = 404;
     throw err;
@@ -89,20 +85,28 @@ async function fetchFaceitPlayerBySteamId64(steamid64) {
     throw err;
   }
 
-  const url = `https://faceit.com{encodeURIComponent(
-    steamid64
-  )}`;
+  const url =
+    "https://faceit.com" +
+    encodeURIComponent(steamid64);
 
-  const r = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-  });
+  let r;
+  try {
+    r = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+        Authorization: "Bearer " + apiKey,
+      },
+    });
+  } catch (networkErr) {
+    const err = new Error("FACEIT API network error: " + networkErr.message);
+    err.cause = networkErr.cause;
+    err.statusCode = 502;
+    throw err;
+  }
 
   const text = await r.text();
   if (!r.ok) {
-    const err = new Error(text || `FACEIT API error ${r.status}`);
+    const err = new Error(text || "FACEIT API error " + r.status);
     err.statusCode = r.status;
     throw err;
   }
@@ -146,6 +150,11 @@ export default async function handler(req, res) {
       .json({ ok: true, steamid64: resolvedSteamId64, player: data });
   } catch (e) {
     const status = Number(e?.statusCode || 500);
-    res.status(status).json({ ok: false, error: String(e?.message || e) });
+    const cause = e?.cause
+      ? " (" + (e.cause.code || e.cause.message || e.cause) + ")"
+      : "";
+    res
+      .status(status)
+      .json({ ok: false, error: String(e?.message || e) + cause });
   }
 }
