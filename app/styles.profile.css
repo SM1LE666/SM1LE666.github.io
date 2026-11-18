@@ -1098,13 +1098,12 @@ body.sidebar-open main {
   max-height: 400px;
 }
 .metric-lead {
-    font-weight: 600;
+    font-weight: 550;
     color: #ffffff;
     background: linear-gradient(135deg, rgba(255, 85, 0, 0.18), rgba(20, 20, 20, 0.6));
     border-left: 3px solid var(--primary-color, #ff5500);
     padding: 0.8rem;
     border-radius: 10px;
-    margin-bottom: 0.5rem;
     line-height: 1.5;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
@@ -1143,11 +1142,14 @@ body.sidebar-open main {
   box-shadow: 0 4px 12px #ff55004d;
 }
 .metric-detail-content {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #f50;
-  font-family: Orbitron, sans-serif;
-  letter-spacing: 1px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #f50;
+    font-family: Orbitron, sans-serif;
+    letter-spacing: 0.8px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #ff5500 #141414;
 }
 .how-to-improve {
   margin: 0 0 0 auto;
@@ -1175,7 +1177,7 @@ body.sidebar-open main {
   font-weight: bolder;
 }
 .metric-detail-content p {
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 }
 .stats-grid {
   display: grid;
