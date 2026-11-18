@@ -107,6 +107,7 @@ body.sidebar-open main {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  margin-bottom: 2px;
 }
 .player-level {
   width: 48px;
@@ -958,8 +959,8 @@ body.sidebar-open main {
 }
 .metric-item:hover {
   transform: translateY(-2px);
-  border-color: #f506;
-  box-shadow: 0 4px 12px #ff550026;
+  border-color: var(--primary-color);
+box-shadow: 0 10px 25px #0006, 0 0 20px #ff55004d;
 }
 .metric-item-top {
   display: flex;
