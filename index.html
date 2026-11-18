@@ -1100,22 +1100,6 @@
               <span>Steam Trade Offer</span>
             </a>
           </div>
-
-          <button
-            type="button"
-            class="support-copy-btn"
-            onclick="
-              navigator.clipboard.writeText(
-                'https://steamcommunity.com/tradeoffer/new/?partner=922273390&token=0z7mzIwM',
-              );
-              const label = this.querySelector('span');
-              label.textContent = 'Trade URL Copied!';
-              setTimeout(() => (label.textContent = 'Copy Trade URL'), 2200);
-            "
-          >
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-            <span>Copy Trade URL</span>
-          </button>
         </div>
 
         <div class="support-steps">
@@ -1152,10 +1136,21 @@
     </div>
 
     <div id="contactModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2><i class="fas fa-envelope"></i> Send Message</h2>
-        <p>Have questions, suggestions or need help? Write to us!</p>
+      <div class="modal-content contact-modal-card">
+        <button
+          type="button"
+          class="close contact-modal__close"
+          aria-label="Close modal"
+        >
+          &times;
+        </button>
+
+        <div class="contact-modal__header">
+          <i class="fas fa-envelope contact-modal__icon" aria-hidden="true"></i>
+          <h2>Send Message</h2>
+        </div>
+        
+        <p class="contact-modal__desc">Have questions, suggestions or need help? Write to us!</p>
 
         <div class="contact-form">
           <form id="contactForm">
@@ -1198,15 +1193,18 @@
               <textarea
                 id="contactMessage"
                 name="message"
-                rows="5"
+                rows="4"
                 placeholder="Describe your question or suggestion..."
                 required
               ></textarea>
             </div>
 
-            <button type="submit" class="submit-btn">
-              <i class="fas fa-paper-plane"></i> Send message
-            </button>
+            <div class="contact-cta-pedestal">
+              <button type="submit" class="submit-btn">
+                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                <span>Send message</span>
+              </button>
+            </div>
           </form>
         </div>
       </div>

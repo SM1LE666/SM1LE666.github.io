@@ -433,8 +433,6 @@ footer {
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #9ca3af;
   font-size: 1.35rem;
   line-height: 1;
@@ -446,8 +444,6 @@ footer {
 }
 
 #supportModal .support-modal__close:hover {
-  background: rgba(255, 85, 0, 0.16);
-  border-color: rgba(255, 85, 0, 0.5);
   color: #fff;
   transform: scale(1.05);
 }
@@ -1892,4 +1888,392 @@ body.picker-open main > section {
   right: 0;
   z-index: 1001;
   display: none;
+}
+
+/* ==========================================================================
+   SUPPORT & CONTACT MODALS — NEON DEPTH (#141414)
+   ========================================================================== */
+#supportModal,
+#contactModal {
+  background-color: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+#supportModal .support-modal-card,
+#contactModal .contact-modal-card {
+  position: relative;
+  width: 92%;
+  max-width: 480px;
+  margin: auto;
+  padding: 28px 24px 22px;
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      120% 70% at 50% 0%,
+      rgba(255, 85, 0, 0.14) 0%,
+      transparent 65%
+    ),
+    #141414;
+  border: 1px solid rgba(255, 85, 0, 0.42);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.88),
+    0 0 36px rgba(255, 85, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  font-family: var(--font-accent);
+  color: #fff;
+  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 85, 0, 0.4) transparent;
+}
+
+#supportModal .support-modal-card::before,
+#contactModal .contact-modal-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16%;
+  right: 16%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--primary-color),
+    transparent
+  );
+  box-shadow: 0 0 14px var(--primary-color);
+  pointer-events: none;
+}
+
+/* Close buttons */
+#supportModal .support-modal__close,
+#contactModal .contact-modal__close {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
+  font-size: 1.35rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+#supportModal .support-modal__close:hover,
+#contactModal .contact-modal__close:hover {
+  background: rgba(255, 85, 0, 0.16);
+  border-color: rgba(255, 85, 0, 0.5);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Headers */
+#supportModal .support-modal__header,
+#contactModal .contact-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-right: 34px;
+  margin-bottom: 16px;
+}
+
+#supportModal .support-modal__heart,
+#contactModal .contact-modal__icon {
+  width: auto;
+  font-size: 1.25rem;
+  color: var(--primary-color);
+  filter: drop-shadow(0 0 10px rgba(255, 85, 0, 0.65));
+  flex-shrink: 0;
+}
+
+#supportModal .support-modal__header h2,
+#contactModal .contact-modal__header h2 {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--primary-color);
+  text-shadow: 0 0 16px rgba(255, 85, 0, 0.32);
+  line-height: 1.25;
+}
+
+#contactModal .contact-modal__desc {
+  margin: -8px 0 16px;
+  font-size: 0.76rem;
+  color: #9ca3af;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+}
+
+/* Support Specific Elements */
+#supportModal .support-options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+}
+
+#supportModal .support-cta-pedestal,
+#contactModal .contact-cta-pedestal {
+  position: relative;
+  width: 100%;
+  padding-bottom: 9px;
+}
+
+#supportModal .support-cta-pedestal::after,
+#contactModal .contact-cta-pedestal::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 0;
+  height: 12px;
+  background: linear-gradient(180deg, #242424, #141414);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.7);
+  z-index: 1;
+}
+
+#supportModal .support-link.steam-support,
+#contactModal .submit-btn {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ff6d1f 0%, #ff5500 55%, #d64200 100%);
+  border: 1px solid rgba(255, 165, 110, 0.55);
+  box-shadow:
+    0 5px 0 #962b00,
+    0 12px 24px rgba(255, 85, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  color: #fff;
+  font-family: var(--font-accent);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.16s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+#supportModal .support-link.steam-support i,
+#contactModal .submit-btn i {
+  font-size: 1.2rem;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+#supportModal .support-link.steam-support:hover,
+#contactModal .submit-btn:hover {
+  background: linear-gradient(180deg, #ff7a33 0%, #ff5e0d 55%, #e04600 100%);
+  box-shadow:
+    0 5px 0 #962b00,
+    0 14px 30px rgba(255, 85, 0, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+#supportModal .support-link.steam-support:active,
+#contactModal .submit-btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 #962b00,
+    0 6px 14px rgba(255, 85, 0, 0.3);
+}
+
+#supportModal .support-copy-btn {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  font-family: var(--font-accent);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#supportModal .support-copy-btn:hover {
+  background: rgba(255, 85, 0, 0.12);
+  border-color: rgba(255, 85, 0, 0.4);
+  color: #fff;
+}
+
+/* Steps list */
+#supportModal .support-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#supportModal .support-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.035) 0%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.2s ease;
+}
+
+#supportModal .support-step:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 85, 0, 0.1) 0%,
+    rgba(255, 255, 255, 0.025) 100%
+  );
+  border-color: rgba(255, 85, 0, 0.35);
+  transform: translateX(3px);
+}
+
+#supportModal .support-step__num {
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.22);
+  min-width: 36px;
+  transition: color 0.2s ease;
+}
+
+#supportModal .support-step:hover .support-step__num {
+  color: var(--primary-color);
+  text-shadow: 0 0 10px rgba(255, 85, 0, 0.4);
+}
+
+#supportModal .support-step__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+#supportModal .support-step__text strong {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #f3f4f6;
+}
+
+#supportModal .support-step__text span {
+  font-size: 0.63rem;
+  color: #8f96a3;
+}
+
+#supportModal .support-modal__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+#supportModal .support-modal__footer i {
+  color: var(--primary-color);
+}
+
+/* Contact Form Styling */
+#contactModal .form-group {
+  margin-bottom: 12px;
+}
+
+#contactModal .form-group label {
+  display: block;
+  color: #d1d5db;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+#contactModal .contact-form input,
+#contactModal .contact-form textarea,
+#contactModal .contact-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 85, 0, 0.25);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.84rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+#contactModal .contact-form input:focus,
+#contactModal .contact-form textarea:focus,
+#contactModal .contact-form select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow:
+    0 0 0 2px rgba(255, 85, 0, 0.25),
+    0 0 14px rgba(255, 85, 0, 0.2);
+  background: rgba(15, 15, 15, 0.85);
+}
+
+#contactModal .contact-form select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ff5500' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+#contactModal .contact-form select option {
+  background: #141414;
+  color: #fff;
+}
+
+#contactModal .contact-form textarea {
+  resize: vertical;
+  min-height: 75px;
+}
+
+#contactModal .contact-cta-pedestal {
+  margin-top: 16px;
 }
