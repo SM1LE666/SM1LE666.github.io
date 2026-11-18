@@ -1,6 +1,4 @@
 (function () {
-  // Вкладка Trends: график формы (ELO или баланс побед) и тепловая карта «когда ты играешь лучше».
-  // Данные берутся из истории матчей, которую уже загружает SidebarManager (/api/history).
 
   const RANGES = [
     { label: "Last 50", size: 50 },
@@ -10,12 +8,8 @@
   ];
   const DEFAULT_RANGE = 1;
 
-  // ELO по матчам берётся только из /api/elo-history (внутренний API статистики FACEIT).
-  // Значения из /api/history не используются: там ELO по матчам нет или он неточный.
-  // Если эндпоинт недоступен, график работает на балансе побед. false полностью отключает ELO.
   const USE_ELO_SOURCE = true;
 
-  // Минимальный ELO каждого уровня FACEIT CS2 (как в rendering.js)
   const LEVEL_MIN_ELO = [
     100, 501, 751, 901, 1051, 1201, 1351, 1531, 1751, 2001,
   ];
@@ -40,8 +34,6 @@
     }
   }
 
-  // ELO по матчам: серверная функция /api/elo-history (FACEIT не разрешает запросы из браузера из-за CORS).
-  // Результат: { map, diag }, где diag объясняет причину, если ELO не получен.
   async function loadEloMap(playerId) {
     if (!USE_ELO_SOURCE) return { map: new Map(), diag: "disabled" };
     if (eloCache[playerId]) return { map: eloCache[playerId], diag: "cached" };
@@ -84,8 +76,6 @@
     return { map, diag };
   }
 
-  // ---------- данные ----------
-
   // true = победа, false = поражение, null = не удалось определить
   function readResult(item, playerId) {
     const winner = item?.results?.winner;
@@ -98,8 +88,6 @@
     return winner === "faction1" ? inFirst : inSecond;
   }
 
-  // ELO из источника считается достоверным, если ELO последнего матча близок к текущему ELO игрока
-  // и соседние значения не «прыгают» (за матч ELO меняется обычно на 20-30, редко больше 100).
   const MAX_LAST_ELO_GAP = 150;
   const MAX_ELO_STEP = 120;
 
@@ -163,8 +151,6 @@
     return manager.historyPlayerId === playerId ? manager.allHistoryItems : [];
   }
 
-  // ---------- форматирование ----------
-
   const fmtDate = (t) =>
     new Date(t).toLocaleDateString(undefined, {
       day: "numeric",
@@ -181,8 +167,6 @@
   const pad2 = (n) => String(n).padStart(2, "0");
   const slotLabel = (slot, hours) =>
     `${pad2(slot * hours)}-${pad2((slot + 1) * hours)}`;
-
-  // ---------- сводка и график ----------
 
   function summarize(points, useElo) {
     const known = points.filter((p) => p.win !== null);
