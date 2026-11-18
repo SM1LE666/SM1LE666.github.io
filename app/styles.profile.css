@@ -1047,7 +1047,6 @@ body.sidebar-open main {
   border-radius: 12px;
   width: 90%;
   max-width: 440px;
-  height: 500px;
   box-shadow: 0 10px 30px #00000080;
   color: #fff;
   overflow: hidden;
@@ -1097,6 +1096,17 @@ body.sidebar-open main {
 .metrics-modal-body {
   padding: 16px 20px;
   max-height: 400px;
+}
+.metric-lead {
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(255, 85, 0, 0.18), rgba(20, 20, 20, 0.6));
+    border-left: 3px solid var(--primary-color, #ff5500);
+    padding: 0.8rem;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 .metrics-list {
   list-style: none;
