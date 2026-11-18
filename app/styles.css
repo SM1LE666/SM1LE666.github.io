@@ -373,63 +373,320 @@ footer {
   margin-bottom: 1.5rem;
   letter-spacing: 0.4px;
 }
-.support-options {
-  display: flex;
-  justify-content: center;
-  margin: 2rem 0;
+/* ==========================================================================
+   SUPPORT MODAL — NEON DEPTH (#141414)
+   ========================================================================== */
+#supportModal {
+  background-color: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-.support-link {
+
+#supportModal .support-modal-card {
+  position: relative;
+  width: 92%;
+  max-width: 460px;
+  margin: auto;
+  padding: 28px 24px 22px;
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      120% 70% at 50% 0%,
+      rgba(255, 85, 0, 0.14) 0%,
+      transparent 65%
+    ),
+    #141414;
+  border: 1px solid rgba(255, 85, 0, 0.42);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.88),
+    0 0 36px rgba(255, 85, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  font-family: var(--font-accent);
+  color: #fff;
+  overflow: hidden;
+}
+
+#supportModal .support-modal-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16%;
+  right: 16%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--primary-color),
+    transparent
+  );
+  box-shadow: 0 0 14px var(--primary-color);
+  pointer-events: none;
+}
+
+/* Close button */
+#supportModal .support-modal__close {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
+  font-size: 1.35rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#supportModal .support-modal__close:hover {
+  background: rgba(255, 85, 0, 0.16);
+  border-color: rgba(255, 85, 0, 0.5);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* Header with clean borderless heart */
+#supportModal .support-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-right: 34px;
+  margin-bottom: 22px;
+}
+
+#supportModal .support-modal__heart {
+  width: auto;
+  font-size: 1.25rem;
+  color: var(--primary-color);
+  filter: drop-shadow(0 0 10px rgba(255, 85, 0, 0.65));
+  flex-shrink: 0;
+}
+
+#supportModal .support-modal__header h2 {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--primary-color);
+  text-shadow: 0 0 16px rgba(255, 85, 0, 0.32);
+  line-height: 1.25;
+}
+
+/* CTA Button + Pedestal */
+#supportModal .support-options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 22px;
+}
+
+#supportModal .support-cta-pedestal {
+  position: relative;
+  width: 100%;
+  padding-bottom: 9px;
+}
+
+#supportModal .support-cta-pedestal::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 0;
+  height: 12px;
+  background: linear-gradient(180deg, #242424, #141414);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.7);
+  z-index: 1;
+}
+
+#supportModal .support-link.steam-support {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 1.5rem 2rem;
-  background: #ff55001a;
-  border: 1px solid rgba(255, 85, 0, 0.3);
-  border-radius: var(--border-radius);
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: all 0.3s;
+  gap: 12px;
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ff6d1f 0%, #ff5500 55%, #d64200 100%);
+  border: 1px solid rgba(255, 165, 110, 0.55);
+  box-shadow:
+    0 5px 0 #962b00,
+    0 12px 24px rgba(255, 85, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  color: #fff;
+  font-family: var(--font-accent);
+  font-size: 0.92rem;
   font-weight: 700;
-  font-size: 1.1rem;
+  letter-spacing: 0.8px;
+  text-decoration: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  transition: all 0.16s ease;
 }
-.steam-support {
-  background: linear-gradient(135deg, #1b2838, #2a475e);
-  border: 1px solid #66c0f4;
-  color: #66c0f4;
-  text-wrap: nowrap;
+
+#supportModal .support-link.steam-support i {
+  font-size: 1.35rem;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
-.steam-support:hover {
-  background: linear-gradient(135deg, #2a475e, #1b2838);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px #66c0f44d;
+
+#supportModal .support-link.steam-support:hover {
+  background: linear-gradient(180deg, #ff7a33 0%, #ff5e0d 55%, #e04600 100%);
+  box-shadow:
+    0 5px 0 #962b00,
+    0 14px 30px rgba(255, 85, 0, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
   color: #fff;
 }
-.steam-info {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: #1b28384d;
-  border-radius: var(--border-radius);
-  border: 1px solid rgba(102, 192, 244, 0.2);
+
+#supportModal .support-link.steam-support:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 #962b00,
+    0 6px 14px rgba(255, 85, 0, 0.3);
 }
-.steam-info p {
-  color: #ffffffe6;
-  margin-bottom: 1rem;
+
+#supportModal .support-copy-btn {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  font-family: var(--font-accent);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-.steam-info strong {
-  color: #66c0f4;
+
+#supportModal .support-copy-btn:hover {
+  background: rgba(255, 85, 0, 0.12);
+  border-color: rgba(255, 85, 0, 0.4);
+  color: #fff;
 }
-.steam-info ol {
-  color: #fffc;
-  margin: 1rem 0;
-  padding-left: 1.5rem;
+
+/* Numbered Step Cards 01 - 03 */
+#supportModal .support-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
 }
-.steam-info li {
-  margin: 0.5rem 0;
+
+#supportModal .support-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.035) 0%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.22s ease;
 }
-.steam-info small {
-  color: #fff9;
-  font-style: italic;
+
+#supportModal .support-step:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 85, 0, 0.1) 0%,
+    rgba(255, 255, 255, 0.025) 100%
+  );
+  border-color: rgba(255, 85, 0, 0.35);
+  transform: translateX(3px);
+}
+
+#supportModal .support-step__num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.22);
+  letter-spacing: -0.5px;
+  min-width: 40px;
+  transition:
+    color 0.22s ease,
+    text-shadow 0.22s ease;
+}
+
+#supportModal .support-step:hover .support-step__num {
+  color: var(--primary-color);
+  text-shadow: 0 0 12px rgba(255, 85, 0, 0.45);
+}
+
+#supportModal .support-step__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+
+#supportModal .support-step__text strong {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #f3f4f6;
+}
+
+#supportModal .support-step__text span {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: #8f96a3;
+}
+
+/* Footer note */
+#supportModal .support-modal__footer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+#supportModal .support-modal__footer i {
+  width: auto;
+  color: var(--primary-color);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  #supportModal .support-modal-card {
+    padding: 24px 16px 18px;
+  }
+  #supportModal .support-modal__header h2 {
+    font-size: 0.96rem;
+  }
+  #supportModal .support-step__num {
+    font-size: 1.3rem;
+    min-width: 34px;
+  }
 }
 .contact-form {
   margin-top: 1rem;
