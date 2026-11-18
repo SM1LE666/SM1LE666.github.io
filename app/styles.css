@@ -1626,20 +1626,6 @@ body.picker-open main > section {
   width: 100%;
   padding-bottom: 9px;
 }
-#supportModal .support-cta-pedestal::after,
-#contactModal .contact-cta-pedestal::after {
-  content: "";
-  position: absolute;
-  left: 6%;
-  right: 6%;
-  bottom: 0;
-  height: 12px;
-  background: linear-gradient(180deg, #242424, #141414);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.7);
-  z-index: 1;
-}
 #supportModal .support-link.steam-support,
 #contactModal .submit-btn {
   position: relative;
